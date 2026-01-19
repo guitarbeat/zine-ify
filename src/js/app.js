@@ -414,6 +414,8 @@ class PDFZineMaker {
 
       const dimensions = this.ui.getPaperDimensions(this.paperSize || 'a4', this.orientation || 'landscape');
 
+      let cachedBackSideDataUrl = null;
+
       const captureZine = async (sheetNum) => {
         const grid = document.querySelector(`#zine-grid-sheet-${sheetNum}`);
         if (!grid) { return; }
@@ -431,18 +433,28 @@ class PDFZineMaker {
 
         // Add back side
         doc.addPage();
-        const backCanvas = document.createElement('canvas');
-        backCanvas.width = canvas.width;
-        backCanvas.height = canvas.height;
-        const bctx = backCanvas.getContext('2d');
-        const refImg = new Image();
-        refImg.src = this.referenceImageUrl;
-        await new Promise(r => { refImg.onload = r; });
 
-        bctx.translate(backCanvas.width / 2, backCanvas.height / 2);
-        bctx.rotate(Math.PI);
-        bctx.drawImage(refImg, -backCanvas.width / 2, -backCanvas.height / 2, backCanvas.width, backCanvas.height);
-        doc.addImage(backCanvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, dimensions.width, dimensions.height);
+        // ⚡ Optimization: Memoize back side generation
+        // This prevents reloading the image and redrawing the canvas for each sheet
+        if (!cachedBackSideDataUrl) {
+          const backCanvas = document.createElement('canvas');
+          backCanvas.width = canvas.width;
+          backCanvas.height = canvas.height;
+          const bctx = backCanvas.getContext('2d');
+          const refImg = new Image();
+          refImg.src = this.referenceImageUrl;
+
+          if (!refImg.complete) {
+            await new Promise(r => { refImg.onload = r; });
+          }
+
+          bctx.translate(backCanvas.width / 2, backCanvas.height / 2);
+          bctx.rotate(Math.PI);
+          bctx.drawImage(refImg, -backCanvas.width / 2, -backCanvas.height / 2, backCanvas.width, backCanvas.height);
+          cachedBackSideDataUrl = backCanvas.toDataURL('image/jpeg', 0.9);
+        }
+
+        doc.addImage(cachedBackSideDataUrl, 'JPEG', 0, 0, dimensions.width, dimensions.height);
       };
 
       await captureZine(1);
