@@ -1,1 +1,0 @@
-{"name":"Octovo Zine Maker","short_name":"Octovo","description":"Convert PDFs into printable 8-page zine layouts","start_url":"/","display":"standalone","background_color":"#ffffff","theme_color":"#2563eb","lang":"en","scope":"/","icons":[{"src":"pwa-192x192.png","sizes":"192x192","type":"image/png"},{"src":"pwa-512x512.png","sizes":"512x512","type":"image/png"}]}

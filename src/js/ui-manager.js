@@ -97,6 +97,12 @@ export class UIManager {
 
     // Upload interactions
     this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
+    this.elements.uploadZone?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.triggerFileUpload();
+      }
+    });
     this.elements.uploadZone?.addEventListener('dragover', (e) => this.handleDragOver(e));
     this.elements.uploadZone?.addEventListener('dragleave', (e) => this.handleDragLeave(e));
     this.elements.uploadZone?.addEventListener('drop', (e) => this.handleFileDrop(e));
