@@ -16,7 +16,7 @@ test('automate 16-page zine conversion', async ({ page }) => {
     // We look for the progress container to disappear OR the success toast
     console.log('Waiting for processing...');
     await expect(page.locator('#progress-container')).toBeHidden({ timeout: 30000 });
-    await expect(page.locator('.toast-success').filter({ hasText: 'Processing Complete' })).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.toast-success').filter({ hasText: 'Done!' })).toBeVisible({ timeout: 10000 });
 
     // Verify 16 pages/ 2 zines detected
     // Check if tabs exist

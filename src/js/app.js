@@ -14,6 +14,7 @@ class PDFZineMaker {
     this.ui = new UIManager();
     this.referenceImageUrl = referenceImageUrl;
     this.allPageImages = new Array(16).fill(null);
+    this._blankPageUrl = null;
     this.init();
   }
 
@@ -146,7 +147,7 @@ class PDFZineMaker {
         const url = await this.pdfProcessor.canvasToBlob(canvas);
 
         // Revoke old URL if it exists
-        if (this.allPageImages[i - 1]) {
+        if (this.allPageImages[i - 1] && this.allPageImages[i - 1] !== this._blankPageUrl) {
           this.pdfProcessor.revokeBlobUrl(this.allPageImages[i - 1]);
         }
 
@@ -175,6 +176,16 @@ class PDFZineMaker {
   }
 
   async createBlankPage(pageNum) {
+    // Reuse existing blank page URL if available
+    if (this._blankPageUrl) {
+      if (this.allPageImages[pageNum - 1] && this.allPageImages[pageNum - 1] !== this._blankPageUrl) {
+        this.pdfProcessor.revokeBlobUrl(this.allPageImages[pageNum - 1]);
+      }
+      this.allPageImages[pageNum - 1] = this._blankPageUrl;
+      this.ui.updatePagePreview(pageNum - 1, this._blankPageUrl);
+      return;
+    }
+
     const canvas = document.createElement('canvas');
     canvas.width = 1000;
     canvas.height = 1400;
@@ -187,9 +198,10 @@ class PDFZineMaker {
     ctx.fillText('BLANK', 500, 700);
 
     const url = await this.pdfProcessor.canvasToBlob(canvas);
+    this._blankPageUrl = url;
 
     // Revoke old URL if it exists
-    if (this.allPageImages[pageNum - 1]) {
+    if (this.allPageImages[pageNum - 1] && this.allPageImages[pageNum - 1] !== this._blankPageUrl) {
       this.pdfProcessor.revokeBlobUrl(this.allPageImages[pageNum - 1]);
     }
 

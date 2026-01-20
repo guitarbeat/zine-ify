@@ -7,6 +7,9 @@ class Toast {
   }
 
   init() {
+    // Check if toast container already exists (e.g., in HTML)
+    this.container = document.getElementById('toast-container');
+
     // Create toast container if it doesn't exist
     if (!this.container) {
       this.container = document.createElement('div');
