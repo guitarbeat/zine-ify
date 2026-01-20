@@ -28,10 +28,15 @@
             border: 2px dashed var(--border-color);
             transition: all 0.2s ease;
         }
-        .upload-box:active, .upload-box.dragover {
+        .upload-box:active, .upload-box:focus-visible, .upload-box.dragover {
             border-color: var(--accent-dark);
             background-color: rgba(0,0,0,0.02);
             transform: scale(0.99);
+            outline: none;
+        }
+        .upload-box:focus-visible {
+            outline: 2px solid var(--primary-vibrant);
+            outline-offset: 2px;
         }
         .toggle-container {
             background: #FFFFFF;
@@ -260,7 +265,8 @@
             <!-- Left Column: Controls & Upload -->
             <div class="space-y-8 sticky top-10">
                 <div id="upload-zone"
-                    class="upload-box bg-white rounded-3xl p-10 flex flex-col items-center justify-center text-center cursor-pointer shadow-sm">
+                    class="upload-box bg-white rounded-3xl p-10 flex flex-col items-center justify-center text-center cursor-pointer shadow-sm"
+                    role="button" tabindex="0" aria-label="Upload PDF file" title="Upload PDF (Ctrl+O)">
                     <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                         <span class="material-symbols-outlined text-4xl text-gray-400">cloud_upload</span>
                     </div>
