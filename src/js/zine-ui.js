@@ -200,6 +200,11 @@ export class UIManager {
     }
 
     this.updatePreviewLayout();
+
+    // Ensure preview is visible and enabled
+    if (this.elements.previewArea) {
+      this.elements.previewArea.classList.remove('opacity-50', 'pointer-events-none');
+    }
   }
 
 
@@ -443,27 +448,45 @@ export class UIManager {
   }
 
   updatePagePreview(pageIndex, dataUrl) {
-    // Search in both main container and unused grid
-    let cell = this.elements.zineSheetsContainer.querySelector(`[data-page-index="${pageIndex}"]`);
-    if (!cell && this.elements.unusedGrid) {
-      cell = this.elements.unusedGrid.querySelector(`[data-page-index="${pageIndex}"]`);
-    }
+    // Search in both main container (by data-page-index) and unused grid
+    // Note: Use querySelectorAll to catch duplicates if any, but usually unique by index
+    const cells = [
+      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
+      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
+    ];
 
-    if (cell) {
+    cells.forEach(cell => {
       const img = cell.querySelector('.page-content-img');
       const placeholder = cell.querySelector('.page-placeholder');
-      if (img && placeholder) {
-        if (dataUrl) {
+
+      // Handle "Unused" placeholder structure which is different
+      const unusedPlaceholder = cell.querySelector('.text-gray-300'); // The 'Unused' text div
+
+      if (dataUrl) {
+        if (img) {
           img.src = dataUrl;
           img.classList.remove('hidden');
-          placeholder.classList.add('hidden');
-        } else {
+        }
+        if (placeholder) { placeholder.classList.add('hidden'); }
+        // Hide "Unused" text if present
+        if (unusedPlaceholder && unusedPlaceholder.textContent === 'Unused') {
+          unusedPlaceholder.classList.add('hidden');
+        }
+      } else {
+        if (img) {
           img.src = '';
           img.classList.add('hidden');
-          placeholder.classList.remove('hidden');
+        }
+        if (placeholder) { placeholder.classList.remove('hidden'); }
+        if (unusedPlaceholder && unusedPlaceholder.textContent === 'Unused') {
+          unusedPlaceholder.classList.remove('hidden');
         }
       }
+    });
 
+    // Also force show the bucket section if we are populating it
+    if (this.elements.unusedGrid && this.elements.unusedGrid.children.length > 0) {
+      this.elements.unusedSection.classList.remove('hidden');
     }
   }
 

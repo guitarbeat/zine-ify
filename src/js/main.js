@@ -1,3 +1,4 @@
+import '../styles/index.css';
 import { PDFProcessor } from './pdf-processor.js';
 import { UIManager } from './zine-ui.js';
 import { toast } from './toast.js';
