@@ -21,6 +21,11 @@ export class UIManager {
     this.loadSettings();
     this.updatePreviewLayout();
     this.setupEventListeners();
+
+    // Ensure preview is visible and enabled on load
+    if (this.elements.previewArea) {
+      this.elements.previewArea.classList.remove('opacity-50', 'pointer-events-none');
+    }
   }
 
 

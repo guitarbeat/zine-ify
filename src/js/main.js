@@ -346,9 +346,17 @@ class PDFZineMaker {
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
+            background-repeat: no-repeat;
             transform: rotate(180deg);
           }
-
+          
+          /* CRITICAL: Hide controls in print */
+          @media print {
+            .flip-btn, .page-label, .guidelines, .page-placeholder, .page-cell::before, .page-cell::after { 
+                display: none !important; 
+            }
+            .page-cell { border: none !important; }
+          }
           
           ${cutLinesCss}
         </style>
