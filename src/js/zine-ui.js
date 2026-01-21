@@ -627,7 +627,7 @@ export class UIManager {
       // We want the sheet to fit within, say, 75vh to leave room for headers/controls
       // and max-width 100% of container.
       sheet.style.maxHeight = '75vh';
-      sheet.style.maxWidth = `calc(75vh * ${ratio})`;
+      sheet.style.maxWidth = '100%'; // Ensure it fits in the container width
       sheet.style.margin = '0 auto'; // Center it
     });
   }
