@@ -16,6 +16,7 @@ class PDFZineMaker {
     this.referenceImageUrl = referenceImageUrl;
     this.allPageImages = new Array(16).fill(null);
     this.pageFlips = {}; // Track individual page flips: { pageIndex: true/false }
+    this.gridSize = { rows: 2, cols: 4 }; // Default grid size
     this.init();
   }
 
@@ -126,6 +127,7 @@ class PDFZineMaker {
         // Special case for 16-page zine (accordion fold on single sheet)
         rows = 4;
         cols = 4;
+        this.gridSize = { rows, cols };
         this.ui.generateLayout(16, 'accordion-16');
       } else {
         // Determine grid size based on page count
@@ -138,6 +140,8 @@ class PDFZineMaker {
         // Ensure we don't exceed max grid input (10x10)
         rows = Math.min(rows, 10);
         cols = Math.min(cols, 10);
+
+        this.gridSize = { rows, cols }; // Update internal state
 
         this.allPageImages = new Array(Math.max(rows * cols, numPages)).fill(null);
         this.ui.generateCustomGrid(rows, cols, this.allPageImages.length);
