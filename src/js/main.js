@@ -48,7 +48,6 @@ class PDFZineMaker {
     this.ui.on('paperSizeChanged', (data) => this.updatePaperSettings(data));
     this.ui.on('orientationChanged', (data) => this.updatePaperSettings(data));
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
-    this.ui.on('layoutChanged', (templateType) => this.handleLayoutChanged(templateType));
     this.ui.on('pageFlipped', (pageIndex) => this.handlePageFlipped(pageIndex));
     this.ui.on('gridSizeChanged', (data) => this.handleGridSizeChanged(data));
 
@@ -68,7 +67,7 @@ class PDFZineMaker {
   /**
    * Handle grid size change
    */
-  handleGridSizeChanged({ rows, cols, value }) {
+  handleGridSizeChanged({ rows, cols }) {
     this.gridSize = { rows, cols };
     const totalPages = rows * cols;
 
@@ -81,43 +80,9 @@ class PDFZineMaker {
         this.ui.updatePagePreview(i, this.allPageImages[i]);
       }
     }
-
-    toast.info(`Grid changed to ${value}`);
   }
 
 
-
-
-  /**
-   * Handle layout change from toggle buttons
-   */
-  handleLayoutChanged(templateType) {
-    if (!this.selectedFile) { return; }
-
-    this.currentTemplate = templateType;
-    const numPages = Math.min(16, this.allPageImages.filter(img => img !== null).length) || 16;
-
-    // Update description based on template
-    let description = 'Rearranged into a standard 8-page mini-zine layout.';
-    if (templateType === 'accordion-16') {
-      description = 'Rearranged into a 16-page accordion zine layout. Cut along the red lines after printing.';
-    } else if (templateType === 'dual-16') {
-      description = 'Rearranged into two 8-page zine sheets.';
-    }
-
-    // Re-generate layout with new template
-    this.ui.generateLayout(numPages, templateType);
-    this.ui.setReady(true, description);
-
-    // Re-apply all page images to the new layout
-    for (let i = 0; i < this.allPageImages.length; i++) {
-      if (this.allPageImages[i]) {
-        this.ui.updatePagePreview(i, this.allPageImages[i]);
-      }
-    }
-
-    toast.info(`Switched to ${templateType === 'accordion-16' ? 'Accordion' : '2 Sheets'} layout`);
-  }
 
   setupInteractiveTicks() {
     // Ported from palette-interactive-ticks
@@ -150,27 +115,30 @@ class PDFZineMaker {
       });
 
       const { numPages } = result;
-      this.selectedLayout = numPages > 8 ? 16 : 8;
-      const maxPages = Math.min(this.selectedLayout, numPages);
+      this.selectedLayout = Math.min(numPages, 16);
+      const maxPages = this.selectedLayout;
 
-      // Determine template type based on page count
-      let templateType = 'mini-8';
-      let description = 'Rearranged into a standard 8-page mini-zine layout.';
-
+      // Determine grid size based on page count
+      let rows = 2, cols = 4; // Default 8-page (2x4)
       if (numPages > 8) {
-        templateType = 'accordion-16';
-        description = 'Rearranged into a 16-page accordion zine layout. Cut along the red lines after printing.';
+        rows = 4; cols = 4; // 16-page (4x4)
+      }
+      if (numPages <= 4) {
+        rows = 2; cols = 2; // 4-page (2x2)
+      }
+      if (numPages <= 2) {
+        rows = 1; cols = 2; // 2-page (1x2)
       }
 
-      this.currentTemplate = templateType;
-      this.ui.generateLayout(numPages, templateType);
+      this.gridSize = { rows, cols };
+      this.ui.generateCustomGrid(rows, cols);
 
-      // Show layout toggle for PDFs with 9-16 pages
-      this.ui.showLayoutToggle(numPages);
-      if (numPages > 8) {
-        this.ui.setSelectedLayout(templateType);
+      // Update grid selector to match
+      if (this.ui.elements.gridSizeSelect) {
+        this.ui.elements.gridSizeSelect.value = `${rows}x${cols}`;
       }
 
+      const description = `PDF arranged into a ${rows}×${cols} grid (${rows * cols} pages)`;
       this.ui.setReady(true, description);
       this.allPageImages = new Array(16).fill(null);
 
