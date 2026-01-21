@@ -21,8 +21,8 @@ export class UIManager {
     this.loadSettings();
     this.updatePreviewLayout();
     this.setupEventListeners();
-    this.setupInteractiveTicks();
   }
+
 
   /**
    * Cache DOM elements for performance
