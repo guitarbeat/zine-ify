@@ -69,9 +69,12 @@ export class UIManager {
       marginValue: $('#margin-value'),
 
       // Grid Size
-      gridSizeSelect: $('#grid-size-select')
+      gridRows: $('#grid-rows'),
+      gridCols: $('#grid-cols'),
+      gridTotal: $('#grid-total')
     };
   }
+
 
 
   /**
@@ -108,15 +111,22 @@ export class UIManager {
     this.elements.scaleSlider?.addEventListener('input', (e) => this.updateScale(e.target.value));
     this.elements.marginSlider?.addEventListener('input', (e) => this.updateMargins(e.target.value));
 
-    // Grid size selector
-    this.elements.gridSizeSelect?.addEventListener('change', (e) => {
-      const [rows, cols] = e.target.value.split('x').map(Number);
-      this.emitter.emit('gridSizeChanged', { rows, cols, value: e.target.value });
-    });
+    // Grid size inputs
+    const handleGridChange = () => {
+      const rows = parseInt(this.elements.gridRows?.value) || 2;
+      const cols = parseInt(this.elements.gridCols?.value) || 4;
+      if (this.elements.gridTotal) {
+        this.elements.gridTotal.textContent = `(${rows * cols} pages)`;
+      }
+      this.emitter.emit('gridSizeChanged', { rows, cols });
+    };
+    this.elements.gridRows?.addEventListener('input', handleGridChange);
+    this.elements.gridCols?.addEventListener('input', handleGridChange);
 
     // Keyboard
     document.addEventListener('keydown', (e) => this.handleKeyboard(e));
   }
+
 
 
 

@@ -133,14 +133,21 @@ class PDFZineMaker {
       this.gridSize = { rows, cols };
       this.ui.generateCustomGrid(rows, cols);
 
-      // Update grid selector to match
-      if (this.ui.elements.gridSizeSelect) {
-        this.ui.elements.gridSizeSelect.value = `${rows}x${cols}`;
+      // Update grid inputs to match
+      if (this.ui.elements.gridRows) {
+        this.ui.elements.gridRows.value = rows;
+      }
+      if (this.ui.elements.gridCols) {
+        this.ui.elements.gridCols.value = cols;
+      }
+      if (this.ui.elements.gridTotal) {
+        this.ui.elements.gridTotal.textContent = `(${rows * cols} pages)`;
       }
 
       const description = `PDF arranged into a ${rows}×${cols} grid (${rows * cols} pages)`;
       this.ui.setReady(true, description);
       this.allPageImages = new Array(16).fill(null);
+
 
 
       // Process pages
