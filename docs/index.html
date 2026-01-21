@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html class="" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="description" content="Convert PDFs into printable 8-page or 16-page zine layouts with ease" />
+    <title>Zine-ify PDF Upload</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <!-- Punk Fonts: Courier Prime (Typewriter) and Permanent Marker (Handwritten/Punk) -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Permanent+Marker&display=swap"
+        rel="stylesheet" />
+  <script type="module" crossorigin src="./assets/index-QT16laAg.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/pdfjs-D6wmnEBf.js">
+  <link rel="modulepreload" crossorigin href="./assets/jspdf-BPleGa-m.js">
+  <link rel="modulepreload" crossorigin href="./assets/html2canvas-DcoBDRbt.js">
+  <link rel="stylesheet" crossorigin href="./assets/index-CY4EgxkY.css">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
+<link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
+
+<body class="antialiased min-h-screen py-6 px-4">
+    <div class="max-w-4xl mx-auto space-y-8">
+        <header class="text-center flex flex-col items-center justify-center gap-2 transform -rotate-1">
+            <h1
+                class="text-4xl md:text-6xl font-marker tracking-widest uppercase text-black drop-shadow-[4px_4px_0_rgba(255,0,255,1)]">
+                Zine-ify</h1>
+            <p
+                class="text-black font-typewriter font-bold text-xs md:text-sm bg-white px-2 py-1 border-2 border-black inline-block rotate-1">
+                MAKE ZINES // BREAK THINGS
+            </p>
+        </header>
+
+        <main class="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-4 md:gap-8 items-start">
+            <!-- Left Column: Controls & Upload -->
+            <div class="space-y-4 md:space-y-6 md:sticky md:top-6 relative z-20">
+                <div id="upload-zone"
+                    class="upload-box p-4 md:p-6 flex flex-col items-center justify-center text-center cursor-pointer min-h-[140px] group">
+                    <div
+                        class="w-12 h-12 border-2 border-black flex items-center justify-center mb-3 group-hover:bg-black group-hover:text-white transition-colors">
+                        <span class="material-symbols-outlined text-3xl">cloud_upload</span>
+                    </div>
+                    <h2 class="text-lg font-bold font-marker mb-1">DROP PDF HERE</h2>
+                    <p id="upload-status" class="text-xs font-bold uppercase mt-1 bg-black text-white px-2 py-1">
+                        Any Page Count</p>
+                    <input type="file" id="pdf-upload" class="hidden" accept="application/pdf">
+                </div>
+
+                <div id="settings-group" class="bg-white p-4 md:p-6 settings-panel space-y-4 md:space-y-5">
+                    <h3 class="text-lg font-marker uppercase border-b-2 border-black pb-2 mb-2 transform -rotate-1">
+                        Settings</h3>
+
+                    <div class="grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Paper
+                                Size</label>
+                            <select id="paper-size-select" class="w-full bg-white font-typewriter text-sm p-2">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Orientation</label>
+                            <select id="orientation-select" class="w-full bg-white font-typewriter text-sm p-2">
+                                <option value="landscape">LANDSCAPE</option>
+                                <option value="portrait">PORTRAIT</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Grid Size Inputs -->
+                    <div class="pt-4 border-t-2 border-dashed border-black mt-2">
+                        <label class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-2">Grid
+                            Layout</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="number" id="grid-rows" min="1" max="10" value="2"
+                                class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
+                            <span class="text-2xl font-marker">X</span>
+                            <input type="number" id="grid-cols" min="1" max="10" value="4"
+                                class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
+                        </div>
+                        <span id="grid-total" class="text-xs mt-2 block font-bold font-typewriter text-gray-500">(8
+                            PAGES TOTAL)</span>
+                    </div>
+
+                    <!-- Page Numbers Toggle -->
+                    <div class="pt-4 border-t-2 border-dashed border-black mt-2">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="show-page-numbers" checked
+                                class="w-6 h-6 border-2 border-black rounded-none text-black focus:ring-0 focus:ring-offset-0">
+                            <label for="show-page-numbers" class="text-sm font-bold uppercase font-typewriter">Show Page
+                                #</label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div id="action-buttons" class="space-y-3 hidden">
+                    <button id="exportPdfBtn"
+                        class="action-button w-full bg-black text-white py-4 flex items-center justify-center gap-2 hover:bg-[#ff00ff] hover:text-black">
+                        <span class="material-symbols-outlined">file_download</span>
+                        DOWNLOAD PDF
+                    </button>
+                    <button id="printBtn"
+                        class="action-button w-full bg-white text-black py-4 flex items-center justify-center gap-2 hover:bg-black hover:text-white">
+                        <span class="material-symbols-outlined">print</span>
+                        PRINT IT
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Column: Preview Area -->
+            <div id="preview-area"
+                class="opacity-50 pointer-events-none transition-opacity duration-500 min-h-[400px] flex flex-col items-center">
+                <div class="w-full text-center md:text-left mb-6">
+                    <h2
+                        class="text-3xl font-marker uppercase transform rotate-1 inline-block border-b-4 border-[#ffff00]">
+                        Preview</h2>
+                    <p class="text-xs font-bold mt-2 font-typewriter max-w-md hidden" id="preview-description">
+                        Laying out your zine...
+                    </p>
+                </div>
+
+                <!-- Unified Zine View -->
+                <div id="zine-sheets-container" class="w-full space-y-12 pb-12">
+                    <!-- Sheets will be injected here -->
+                </div>
+
+                <div id="zine-container-legacy" class="hidden"></div>
+
+            </div>
+        </main>
+
+        <!-- Unused Pages Bucket -->
+        <div id="unused-pages-section" class="w-full max-w-4xl mx-auto mt-12 px-6 pb-4 hidden">
+            <div class="flex items-center gap-4 mb-6 border-t-4 border-black pt-6">
+                <h3 class="text-2xl font-marker uppercase">Spare Parts</h3>
+                <span class="text-xs font-bold bg-[#ffff00] px-2 py-1 border-2 border-black transform -rotate-2">DRAG TO
+                    SWAP</span>
+            </div>
+
+            <div id="unused-grid"
+                class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 min-h-[100px] p-6 bg-white border-4 border-black border-dashed">
+                <!-- Unused pages injected here -->
+            </div>
+        </div>
+
+        <footer class="mt-20 mb-8 text-center font-typewriter uppercase border-t-4 border-black pt-8">
+            <p
+                class="text-sm font-bold bg-white inline-block px-4 py-2 border-2 border-black transform rotate-1 shadow-[4px_4px_0_black]">
+                Made by Aaron
+            </p>
+        </footer>
+    </div>
+
+    <!-- Progress Overlay -->
+    <div id="progress-container"
+        class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center p-6 hidden backdrop-grayscale">
+        <div
+            class="bg-white p-10 border-4 border-black w-full max-w-sm text-center shadow-[8px_8px_0_black] transform rotate-1">
+            <h3 id="progress-text" class="text-2xl font-marker mb-6 uppercase">PROCESSING...</h3>
+            <div class="progress-bar-container mb-4">
+                <div id="progress-fill"></div>
+            </div>
+            <p id="progress-subtext" class="text-xs font-bold font-typewriter uppercase">
+                DO NOT CLOSE THIS WINDOW</p>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[300] space-y-4 font-typewriter"></div>
+
+
+  <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-CXdn1uyb.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-L4x3r4iy.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+</body>
+
+</html>
