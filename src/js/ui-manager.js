@@ -72,9 +72,13 @@ export class UIManager {
       layoutToggleSection: $('#layout-toggle-section'),
       layoutAccordionBtn: $('#layout-accordion'),
       layoutDualBtn: $('#layout-dual'),
-      layoutDescription: $('#layout-description')
+      layoutDescription: $('#layout-description'),
+
+      // Grid Size
+      gridSizeSelect: $('#grid-size-select')
     };
   }
+
 
   /**
    * Render paper size options from constants
@@ -114,9 +118,16 @@ export class UIManager {
     this.elements.layoutAccordionBtn?.addEventListener('click', () => this.selectLayout('accordion-16'));
     this.elements.layoutDualBtn?.addEventListener('click', () => this.selectLayout('dual-16'));
 
+    // Grid size selector
+    this.elements.gridSizeSelect?.addEventListener('change', (e) => {
+      const [rows, cols] = e.target.value.split('x').map(Number);
+      this.emitter.emit('gridSizeChanged', { rows, cols, value: e.target.value });
+    });
+
     // Keyboard
     document.addEventListener('keydown', (e) => this.handleKeyboard(e));
   }
+
 
   /**
    * Show layout toggle section and set available layouts
@@ -232,6 +243,54 @@ export class UIManager {
       // Mini-8 or dual-16 (two 8-page sheets)
       this.generateMiniZineLayout(numPages, template);
     }
+
+    this.updatePreviewLayout();
+    this.applyPageStyles();
+  }
+
+  /**
+   * Generate a custom grid layout with specified rows and columns
+   */
+  generateCustomGrid(rows, cols) {
+    this.elements.zineSheetsContainer.innerHTML = '';
+    const totalPages = rows * cols;
+
+    const sheetWrapper = document.createElement('div');
+    sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
+    sheetWrapper.setAttribute('data-sheet', 1);
+    sheetWrapper.setAttribute('data-template', `custom-${rows}x${cols}`);
+
+    const grid = document.createElement('div');
+    grid.className = 'zine-grid';
+    grid.id = 'zine-grid-sheet-1';
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+    for (let i = 0; i < totalPages; i++) {
+      const pageNum = i + 1;
+      const cell = document.createElement('div');
+      cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden';
+      cell.setAttribute('data-page-index', i);
+      cell.setAttribute('data-page', pageNum);
+      cell.setAttribute('draggable', 'true');
+
+      const labelText = pageNum === 1 ? 'Cover' : (pageNum === totalPages ? 'Back' : `Page ${pageNum}`);
+
+      cell.innerHTML = `
+        <span class="page-label absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10">${labelText}</span>
+        <button class="flip-btn absolute top-2 right-2 w-6 h-6 bg-white/80 hover:bg-white rounded-full flex items-center justify-center text-xs z-10 shadow" title="Flip page">🔄</button>
+        <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
+        <img alt="Page ${pageNum}" class="page-content-img w-full h-full object-contain hidden" draggable="false" />
+      `;
+
+      this.setupDragAndDrop(cell);
+      this.setupFlipButton(cell);
+      grid.appendChild(cell);
+    }
+
+    sheetWrapper.appendChild(grid);
+    this.elements.zineSheetsContainer.appendChild(sheetWrapper);
 
     this.updatePreviewLayout();
     this.applyPageStyles();

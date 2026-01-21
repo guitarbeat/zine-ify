@@ -50,6 +50,7 @@ class PDFZineMaker {
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
     this.ui.on('layoutChanged', (templateType) => this.handleLayoutChanged(templateType));
     this.ui.on('pageFlipped', (pageIndex) => this.handlePageFlipped(pageIndex));
+    this.ui.on('gridSizeChanged', (data) => this.handleGridSizeChanged(data));
 
     // Direct element listeners if needed (already handled by UIManager)
     this.ui.elements.printBtn?.addEventListener('click', () => this.handlePrint());
@@ -63,6 +64,28 @@ class PDFZineMaker {
     this.pageFlips[pageIndex] = !this.pageFlips[pageIndex];
     this.ui.setPageFlip(pageIndex, this.pageFlips[pageIndex]);
   }
+
+  /**
+   * Handle grid size change
+   */
+  handleGridSizeChanged({ rows, cols, value }) {
+    this.gridSize = { rows, cols };
+    const totalPages = rows * cols;
+
+    // Generate a custom grid layout
+    this.ui.generateCustomGrid(rows, cols);
+
+    // Re-apply existing page images
+    for (let i = 0; i < Math.min(totalPages, this.allPageImages.length); i++) {
+      if (this.allPageImages[i]) {
+        this.ui.updatePagePreview(i, this.allPageImages[i]);
+      }
+    }
+
+    toast.info(`Grid changed to ${value}`);
+  }
+
+
 
 
   /**
