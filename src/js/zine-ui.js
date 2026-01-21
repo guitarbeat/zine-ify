@@ -195,8 +195,8 @@ export class UIManager {
     }
 
     this.updatePreviewLayout();
-    this.applyPageStyles();
   }
+
 
   /**
    * Generate a custom grid layout with specified rows and columns
@@ -243,7 +243,6 @@ export class UIManager {
     this.elements.zineSheetsContainer.appendChild(sheetWrapper);
 
     this.updatePreviewLayout();
-    this.applyPageStyles();
   }
 
   /**
@@ -400,10 +399,17 @@ export class UIManager {
       const img = cell.querySelector('.page-content-img');
       const placeholder = cell.querySelector('.page-placeholder');
       if (img && placeholder) {
-        img.src = dataUrl;
-        img.classList.remove('hidden');
-        placeholder.classList.add('hidden');
+        if (dataUrl) {
+          img.src = dataUrl;
+          img.classList.remove('hidden');
+          placeholder.classList.add('hidden');
+        } else {
+          img.src = '';
+          img.classList.add('hidden');
+          placeholder.classList.remove('hidden');
+        }
       }
+
     }
   }
 

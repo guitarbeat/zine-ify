@@ -115,22 +115,23 @@ class PDFZineMaker {
       });
 
       const { numPages } = result;
-      this.selectedLayout = Math.min(numPages, 16);
-      const maxPages = this.selectedLayout;
+      this.selectedLayout = numPages; // Allow any number of pages
+      const maxPages = numPages;
 
       // Determine grid size based on page count
-      let rows = 2, cols = 4; // Default 8-page (2x4)
-      if (numPages > 8) {
-        rows = 4; cols = 4; // 16-page (4x4)
-      }
-      if (numPages <= 4) {
-        rows = 2; cols = 2; // 4-page (2x2)
-      }
-      if (numPages <= 2) {
-        rows = 1; cols = 2; // 2-page (1x2)
-      }
+      // Try to find a square-ish grid that fits all pages
+      const sqrt = Math.ceil(Math.sqrt(numPages));
+      // Default to at least 2x4 for small docs, otherwise square-ish
+      let rows = numPages <= 8 ? 2 : (sqrt > 2 ? sqrt : 2);
+      let cols = numPages <= 8 ? 4 : Math.ceil(numPages / rows);
 
-      this.gridSize = { rows, cols };
+      // Ensure we don't exceed max grid input (10x10) if possible, 
+      // but if user has > 100 pages, we might need to increase input max or just cap auto-layout.
+      // For now, let's clamp auto-layout to 10x10 to match UI inputs, 
+      // but the user can manually increase inputs if we update HTML max.
+      rows = Math.min(rows, 10);
+      cols = Math.min(cols, 10);
+
       this.ui.generateCustomGrid(rows, cols);
 
       // Update grid inputs to match
@@ -146,7 +147,7 @@ class PDFZineMaker {
 
       const description = `PDF arranged into a ${rows}×${cols} grid (${rows * cols} pages)`;
       this.ui.setReady(true, description);
-      this.allPageImages = new Array(16).fill(null);
+      this.allPageImages = new Array(rows * cols).fill(null);
 
 
 
@@ -213,9 +214,19 @@ class PDFZineMaker {
     this.allPageImages[fromIndex] = this.allPageImages[toIndex];
     this.allPageImages[toIndex] = temp;
 
+    // Swap flip states
+    const tempFlip = this.pageFlips[fromIndex];
+    this.pageFlips[fromIndex] = this.pageFlips[toIndex];
+    this.pageFlips[toIndex] = tempFlip;
+
     // Update previews
     this.ui.updatePagePreview(fromIndex, this.allPageImages[fromIndex]);
     this.ui.updatePagePreview(toIndex, this.allPageImages[toIndex]);
+
+    // Update flip UI
+    this.ui.setPageFlip(fromIndex, !!this.pageFlips[fromIndex]);
+    this.ui.setPageFlip(toIndex, !!this.pageFlips[toIndex]);
+
 
     toast.info('Pages swapped');
   }
@@ -256,73 +267,22 @@ class PDFZineMaker {
     });
 
     const dimensions = this.ui.getPaperDimensions(this.paperSize || 'a4', this.orientation || 'landscape');
-    const scale = this.ui.elements.scaleSlider?.value / 100 || 1;
-    const margin = this.ui.elements.marginSlider?.value || 0;
 
-    // Different grid CSS for accordion vs mini-8
-    const gridCss = isAccordion ? `
-      grid-template-areas:
-        "page4 page3 page2 page1"
-        "page5 page6 page7 page8"
-        "page12 page11 page10 page9"
-        "page13 page14 page15 page16";
-      grid-template-rows: repeat(4, 1fr);
-    ` : `
-      grid-template-areas:
-        "page5 page4 page3 page2"
-        "page6 page7 page8 page1";
-      grid-template-rows: repeat(2, 1fr);
+
+    // Dynamic grid CSS based on current settings
+    const { rows, cols } = this.gridSize;
+    const gridCss = `
+      grid-template-columns: repeat(${cols}, 1fr);
+      grid-template-rows: repeat(${rows}, 1fr);
+      /* Generate grid areas if needed, but simple flow usually works for generic grids */
     `;
 
-    // Page area CSS for accordion includes pages 9-16
-    const accordionPageAreas = isAccordion ? `
-      .page-cell[data-page="9"] { grid-area: page9; }
-      .page-cell[data-page="10"] { grid-area: page10; }
-      .page-cell[data-page="11"] { grid-area: page11; }
-      .page-cell[data-page="12"] { grid-area: page12; }
-      .page-cell[data-page="13"] { grid-area: page13; }
-      .page-cell[data-page="14"] { grid-area: page14; }
-      .page-cell[data-page="15"] { grid-area: page15; }
-      .page-cell[data-page="16"] { grid-area: page16; }
-    ` : '';
+    // We rely on the DOM's inline styles for rotation now, 
+    // so we don't need hardcoded rotation CSS.
+    // The cut lines are also specific to the old layout, so we'll omit them for generic grids
+    // or maybe add them later if we implement smart cut lines.
+    const cutLinesCss = '';
 
-    // Rotation CSS for upside-down pages
-    const rotationCss = isAccordion ? `
-      .page-cell[data-page="1"], .page-cell[data-page="2"],
-      .page-cell[data-page="3"], .page-cell[data-page="4"],
-      .page-cell[data-page="9"], .page-cell[data-page="10"],
-      .page-cell[data-page="11"], .page-cell[data-page="12"] {
-        transform: rotate(180deg);
-      }
-    ` : `
-      .page-cell[data-page="2"], .page-cell[data-page="3"], 
-      .page-cell[data-page="4"], .page-cell[data-page="5"] {
-        transform: rotate(180deg);
-      }
-    `;
-
-    // Cut lines for accordion template
-    const cutLinesCss = isAccordion ? `
-      .cut-line {
-        position: absolute;
-        z-index: 30;
-        pointer-events: none;
-      }
-      .cut-line-left {
-        left: 0;
-        top: 0;
-        height: 75%;
-        width: 1mm;
-        border-left: 1mm dashed #ef4444;
-      }
-      .cut-line-right {
-        right: 0;
-        top: 0;
-        height: 75%;
-        width: 1mm;
-        border-right: 1mm dashed #ef4444;
-      }
-    ` : '';
 
     const cutLinesHtml = isAccordion ? `
       <div class="cut-line cut-line-left"></div>
@@ -350,9 +310,11 @@ class PDFZineMaker {
           .zine-grid {
             display: grid;
             ${gridCss}
-            grid-template-columns: repeat(4, 1fr);
             height: ${dimensions.height}mm;
             width: ${dimensions.width}mm;
+            /* Ensure grid fills the page */
+            justify-content: stretch;
+            align-content: stretch;
           }
           .page-cell {
             position: relative;
@@ -362,24 +324,13 @@ class PDFZineMaker {
             overflow: hidden;
             border: 0.1mm dashed #eee;
           }
-          .page-cell[data-page="1"] { grid-area: page1; }
-          .page-cell[data-page="2"] { grid-area: page2; }
-          .page-cell[data-page="3"] { grid-area: page3; }
-          .page-cell[data-page="4"] { grid-area: page4; }
-          .page-cell[data-page="5"] { grid-area: page5; }
-          .page-cell[data-page="6"] { grid-area: page6; }
-          .page-cell[data-page="7"] { grid-area: page7; }
-          .page-cell[data-page="8"] { grid-area: page8; }
-          ${accordionPageAreas}
-          
-          ${rotationCss}
+          /* Generic page areas fallback if needed */
           
           .page-content-img { 
             width: 100%; 
             height: 100%; 
             object-fit: contain; 
-            transform: scale(${scale});
-            padding: ${margin}px;
+            /* Rely on DOM transform for rotation */
           }
           .page-label, .page-placeholder { display: none; }
           
@@ -391,6 +342,7 @@ class PDFZineMaker {
             background-repeat: no-repeat;
             transform: rotate(180deg);
           }
+
           
           ${cutLinesCss}
         </style>
