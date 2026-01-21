@@ -14,8 +14,10 @@ class PDFZineMaker {
     this.ui = new UIManager();
     this.referenceImageUrl = referenceImageUrl;
     this.allPageImages = new Array(16).fill(null);
+    this.pageFlips = {}; // Track individual page flips: { pageIndex: true/false }
     this.init();
   }
+
 
   /**
    * Initialize the application
@@ -47,11 +49,21 @@ class PDFZineMaker {
     this.ui.on('orientationChanged', (data) => this.updatePaperSettings(data));
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
     this.ui.on('layoutChanged', (templateType) => this.handleLayoutChanged(templateType));
+    this.ui.on('pageFlipped', (pageIndex) => this.handlePageFlipped(pageIndex));
 
     // Direct element listeners if needed (already handled by UIManager)
     this.ui.elements.printBtn?.addEventListener('click', () => this.handlePrint());
     this.ui.elements.exportPdfBtn?.addEventListener('click', () => this.handleExport());
   }
+
+  /**
+   * Handle individual page flip
+   */
+  handlePageFlipped(pageIndex) {
+    this.pageFlips[pageIndex] = !this.pageFlips[pageIndex];
+    this.ui.setPageFlip(pageIndex, this.pageFlips[pageIndex]);
+  }
+
 
   /**
    * Handle layout change from toggle buttons

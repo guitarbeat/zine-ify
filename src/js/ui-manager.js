@@ -262,11 +262,13 @@ export class UIManager {
 
       cell.innerHTML = `
         <span class="page-label absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10">${labelText}</span>
+        <button class="flip-btn absolute top-2 right-2 w-6 h-6 bg-white/80 hover:bg-white rounded-full flex items-center justify-center text-xs z-10 shadow" title="Flip page">🔄</button>
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
         <img alt="Page ${item.page}" class="page-content-img w-full h-full object-contain hidden" draggable="false" />
       `;
 
       this.setupDragAndDrop(cell);
+      this.setupFlipButton(cell);
       grid.appendChild(cell);
     });
 
@@ -327,11 +329,13 @@ export class UIManager {
 
         cell.innerHTML = `
           <span class="page-label absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10">${labelText}${sheetLabel}</span>
+          <button class="flip-btn absolute top-2 right-2 w-6 h-6 bg-white/80 hover:bg-white rounded-full flex items-center justify-center text-xs z-10 shadow" title="Flip page">🔄</button>
           <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
           <img alt="Page ${pageIdx}" class="page-content-img w-full h-full object-contain hidden" draggable="false" />
         `;
 
         this.setupDragAndDrop(cell);
+        this.setupFlipButton(cell);
         grid.appendChild(cell);
       }
 
@@ -390,6 +394,39 @@ export class UIManager {
         img.src = dataUrl;
         img.classList.remove('hidden');
         placeholder.classList.add('hidden');
+      }
+    }
+  }
+
+  /**
+   * Setup flip button click handler for a cell
+   */
+  setupFlipButton(cell) {
+    const flipBtn = cell.querySelector('.flip-btn');
+    if (flipBtn) {
+      flipBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent drag
+        const pageIndex = parseInt(cell.getAttribute('data-page-index'));
+        this.emitter.emit('pageFlipped', pageIndex);
+      });
+    }
+  }
+
+  /**
+   * Apply flip state to a page
+   */
+  setPageFlip(pageIndex, isFlipped) {
+    const cell = this.elements.zineSheetsContainer.querySelector(`[data-page-index="${pageIndex}"]`);
+    if (cell) {
+      const img = cell.querySelector('.page-content-img');
+      if (img) {
+        if (isFlipped) {
+          img.style.transform = `${img.style.transform || ''} rotate(180deg)`.trim();
+          img.classList.add('flipped');
+        } else {
+          img.style.transform = img.style.transform.replace('rotate(180deg)', '').trim();
+          img.classList.remove('flipped');
+        }
       }
     }
   }
