@@ -72,7 +72,7 @@ class PDFZineMaker {
     const totalPages = rows * cols;
 
     // Generate a custom grid layout
-    this.ui.generateCustomGrid(rows, cols);
+    this.ui.generateCustomGrid(rows, cols, this.allPageImages.length);
 
     // Re-apply existing page images
     for (let i = 0; i < Math.min(totalPages, this.allPageImages.length); i++) {
@@ -119,21 +119,28 @@ class PDFZineMaker {
       this.selectedLayout = numPages; // Allow any number of pages
       const maxPages = numPages;
 
-      // Determine grid size based on page count
-      // Try to find a square-ish grid that fits all pages
-      const sqrt = Math.ceil(Math.sqrt(numPages));
-      // Default to at least 2x4 for small docs, otherwise square-ish
-      let rows = numPages <= 8 ? 2 : (sqrt > 2 ? sqrt : 2);
-      let cols = numPages <= 8 ? 4 : Math.ceil(numPages / rows);
+      let rows, cols;
 
-      // Ensure we don't exceed max grid input (10x10) if possible, 
-      // but if user has > 100 pages, we might need to increase input max or just cap auto-layout.
-      // For now, let's clamp auto-layout to 10x10 to match UI inputs, 
-      // but the user can manually increase inputs if we update HTML max.
-      rows = Math.min(rows, 10);
-      cols = Math.min(cols, 10);
+      if (numPages === 16) {
+        // Special case for 16-page zine (accordion fold on single sheet)
+        rows = 4;
+        cols = 4;
+        this.ui.generateLayout(16, 'accordion-16');
+      } else {
+        // Determine grid size based on page count
+        // Try to find a square-ish grid that fits all pages
+        const sqrt = Math.ceil(Math.sqrt(numPages));
+        // Default to at least 2x4 for small docs, otherwise square-ish
+        rows = numPages <= 8 ? 2 : (sqrt > 2 ? sqrt : 2);
+        cols = numPages <= 8 ? 4 : Math.ceil(numPages / rows);
 
-      this.ui.generateCustomGrid(rows, cols);
+        // Ensure we don't exceed max grid input (10x10)
+        rows = Math.min(rows, 10);
+        cols = Math.min(cols, 10);
+
+        this.allPageImages = new Array(Math.max(rows * cols, numPages)).fill(null);
+        this.ui.generateCustomGrid(rows, cols, this.allPageImages.length);
+      }
 
       // Update grid inputs to match
       if (this.ui.elements.gridRows) {
@@ -148,7 +155,6 @@ class PDFZineMaker {
 
       const description = `PDF arranged into a ${rows}×${cols} grid (${rows * cols} pages)`;
       this.ui.setReady(true, description);
-      this.allPageImages = new Array(rows * cols).fill(null);
 
 
 
@@ -275,6 +281,7 @@ class PDFZineMaker {
     const gridCss = `
       grid-template-columns: repeat(${cols}, 1fr);
       grid-template-rows: repeat(${rows}, 1fr);
+      grid-template-areas: none !important;
       /* Generate grid areas if needed, but simple flow usually works for generic grids */
     `;
 
@@ -285,10 +292,7 @@ class PDFZineMaker {
     const cutLinesCss = '';
 
 
-    const cutLinesHtml = isAccordion ? `
-      <div class="cut-line cut-line-left"></div>
-      <div class="cut-line cut-line-right"></div>
-    ` : '';
+    const cutLinesHtml = '';
 
     const sheetsHtml = zineSheets.map((content) => `
       <div class="sheet">
