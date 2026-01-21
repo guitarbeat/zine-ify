@@ -28,7 +28,6 @@ class PDFZineMaker {
     try {
       await this.pdfProcessor.initialize();
       this.setupEventListeners();
-      this.checkLibraries();
       this.ui.generateLayout(8); // Default to 8 pages
       this.ui.setStatus('Upload a PDF file to get started', 'info');
     } catch (error) {
@@ -44,7 +43,6 @@ class PDFZineMaker {
   setupEventListeners() {
     // UI Events
     this.ui.on('fileSelected', (file) => this.handleFileSelected(file));
-    this.ui.on('processAndPreview', () => this.handleProcessAndPreview());
     this.ui.on('print', () => this.handlePrint());
     this.ui.on('export', () => this.handleExport());
     this.ui.on('paperSizeChanged', (data) => this.updatePaperSettings(data));
@@ -52,10 +50,6 @@ class PDFZineMaker {
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
     this.ui.on('pageFlipped', (pageIndex) => this.handlePageFlipped(pageIndex));
     this.ui.on('gridSizeChanged', (data) => this.handleGridSizeChanged(data));
-
-    // Direct element listeners if needed (already handled by UIManager)
-    this.ui.elements.printBtn?.addEventListener('click', () => this.handlePrint());
-    this.ui.elements.exportPdfBtn?.addEventListener('click', () => this.handleExport());
   }
 
   /**
@@ -85,21 +79,6 @@ class PDFZineMaker {
   }
 
 
-
-  setupInteractiveTicks() {
-    // Ported from palette-interactive-ticks
-    // This allows clicking labels or specific areas to jump to values
-
-    // We could add visual ticks in HTML, but for now we'll just ensure 
-    // the sliders themselves feel robust.
-  }
-
-  checkLibraries() {
-    // Basic connectivity check
-    if (!window.jspdf) {
-      console.warn('PDF library not yet loaded...');
-    }
-  }
 
   handleFileSelected(file) {
     this.selectedFile = file;
@@ -332,7 +311,7 @@ class PDFZineMaker {
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            border: 0.1mm dashed #eee;
+            border: none;
           }
           /* Generic page areas fallback if needed */
           
@@ -349,7 +328,6 @@ class PDFZineMaker {
             background-image: url('${this.referenceImageUrl}');
             background-size: contain;
             background-position: center;
-            background-repeat: no-repeat;
             background-repeat: no-repeat;
             transform: rotate(180deg);
           }

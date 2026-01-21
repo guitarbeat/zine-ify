@@ -323,6 +323,9 @@ export class UIManager {
     const grid = document.createElement('div');
     grid.className = 'zine-grid accordion-16';
     grid.id = 'zine-grid-sheet-1';
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+    grid.style.gridTemplateRows = 'repeat(4, 1fr)';
 
     // Generate cells based on template layout
     template.layout.forEach((item) => {
@@ -380,6 +383,9 @@ export class UIManager {
       const grid = document.createElement('div');
       grid.className = 'zine-grid';
       grid.id = `zine-grid-sheet-${s}`;
+      grid.style.display = 'grid';
+      grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+      grid.style.gridTemplateRows = 'repeat(2, 1fr)';
 
       for (let i = 1; i <= 8; i++) {
         const pageIdx = (s - 1) * 8 + i;
