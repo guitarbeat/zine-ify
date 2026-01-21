@@ -495,9 +495,15 @@ export class UIManager {
 
   showProgress(show, text = 'Processing PDF...', subtext = '') {
     if (show) {
-      this.elements.progressContainer?.classList.remove('hidden');
+      if (this.elements.progressContainer) {
+        this.elements.progressContainer.classList.remove('hidden');
+        this.elements.progressContainer.classList.add('flex');
+      }
     } else {
-      this.elements.progressContainer?.classList.add('hidden');
+      if (this.elements.progressContainer) {
+        this.elements.progressContainer.classList.add('hidden');
+        this.elements.progressContainer.classList.remove('flex');
+      }
     }
 
     if (this.elements.progressText) { this.elements.progressText.textContent = text; }

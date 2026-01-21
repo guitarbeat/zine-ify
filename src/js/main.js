@@ -108,6 +108,7 @@ class PDFZineMaker {
 
   async processPDF(file) {
     try {
+      toast.info('Reading PDF...', 'Please wait');
       this.ui.showProgress(true, 'Reading PDF...', '0%');
 
       const result = await this.pdfProcessor.loadPDF(file, (progress) => {

@@ -34,7 +34,7 @@ export class PDFProcessor {
       errors.push('Please select a PDF file');
     }
 
-    const maxSize = 50 * 1024 * 1024; // 50MB
+    const maxSize = 250 * 1024 * 1024; // 250MB
     if (file.size > maxSize) {
       errors.push(`File too large (${formatFileSize(file.size)}). Maximum size is ${formatFileSize(maxSize)}`);
     }
@@ -81,7 +81,7 @@ export class PDFProcessor {
       }).promise;
 
       const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('PDF loading timed out')), 30000)
+        setTimeout(() => reject(new Error('PDF loading timed out')), 60000)
       );
 
       this.pdf = await Promise.race([loadingPromise, timeoutPromise]);
