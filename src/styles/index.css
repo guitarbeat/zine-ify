@@ -73,6 +73,17 @@ select:focus, input:focus {
     }
 }
 
+/* Export clean-up (for html2canvas) */
+.is-exporting .flip-btn, 
+.is-exporting .page-label, 
+.is-exporting .page-placeholder,
+.is-exporting .guidelines {
+    display: none !important;
+}
+.is-exporting .page-cell {
+    border: none !important;
+}
+
 .zine-grid {
     display: grid;
     height: 100%;
@@ -222,3 +233,57 @@ select:focus, input:focus {
     box-shadow: 4px 4px 0px 0px black;
     border-radius: 0;
 }
+
+/* Punk Toast Notifications */
+.toast-container {
+    pointer-events: none;
+}
+.toast {
+    background: white;
+    border: 3px solid black;
+    box-shadow: 4px 4px 0px 0px black;
+    padding: 1rem;
+    width: 320px;
+    pointer-events: auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transform: translateX(120%);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    opacity: 0;
+}
+.toast svg { width: 20px; height: 20px; }
+.toast-visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+/* Toast Variants */
+.toast-success { border-color: black; }
+.toast-success .toast-icon { color: #00cc00; }  /* Green accent Icon */
+.toast-success::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: #00cc00;
+}
+
+.toast-error { border-color: black; }
+.toast-error .toast-icon { color: #ff0000; }
+.toast-error::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: #ff0000;
+}
+
+.toast-info { border-color: black; }
+.toast-info .toast-icon { color: blue; }
+.toast-info::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: cyan;
+}
+
+.toast-content { flex: 1; padding-left: 8px; }
+.toast-title { font-weight: 900; text-transform: uppercase; font-size: 0.9rem; margin-bottom: 2px; font-family: 'Permanent Marker', cursive; }
+.toast-message { font-size: 0.8rem; font-family: 'Courier Prime', monospace; font-weight: bold; }
+
+.toast-close {
+    background: transparent; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0 4px;
+    color: black; opacity: 0.5;
+}
+.toast-close:hover { opacity: 1; color: red; }

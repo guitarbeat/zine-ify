@@ -238,7 +238,14 @@ class PDFZineMaker {
   }
 
   handlePrint() {
-    if (!this.ui.hasContent()) { return; }
+    if (!this.ui.hasContent()) {
+      toast.warning('No Content', 'Upload a PDF to print!');
+      return;
+    }
+
+    // Audit check: Are all pages filled?
+    // We won't block it, but we could warn if it's empty.
+
     this.createPrintLayout();
   }
 
@@ -362,6 +369,7 @@ class PDFZineMaker {
     if (!this.ui.hasContent()) { return; }
     try {
       this.ui.elements.exportPdfBtn.disabled = true;
+      document.body.classList.add('is-exporting'); // Hide UI controls
       toast.info('Generating PDF...');
 
       const doc = new jsPDF({
@@ -376,12 +384,13 @@ class PDFZineMaker {
         const grid = document.querySelector(`#zine-grid-sheet-${sheetNum}`);
         if (!grid) { return; }
 
-        await new Promise(r => setTimeout(r, 100));
+        await new Promise(r => setTimeout(r, 100)); // Allow DOM to update
 
         const canvas = await html2canvas(grid, {
           scale: 3,
           useCORS: true,
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
+          logging: false
         });
 
         if (sheetNum > 1) { doc.addPage(); }
@@ -409,14 +418,14 @@ class PDFZineMaker {
         await captureZine(2);
       }
 
-
       doc.save(`zine-${Date.now()}.pdf`);
-      toast.success('Downloaded!');
+      toast.success('Downloaded!', 'Your PDF is ready.');
     } catch (e) {
       console.error(e);
-      toast.error('Export Failed');
+      toast.error('Export Failed', 'Something went wrong.');
     } finally {
       this.ui.elements.exportPdfBtn.disabled = false;
+      document.body.classList.remove('is-exporting'); // Restore UI controls
     }
   }
 }

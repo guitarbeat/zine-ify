@@ -7,11 +7,14 @@ class Toast {
   }
 
   init() {
+    // Check if container already exists
+    this.container = document.getElementById('toast-container');
+
     // Create toast container if it doesn't exist
     if (!this.container) {
       this.container = document.createElement('div');
       this.container.id = 'toast-container';
-      this.container.className = 'toast-container';
+      this.container.className = 'toast-container fixed bottom-6 right-6 z-[300] flex flex-col gap-4 font-typewriter pointer-events-none';
       this.container.setAttribute('aria-live', 'polite');
       document.body.appendChild(this.container);
     }
@@ -58,6 +61,9 @@ class Toast {
     // Animate in
     requestAnimationFrame(() => {
       toast.classList.add('toast-visible');
+      // Add slight random rotation for chaos
+      const rotation = Math.random() * 4 - 2;
+      toast.style.transform = `translateX(0) rotate(${rotation}deg)`;
     });
 
     return toast;
