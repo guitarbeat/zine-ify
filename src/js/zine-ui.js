@@ -612,7 +612,7 @@ export class UIManager {
 
   updatePreviewLayout() {
     const sheets = document.querySelectorAll('.print-sheet');
-    if (!sheets.length) return;
+    if (!sheets.length) { return; }
 
     // Get dimensions for the current selection
     const dims = this.getPaperDimensions(this.paperSize, this.orientation);

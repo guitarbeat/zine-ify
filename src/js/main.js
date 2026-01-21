@@ -265,7 +265,7 @@ class PDFZineMaker {
       return;
     }
 
-    const isAccordion = this.currentTemplate === 'accordion-16';
+
     const zineSheets = [];
 
     // Get HTML for all sheets
