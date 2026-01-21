@@ -62,17 +62,12 @@ export class UIManager {
       zineTab1: $('#zine-tab-1'),
       zineTab2: $('#zine-tab-2'),
 
-      // Scale & Margins
-      scaleSlider: $('#scale-slider'),
-      scaleValue: $('#scale-value'),
-      marginSlider: $('#margin-slider'),
-      marginValue: $('#margin-value'),
-
       // Grid Size
       gridRows: $('#grid-rows'),
       gridCols: $('#grid-cols'),
       gridTotal: $('#grid-total')
     };
+
   }
 
 
@@ -107,9 +102,6 @@ export class UIManager {
       if (file) { this.emitter.emit('fileSelected', file); }
     });
 
-    // Scaling & Margins
-    this.elements.scaleSlider?.addEventListener('input', (e) => this.updateScale(e.target.value));
-    this.elements.marginSlider?.addEventListener('input', (e) => this.updateMargins(e.target.value));
 
     // Grid size inputs
     const handleGridChange = () => {
@@ -538,47 +530,6 @@ export class UIManager {
     this.emitter.emit('orientationChanged', { paperSize: this.paperSize, orientation });
   }
 
-  updateScale(scale) {
-    if (this.elements.scaleValue) {
-      this.elements.scaleValue.textContent = `${scale}%`;
-    }
-    this.applyPageStyles();
-    this.emitter.emit('scaleChanged', scale);
-  }
-
-  updateMargins(margin) {
-    if (this.elements.marginValue) {
-      this.elements.marginValue.textContent = `${margin}px`;
-    }
-    this.applyPageStyles();
-    this.emitter.emit('marginChanged', margin);
-  }
-
-  applyPageStyles() {
-    const scale = this.elements.scaleSlider?.value / 100 || 1;
-    const margin = this.elements.marginSlider?.value || 0;
-
-    document.querySelectorAll('.page-content-img').forEach(img => {
-      img.style.transform = `scale(${scale})`;
-      img.style.padding = `${margin}px`;
-    });
-
-    // Update ARIA labels for accessibility
-    if (this.elements.scaleSlider) {
-      this.elements.scaleSlider.setAttribute('aria-valuetext', `${this.elements.scaleSlider.value}%`);
-    }
-    if (this.elements.marginSlider) {
-      this.elements.marginSlider.setAttribute('aria-valuetext', `${this.elements.marginSlider.value}px`);
-    }
-  }
-
-  setupInteractiveTicks() {
-    // Ported from palette-interactive-ticks
-    // This allows clicking labels or specific areas to jump to values
-
-    // We could add visual ticks in HTML, but for now we'll just ensure 
-    // the sliders themselves feel robust.
-  }
 
   updatePreviewLayout() {
     const sheet = document.querySelector('.print-sheet');
