@@ -101,6 +101,10 @@ export class UIManager {
     this.elements.orientationSelect?.addEventListener('change', (e) => this.updateOrientation(e.target.value));
     this.elements.pageNumbersCheckbox?.addEventListener('change', (e) => this.togglePageNumbers(e.target.checked));
 
+    // Action Buttons
+    this.elements.printBtn?.addEventListener('click', () => this.emitter.emit('print'));
+    this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
+
     // Upload interactions
     this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
     this.elements.uploadZone?.addEventListener('dragover', (e) => this.handleDragOver(e));
