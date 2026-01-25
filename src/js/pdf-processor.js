@@ -70,13 +70,15 @@ export class PDFProcessor {
 
       onProgress?.('Reading PDF file...');
 
-      const arrayBuffer = await this.readFileAsArrayBuffer(file);
+      // Use Blob URL instead of reading entire file into ArrayBuffer
+      // This saves memory and prevents blocking the main thread
+      this.fileUrl = URL.createObjectURL(file);
 
       onProgress?.('Processing PDF...');
 
       // Add timeout to PDF loading
       const loadingPromise = pdfjsLib.getDocument({
-        data: arrayBuffer,
+        url: this.fileUrl,
         verbosity: 0 // Reduce console output
       }).promise;
 
@@ -105,23 +107,6 @@ export class PDFProcessor {
     } finally {
       this.isProcessing = false;
     }
-  }
-
-  /**
-   * Read file as ArrayBuffer
-   * @param {File} file - File to read
-   * @returns {Promise<ArrayBuffer>} File contents
-   */
-  readFileAsArrayBuffer(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.onabort = () => reject(new Error('File reading was cancelled'));
-
-      reader.readAsArrayBuffer(file);
-    });
   }
 
   /**
@@ -251,6 +236,10 @@ export class PDFProcessor {
     if (this.pdf) {
       this.pdf.destroy();
       this.pdf = null;
+    }
+    if (this.fileUrl) {
+      URL.revokeObjectURL(this.fileUrl);
+      this.fileUrl = null;
     }
     this.isProcessing = false;
   }
