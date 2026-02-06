@@ -107,6 +107,12 @@ export class UIManager {
 
     // Upload interactions
     this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
+    this.elements.uploadZone?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.triggerFileUpload();
+      }
+    });
     this.elements.uploadZone?.addEventListener('dragover', (e) => this.handleDragOver(e));
     this.elements.uploadZone?.addEventListener('dragleave', (e) => this.handleDragLeave(e));
     this.elements.uploadZone?.addEventListener('drop', (e) => this.handleFileDrop(e));
@@ -251,7 +257,7 @@ export class UIManager {
 
       cell.innerHTML = `
         <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]">${labelText}</span>
-        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all" title="Flip page">
+        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all" title="Flip page" aria-label="Flip page">
             <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
         </button>
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
@@ -343,7 +349,7 @@ export class UIManager {
 
       cell.innerHTML = `
         <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]">${labelText}</span>
-        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all" title="Flip page">
+        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all" title="Flip page" aria-label="Flip page">
             <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
         </button>
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
@@ -404,7 +410,7 @@ export class UIManager {
 
         cell.innerHTML = `
           <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]">${labelText}${sheetLabel}</span>
-          <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all" title="Flip page">
+          <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all" title="Flip page" aria-label="Flip page">
               <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
           </button>
           <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
