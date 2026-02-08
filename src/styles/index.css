@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@layer components {
+
 :root {
     --bg-neutral: #f0f0f0;
     --accent-dark: #000000;
@@ -287,3 +289,5 @@ select:focus, input:focus {
     color: black; opacity: 0.5;
 }
 .toast-close:hover { opacity: 1; color: red; }
+
+}
