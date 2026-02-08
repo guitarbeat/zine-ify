@@ -5,3 +5,7 @@
 ## 2024-05-22 - Keyboard Shortcut Discoverability
 **Learning:** Keyboard shortcuts are powerful but invisible. Adding them to `title` attributes (e.g., "Print (Ctrl+P)") and using `aria-keyshortcuts` makes them discoverable and accessible to screen reader users without cluttering the UI.
 **Action:** When implementing keyboard shortcuts, always update the UI element's `title` and add `aria-keyshortcuts`.
+
+## 2024-05-22 - Focus Style Specificity Override
+**Learning:** CSS specificity conflicts between custom component classes (e.g., `.upload-box`) and utility classes (e.g., Tailwind's `bg-yellow-300`) can prevent focus styles from applying correctly. In this case, `.upload-box` defined a background color that overrode the focus utility.
+**Action:** Used `!important` modifiers (e.g., `focus:!bg-yellow-300`) to ensure accessibility focus styles are visible and take precedence without requiring a full refactor of the existing CSS architecture.
