@@ -8,6 +8,8 @@ export class PDFProcessor {
   constructor() {
     this.pdf = null;
     this.isProcessing = false;
+    this.sharedCanvas = null;
+    this.sharedContext = null;
   }
 
   /**
@@ -127,14 +129,26 @@ export class PDFProcessor {
       // Reduced scale for better performance and smaller data URLs
       const scale = 1.5; // Balanced quality vs performance
       const viewport = page.getViewport({ scale });
+      const width = Math.floor(viewport.width);
+      const height = Math.floor(viewport.height);
 
-      // Create canvas with proper dimensions
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d', { alpha: false });
+      // Reuse shared canvas if available, otherwise create one
+      if (!this.sharedCanvas) {
+        this.sharedCanvas = document.createElement('canvas');
+        this.sharedContext = this.sharedCanvas.getContext('2d', { alpha: false });
+        this.sharedCanvas.width = width;
+        this.sharedCanvas.height = height;
+      } else {
+        // Resize if needed (clears content)
+        if (this.sharedCanvas.width !== width || this.sharedCanvas.height !== height) {
+          this.sharedCanvas.width = width;
+          this.sharedCanvas.height = height;
+        }
+        // If dimensions match, existing content is overwritten by fillRect below
+      }
 
-      // Use viewport dimensions directly for better compatibility
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
+      const canvas = this.sharedCanvas;
+      const context = this.sharedContext;
 
       // Fill background white
       context.fillStyle = '#ffffff';
@@ -242,5 +256,7 @@ export class PDFProcessor {
       this.fileUrl = null;
     }
     this.isProcessing = false;
+    this.sharedCanvas = null;
+    this.sharedContext = null;
   }
 }
