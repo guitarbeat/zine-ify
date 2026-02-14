@@ -1,39 +1,92 @@
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
-  - button "Toggle night mode (Space)" [ref=e2] [cursor=pointer]:
-    - img [ref=e3]
-  - generic [ref=e5]:
-    - banner [ref=e6]:
-      - generic [ref=e7]:
-        - heading "Octovo Zine Maker" [level=1] [ref=e8]
-        - paragraph [ref=e9]: Convert PDF files into printable 8-page zines
-    - generic [ref=e11]:
-      - button "Upload PDF file" [ref=e12] [cursor=pointer]:
-        - img [ref=e13]
-        - heading "Drop PDF here or browse files" [level=3] [ref=e16]
-        - paragraph [ref=e17]: Supports 8 or 16 page layouts
-      - paragraph
-    - generic [ref=e19]:
-      - generic [ref=e20]:
-        - heading "Page Scale" [level=3] [ref=e21]
-        - paragraph [ref=e22]: Adjust the size of your zine pages for optimal printing
-      - generic [ref=e23]:
-        - generic [ref=e24]:
-          - generic [ref=e25]: Scale
-          - generic [ref=e26]: 100%
-        - slider "Scale" [ref=e27] [cursor=pointer]: "100"
-        - generic [ref=e28]:
-          - button "Set scale to 50%" [ref=e29]: 50%
-          - button "Set scale to 100%" [ref=e30]: 100%
-          - button "Set scale to 200%" [ref=e31]: 200%
-      - option "A4 (210 × 297 mm)" [selected]
-      - option "A3 (297 × 420 mm)"
-      - option "Letter (8.5 × 11 in)"
-      - option "Legal (8.5 × 14 in)"
-      - option "A5 (148 × 210 mm)"
-      - option "Landscape" [selected]
-      - option "Portrait"
-      - tabpanel [ref=e32]: Upload a PDF to transform these placeholders into your zine pages
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - heading "Zine-ify" [level=1] [ref=e4]
+    - paragraph [ref=e5]: MAKE ZINES // BREAK THINGS
+  - main [ref=e6]:
+    - generic [ref=e7]:
+      - button "Upload PDF document" [ref=e8] [cursor=pointer]:
+        - generic [ref=e10]: cloud_upload
+        - heading "DROP PDF HERE" [level=2] [ref=e11]
+        - paragraph [ref=e12]: Successfully processed 1 pages
+      - generic [ref=e13]:
+        - heading "Settings" [level=3] [ref=e14]
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - generic [ref=e17]: Paper Size
+            - combobox [ref=e18]:
+              - option "A4 (210 × 297 mm)" [selected]
+              - option "A3 (297 × 420 mm)"
+              - option "Letter (8.5 × 11 in)"
+              - option "Legal (8.5 × 14 in)"
+              - option "A5 (148 × 210 mm)"
+          - generic [ref=e19]:
+            - generic [ref=e20]: Orientation
+            - combobox [ref=e21]:
+              - option "LANDSCAPE" [selected]
+              - option "PORTRAIT"
+        - generic [ref=e22]:
+          - generic [ref=e23]: Grid Layout
+          - generic [ref=e24]:
+            - spinbutton [ref=e25]: "2"
+            - generic [ref=e26]: X
+            - spinbutton [ref=e27]: "4"
+          - generic [ref=e28]: (8 pages)
+        - generic [ref=e30]:
+          - 'checkbox "Show Page #" [checked] [ref=e31]'
+          - generic [ref=e32]: "Show Page #"
+      - generic [ref=e33]:
+        - button "file_download DOWNLOAD PDF" [ref=e34]:
+          - generic [ref=e35]: file_download
+          - text: DOWNLOAD PDF
+        - button "print PRINT IT" [ref=e36]:
+          - generic [ref=e37]: print
+          - text: PRINT IT
+    - generic [ref=e38]:
+      - heading "Preview" [level=2] [ref=e40]
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: Cover
+          - button "rotate_right" [ref=e46]:
+            - generic [ref=e47]: rotate_right
+          - img "Page 1" [ref=e48]
+        - generic [ref=e49]:
+          - generic [ref=e50]: Page 2
+          - button "rotate_right" [ref=e51]:
+            - generic [ref=e52]: rotate_right
+          - generic [ref=e53]: Empty
+        - generic [ref=e54]:
+          - generic [ref=e55]: Page 3
+          - button "rotate_right" [ref=e56]:
+            - generic [ref=e57]: rotate_right
+          - generic [ref=e58]: Empty
+        - generic [ref=e59]:
+          - generic [ref=e60]: Page 4
+          - button "rotate_right" [ref=e61]:
+            - generic [ref=e62]: rotate_right
+          - generic [ref=e63]: Empty
+        - generic [ref=e64]:
+          - generic [ref=e65]: Page 5
+          - button "rotate_right" [ref=e66]:
+            - generic [ref=e67]: rotate_right
+          - generic [ref=e68]: Empty
+        - generic [ref=e69]:
+          - generic [ref=e70]: Page 6
+          - button "rotate_right" [ref=e71]:
+            - generic [ref=e72]: rotate_right
+          - generic [ref=e73]: Empty
+        - generic [ref=e74]:
+          - generic [ref=e75]: Page 7
+          - button "rotate_right" [ref=e76]:
+            - generic [ref=e77]: rotate_right
+          - generic [ref=e78]: Empty
+        - generic [ref=e79]:
+          - generic [ref=e80]: Back
+          - button "rotate_right" [ref=e81]:
+            - generic [ref=e82]: rotate_right
+          - generic [ref=e83]: Empty
+  - contentinfo [ref=e84]:
+    - paragraph [ref=e85]: Made by Aaron
 ```
