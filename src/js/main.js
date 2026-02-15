@@ -142,22 +142,34 @@ class PDFZineMaker {
 
 
 
-      // Process pages
-      for (let i = 1; i <= maxPages; i++) {
-        const canvas = await this.pdfProcessor.renderPage(i);
+      // Process pages in parallel
+      const batchSize = 2; // Concurrency limit
+      let completedPages = 0;
+
+      const processPage = async (pageNum) => {
+        const canvas = await this.pdfProcessor.renderPage(pageNum);
         const url = await this.pdfProcessor.canvasToBlob(canvas);
 
         // Revoke old URL if it exists
-        if (this.allPageImages[i - 1]) {
-          this.pdfProcessor.revokeBlobUrl(this.allPageImages[i - 1]);
+        if (this.allPageImages[pageNum - 1]) {
+          this.pdfProcessor.revokeBlobUrl(this.allPageImages[pageNum - 1]);
         }
 
-        this.allPageImages[i - 1] = url;
-        this.ui.updatePagePreview(i - 1, url);
+        this.allPageImages[pageNum - 1] = url;
+        this.ui.updatePagePreview(pageNum - 1, url);
 
-        const percent = Math.round((i / maxPages) * 100);
-        this.ui.showProgress(true, `Processing Page ${i} of ${maxPages}`, `${percent}%`);
+        completedPages++;
+        const percent = Math.round((completedPages / maxPages) * 100);
+        this.ui.showProgress(true, 'Processing Pages...', `${percent}%`);
         this.ui.updateProgress(percent);
+      };
+
+      for (let i = 1; i <= maxPages; i += batchSize) {
+        const batch = [];
+        for (let j = 0; j < batchSize && (i + j) <= maxPages; j++) {
+          batch.push(processPage(i + j));
+        }
+        await Promise.all(batch);
       }
 
       // Fill blanks - using the same blank page logic
@@ -387,7 +399,7 @@ class PDFZineMaker {
         await new Promise(r => setTimeout(r, 100)); // Allow DOM to update
 
         const canvas = await html2canvas(grid, {
-          scale: 3,
+          scale: 2, // Reduced from 3 for performance
           useCORS: true,
           backgroundColor: '#ffffff',
           logging: false
