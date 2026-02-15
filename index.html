@@ -48,7 +48,7 @@
 
                     <div class="grid grid-cols-1 gap-4">
                         <div>
-                            <label class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Paper
+                            <label for="paper-size-select" class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Paper
                                 Size</label>
                             <select id="paper-size-select" class="w-full bg-white font-typewriter text-sm p-2">
                                 <!-- Populated by JS -->
@@ -56,7 +56,7 @@
                         </div>
 
                         <div>
-                            <label
+                            <label for="orientation-select"
                                 class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Orientation</label>
                             <select id="orientation-select" class="w-full bg-white font-typewriter text-sm p-2">
                                 <option value="landscape">LANDSCAPE</option>
@@ -70,10 +70,10 @@
                         <label class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-2">Grid
                             Layout</label>
                         <div class="flex gap-2 items-center">
-                            <input type="number" id="grid-rows" min="1" max="10" value="2"
+                            <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Grid rows"
                                 class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
                             <span class="text-2xl font-marker">X</span>
-                            <input type="number" id="grid-cols" min="1" max="10" value="4"
+                            <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Grid columns"
                                 class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
                         </div>
                         <span id="grid-total" class="text-xs mt-2 block font-bold font-typewriter text-gray-500">(8
@@ -152,7 +152,8 @@
 
     <!-- Progress Overlay -->
     <div id="progress-container"
-        class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center p-6 hidden backdrop-grayscale">
+        class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center p-6 hidden backdrop-grayscale"
+        role="dialog" aria-modal="true" aria-labelledby="progress-text">
         <div
             class="bg-white p-10 border-4 border-black w-full max-w-sm text-center shadow-[8px_8px_0_black] transform rotate-1">
             <h3 id="progress-text" class="text-2xl font-marker mb-6 uppercase">PROCESSING...</h3>
@@ -165,7 +166,7 @@
     </div>
 
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-[300] space-y-4 font-typewriter"></div>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[300] space-y-4 font-typewriter" role="region" aria-label="Notifications" aria-live="polite"></div>
 
     <script type="module" src="/src/js/main.js"></script>
 
