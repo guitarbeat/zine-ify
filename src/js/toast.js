@@ -33,21 +33,41 @@ class Toast {
     toast.setAttribute('role', 'alert');
 
     const icon = this.getIcon(type);
-    const content = `
-      <div class="toast-icon">${icon}</div>
-      <div class="toast-content">
-        <div class="toast-title">${title}</div>
-        ${message ? `<div class="toast-message">${message}</div>` : ''}
-      </div>
-      <button class="toast-close" aria-label="Close notification">&times;</button>
-    `;
 
-    toast.innerHTML = content;
-    this.container.appendChild(toast);
+    // Create Icon Container
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'toast-icon';
+    iconDiv.innerHTML = icon; // SVG is trusted
+    toast.appendChild(iconDiv);
 
-    // Add close button functionality
-    const closeBtn = toast.querySelector('.toast-close');
+    // Create Content Container
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'toast-content';
+
+    // Title (Safe Text)
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'toast-title';
+    titleDiv.textContent = title;
+    contentDiv.appendChild(titleDiv);
+
+    // Message (Safe Text)
+    if (message) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'toast-message';
+      messageDiv.textContent = message;
+      contentDiv.appendChild(messageDiv);
+    }
+    toast.appendChild(contentDiv);
+
+    // Create Close Button
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'toast-close';
+    closeBtn.setAttribute('aria-label', 'Close notification');
+    closeBtn.innerHTML = '&times;';
     closeBtn.addEventListener('click', () => this.remove(toast));
+    toast.appendChild(closeBtn);
+
+    this.container.appendChild(toast);
 
     // Auto remove after duration
     if (duration > 0) {
