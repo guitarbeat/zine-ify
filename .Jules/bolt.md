@@ -13,3 +13,11 @@
 ## 2026-01-21 - Canvas Reuse Optimization
 **Learning:** Recreating a `<canvas>` element for every page rendered (in a loop) triggers heavy DOM manipulation and Garbage Collection, slowing down processing significantly (especially for large PDFs).
 **Action:** Use a single shared `<canvas>` instance (e.g., as a class property) and resize/clear it (`canvas.width = ...`) for each render operation instead of creating/destroying elements. This yielded a ~15% performance gain (~400ms on a 16-page PDF).
+
+## 2026-02-05 - Debouncing Grid Updates
+**Learning:** Frequent DOM updates triggered by input events (e.g., typing "10" triggers updates for "1" then "10") can cause significant thrashing. Implementing a debounce on the input listener reduced  calls from 3 to 1 for a simple 2-digit input.
+**Action:** Always wrap high-frequency event handlers (like  or ) with  or  if they trigger expensive operations (like DOM rebuilding).
+
+## 2026-02-05 - Debouncing Grid Updates
+**Learning:** Frequent DOM updates triggered by input events (e.g., typing "10" triggers updates for "1" then "10") can cause significant thrashing. Implementing a debounce on the input listener reduced `generateCustomGrid` calls from 3 to 1 for a simple 2-digit input.
+**Action:** Always wrap high-frequency event handlers (like `input` or `scroll`) with `debounce` or `throttle` if they trigger expensive operations (like DOM rebuilding).

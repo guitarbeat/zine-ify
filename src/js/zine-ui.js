@@ -2,6 +2,7 @@
 import mitt from 'mitt';
 import { PAPER_SIZES, ZINE_TEMPLATES } from './config.js';
 import { toast } from './toast.js';
+import { debounce } from './utils.js';
 
 export class UIManager {
   constructor() {
@@ -132,8 +133,9 @@ export class UIManager {
       }
       this.emitter.emit('gridSizeChanged', { rows, cols });
     };
-    this.elements.gridRows?.addEventListener('input', handleGridChange);
-    this.elements.gridCols?.addEventListener('input', handleGridChange);
+    const debouncedHandleGridChange = debounce(handleGridChange, 300);
+    this.elements.gridRows?.addEventListener('input', debouncedHandleGridChange);
+    this.elements.gridCols?.addEventListener('input', debouncedHandleGridChange);
 
     // Keyboard
     document.addEventListener('keydown', (e) => this.handleKeyboard(e));
