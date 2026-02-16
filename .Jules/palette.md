@@ -9,3 +9,7 @@
 ## 2024-05-22 - Focus Style Specificity Override
 **Learning:** CSS specificity conflicts between custom component classes (e.g., `.upload-box`) and utility classes (e.g., Tailwind's `bg-yellow-300`) can prevent focus styles from applying correctly. In this case, `.upload-box` defined a background color that overrode the focus utility.
 **Action:** Used `!important` modifiers (e.g., `focus:!bg-yellow-300`) to ensure accessibility focus styles are visible and take precedence without requiring a full refactor of the existing CSS architecture.
+
+## 2026-02-16 - Dynamic Toast Roles
+**Learning:** Using `role="alert"` for all toasts is aggressive. Errors should use `role="alert"` (assertive), while success/info messages should use `role="status"` (polite) within an `aria-live="polite"` container.
+**Action:** Dynamically assign roles based on message type in notification components.
