@@ -8,8 +8,6 @@ export class PDFProcessor {
   constructor() {
     this.pdf = null;
     this.isProcessing = false;
-    this.sharedCanvas = null;
-    this.sharedContext = null;
   }
 
   /**
@@ -132,23 +130,11 @@ export class PDFProcessor {
       const width = Math.floor(viewport.width);
       const height = Math.floor(viewport.height);
 
-      // Reuse shared canvas if available, otherwise create one
-      if (!this.sharedCanvas) {
-        this.sharedCanvas = document.createElement('canvas');
-        this.sharedContext = this.sharedCanvas.getContext('2d', { alpha: false });
-        this.sharedCanvas.width = width;
-        this.sharedCanvas.height = height;
-      } else {
-        // Resize if needed (clears content)
-        if (this.sharedCanvas.width !== width || this.sharedCanvas.height !== height) {
-          this.sharedCanvas.width = width;
-          this.sharedCanvas.height = height;
-        }
-        // If dimensions match, existing content is overwritten by fillRect below
-      }
-
-      const canvas = this.sharedCanvas;
-      const context = this.sharedContext;
+      // Create new canvas for each page to allow parallel processing
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d', { alpha: false });
+      canvas.width = width;
+      canvas.height = height;
 
       // Fill background white
       context.fillStyle = '#ffffff';
@@ -182,7 +168,7 @@ export class PDFProcessor {
       canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
         resolve(url);
-      }, 'image/jpeg', 0.9);
+      }, 'image/jpeg', 0.8);
     });
   }
 
@@ -256,7 +242,5 @@ export class PDFProcessor {
       this.fileUrl = null;
     }
     this.isProcessing = false;
-    this.sharedCanvas = null;
-    this.sharedContext = null;
   }
 }

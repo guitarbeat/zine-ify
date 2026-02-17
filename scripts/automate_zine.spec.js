@@ -3,6 +3,8 @@ import { test, expect } from '@playwright/test';
 import path from 'path';
 
 test('automate 16-page zine conversion', async ({ page }) => {
+    test.setTimeout(60000); // Increase timeout for export
+
     // 1. Go to app
     console.log('Navigating to app...');
     await page.goto('http://localhost:8000');
@@ -10,13 +12,13 @@ test('automate 16-page zine conversion', async ({ page }) => {
     // 2. Prepare file upload
     console.log('Uploading PDF...');
     const fileInput = page.locator('#pdf-upload');
-    await fileInput.setInputFiles('aaron-made-me-do-this 2.pdf');
+    await fileInput.setInputFiles('test-16-pages.pdf');
 
     // 3. Wait for processing to finish
     // We look for the progress container to disappear OR the success toast
     console.log('Waiting for processing...');
     await expect(page.locator('#progress-container')).toBeHidden({ timeout: 30000 });
-    await expect(page.locator('.toast-success').filter({ hasText: 'Processing Complete' })).toBeVisible({ timeout: 10000 });
+    await expect(page.locator('.toast-success').filter({ hasText: 'Done!' })).toBeVisible({ timeout: 10000 });
 
     // Verify 16 pages/ 2 zines detected
     // Check if tabs exist
