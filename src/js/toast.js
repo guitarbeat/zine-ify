@@ -33,21 +33,37 @@ class Toast {
     toast.setAttribute('role', 'alert');
 
     const icon = this.getIcon(type);
-    const content = `
-      <div class="toast-icon">${icon}</div>
-      <div class="toast-content">
-        <div class="toast-title">${title}</div>
-        ${message ? `<div class="toast-message">${message}</div>` : ''}
-      </div>
-      <button class="toast-close" aria-label="Close notification">&times;</button>
-    `;
+    // Create structure securely to prevent XSS
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'toast-icon';
+    iconDiv.innerHTML = icon; // Icons are trusted SVGs from getIcon()
 
-    toast.innerHTML = content;
-    this.container.appendChild(toast);
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'toast-content';
 
-    // Add close button functionality
-    const closeBtn = toast.querySelector('.toast-close');
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'toast-title';
+    titleDiv.textContent = title; // Secure: textContent escapes HTML
+    contentDiv.appendChild(titleDiv);
+
+    if (message) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'toast-message';
+      messageDiv.textContent = message; // Secure: textContent escapes HTML
+      contentDiv.appendChild(messageDiv);
+    }
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'toast-close';
+    closeBtn.setAttribute('aria-label', 'Close notification');
+    closeBtn.innerHTML = '&times;'; // Safe entity
     closeBtn.addEventListener('click', () => this.remove(toast));
+
+    toast.appendChild(iconDiv);
+    toast.appendChild(contentDiv);
+    toast.appendChild(closeBtn);
+
+    this.container.appendChild(toast);
 
     // Auto remove after duration
     if (duration > 0) {
