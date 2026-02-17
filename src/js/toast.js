@@ -15,9 +15,14 @@ class Toast {
       this.container = document.createElement('div');
       this.container.id = 'toast-container';
       this.container.className = 'toast-container fixed bottom-6 right-6 z-[300] flex flex-col gap-4 font-typewriter pointer-events-none';
-      this.container.setAttribute('aria-live', 'polite');
       document.body.appendChild(this.container);
     }
+
+    // Always ensure accessible attributes
+    this.container.setAttribute('aria-live', 'polite');
+    this.container.setAttribute('aria-atomic', 'true');
+    this.container.setAttribute('role', 'region');
+    this.container.setAttribute('aria-label', 'Notifications');
   }
 
   /**
@@ -30,7 +35,10 @@ class Toast {
   show(type, title, message = '', duration = 5000) {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.setAttribute('role', 'alert');
+
+    // Dynamic role based on type
+    const role = type === 'error' ? 'alert' : 'status';
+    toast.setAttribute('role', role);
 
     const icon = this.getIcon(type);
     // Create structure securely to prevent XSS
