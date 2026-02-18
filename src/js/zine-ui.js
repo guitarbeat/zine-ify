@@ -544,10 +544,6 @@ export class UIManager {
     }
   }
 
-  setActiveTab() {
-    // Obsolete
-  }
-
   triggerFileUpload() {
     this.elements.pdfUpload?.click();
   }

@@ -123,3 +123,8 @@ dist
 .vscode
 *.swp
 *.swo
+
+# Playwright
+playwright-report/
+test-results/
+invalid.txt
