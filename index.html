@@ -48,7 +48,7 @@
 
                     <div class="grid grid-cols-1 gap-4">
                         <div>
-                            <label class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Paper
+                            <label for="paper-size-select" class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Paper
                                 Size</label>
                             <select id="paper-size-select" class="w-full bg-white font-typewriter text-sm p-2">
                                 <!-- Populated by JS -->
@@ -56,7 +56,7 @@
                         </div>
 
                         <div>
-                            <label
+                            <label for="orientation-select"
                                 class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Orientation</label>
                             <select id="orientation-select" class="w-full bg-white font-typewriter text-sm p-2">
                                 <option value="landscape">LANDSCAPE</option>
@@ -66,14 +66,14 @@
                     </div>
 
                     <!-- Grid Size Inputs -->
-                    <div class="pt-4 border-t-2 border-dashed border-black mt-2">
-                        <label class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-2">Grid
+                    <div class="pt-4 border-t-2 border-dashed border-black mt-2" role="group" aria-labelledby="grid-layout-label">
+                        <label id="grid-layout-label" class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-2">Grid
                             Layout</label>
                         <div class="flex gap-2 items-center">
-                            <input type="number" id="grid-rows" min="1" max="10" value="2"
+                            <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Grid Rows"
                                 class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
-                            <span class="text-2xl font-marker">X</span>
-                            <input type="number" id="grid-cols" min="1" max="10" value="4"
+                            <span class="text-2xl font-marker" aria-hidden="true">X</span>
+                            <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Grid Columns"
                                 class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
                         </div>
                         <span id="grid-total" class="text-xs mt-2 block font-bold font-typewriter text-gray-500">(8

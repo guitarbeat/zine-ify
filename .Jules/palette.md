@@ -13,3 +13,7 @@
 ## 2026-02-16 - Dynamic Toast Roles
 **Learning:** Using `role="alert"` for all toasts is aggressive. Errors should use `role="alert"` (assertive), while success/info messages should use `role="status"` (polite) within an `aria-live="polite"` container.
 **Action:** Dynamically assign roles based on message type in notification components.
+
+## 2026-02-16 - Form Accessibility: Label Association
+**Learning:** Visual proximity of labels to inputs does not guarantee accessibility. Missing `for` attributes on `label` elements breaks screen reader announcements and click-to-focus behavior.
+**Action:** Always verify label associations using automated tools or by clicking the label to ensure focus shifts to the input.
