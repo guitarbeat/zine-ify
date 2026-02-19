@@ -50,6 +50,36 @@ export class PDFProcessor {
   }
 
   /**
+   * Validate PDF file signature (magic bytes)
+   * @param {File} file - PDF file to validate
+   * @returns {Promise<boolean>} True if valid PDF signature found
+   */
+  async validateFileSignature(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const arr = new Uint8Array(e.target.result);
+          // Check for %PDF- (hex: 25 50 44 46 2D)
+          for (let i = 0; i < arr.length - 4; i++) {
+            if (arr[i] === 0x25 && arr[i + 1] === 0x50 && arr[i + 2] === 0x44 && arr[i + 3] === 0x46 && arr[i + 4] === 0x2D) {
+              resolve(true);
+              return;
+            }
+          }
+          resolve(false);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file for validation'));
+      // Read first 1024 bytes (standard header location)
+      const slice = file.slice(0, 1024);
+      reader.readAsArrayBuffer(slice);
+    });
+  }
+
+  /**
    * Load PDF from file
    * @param {File} file - PDF file to load
    * @param {Function} onProgress - Progress callback
@@ -66,6 +96,12 @@ export class PDFProcessor {
       const validation = this.validateFile(file);
       if (!validation.valid) {
         throw new Error(validation.errors.join('. '));
+      }
+
+      // Security: Validate file signature (magic bytes)
+      const isValidSignature = await this.validateFileSignature(file);
+      if (!isValidSignature) {
+        throw new Error('Invalid file signature. The file does not appear to be a PDF.');
       }
 
       onProgress?.('Reading PDF file...');
