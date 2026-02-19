@@ -2,6 +2,7 @@
 import mitt from 'mitt';
 import { PAPER_SIZES, ZINE_TEMPLATES } from './config.js';
 import { toast } from './toast.js';
+import { debounce } from './utils.js';
 
 export class UIManager {
   constructor() {
@@ -124,14 +125,24 @@ export class UIManager {
 
 
     // Grid size inputs
-    const handleGridChange = () => {
+    const updateGridLabel = () => {
       const rows = parseInt(this.elements.gridRows?.value) || 2;
       const cols = parseInt(this.elements.gridCols?.value) || 4;
       if (this.elements.gridTotal) {
         this.elements.gridTotal.textContent = `(${rows * cols} pages)`;
       }
-      this.emitter.emit('gridSizeChanged', { rows, cols });
+      return { rows, cols };
     };
+
+    const emitGridChange = debounce((rows, cols) => {
+      this.emitter.emit('gridSizeChanged', { rows, cols });
+    }, 300);
+
+    const handleGridChange = () => {
+      const { rows, cols } = updateGridLabel();
+      emitGridChange(rows, cols);
+    };
+
     this.elements.gridRows?.addEventListener('input', handleGridChange);
     this.elements.gridCols?.addEventListener('input', handleGridChange);
 
