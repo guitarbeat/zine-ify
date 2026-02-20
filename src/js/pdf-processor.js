@@ -70,6 +70,12 @@ export class PDFProcessor {
 
       onProgress?.('Reading PDF file...');
 
+      // Security check: Validate file signature (Magic Bytes)
+      const isValidSignature = await this.validateFileSignature(file);
+      if (!isValidSignature) {
+        throw new Error('Invalid file format: Missing PDF signature');
+      }
+
       // Use Blob URL instead of reading entire file into ArrayBuffer
       // This saves memory and prevents blocking the main thread
       this.fileUrl = URL.createObjectURL(file);
@@ -107,6 +113,33 @@ export class PDFProcessor {
     } finally {
       this.isProcessing = false;
     }
+  }
+
+  /**
+   * Validate PDF file signature (Magic Bytes)
+   * @param {File} file - PDF file to validate
+   * @returns {Promise<boolean>} True if valid PDF signature
+   */
+  async validateFileSignature(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const arr = new Uint8Array(reader.result).subarray(0, 4);
+          const header = Array.from(arr).map(byte => String.fromCharCode(byte)).join('');
+          // PDF files start with %PDF
+          if (header !== '%PDF') {
+            resolve(false);
+          } else {
+            resolve(true);
+          }
+        } catch (e) {
+          reject(e);
+        }
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(file.slice(0, 4));
+    });
   }
 
   /**
