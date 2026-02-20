@@ -70,6 +70,12 @@ export class PDFProcessor {
 
       onProgress?.('Reading PDF file...');
 
+      // Security check: Validate file signature
+      const isValidSignature = await this.validateFileSignature(file);
+      if (!isValidSignature) {
+        throw new Error('Invalid file signature. Please select a valid PDF file.');
+      }
+
       // Use Blob URL instead of reading entire file into ArrayBuffer
       // This saves memory and prevents blocking the main thread
       this.fileUrl = URL.createObjectURL(file);
@@ -107,6 +113,25 @@ export class PDFProcessor {
     } finally {
       this.isProcessing = false;
     }
+  }
+
+  /**
+   * Validate file signature (magic bytes) to ensure it's a PDF
+   * @param {File} file - File to validate
+   * @returns {Promise<boolean>} True if file signature matches PDF
+   */
+  async validateFileSignature(file) {
+    // Check first 1024 bytes for %PDF-
+    // PDF 1.7 Spec: The header line shall be the first line of a PDF file.
+    // "A PDF file shall begin with the 5 characters %PDF- followed by a version number"
+    // However, some implementations allow it within first 1024 bytes.
+    const HEADER_LIMIT = 1024;
+    const slice = file.slice(0, HEADER_LIMIT);
+    const buffer = await slice.arrayBuffer();
+    const data = new Uint8Array(buffer);
+    const decoder = new TextDecoder();
+    const text = decoder.decode(data);
+    return text.includes('%PDF-');
   }
 
   /**
