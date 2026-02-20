@@ -149,12 +149,11 @@ export class PDFProcessor {
 
       await page.render(renderContext).promise;
 
-      console.log(`Rendered page ${pageNum}, canvas size: ${canvas.width}x${canvas.height}`);
       return canvas;
 
     } catch (error) {
       console.error(`Failed to render page ${pageNum}:`, error);
-      throw new Error(`Failed to render page ${pageNum}`);
+      throw new Error(`Failed to render page ${pageNum}`, { cause: error });
     }
   }
 
@@ -193,7 +192,6 @@ export class PDFProcessor {
     try {
       // Use JPEG for smaller file sizes, PNG as fallback
       const dataUrl = canvas.toDataURL(format, quality);
-      console.log(`Generated data URL, format: ${format}, size: ${dataUrl.length} chars`);
       return dataUrl;
     } catch (error) {
       console.warn(`Failed to generate ${format}, falling back to PNG:`, error);

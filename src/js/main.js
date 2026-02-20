@@ -184,7 +184,7 @@ class PDFZineMaker {
     } catch (error) {
       console.error('PDF Error:', error);
       this.ui.showProgress(false);
-      toast.error('Error', 'Failed to process PDF.');
+      toast.error('Error', error.message || 'Failed to process PDF.');
     }
   }
 
