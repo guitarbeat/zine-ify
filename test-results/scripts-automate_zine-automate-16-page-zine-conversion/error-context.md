@@ -1,0 +1,132 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - heading "Zine-ify" [level=1] [ref=e4]
+    - paragraph [ref=e5]: MAKE ZINES // BREAK THINGS
+  - main [ref=e6]:
+    - generic [ref=e7]:
+      - button "Upload PDF document" [ref=e8] [cursor=pointer]:
+        - generic [ref=e10]: cloud_upload
+        - heading "DROP PDF HERE" [level=2] [ref=e11]
+        - paragraph [ref=e12]: Successfully processed 16 pages
+      - generic [ref=e13]:
+        - heading "Settings" [level=3] [ref=e14]
+        - generic [ref=e15]:
+          - generic [ref=e16]:
+            - generic [ref=e17]: Paper Size
+            - combobox [ref=e18]:
+              - option "A4 (210 × 297 mm)" [selected]
+              - option "A3 (297 × 420 mm)"
+              - option "Letter (8.5 × 11 in)"
+              - option "Legal (8.5 × 14 in)"
+              - option "A5 (148 × 210 mm)"
+          - generic [ref=e19]:
+            - generic [ref=e20]: Orientation
+            - combobox [ref=e21]:
+              - option "LANDSCAPE" [selected]
+              - option "PORTRAIT"
+        - generic [ref=e22]:
+          - generic [ref=e23]: Grid Layout
+          - generic [ref=e24]:
+            - spinbutton [ref=e25]: "4"
+            - generic [ref=e26]: X
+            - spinbutton [ref=e27]: "4"
+          - generic [ref=e28]: (16 pages)
+        - generic [ref=e30]:
+          - 'checkbox "Show Page #" [checked] [ref=e31]'
+          - generic [ref=e32]: "Show Page #"
+      - generic [ref=e33]:
+        - button "file_download DOWNLOAD PDF" [ref=e34]:
+          - generic [ref=e35]: file_download
+          - text: DOWNLOAD PDF
+        - button "print PRINT IT" [ref=e36]:
+          - generic [ref=e37]: print
+          - text: PRINT IT
+    - generic [ref=e38]:
+      - heading "Preview" [level=2] [ref=e40]
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: Page 4
+          - button "rotate_right" [ref=e46]:
+            - generic [ref=e47]: rotate_right
+          - img "Page 4" [ref=e48]
+        - generic [ref=e49]:
+          - generic [ref=e50]: Page 3
+          - button "rotate_right" [ref=e51]:
+            - generic [ref=e52]: rotate_right
+          - img "Page 3" [ref=e53]
+        - generic [ref=e54]:
+          - generic [ref=e55]: Page 2
+          - button "rotate_right" [ref=e56]:
+            - generic [ref=e57]: rotate_right
+          - img "Page 2" [ref=e58]
+        - generic [ref=e59]:
+          - generic [ref=e60]: Cover
+          - button "rotate_right" [ref=e61]:
+            - generic [ref=e62]: rotate_right
+          - img "Page 1" [ref=e63]
+        - generic [ref=e64]:
+          - generic [ref=e65]: Page 5
+          - button "rotate_right" [ref=e66]:
+            - generic [ref=e67]: rotate_right
+          - img "Page 5" [ref=e68]
+        - generic [ref=e69]:
+          - generic [ref=e70]: Page 6
+          - button "rotate_right" [ref=e71]:
+            - generic [ref=e72]: rotate_right
+          - img "Page 6" [ref=e73]
+        - generic [ref=e74]:
+          - generic [ref=e75]: Page 7
+          - button "rotate_right" [ref=e76]:
+            - generic [ref=e77]: rotate_right
+          - img "Page 7" [ref=e78]
+        - generic [ref=e79]:
+          - generic [ref=e80]: Page 8
+          - button "rotate_right" [ref=e81]:
+            - generic [ref=e82]: rotate_right
+          - img "Page 8" [ref=e83]
+        - generic [ref=e84]:
+          - generic [ref=e85]: Page 12
+          - button "rotate_right" [ref=e86]:
+            - generic [ref=e87]: rotate_right
+          - img "Page 12" [ref=e88]
+        - generic [ref=e89]:
+          - generic [ref=e90]: Page 11
+          - button "rotate_right" [ref=e91]:
+            - generic [ref=e92]: rotate_right
+          - img "Page 11" [ref=e93]
+        - generic [ref=e94]:
+          - generic [ref=e95]: Page 10
+          - button "rotate_right" [ref=e96]:
+            - generic [ref=e97]: rotate_right
+          - img "Page 10" [ref=e98]
+        - generic [ref=e99]:
+          - generic [ref=e100]: Page 9
+          - button "rotate_right" [ref=e101]:
+            - generic [ref=e102]: rotate_right
+          - img "Page 9" [ref=e103]
+        - generic [ref=e104]:
+          - generic [ref=e105]: Page 13
+          - button "rotate_right" [ref=e106]:
+            - generic [ref=e107]: rotate_right
+          - img "Page 13" [ref=e108]
+        - generic [ref=e109]:
+          - generic [ref=e110]: Page 14
+          - button "rotate_right" [ref=e111]:
+            - generic [ref=e112]: rotate_right
+          - img "Page 14" [ref=e113]
+        - generic [ref=e114]:
+          - generic [ref=e115]: Page 15
+          - button "rotate_right" [ref=e116]:
+            - generic [ref=e117]: rotate_right
+          - img "Page 15" [ref=e118]
+        - generic [ref=e119]:
+          - generic [ref=e120]: Back
+          - button "rotate_right" [ref=e121]:
+            - generic [ref=e122]: rotate_right
+          - img "Page 16" [ref=e123]
+  - contentinfo [ref=e124]:
+    - paragraph [ref=e125]: Made by Aaron
+```
