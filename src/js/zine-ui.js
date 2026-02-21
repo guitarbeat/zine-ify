@@ -264,7 +264,7 @@ export class UIManager {
 
       cell.innerHTML = `
         <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]">${labelText}</span>
-        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip page" aria-label="Rotate page 180 degrees">
+        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip Page ${pageNum}" aria-label="Rotate Page ${pageNum} 180 degrees">
             <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
         </button>
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
@@ -356,7 +356,7 @@ export class UIManager {
 
       cell.innerHTML = `
         <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]">${labelText}</span>
-        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip page" aria-label="Rotate page 180 degrees">
+        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip Page ${item.page}" aria-label="Rotate Page ${item.page} 180 degrees">
             <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
         </button>
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
@@ -417,7 +417,7 @@ export class UIManager {
 
         cell.innerHTML = `
           <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]">${labelText}${sheetLabel}</span>
-        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip page" aria-label="Rotate page 180 degrees">
+        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip Page ${i}" aria-label="Rotate Page ${i} 180 degrees">
               <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
           </button>
           <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
