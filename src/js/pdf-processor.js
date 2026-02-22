@@ -121,17 +121,28 @@ export class PDFProcessor {
    * @returns {Promise<boolean>} True if file signature matches PDF
    */
   async validateFileSignature(file) {
-    // Check first 1024 bytes for %PDF-
+    // Check first 5 bytes for %PDF- (0x25, 0x50, 0x44, 0x46, 0x2D)
     // PDF 1.7 Spec: The header line shall be the first line of a PDF file.
-    // "A PDF file shall begin with the 5 characters %PDF- followed by a version number"
-    // However, some implementations allow it within first 1024 bytes.
-    const HEADER_LIMIT = 1024;
-    const slice = file.slice(0, HEADER_LIMIT);
+    // We enforce strict validation at offset 0 to prevent polyglot file attacks
+    // (e.g. files that are both valid shell scripts/HTML and PDF).
+    const slice = file.slice(0, 5);
     const buffer = await slice.arrayBuffer();
     const data = new Uint8Array(buffer);
-    const decoder = new TextDecoder();
-    const text = decoder.decode(data);
-    return text.includes('%PDF-');
+
+    // %PDF-
+    const magicBytes = [0x25, 0x50, 0x44, 0x46, 0x2D];
+
+    if (data.length < magicBytes.length) {
+      return false;
+    }
+
+    for (let i = 0; i < magicBytes.length; i++) {
+      if (data[i] !== magicBytes[i]) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**
