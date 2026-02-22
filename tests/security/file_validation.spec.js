@@ -66,3 +66,25 @@ test('Should accept files with valid PDF signature (even if corrupted later)', a
   // It will likely be a PDF parsing error
   // checking that we proceed past the signature check
 });
+
+test('Should reject files with garbage before PDF signature (polyglot prevention)', async ({ page }) => {
+  await page.goto('http://localhost:3001');
+
+  // Create a polyglot-like file: garbage then valid PDF signature
+  // 20 bytes of garbage
+  const buffer = Buffer.from('GARBAGE_DATA_HERE_12%PDF-1.7\n%Valid header follows...');
+
+  const fileInput = page.locator('#pdf-upload');
+
+  await fileInput.setInputFiles({
+    name: 'polyglot.pdf',
+    mimeType: 'application/pdf',
+    buffer: buffer
+  });
+
+  const toastContainer = page.locator('#toast-container');
+
+  // We expect strict validation to catch this BEFORE trying to parse with PDF.js
+  // So we expect "Invalid file signature" specifically.
+  await expect(toastContainer).toContainText('Invalid file signature', { timeout: 5000 });
+});
