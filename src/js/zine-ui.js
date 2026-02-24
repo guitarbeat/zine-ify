@@ -592,6 +592,16 @@ export class UIManager {
       e.preventDefault();
       this.emitter.emit('print');
     }
+
+    if (e.key === 'o' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      this.triggerFileUpload();
+    }
+
+    if (e.key === 's' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      this.emitter.emit('export');
+    }
   }
 
   showProgress(show, text = 'Processing PDF...', subtext = '') {
