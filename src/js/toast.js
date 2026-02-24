@@ -53,13 +53,13 @@ class Toast {
 
     const titleDiv = document.createElement('div');
     titleDiv.className = 'toast-title';
-    titleDiv.innerHTML = sanitizeHTML(title); // Secure: Sanitized HTML
+    titleDiv.appendChild(sanitizeHTML(title)); // Secure: Appending sanitized DOM nodes
     contentDiv.appendChild(titleDiv);
 
     if (message) {
       const messageDiv = document.createElement('div');
       messageDiv.className = 'toast-message';
-      messageDiv.innerHTML = sanitizeHTML(message); // Secure: Sanitized HTML
+      messageDiv.appendChild(sanitizeHTML(message)); // Secure: Appending sanitized DOM nodes
       contentDiv.appendChild(messageDiv);
     }
 

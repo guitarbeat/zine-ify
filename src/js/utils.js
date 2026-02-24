@@ -60,38 +60,51 @@ export function delay(ms) {
 /**
  * Sanitize HTML string to prevent XSS while allowing safe formatting
  * @param {string} str - HTML string to sanitize
- * @returns {string} Sanitized HTML string
+ * @returns {DocumentFragment} Sanitized DocumentFragment
  */
 export function sanitizeHTML(str) {
-  if (!str) return '';
+  if (!str) return document.createDocumentFragment();
   const parser = new DOMParser();
   const doc = parser.parseFromString(str, 'text/html');
   const allowedTags = ['b', 'i', 'strong', 'em', 'u', 'br', 'p', 'span'];
+  const fragment = document.createDocumentFragment();
 
   const sanitizeNode = (node) => {
-    if (node.nodeType === 3) return; // Text node is safe
-    if (node.nodeType !== 1) {
-      node.remove();
-      return;
+    if (node.nodeType === 3) {
+      return document.createTextNode(node.textContent);
     }
+
+    if (node.nodeType !== 1) return null;
 
     const tagName = node.tagName.toLowerCase();
+
+    // If not an allowed tag, return its text content
     if (!allowedTags.includes(tagName)) {
-      // Replace with text content
-      const text = document.createTextNode(node.textContent);
-      node.replaceWith(text);
-      return;
+      return document.createTextNode(node.textContent);
     }
 
-    // Remove all attributes
-    while (node.attributes.length > 0) {
-      node.removeAttribute(node.attributes[0].name);
-    }
+    // Create a new clean element in the current document context
+    const cleanElement = document.createElement(tagName);
 
-    // Recursively sanitize children
-    Array.from(node.childNodes).forEach(sanitizeNode);
+    // No attributes allowed - we don't copy any
+
+    // Recursively handle children
+    Array.from(node.childNodes).forEach(child => {
+      const cleanChild = sanitizeNode(child);
+      if (cleanChild) {
+        cleanElement.appendChild(cleanChild);
+      }
+    });
+
+    return cleanElement;
   };
 
-  Array.from(doc.body.childNodes).forEach(sanitizeNode);
-  return doc.body.innerHTML;
+  Array.from(doc.body.childNodes).forEach(node => {
+    const cleanNode = sanitizeNode(node);
+    if (cleanNode) {
+      fragment.appendChild(cleanNode);
+    }
+  });
+
+  return fragment;
 }
