@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { spawn } from 'child_process';
 
+test.describe.configure({ mode: 'serial' });
+
 let server;
 
 test.beforeAll(async () => {
@@ -38,6 +40,27 @@ test('Should reject files without PDF signature', async ({ page }) => {
 
   // Check for the specific error message in the toast
   const toastMessage = page.locator('#toast-container');
+  await expect(toastMessage).toContainText('Invalid file signature', { timeout: 5000 });
+});
+
+test('Should reject polyglot files (valid signature not at offset 0)', async ({ page }) => {
+  await page.goto('http://localhost:3001');
+
+  // Create a polyglot file: starts with junk but has %PDF- later
+  // Current vulnerability: validateFileSignature checks first 1024 bytes with includes()
+  // So this SHOULD pass current check (but we want it to fail)
+  const buffer = Buffer.from('JUNK_HEADER_DATA_TO_BYPASS_OFFSET_0\n%PDF-1.7\nRest of the file');
+
+  const fileInput = page.locator('#pdf-upload');
+
+  await fileInput.setInputFiles({
+    name: 'polyglot.pdf',
+    mimeType: 'application/pdf',
+    buffer: buffer
+  });
+
+  const toastMessage = page.locator('#toast-container');
+  // We expect this to fail validation, so we look for the error message
   await expect(toastMessage).toContainText('Invalid file signature', { timeout: 5000 });
 });
 
