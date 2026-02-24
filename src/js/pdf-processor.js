@@ -124,14 +124,14 @@ export class PDFProcessor {
     // Check first 1024 bytes for %PDF-
     // PDF 1.7 Spec: The header line shall be the first line of a PDF file.
     // "A PDF file shall begin with the 5 characters %PDF- followed by a version number"
-    // However, some implementations allow it within first 1024 bytes.
+    // We enforce strict validation (must be at start) to prevent polyglot attacks.
     const HEADER_LIMIT = 1024;
     const slice = file.slice(0, HEADER_LIMIT);
     const buffer = await slice.arrayBuffer();
     const data = new Uint8Array(buffer);
     const decoder = new TextDecoder();
     const text = decoder.decode(data);
-    return text.includes('%PDF-');
+    return text.startsWith('%PDF-');
   }
 
   /**
