@@ -1,5 +1,7 @@
 // Modern toast notification system
 
+import { sanitizeHTML } from './utils.js';
+
 class Toast {
   constructor() {
     this.container = null;
@@ -51,13 +53,13 @@ class Toast {
 
     const titleDiv = document.createElement('div');
     titleDiv.className = 'toast-title';
-    titleDiv.textContent = title; // Secure: textContent escapes HTML
+    titleDiv.innerHTML = sanitizeHTML(title); // Secure: Sanitized HTML
     contentDiv.appendChild(titleDiv);
 
     if (message) {
       const messageDiv = document.createElement('div');
       messageDiv.className = 'toast-message';
-      messageDiv.textContent = message; // Secure: textContent escapes HTML
+      messageDiv.innerHTML = sanitizeHTML(message); // Secure: Sanitized HTML
       contentDiv.appendChild(messageDiv);
     }
 

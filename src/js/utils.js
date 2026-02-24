@@ -56,3 +56,42 @@ export function formatFileSize(bytes) {
 export function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+/**
+ * Sanitize HTML string to prevent XSS while allowing safe formatting
+ * @param {string} str - HTML string to sanitize
+ * @returns {string} Sanitized HTML string
+ */
+export function sanitizeHTML(str) {
+  if (!str) return '';
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(str, 'text/html');
+  const allowedTags = ['b', 'i', 'strong', 'em', 'u', 'br', 'p', 'span'];
+
+  const sanitizeNode = (node) => {
+    if (node.nodeType === 3) return; // Text node is safe
+    if (node.nodeType !== 1) {
+      node.remove();
+      return;
+    }
+
+    const tagName = node.tagName.toLowerCase();
+    if (!allowedTags.includes(tagName)) {
+      // Replace with text content
+      const text = document.createTextNode(node.textContent);
+      node.replaceWith(text);
+      return;
+    }
+
+    // Remove all attributes
+    while (node.attributes.length > 0) {
+      node.removeAttribute(node.attributes[0].name);
+    }
+
+    // Recursively sanitize children
+    Array.from(node.childNodes).forEach(sanitizeNode);
+  };
+
+  Array.from(doc.body.childNodes).forEach(sanitizeNode);
+  return doc.body.innerHTML;
+}
