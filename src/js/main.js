@@ -379,8 +379,14 @@ class PDFZineMaker {
 
   async handleExport() {
     if (!this.ui.hasContent()) { return; }
+    const originalBtnText = this.ui.elements.exportPdfBtn.innerHTML;
+
     try {
       this.ui.elements.exportPdfBtn.disabled = true;
+      this.ui.elements.exportPdfBtn.innerHTML = `
+        <span class="material-symbols-outlined animate-spin">progress_activity</span>
+        GENERATING...
+      `;
       document.body.classList.add('is-exporting'); // Hide UI controls
       toast.info('Generating PDF...');
 
@@ -436,6 +442,7 @@ class PDFZineMaker {
       console.error(e);
       toast.error('Export Failed', 'Something went wrong.');
     } finally {
+      this.ui.elements.exportPdfBtn.innerHTML = originalBtnText;
       this.ui.elements.exportPdfBtn.disabled = false;
       document.body.classList.remove('is-exporting'); // Restore UI controls
     }
