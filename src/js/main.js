@@ -15,11 +15,25 @@ class PDFZineMaker {
     this.ui = new UIManager();
     this.referenceImageUrl = referenceImageUrl;
     this.allPageImages = new Array(16).fill(null);
+    this._blankPageUrl = null; // Cache for blank page blob URL
     this.pageFlips = {}; // Track individual page flips: { pageIndex: true/false }
     this.gridSize = { rows: 2, cols: 4 }; // Default grid size
     this.init();
   }
 
+
+  /**
+   * Cleanup old blob URLs to prevent memory leaks
+   */
+  cleanupOldImages() {
+    if (!this.allPageImages) {return;}
+
+    this.allPageImages.forEach(url => {
+      if (url && url !== this._blankPageUrl) {
+        this.pdfProcessor.revokeBlobUrl(url);
+      }
+    });
+  }
 
   /**
    * Initialize the application
@@ -89,6 +103,7 @@ class PDFZineMaker {
 
   async processPDF(file) {
     try {
+      this.cleanupOldImages(); // Prevent memory leaks
       toast.info('Reading PDF...', 'Please wait');
       this.ui.showProgress(true, 'Reading PDF...', '0%');
 
@@ -151,7 +166,7 @@ class PDFZineMaker {
         const url = await this.pdfProcessor.canvasToBlob(canvas);
 
         // Revoke old URL if it exists
-        if (this.allPageImages[pageNum - 1]) {
+        if (this.allPageImages[pageNum - 1] && this.allPageImages[pageNum - 1] !== this._blankPageUrl) {
           this.pdfProcessor.revokeBlobUrl(this.allPageImages[pageNum - 1]);
         }
 
@@ -189,21 +204,26 @@ class PDFZineMaker {
   }
 
   async createBlankPage(pageNum) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1000;
-    canvas.height = 1400;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, 1000, 1400);
-    ctx.fillStyle = '#f3f4f6';
-    ctx.font = 'bold 80px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('BLANK', 500, 700);
+    let url = this._blankPageUrl;
 
-    const url = await this.pdfProcessor.canvasToBlob(canvas);
+    if (!url) {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1000;
+      canvas.height = 1400;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 1000, 1400);
+      ctx.fillStyle = '#f3f4f6';
+      ctx.font = 'bold 80px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('BLANK', 500, 700);
+
+      url = await this.pdfProcessor.canvasToBlob(canvas);
+      this._blankPageUrl = url;
+    }
 
     // Revoke old URL if it exists
-    if (this.allPageImages[pageNum - 1]) {
+    if (this.allPageImages[pageNum - 1] && this.allPageImages[pageNum - 1] !== this._blankPageUrl) {
       this.pdfProcessor.revokeBlobUrl(this.allPageImages[pageNum - 1]);
     }
 
