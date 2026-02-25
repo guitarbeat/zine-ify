@@ -60,6 +60,16 @@ export class PDFProcessor {
       throw new Error('PDF processing already in progress');
     }
 
+    // Cleanup previous resources
+    if (this.fileUrl) {
+      URL.revokeObjectURL(this.fileUrl);
+      this.fileUrl = null;
+    }
+    if (this.pdf) {
+      this.pdf.destroy();
+      this.pdf = null;
+    }
+
     this.isProcessing = true;
 
     try {
