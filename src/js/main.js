@@ -15,6 +15,7 @@ class PDFZineMaker {
     this.ui = new UIManager();
     this.referenceImageUrl = referenceImageUrl;
     this.allPageImages = new Array(16).fill(null);
+    this._blankPageUrl = null; // Optimization: Cache single blank page blob
     this.pageFlips = {}; // Track individual page flips: { pageIndex: true/false }
     this.gridSize = { rows: 2, cols: 4 }; // Default grid size
     this.init();
@@ -97,7 +98,6 @@ class PDFZineMaker {
       });
 
       const { numPages } = result;
-      this.selectedLayout = numPages; // Allow any number of pages
       const maxPages = numPages;
 
       let rows, cols;
@@ -125,6 +125,8 @@ class PDFZineMaker {
         this.allPageImages = new Array(Math.max(rows * cols, numPages)).fill(null);
         this.ui.generateCustomGrid(rows, cols, this.allPageImages.length);
       }
+
+      this.selectedLayout = this.allPageImages.length;
 
       // Update grid inputs to match
       if (this.ui.elements.gridRows) {
@@ -189,22 +191,31 @@ class PDFZineMaker {
   }
 
   async createBlankPage(pageNum) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1000;
-    canvas.height = 1400;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, 1000, 1400);
-    ctx.fillStyle = '#f3f4f6';
-    ctx.font = 'bold 80px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('BLANK', 500, 700);
+    let url;
 
-    const url = await this.pdfProcessor.canvasToBlob(canvas);
+    // Use cached blank page if available (Flyweight pattern)
+    if (this._blankPageUrl) {
+      url = this._blankPageUrl;
+    } else {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1000;
+      canvas.height = 1400;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 1000, 1400);
+      ctx.fillStyle = '#f3f4f6';
+      ctx.font = 'bold 80px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('BLANK', 500, 700);
 
-    // Revoke old URL if it exists
-    if (this.allPageImages[pageNum - 1]) {
-      this.pdfProcessor.revokeBlobUrl(this.allPageImages[pageNum - 1]);
+      url = await this.pdfProcessor.canvasToBlob(canvas);
+      this._blankPageUrl = url;
+    }
+
+    // Revoke old URL if it exists AND it's not the shared blank page
+    const oldUrl = this.allPageImages[pageNum - 1];
+    if (oldUrl && oldUrl !== this._blankPageUrl) {
+      this.pdfProcessor.revokeBlobUrl(oldUrl);
     }
 
     this.allPageImages[pageNum - 1] = url;

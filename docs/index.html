@@ -12,11 +12,11 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Permanent+Marker&display=swap"
         rel="stylesheet" />
-  <script type="module" crossorigin src="./assets/index-BB8LqzBg.js"></script>
+  <script type="module" crossorigin src="./assets/index-Cye0BZnE.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/pdfjs-lFNHpD8d.js">
   <link rel="modulepreload" crossorigin href="./assets/jspdf-2GeXGIBk.js">
   <link rel="modulepreload" crossorigin href="./assets/html2canvas-DcoBDRbt.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-CbmAhdSb.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-BovPgwnr.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
@@ -55,7 +55,7 @@
 
                     <div class="grid grid-cols-1 gap-4">
                         <div>
-                            <label class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Paper
+                            <label for="paper-size-select" class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Paper
                                 Size</label>
                             <select id="paper-size-select" class="w-full bg-white font-typewriter text-sm p-2">
                                 <!-- Populated by JS -->
@@ -63,7 +63,7 @@
                         </div>
 
                         <div>
-                            <label
+                            <label for="orientation-select"
                                 class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Orientation</label>
                             <select id="orientation-select" class="w-full bg-white font-typewriter text-sm p-2">
                                 <option value="landscape">LANDSCAPE</option>
@@ -73,14 +73,14 @@
                     </div>
 
                     <!-- Grid Size Inputs -->
-                    <div class="pt-4 border-t-2 border-dashed border-black mt-2">
-                        <label class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-2">Grid
+                    <div class="pt-4 border-t-2 border-dashed border-black mt-2" role="group" aria-labelledby="grid-layout-label">
+                        <label id="grid-layout-label" class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-2">Grid
                             Layout</label>
                         <div class="flex gap-2 items-center">
-                            <input type="number" id="grid-rows" min="1" max="10" value="2"
+                            <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Grid Rows"
                                 class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
-                            <span class="text-2xl font-marker">X</span>
-                            <input type="number" id="grid-cols" min="1" max="10" value="4"
+                            <span class="text-2xl font-marker" aria-hidden="true">X</span>
+                            <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Grid Columns"
                                 class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
                         </div>
                         <span id="grid-total" class="text-xs mt-2 block font-bold font-typewriter text-gray-500">(8
@@ -172,12 +172,12 @@
     </div>
 
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-[300] space-y-4 font-typewriter"></div>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[300] space-y-4 font-typewriter" aria-live="polite" aria-atomic="true" role="region" aria-label="Notifications"></div>
 
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
   <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-DV-Z3Tr6.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-CNtQMOzV.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-BsODSPT6.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>
