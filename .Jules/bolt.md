@@ -21,3 +21,7 @@
 ## 2026-02-05 - Debouncing Grid Updates
 **Learning:** Frequent DOM updates triggered by input events (e.g., typing "10" triggers updates for "1" then "10") can cause significant thrashing. Implementing a debounce on the input listener reduced `generateCustomGrid` calls from 3 to 1 for a simple 2-digit input.
 **Action:** Always wrap high-frequency event handlers (like `input` or `scroll`) with `debounce` or `throttle` if they trigger expensive operations (like DOM rebuilding).
+
+## 2026-03-05 - Sliding Window Worker Pool for PDF Rendering
+**Learning:** Replaced a discrete `Promise.all` batch processing loop with a sliding window worker pool. The discrete `Promise.all` batches would wait for the slowest page in the batch before starting the next batch, leading to "stuttering" and idle CPU time. A sliding window pool keeps exactly `N` workers active at all times, automatically picking up the next task as soon as one finishes, resulting in better CPU utilization and smoother UI progress.
+**Action:** When processing a large number of independent async tasks (like rendering PDF pages or generating images), prefer a sliding window worker pool over batched `Promise.all` to maximize concurrency and avoid bottlenecks caused by variable task durations.

@@ -144,35 +144,40 @@ class PDFZineMaker {
 
 
 
-      // Process pages in parallel
-      const batchSize = 2; // Concurrency limit
+      // Process pages in parallel using a sliding window pool
+      // This maximizes CPU usage by replacing the discrete Promise.all batching approach
+      const concurrencyLimit = 4; // Sliding window worker pool concurrency limit
       let completedPages = 0;
+      let nextPageIndex = 1;
 
-      const processPage = async (pageNum) => {
-        const canvas = await this.pdfProcessor.renderPage(pageNum);
-        const url = await this.pdfProcessor.canvasToBlob(canvas);
+      const processNextPage = async () => {
+        while (nextPageIndex <= maxPages) {
+          const pageNum = nextPageIndex++;
+          try {
+            const canvas = await this.pdfProcessor.renderPage(pageNum);
+            const url = await this.pdfProcessor.canvasToBlob(canvas);
 
-        // Revoke old URL if it exists
-        if (this.allPageImages[pageNum - 1]) {
-          this.pdfProcessor.revokeBlobUrl(this.allPageImages[pageNum - 1]);
+            // Revoke old URL if it exists
+            if (this.allPageImages[pageNum - 1]) {
+              this.pdfProcessor.revokeBlobUrl(this.allPageImages[pageNum - 1]);
+            }
+
+            this.allPageImages[pageNum - 1] = url;
+            this.ui.updatePagePreview(pageNum - 1, url);
+          } finally {
+            completedPages++;
+            const percent = Math.round((completedPages / maxPages) * 100);
+            this.ui.showProgress(true, 'Processing Pages...', `${percent}%`);
+            this.ui.updateProgress(percent);
+          }
         }
-
-        this.allPageImages[pageNum - 1] = url;
-        this.ui.updatePagePreview(pageNum - 1, url);
-
-        completedPages++;
-        const percent = Math.round((completedPages / maxPages) * 100);
-        this.ui.showProgress(true, 'Processing Pages...', `${percent}%`);
-        this.ui.updateProgress(percent);
       };
 
-      for (let i = 1; i <= maxPages; i += batchSize) {
-        const batch = [];
-        for (let j = 0; j < batchSize && (i + j) <= maxPages; j++) {
-          batch.push(processPage(i + j));
-        }
-        await Promise.all(batch);
+      const workers = [];
+      for (let i = 0; i < concurrencyLimit; i++) {
+        workers.push(processNextPage());
       }
+      await Promise.all(workers);
 
       // Fill blanks - using the same blank page logic
       for (let i = maxPages + 1; i <= (this.selectedLayout); i++) {
