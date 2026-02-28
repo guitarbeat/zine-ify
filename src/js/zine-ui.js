@@ -588,9 +588,17 @@ export class UIManager {
 
   handleKeyboard(e) {
     // Global keyboard shortcuts
-    if (e.key === 'p' && (e.metaKey || e.ctrlKey)) {
+    const key = e.key.toLowerCase();
+
+    if (key === 'p' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       this.emitter.emit('print');
+    } else if (key === 'o' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      this.triggerFileUpload();
+    } else if (key === 's' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      this.emitter.emit('export');
     }
   }
 
