@@ -85,7 +85,9 @@ export class PDFProcessor {
       // Add timeout to PDF loading
       const loadingPromise = pdfjsLib.getDocument({
         url: this.fileUrl,
-        verbosity: 0 // Reduce console output
+        verbosity: 0, // Reduce console output
+        enableScripting: false, // Security: Disable JavaScript execution in PDFs
+        isEvalSupported: false  // Security: Prevent script evaluation compatibility
       }).promise;
 
       const timeoutPromise = new Promise((_, reject) =>
