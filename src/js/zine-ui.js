@@ -138,9 +138,9 @@ export class UIManager {
       }
       updateGridSize(rows, cols);
     };
-    const debouncedHandleGridChange = debounce(handleGridChange, 300);
-    this.elements.gridRows?.addEventListener('input', debouncedHandleGridChange);
-    this.elements.gridCols?.addEventListener('input', debouncedHandleGridChange);
+
+    this.elements.gridRows?.addEventListener('input', handleGridChange);
+    this.elements.gridCols?.addEventListener('input', handleGridChange);
 
     // Keyboard
     document.addEventListener('keydown', (e) => this.handleKeyboard(e));
