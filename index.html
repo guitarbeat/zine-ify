@@ -50,7 +50,7 @@
                         <div>
                             <label for="paper-size-select" class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Paper
                                 Size</label>
-                            <select id="paper-size-select" class="w-full bg-white font-typewriter text-sm p-2">
+                            <select id="paper-size-select" class="w-full bg-white font-typewriter text-sm p-2 focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black">
                                 <!-- Populated by JS -->
                             </select>
                         </div>
@@ -58,7 +58,7 @@
                         <div>
                             <label for="orientation-select"
                                 class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Orientation</label>
-                            <select id="orientation-select" class="w-full bg-white font-typewriter text-sm p-2">
+                            <select id="orientation-select" class="w-full bg-white font-typewriter text-sm p-2 focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black">
                                 <option value="landscape">LANDSCAPE</option>
                                 <option value="portrait">PORTRAIT</option>
                             </select>
@@ -71,10 +71,10 @@
                             Layout</label>
                         <div class="flex gap-2 items-center">
                             <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Grid Rows"
-                                class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
+                                class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black">
                             <span class="text-2xl font-marker" aria-hidden="true">X</span>
                             <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Grid Columns"
-                                class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
+                                class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black">
                         </div>
                         <span id="grid-total" class="text-xs mt-2 block font-bold font-typewriter text-gray-500">(8
                             PAGES TOTAL)</span>
@@ -84,7 +84,7 @@
                     <div class="pt-4 border-t-2 border-dashed border-black mt-2">
                         <div class="flex items-center gap-3">
                             <input type="checkbox" id="show-page-numbers" checked
-                                class="w-6 h-6 border-2 border-black rounded-none text-black focus:ring-0 focus:ring-offset-0">
+                                class="w-6 h-6 border-2 border-black rounded-none text-black focus:ring-0 focus:ring-offset-0 focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black">
                             <label for="show-page-numbers" class="text-sm font-bold uppercase font-typewriter">Show Page
                                 #</label>
                         </div>
@@ -94,13 +94,13 @@
 
                 <div id="action-buttons" class="space-y-3 hidden">
                     <button id="exportPdfBtn"
-                        class="action-button w-full bg-black text-white py-4 flex items-center justify-center gap-2 hover:bg-[#ff00ff] hover:text-black"
+                        class="action-button w-full bg-black text-white py-4 flex items-center justify-center gap-2 hover:bg-[#ff00ff] hover:text-black focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
                         <span class="material-symbols-outlined">file_download</span>
-                        DOWNLOAD PDF
+                        <span class="btn-text">DOWNLOAD PDF</span>
                     </button>
                     <button id="printBtn"
-                        class="action-button w-full bg-white text-black py-4 flex items-center justify-center gap-2 hover:bg-black hover:text-white"
+                        class="action-button w-full bg-white text-black py-4 flex items-center justify-center gap-2 hover:bg-black hover:text-white focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black"
                         title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
                         <span class="material-symbols-outlined">print</span>
                         PRINT IT

@@ -182,8 +182,16 @@ export class UIManager {
   setStatus(message, type = 'info') {
     if (this.elements.uploadStatus) {
       this.elements.uploadStatus.textContent = message;
-      this.elements.uploadStatus.className = `text-[11px] uppercase font-bold tracking-wider ${type === 'error' ? 'text-red-500' : type === 'success' ? 'text-green-500' : 'text-gray-400'
-        }`;
+      let bgColor = 'bg-black';
+      let textColor = 'text-white';
+
+      if (type === 'error') {
+        bgColor = 'bg-red-500';
+      } else if (type === 'success') {
+        bgColor = 'bg-[#00cc00]';
+        textColor = 'text-black';
+      }
+      this.elements.uploadStatus.className = `text-[11px] uppercase font-bold tracking-wider mt-1 px-2 py-1 ${bgColor} ${textColor}`;
     }
   }
 
@@ -267,7 +275,7 @@ export class UIManager {
         <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip page" aria-label="Rotate page 180 degrees">
             <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
         </button>
-        <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
+        <div class="page-placeholder text-gray-500 text-xs font-black uppercase tracking-widest">Empty</div>
         <img alt="Page ${pageNum}" class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
       `;
 
@@ -303,7 +311,7 @@ export class UIManager {
     for (let i = startIndex; i < totalPages; i++) {
       const cell = document.createElement('div');
       // Using similar but distinct styling for bucket items
-      cell.className = 'page-cell bg-white aspect-[1/1.414] relative rounded-lg shadow-sm border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing hover:border-blue-500 transition-colors duration-200';
+      cell.className = 'page-cell bg-white aspect-[1/1.414] relative border-2 border-dashed border-black flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing hover:bg-yellow-300 transition-colors duration-200';
       cell.setAttribute('data-page-index', i);
       cell.draggable = true;
 
@@ -312,11 +320,11 @@ export class UIManager {
       img.draggable = false;
 
       const label = document.createElement('div');
-      label.className = 'absolute top-1 left-1 bg-gray-500 text-white text-[8px] px-1.5 py-0.5 rounded-sm font-bold z-10';
+      label.className = 'absolute top-0 left-0 bg-black text-white text-[10px] px-1.5 py-0.5 font-bold z-10 border-b border-r border-black font-typewriter uppercase';
       label.textContent = `#${i + 1}`;
 
       const placeholder = document.createElement('div');
-      placeholder.className = 'text-[10px] uppercase font-bold text-gray-300 select-none';
+      placeholder.className = 'text-[10px] uppercase font-bold text-gray-500 select-none';
       placeholder.textContent = 'Unused';
 
       cell.appendChild(label);
@@ -359,7 +367,7 @@ export class UIManager {
         <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip page" aria-label="Rotate page 180 degrees">
             <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
         </button>
-        <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
+        <div class="page-placeholder text-gray-500 text-xs font-black uppercase tracking-widest">Empty</div>
         <img alt="Page ${item.page}" class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
       `;
 
@@ -420,7 +428,7 @@ export class UIManager {
         <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip page" aria-label="Rotate page 180 degrees">
               <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
           </button>
-          <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
+          <div class="page-placeholder text-gray-500 text-xs font-black uppercase tracking-widest">Empty</div>
         <img alt="Page ${pageIdx}" class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
         `;
 

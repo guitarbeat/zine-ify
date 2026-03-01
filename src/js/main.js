@@ -392,6 +392,10 @@ class PDFZineMaker {
     if (!this.ui.hasContent()) { return; }
     try {
       this.ui.elements.exportPdfBtn.disabled = true;
+      const btnText = this.ui.elements.exportPdfBtn.querySelector('.btn-text');
+      const btnIcon = this.ui.elements.exportPdfBtn.querySelector('.material-symbols-outlined');
+      if (btnText) {btnText.textContent = 'EXPORTING...';}
+      if (btnIcon) {btnIcon.textContent = 'hourglass_empty';}
       document.body.classList.add('is-exporting'); // Hide UI controls
       toast.info('Generating PDF...');
 
@@ -444,10 +448,15 @@ class PDFZineMaker {
       doc.save(`zine-${Date.now()}.pdf`);
       toast.success('Downloaded!', 'Your PDF is ready.');
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
       toast.error('Export Failed', 'Something went wrong.');
     } finally {
       this.ui.elements.exportPdfBtn.disabled = false;
+      const btnText = this.ui.elements.exportPdfBtn.querySelector('.btn-text');
+      const btnIcon = this.ui.elements.exportPdfBtn.querySelector('.material-symbols-outlined');
+      if (btnText) {btnText.textContent = 'DOWNLOAD PDF';}
+      if (btnIcon) {btnIcon.textContent = 'file_download';}
       document.body.classList.remove('is-exporting'); // Restore UI controls
     }
   }
