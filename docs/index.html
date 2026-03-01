@@ -12,7 +12,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Permanent+Marker&display=swap"
         rel="stylesheet" />
-  <script type="module" crossorigin src="./assets/index-Cye0BZnE.js"></script>
+  <script type="module" crossorigin src="./assets/index-BTEryEoG.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/pdfjs-lFNHpD8d.js">
   <link rel="modulepreload" crossorigin href="./assets/jspdf-2GeXGIBk.js">
   <link rel="modulepreload" crossorigin href="./assets/html2canvas-DcoBDRbt.js">
@@ -38,7 +38,7 @@
             <div class="space-y-4 md:space-y-6 md:sticky md:top-6 relative z-20">
                 <div id="upload-zone"
                     class="upload-box p-4 md:p-6 flex flex-col items-center justify-center text-center cursor-pointer min-h-[140px] group focus:outline-none focus:bg-yellow-300 focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4"
-                    role="button" tabindex="0" aria-label="Upload PDF document">
+                    role="button" tabindex="0" aria-label="Upload PDF document" title="Upload PDF (Ctrl+O)" aria-keyshortcuts="Control+O">
                     <div
                         class="w-12 h-12 border-2 border-black flex items-center justify-center mb-3 group-hover:bg-black group-hover:text-white transition-colors">
                         <span class="material-symbols-outlined text-3xl">cloud_upload</span>
@@ -101,12 +101,14 @@
 
                 <div id="action-buttons" class="space-y-3 hidden">
                     <button id="exportPdfBtn"
-                        class="action-button w-full bg-black text-white py-4 flex items-center justify-center gap-2 hover:bg-[#ff00ff] hover:text-black">
+                        class="action-button w-full bg-black text-white py-4 flex items-center justify-center gap-2 hover:bg-[#ff00ff] hover:text-black"
+                        title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
                         <span class="material-symbols-outlined">file_download</span>
                         DOWNLOAD PDF
                     </button>
                     <button id="printBtn"
-                        class="action-button w-full bg-white text-black py-4 flex items-center justify-center gap-2 hover:bg-black hover:text-white">
+                        class="action-button w-full bg-white text-black py-4 flex items-center justify-center gap-2 hover:bg-black hover:text-white"
+                        title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
                         <span class="material-symbols-outlined">print</span>
                         PRINT IT
                     </button>
@@ -177,7 +179,7 @@
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
   <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-DV-Z3Tr6.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-BsODSPT6.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-tsLut3DT.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>
