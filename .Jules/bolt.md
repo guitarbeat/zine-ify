@@ -21,3 +21,7 @@
 ## 2026-02-05 - Debouncing Grid Updates
 **Learning:** Frequent DOM updates triggered by input events (e.g., typing "10" triggers updates for "1" then "10") can cause significant thrashing. Implementing a debounce on the input listener reduced `generateCustomGrid` calls from 3 to 1 for a simple 2-digit input.
 **Action:** Always wrap high-frequency event handlers (like `input` or `scroll`) with `debounce` or `throttle` if they trigger expensive operations (like DOM rebuilding).
+
+## 2026-02-05 - Async Pool vs Batched Promise.all
+**Learning:** Processing PDF pages using batched `Promise.all` (e.g., processing chunks of 2 pages at a time) can cause UI "stuttering". If one page in the batch renders quickly but the other takes longer, the next batch cannot start until the slow page finishes. This leaves CPU cores idle.
+**Action:** Instead of discrete batches, use a sliding window worker pool pattern. This ensures that as soon as any single task finishes, the next task in the queue begins immediately, maximizing throughput and keeping all concurrency slots filled.
