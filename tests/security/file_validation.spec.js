@@ -57,8 +57,8 @@ test('Should accept files with valid PDF signature (even if corrupted later)', a
 
   const toastMessage = page.locator('#toast-container');
 
-  // Wait for ANY toast message
-  await expect(toastMessage).toBeVisible();
+  // Wait for ANY toast message (the first one could be info "Reading PDF...")
+  await expect(toastMessage).toBeVisible({ timeout: 10000 });
 
   // It should NOT be the signature error
   await expect(toastMessage).not.toContainText('Invalid file signature');

@@ -21,3 +21,7 @@
 ## 2026-02-05 - Debouncing Grid Updates
 **Learning:** Frequent DOM updates triggered by input events (e.g., typing "10" triggers updates for "1" then "10") can cause significant thrashing. Implementing a debounce on the input listener reduced `generateCustomGrid` calls from 3 to 1 for a simple 2-digit input.
 **Action:** Always wrap high-frequency event handlers (like `input` or `scroll`) with `debounce` or `throttle` if they trigger expensive operations (like DOM rebuilding).
+
+## 2026-03-02 - Object Pool Pattern for Canvases
+**Learning:** Recreating `<canvas>` elements for every page rendered (in a loop) triggers heavy DOM manipulation and Garbage Collection, slowing down processing significantly, especially for large PDFs. Earlier notes suggested reusing a single canvas, but that doesn't work well with asynchronous parallel processing where multiple pages might be rendering simultaneously.
+**Action:** Use an Object Pool pattern (`canvasPool`) in `PDFProcessor` to reuse canvas elements safely across concurrent renders. A sliding window concurrency pool can then check out canvases when rendering, and return them when the blob is generated. This minimizes garbage collection while allowing concurrency.

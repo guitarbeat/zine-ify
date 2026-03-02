@@ -8,7 +8,6 @@ export class PDFProcessor {
   constructor() {
     this.pdf = null;
     this.isProcessing = false;
-    this.canvasPool = [];
   }
 
   /**
@@ -16,22 +15,6 @@ export class PDFProcessor {
    */
   async initialize() {
     pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
-  }
-
-  /**
-   * Get a canvas from the pool or create a new one
-   * @returns {HTMLCanvasElement}
-   */
-  getCanvas() {
-    return this.canvasPool.pop() || document.createElement('canvas');
-  }
-
-  /**
-   * Return a canvas to the pool for reuse
-   * @param {HTMLCanvasElement} canvas
-   */
-  releaseCanvas(canvas) {
-    this.canvasPool.push(canvas);
   }
 
   /**
@@ -172,8 +155,8 @@ export class PDFProcessor {
       const width = Math.floor(viewport.width);
       const height = Math.floor(viewport.height);
 
-      // Use canvas from pool to allow parallel processing while minimizing garbage collection
-      const canvas = this.getCanvas();
+      // Create new canvas for each page to allow parallel processing
+      const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d', { alpha: false });
       canvas.width = width;
       canvas.height = height;
@@ -281,7 +264,6 @@ export class PDFProcessor {
       URL.revokeObjectURL(this.fileUrl);
       this.fileUrl = null;
     }
-    this.canvasPool = [];
     this.isProcessing = false;
   }
 }
