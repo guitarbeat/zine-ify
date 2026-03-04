@@ -85,7 +85,9 @@ export class PDFProcessor {
       // Add timeout to PDF loading
       const loadingPromise = pdfjsLib.getDocument({
         url: this.fileUrl,
-        verbosity: 0 // Reduce console output
+        verbosity: 0, // Reduce console output
+        enableScripting: false,
+        isEvalSupported: false
       }).promise;
 
       const timeoutPromise = new Promise((_, reject) =>
@@ -121,17 +123,17 @@ export class PDFProcessor {
    * @returns {Promise<boolean>} True if file signature matches PDF
    */
   async validateFileSignature(file) {
-    // Check first 1024 bytes for %PDF-
+    // Check first 5 bytes for %PDF-
     // PDF 1.7 Spec: The header line shall be the first line of a PDF file.
     // "A PDF file shall begin with the 5 characters %PDF- followed by a version number"
-    // However, some implementations allow it within first 1024 bytes.
-    const HEADER_LIMIT = 1024;
+    // Enforcing this strictly prevents polyglot attacks.
+    const HEADER_LIMIT = 5;
     const slice = file.slice(0, HEADER_LIMIT);
     const buffer = await slice.arrayBuffer();
     const data = new Uint8Array(buffer);
     const decoder = new TextDecoder();
     const text = decoder.decode(data);
-    return text.includes('%PDF-');
+    return text.startsWith('%PDF-');
   }
 
   /**
