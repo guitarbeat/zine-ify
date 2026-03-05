@@ -21,3 +21,7 @@
 ## 2026-02-05 - Debouncing Grid Updates
 **Learning:** Frequent DOM updates triggered by input events (e.g., typing "10" triggers updates for "1" then "10") can cause significant thrashing. Implementing a debounce on the input listener reduced `generateCustomGrid` calls from 3 to 1 for a simple 2-digit input.
 **Action:** Always wrap high-frequency event handlers (like `input` or `scroll`) with `debounce` or `throttle` if they trigger expensive operations (like DOM rebuilding).
+
+## 2026-03-05 - Sliding Window vs Promise.all
+**Learning:** Using `Promise.all()` with batched groups creates a "stuttering" effect. In a batch of 4 tasks, tasks 5-8 cannot start until the slowest task in 1-4 finishes. The main thread blocks unevenly.
+**Action:** Use a sliding window worker pool pattern. Create N generic workers that pull from a queue (or increment a shared counter). This ensures N concurrent tasks are always running, maximizing throughput and smoothing out processing time.
