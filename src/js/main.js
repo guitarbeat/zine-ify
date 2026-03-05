@@ -144,9 +144,12 @@ class PDFZineMaker {
 
 
 
-      // Process pages in parallel
-      const batchSize = 2; // Concurrency limit
+      // Process pages in parallel using a sliding window pool
+      // This prevents "stuttering" caused by waiting for the slowest page in a discrete batch
+      // and improves overall throughput.
+      const concurrencyLimit = 4; // Max concurrent workers
       let completedPages = 0;
+      let nextPageIndex = 1;
 
       const processPage = async (pageNum) => {
         const canvas = await this.pdfProcessor.renderPage(pageNum);
@@ -166,13 +169,17 @@ class PDFZineMaker {
         this.ui.updateProgress(percent);
       };
 
-      for (let i = 1; i <= maxPages; i += batchSize) {
-        const batch = [];
-        for (let j = 0; j < batchSize && (i + j) <= maxPages; j++) {
-          batch.push(processPage(i + j));
+      // Create a pool of workers that continually pull the next available page
+      const workers = Array(concurrencyLimit).fill().map(async () => {
+        while (nextPageIndex <= maxPages) {
+          const pageNum = nextPageIndex;
+          nextPageIndex++;
+          await processPage(pageNum);
         }
-        await Promise.all(batch);
-      }
+      });
+
+      // Wait for all workers to finish processing
+      await Promise.all(workers);
 
       // Fill blanks - using the same blank page logic
       for (let i = maxPages + 1; i <= (this.selectedLayout); i++) {
