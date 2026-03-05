@@ -88,9 +88,13 @@ export class UIManager {
   renderPaperSizeOptions() {
     if (!this.elements.paperSizeSelect) { return; }
 
-    this.elements.paperSizeSelect.innerHTML = Object.entries(PAPER_SIZES)
-      .map(([id, data]) => `<option value="${id}">${data.label}</option>`)
-      .join('');
+    this.elements.paperSizeSelect.innerHTML = '';
+    Object.entries(PAPER_SIZES).forEach(([id, data]) => {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = data.label;
+      this.elements.paperSizeSelect.appendChild(option);
+    });
   }
 
   /**
@@ -263,13 +267,17 @@ export class UIManager {
       const labelText = pageNum === 1 ? 'Cover' : (pageNum === totalSlots ? 'Back' : `Page ${pageNum}`);
 
       cell.innerHTML = `
-        <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]">${labelText}</span>
+        <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
         <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip page" aria-label="Rotate page 180 degrees">
             <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
         </button>
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
-        <img alt="Page ${pageNum}" class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
+        <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
       `;
+
+      // Securely inject dynamic values to prevent DOM-based XSS
+      cell.querySelector('.page-label').textContent = labelText;
+      cell.querySelector('.page-content-img').setAttribute('alt', `Page ${pageNum}`);
 
       this.setupDragAndDrop(cell);
       this.setupFlipButton(cell);
@@ -355,13 +363,17 @@ export class UIManager {
       const labelText = item.page === 1 ? 'Cover' : (item.page === 16 ? 'Back' : `Page ${item.page}`);
 
       cell.innerHTML = `
-        <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]">${labelText}</span>
+        <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
         <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip page" aria-label="Rotate page 180 degrees">
             <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
         </button>
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
-        <img alt="Page ${item.page}" class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
+        <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
       `;
+
+      // Securely inject dynamic values to prevent DOM-based XSS
+      cell.querySelector('.page-label').textContent = labelText;
+      cell.querySelector('.page-content-img').setAttribute('alt', `Page ${item.page}`);
 
       this.setupDragAndDrop(cell);
       this.setupFlipButton(cell);
@@ -413,16 +425,26 @@ export class UIManager {
         cell.setAttribute('draggable', 'true');
 
         const labelText = i === 1 ? 'Cover' : (i === 8 ? 'Back' : `Page ${i}`);
-        const sheetLabel = numSheets > 1 ? ` <span class="opacity-50 text-[8px] ml-1">(Sheet ${s})</span>` : '';
 
         cell.innerHTML = `
-          <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]">${labelText}${sheetLabel}</span>
+          <span class="page-label centered absolute top-2 left-2 px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
         <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip page" aria-label="Rotate page 180 degrees">
               <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
           </button>
           <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
-        <img alt="Page ${pageIdx}" class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
+        <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
         `;
+
+        // Securely inject dynamic values to prevent DOM-based XSS
+        const pageLabelElem = cell.querySelector('.page-label');
+        pageLabelElem.textContent = labelText;
+        if (numSheets > 1) {
+            const sheetLabelSpan = document.createElement('span');
+            sheetLabelSpan.className = 'opacity-50 text-[8px] ml-1';
+            sheetLabelSpan.textContent = ` (Sheet ${s})`;
+            pageLabelElem.appendChild(sheetLabelSpan);
+        }
+        cell.querySelector('.page-content-img').setAttribute('alt', `Page ${pageIdx}`);
 
         this.setupDragAndDrop(cell);
         this.setupFlipButton(cell);
