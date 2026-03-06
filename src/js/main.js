@@ -86,7 +86,7 @@ class PDFZineMaker {
   handleFileSelected(file) {
     // Add file to uploaded files list
     this.uploadedFiles.push({
-      file: file,
+      file,
       name: file.name,
       size: file.size,
       uploadedAt: new Date()
@@ -99,7 +99,7 @@ class PDFZineMaker {
     this.processAdditionalPDF(file);
   }
 
-  async processPDF(file) {
+  async processAdditionalPDF(file) {
     try {
       toast.info('Reading PDF...', 'Please wait');
       this.ui.showProgress(true, 'Reading PDF...', '0%');
@@ -110,39 +110,60 @@ class PDFZineMaker {
 
       const { numPages } = result;
 
-      // Clean up old images before processing new ones to prevent memory leaks
-      this.cleanupOldImages();
+      // Find the current filled pages
+      let currentFilledPages = 0;
+      for (let i = 0; i < this.allPageImages.length; i++) {
+        if (this.allPageImages[i] && this.allPageImages[i] !== this._blankPageUrl) {
+           currentFilledPages = Math.max(currentFilledPages, i + 1);
+        }
+      }
 
-      this.selectedLayout = numPages; // Allow any number of pages
+      this.totalPages = currentFilledPages + numPages;
+      this.selectedLayout = this.totalPages;
       const maxPages = numPages;
 
       let rows, cols;
-
-      if (numPages === 16) {
-        // Special case for 16-page zine (accordion fold on single sheet)
+      if (this.totalPages === 16 && currentFilledPages === 0) {
         rows = 4;
         cols = 4;
         this.gridSize = { rows, cols };
         this.ui.generateLayout(16, 'accordion-16');
+        
+        // Ensure array size
+        if (this.allPageImages.length < 16) {
+           this.allPageImages = new Array(16).fill(null);
+        }
       } else {
-        // Determine grid size based on page count
-        // Try to find a square-ish grid that fits all pages
-        const sqrt = Math.ceil(Math.sqrt(numPages));
-        // Default to at least 2x4 for small docs, otherwise square-ish
-        rows = numPages <= 8 ? 2 : (sqrt > 2 ? sqrt : 2);
-        cols = numPages <= 8 ? 4 : Math.ceil(numPages / rows);
+        const sqrt = Math.ceil(Math.sqrt(this.totalPages));
+        rows = this.totalPages <= 8 ? 2 : (sqrt > 2 ? sqrt : 2);
+        cols = this.totalPages <= 8 ? 4 : Math.ceil(this.totalPages / rows);
 
-        // Ensure we don't exceed max grid input (10x10)
         rows = Math.min(rows, 10);
         cols = Math.min(cols, 10);
 
-        this.gridSize = { rows, cols }; // Update internal state
+        this.gridSize = { rows, cols };
 
-        this.allPageImages = new Array(Math.max(rows * cols, numPages)).fill(null);
+        const requiredLength = Math.max(rows * cols, this.totalPages);
+        
+        // Resize array
+        const newArray = new Array(requiredLength).fill(null);
+        for (let i = 0; i < this.allPageImages.length; i++) {
+           if (i < newArray.length) {
+              newArray[i] = this.allPageImages[i];
+           }
+        }
+        this.allPageImages = newArray;
+
         this.ui.generateCustomGrid(rows, cols, this.allPageImages.length);
+
+        // Restore existing images
+        for (let i = 0; i < this.allPageImages.length; i++) {
+           if (this.allPageImages[i]) {
+              this.ui.updatePagePreview(i, this.allPageImages[i]);
+           }
+        }
       }
 
-      // Update grid inputs to match
       if (this.ui.elements.gridRows) {
         this.ui.elements.gridRows.value = rows;
       }
@@ -156,24 +177,21 @@ class PDFZineMaker {
       const description = `PDF arranged into a ${rows}×${cols} grid (${rows * cols} pages)`;
       this.ui.setReady(true, description);
 
-
-
-      // Process pages in parallel
-      const batchSize = 4; // Increased concurrency limit for better performance
+      const batchSize = 4;
       let completedPages = 0;
 
       const processPage = async (pageNum) => {
+        const targetIndex = currentFilledPages + pageNum - 1;
         const canvas = await this.pdfProcessor.renderPage(pageNum);
         const url = await this.pdfProcessor.canvasToBlob(canvas);
 
-        // Revoke old URL if it exists
-        const oldUrl = this.allPageImages[pageNum - 1];
+        const oldUrl = this.allPageImages[targetIndex];
         if (oldUrl && oldUrl !== this._blankPageUrl) {
           this.pdfProcessor.revokeBlobUrl(oldUrl);
         }
 
-        this.allPageImages[pageNum - 1] = url;
-        this.ui.updatePagePreview(pageNum - 1, url);
+        this.allPageImages[targetIndex] = url;
+        this.ui.updatePagePreview(targetIndex, url);
 
         completedPages++;
         const percent = Math.round((completedPages / maxPages) * 100);
@@ -189,9 +207,9 @@ class PDFZineMaker {
         await Promise.all(batch);
       }
 
-      // Fill blanks - using the same blank page logic
-      for (let i = maxPages + 1; i <= (this.selectedLayout); i++) {
-        await this.createBlankPage(i);
+      // Fill blanks
+      for (let i = this.totalPages; i < rows * cols; i++) {
+        await this.createBlankPage(i + 1);
       }
 
       this.ui.showProgress(false);
@@ -498,3 +516,6 @@ class PDFZineMaker {
     
   }
 }
+
+// Initialize the app
+window.zineMaker = new PDFZineMaker();
