@@ -85,7 +85,9 @@ export class PDFProcessor {
       // Add timeout to PDF loading
       const loadingPromise = pdfjsLib.getDocument({
         url: this.fileUrl,
-        verbosity: 0 // Reduce console output
+        verbosity: 0, // Reduce console output
+        enableScripting: false,
+        isEvalSupported: false
       }).promise;
 
       const timeoutPromise = new Promise((_, reject) =>
@@ -124,21 +126,14 @@ export class PDFProcessor {
     // Check first 5 bytes for %PDF-
     // PDF 1.7 Spec: The header line shall be the first line of a PDF file.
     // "A PDF file shall begin with the 5 characters %PDF- followed by a version number"
-    // Security: Enforce strict offset 0 to prevent polyglot file attacks.
+    // Enforcing this strictly prevents polyglot attacks.
     const HEADER_LIMIT = 5;
     const slice = file.slice(0, HEADER_LIMIT);
     const buffer = await slice.arrayBuffer();
     const data = new Uint8Array(buffer);
-
-    // Check for %PDF- (0x25, 0x50, 0x44, 0x46, 0x2D) at offset 0
-    return (
-      data.length >= 5 &&
-      data[0] === 0x25 &&
-      data[1] === 0x50 &&
-      data[2] === 0x44 &&
-      data[3] === 0x46 &&
-      data[4] === 0x2D
-    );
+    const decoder = new TextDecoder();
+    const text = decoder.decode(data);
+    return text.startsWith('%PDF-');
   }
 
   /**
