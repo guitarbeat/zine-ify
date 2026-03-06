@@ -123,6 +123,12 @@ export class UIManager {
 
     this.elements.pdfUpload?.addEventListener('change', (e) => {
       const files = Array.from(e.target.files);
+      const invalidFiles = files.filter(f => f.type !== 'application/pdf');
+
+      if (invalidFiles.length > 0) {
+        toast.error('Error', 'PDF processing failed: Please select a PDF file');
+      }
+
       files.forEach(file => {
         if (file.type === 'application/pdf') {
           this.emitter.emit('fileSelected', file);
@@ -621,13 +627,13 @@ export class UIManager {
 
     const files = Array.from(e.dataTransfer.files);
     const pdfFiles = files.filter(file => file.type === 'application/pdf');
-    
+
     if (pdfFiles.length > 0) {
       pdfFiles.forEach(file => {
         this.emitter.emit('fileSelected', file);
       });
     } else {
-      toast.error('Invalid Files', 'Please drop valid PDF files');
+      toast.error('Error', 'PDF processing failed: Please select a PDF file');
     }
   }
 
@@ -793,7 +799,7 @@ export class UIManager {
    * Format file size for display
    */
   formatFileSize(bytes) {
-    if (bytes === 0) {return '0 Bytes';}
+    if (bytes === 0) { return '0 Bytes'; }
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));

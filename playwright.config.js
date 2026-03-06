@@ -9,7 +9,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:8000',
+    baseURL: 'http://localhost:8001',
     trace: 'on-first-retry',
   },
   projects: [
@@ -20,7 +20,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'pnpm run build && pnpm run serve:test',
-    url: 'http://localhost:8000',
+    url: 'http://localhost:8001',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

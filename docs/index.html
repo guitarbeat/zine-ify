@@ -12,11 +12,11 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Permanent+Marker&display=swap"
         rel="stylesheet" />
-  <script type="module" crossorigin src="./assets/index-D4_Iczfh.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/pdfjs-lFNHpD8d.js">
-  <link rel="modulepreload" crossorigin href="./assets/jspdf-2GeXGIBk.js">
+  <script type="module" crossorigin src="./assets/index-DtN3kkiL.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/pdfjs-D6wmnEBf.js">
+  <link rel="modulepreload" crossorigin href="./assets/jspdf-BPleGa-m.js">
   <link rel="modulepreload" crossorigin href="./assets/html2canvas-DcoBDRbt.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-BovPgwnr.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-dhVRUZmX.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
@@ -43,10 +43,15 @@
                         class="w-12 h-12 border-2 border-black flex items-center justify-center mb-3 group-hover:bg-black group-hover:text-white transition-colors">
                         <span class="material-symbols-outlined text-3xl">cloud_upload</span>
                     </div>
-                    <h2 class="text-lg font-bold font-marker mb-1">DROP PDF HERE</h2>
+                    <h2 class="text-lg font-bold font-marker mb-1">DROP PDFS HERE</h2>
                     <p id="upload-status" class="text-xs font-bold uppercase mt-1 bg-black text-white px-2 py-1">
-                        Any Page Count</p>
-                    <input type="file" id="pdf-upload" class="hidden" accept="application/pdf">
+                        Add PDFs to zine</p>
+                    <input type="file" id="pdf-upload" class="hidden" accept="application/pdf" multiple>
+                </div>
+
+                <!-- Uploaded Files List -->
+                <div id="uploaded-files-list" class="mt-4">
+                    <p class="text-xs text-gray-400">No files uploaded yet</p>
                 </div>
 
                 <div id="settings-group" class="bg-white p-4 md:p-6 settings-panel space-y-4 md:space-y-5">
@@ -175,11 +180,11 @@
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-[300] space-y-4 font-typewriter" aria-live="polite" aria-atomic="true" role="region" aria-label="Notifications"></div>
-
+
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
-  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-DV-Z3Tr6.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-DNqKhuy0.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-CXdn1uyb.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-C_7eoTj_.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>
