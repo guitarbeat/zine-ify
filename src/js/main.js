@@ -15,7 +15,7 @@ class PDFZineMaker {
     this.ui = new UIManager();
     this.referenceImageUrl = referenceImageUrl;
     this.allPageImages = new Array(16).fill(null);
-    this._blankPageUrl = null; // Optimization: Cache single blank page blob
+    this._blankPageUrl = null;
     this.pageFlips = {}; // Track individual page flips: { pageIndex: true/false }
     this.gridSize = { rows: 2, cols: 4 }; // Default grid size
     this.init();
@@ -98,6 +98,11 @@ class PDFZineMaker {
       });
 
       const { numPages } = result;
+
+      // Clean up old images before processing new ones to prevent memory leaks
+      this.cleanupOldImages();
+
+      this.selectedLayout = numPages; // Allow any number of pages
       const maxPages = numPages;
 
       let rows, cols;
@@ -126,8 +131,6 @@ class PDFZineMaker {
         this.ui.generateCustomGrid(rows, cols, this.allPageImages.length);
       }
 
-      this.selectedLayout = this.allPageImages.length;
-
       // Update grid inputs to match
       if (this.ui.elements.gridRows) {
         this.ui.elements.gridRows.value = rows;
@@ -145,7 +148,7 @@ class PDFZineMaker {
 
 
       // Process pages in parallel
-      const batchSize = 2; // Concurrency limit
+      const batchSize = 4; // Increased concurrency limit for better performance
       let completedPages = 0;
 
       const processPage = async (pageNum) => {
@@ -153,8 +156,9 @@ class PDFZineMaker {
         const url = await this.pdfProcessor.canvasToBlob(canvas);
 
         // Revoke old URL if it exists
-        if (this.allPageImages[pageNum - 1]) {
-          this.pdfProcessor.revokeBlobUrl(this.allPageImages[pageNum - 1]);
+        const oldUrl = this.allPageImages[pageNum - 1];
+        if (oldUrl && oldUrl !== this._blankPageUrl) {
+          this.pdfProcessor.revokeBlobUrl(oldUrl);
         }
 
         this.allPageImages[pageNum - 1] = url;
@@ -191,12 +195,9 @@ class PDFZineMaker {
   }
 
   async createBlankPage(pageNum) {
-    let url;
+    let url = this._blankPageUrl;
 
-    // Use cached blank page if available (Flyweight pattern)
-    if (this._blankPageUrl) {
-      url = this._blankPageUrl;
-    } else {
+    if (!url) {
       const canvas = document.createElement('canvas');
       canvas.width = 1000;
       canvas.height = 1400;
@@ -212,7 +213,7 @@ class PDFZineMaker {
       this._blankPageUrl = url;
     }
 
-    // Revoke old URL if it exists AND it's not the shared blank page
+    // Revoke old URL if it exists
     const oldUrl = this.allPageImages[pageNum - 1];
     if (oldUrl && oldUrl !== this._blankPageUrl) {
       this.pdfProcessor.revokeBlobUrl(oldUrl);
@@ -220,6 +221,23 @@ class PDFZineMaker {
 
     this.allPageImages[pageNum - 1] = url;
     this.ui.updatePagePreview(pageNum - 1, url);
+  }
+
+  /**
+   * Revoke all existing blob URLs to prevent memory leaks
+   */
+  cleanupOldImages() {
+    if (this.allPageImages) {
+      this.allPageImages.forEach(url => {
+        if (url && url !== this._blankPageUrl) {
+          this.pdfProcessor.revokeBlobUrl(url);
+        }
+      });
+      // Reset array to avoid double-revocation or using invalid URLs
+      for (let i = 0; i < this.allPageImages.length; i++) {
+        this.allPageImages[i] = null;
+      }
+    }
   }
 
   handlePagesSwapped({ fromIndex, toIndex }) {
