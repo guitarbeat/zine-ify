@@ -75,7 +75,10 @@ export class UIManager {
 
       // Unused Pages Bucket
       unusedSection: $('#unused-pages-section'),
-      unusedGrid: $('#unused-grid')
+      unusedGrid: $('#unused-grid'),
+
+      // Uploaded Files List
+      uploadedFilesList: $('#uploaded-files-list')
     };
 
   }
@@ -119,8 +122,12 @@ export class UIManager {
     this.elements.uploadZone?.addEventListener('drop', (e) => this.handleFileDrop(e));
 
     this.elements.pdfUpload?.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) { this.emitter.emit('fileSelected', file); }
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
+        if (file.type === 'application/pdf') {
+          this.emitter.emit('fileSelected', file);
+        }
+      });
     });
 
 
@@ -612,11 +619,15 @@ export class UIManager {
       this.elements.uploadZone.classList.remove('dragover');
     }
 
-    const files = e.dataTransfer.files;
-    if (files.length > 0 && files[0].type === 'application/pdf') {
-      this.emitter.emit('fileSelected', files[0]);
+    const files = Array.from(e.dataTransfer.files);
+    const pdfFiles = files.filter(file => file.type === 'application/pdf');
+    
+    if (pdfFiles.length > 0) {
+      pdfFiles.forEach(file => {
+        this.emitter.emit('fileSelected', file);
+      });
     } else {
-      toast.error('Invalid File', 'Please drop a valid PDF file');
+      toast.error('Invalid Files', 'Please drop valid PDF files');
     }
   }
 
@@ -738,6 +749,55 @@ export class UIManager {
   hasContent() {
     return this.elements.zineSheetsContainer &&
       this.elements.zineSheetsContainer.querySelector('.page-content-img:not(.hidden)') !== null;
+  }
+
+  /**
+   * Update the uploaded files list display
+   */
+  updateUploadedFilesList(uploadedFiles) {
+    if (!this.elements.uploadedFilesList) { return; }
+
+    if (uploadedFiles.length === 0) {
+      this.elements.uploadedFilesList.innerHTML = '<p class="text-xs text-gray-400">No files uploaded yet</p>';
+      return;
+    }
+
+    const filesHtml = uploadedFiles.map((fileInfo, index) => `
+      <div class="uploaded-file-item flex items-center justify-between p-2 bg-white border border-black rounded mb-2">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">description</span>
+          <div>
+            <div class="text-xs font-bold font-typewriter">${fileInfo.name}</div>
+            <div class="text-[10px] text-gray-500">${this.formatFileSize(fileInfo.size)}</div>
+          </div>
+        </div>
+        <button 
+          class="remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs"
+          onclick="window.zineMaker.removeUploadedFile(${index})"
+          title="Remove this file"
+        >
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+    `).join('');
+
+    this.elements.uploadedFilesList.innerHTML = `
+      <div class="mb-2">
+        <h4 class="text-sm font-marker uppercase mb-2">Uploaded Files (${uploadedFiles.length})</h4>
+        ${filesHtml}
+      </div>
+    `;
+  }
+
+  /**
+   * Format file size for display
+   */
+  formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   on(event, handler) {

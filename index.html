@@ -36,10 +36,15 @@
                         class="w-12 h-12 border-2 border-black flex items-center justify-center mb-3 group-hover:bg-black group-hover:text-white transition-colors">
                         <span class="material-symbols-outlined text-3xl">cloud_upload</span>
                     </div>
-                    <h2 class="text-lg font-bold font-marker mb-1">DROP PDF HERE</h2>
+                    <h2 class="text-lg font-bold font-marker mb-1">DROP PDFS HERE</h2>
                     <p id="upload-status" class="text-xs font-bold uppercase mt-1 bg-black text-white px-2 py-1">
-                        Any Page Count</p>
-                    <input type="file" id="pdf-upload" class="hidden" accept="application/pdf">
+                        Add PDFs to zine</p>
+                    <input type="file" id="pdf-upload" class="hidden" accept="application/pdf" multiple>
+                </div>
+
+                <!-- Uploaded Files List -->
+                <div id="uploaded-files-list" class="mt-4">
+                    <p class="text-xs text-gray-400">No files uploaded yet</p>
                 </div>
 
                 <div id="settings-group" class="bg-white p-4 md:p-6 settings-panel space-y-4 md:space-y-5">

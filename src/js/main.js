@@ -18,6 +18,8 @@ class PDFZineMaker {
     this._blankPageUrl = null;
     this.pageFlips = {}; // Track individual page flips: { pageIndex: true/false }
     this.gridSize = { rows: 2, cols: 4 }; // Default grid size
+    this.uploadedFiles = []; // Track uploaded PDF files
+    this.totalPages = 0; // Track total pages across all PDFs
     this.init();
   }
 
@@ -30,7 +32,7 @@ class PDFZineMaker {
       await this.pdfProcessor.initialize();
       this.setupEventListeners();
       this.ui.generateLayout(8); // Default to 8 pages
-      this.ui.setStatus('Upload a PDF file to get started', 'info');
+      this.ui.setStatus('Upload PDF files to get started', 'info');
     } catch (error) {
       console.error('Initialization error:', error);
       this.ui.setStatus('Failed to initialize. Please refresh the page.', 'error');
@@ -82,10 +84,19 @@ class PDFZineMaker {
 
 
   handleFileSelected(file) {
-    this.selectedFile = file;
-    this.ui.setStatus(`File selected: ${file.name} (${formatFileSize(file.size)})`, 'success');
+    // Add file to uploaded files list
+    this.uploadedFiles.push({
+      file: file,
+      name: file.name,
+      size: file.size,
+      uploadedAt: new Date()
+    });
+    
+    this.ui.setStatus(`Adding: ${file.name} (${formatFileSize(file.size)})`, 'success');
+    this.ui.updateUploadedFilesList(this.uploadedFiles);
+    
     // Start processing immediately on selection for better UX
-    this.processPDF(file);
+    this.processAdditionalPDF(file);
   }
 
   async processPDF(file) {
@@ -469,8 +480,21 @@ class PDFZineMaker {
       document.body.classList.remove('is-exporting'); // Restore UI controls
     }
   }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  new PDFZineMaker();
-});
+  /**
+   * Remove an uploaded file and its pages from the zine
+   */
+  removeUploadedFile(index) {
+    if (index < 0 || index >= this.uploadedFiles.length) { return; }
+
+    const removedFile = this.uploadedFiles[index];
+    
+    // For now, we'll just remove it from the list and show a message
+    // In a full implementation, we'd need to track which pages belong to which file
+    this.uploadedFiles.splice(index, 1);
+    this.ui.updateUploadedFilesList(this.uploadedFiles);
+    
+    toast.info('File Removed', `${removedFile.name} removed from list. Note: Pages remain in zine.`);
+    
+  }
+}
