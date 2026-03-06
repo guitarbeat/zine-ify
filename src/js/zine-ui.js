@@ -765,18 +765,18 @@ export class UIManager {
     const filesHtml = uploadedFiles.map((fileInfo, index) => `
       <div class="uploaded-file-item flex items-center justify-between p-2 bg-white border border-black rounded mb-2">
         <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-sm">description</span>
+          <span class="material-symbols-outlined text-sm" aria-hidden="true">description</span>
           <div>
-            <div class="text-xs font-bold font-typewriter">${fileInfo.name}</div>
+            <div class="text-xs font-bold font-typewriter file-name-display"></div>
             <div class="text-[10px] text-gray-500">${this.formatFileSize(fileInfo.size)}</div>
           </div>
         </div>
         <button 
-          class="remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs"
+          class="remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black"
           onclick="window.zineMaker.removeUploadedFile(${index})"
           title="Remove this file"
         >
-          <span class="material-symbols-outlined">close</span>
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
         </button>
       </div>
     `).join('');
@@ -787,13 +787,21 @@ export class UIManager {
         ${filesHtml}
       </div>
     `;
+
+    // Securely inject filenames using textContent to prevent DOM-based XSS
+    const fileNameDisplays = this.elements.uploadedFilesList.querySelectorAll('.file-name-display');
+    uploadedFiles.forEach((fileInfo, index) => {
+      if (fileNameDisplays[index]) {
+        fileNameDisplays[index].textContent = fileInfo.name;
+      }
+    });
   }
 
   /**
    * Format file size for display
    */
   formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) {return '0 Bytes';}
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
