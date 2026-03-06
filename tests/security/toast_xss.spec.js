@@ -30,32 +30,40 @@ test.afterAll(() => {
   }
 });
 
-test('Toast should prevent XSS by escaping HTML content', async ({ page }) => {
+test('Toast should allow safe HTML but sanitize XSS', async ({ page }) => {
   // Navigate to our test page served by Vite
-  // The root is served at /, so tests/security/test-toast.html should be accessible
   await page.goto('http://localhost:3000/tests/security/test-toast.html');
-
-  // Wait for the toast module to load and expose window.toast
   await page.waitForFunction(() => window.toast);
 
-  // Trigger a toast with HTML payload in the message
+  // 1. Check Safe HTML (Bold)
   await page.evaluate(() => {
-    window.toast.show('info', 'XSS Title', 'This is <b>bold</b> text');
+    window.toast.show('info', 'Safe Title', 'This is <b>bold</b> text');
   });
 
-  // Check if the bold tag is rendered in the DOM
-  // If vulnerable, the <b> tag will exist and be visible.
-  // If secure, the text "<b>bold</b>" will be rendered as text, so no <b> element.
+  // Expect <b> tag to be present and visible (Safe HTML allowed)
   const boldTag = page.locator('.toast-message b');
+  await expect(boldTag).toBeVisible();
+  await expect(boldTag).toHaveText('bold');
 
-  // Assert that NO bold tag exists
-  await expect(boldTag).not.toBeVisible();
-
-  // Trigger a toast with HTML payload in the title
+  // 2. Check XSS (Script)
   await page.evaluate(() => {
-    window.toast.show('error', '<b>XSS Title</b>', 'Message');
+    window.toast.show('error', 'XSS Attempt', 'Bad <script>window.xssInjected = true</script>');
   });
 
-  const boldTitle = page.locator('.toast-title b');
-  await expect(boldTitle).not.toBeVisible();
+  // Script tag should be removed or sanitized
+  const scriptTag = page.locator('.toast-message script');
+  await expect(scriptTag).not.toBeAttached();
+
+  // Ensure the script didn't execute
+  const xssInjected = await page.evaluate(() => window.xssInjected);
+  expect(xssInjected).toBeUndefined();
+
+  // 3. Check XSS (Event Handler)
+  await page.evaluate(() => {
+    window.toast.show('warning', 'Attr XSS', '<img src=x onerror=alert(1)>');
+  });
+
+  // Img tag should be removed (not in whitelist) or attribute removed
+  const imgTag = page.locator('.toast-message img');
+  await expect(imgTag).not.toBeAttached();
 });

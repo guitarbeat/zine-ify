@@ -56,3 +56,55 @@ export function formatFileSize(bytes) {
 export function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+/**
+ * Sanitize HTML string to prevent XSS while allowing safe formatting
+ * @param {string} str - HTML string to sanitize
+ * @returns {DocumentFragment} Sanitized DocumentFragment
+ */
+export function sanitizeHTML(str) {
+  if (!str) return document.createDocumentFragment();
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(str, 'text/html');
+  const allowedTags = ['b', 'i', 'strong', 'em', 'u', 'br', 'p', 'span'];
+  const fragment = document.createDocumentFragment();
+
+  const sanitizeNode = (node) => {
+    if (node.nodeType === 3) {
+      return document.createTextNode(node.textContent);
+    }
+
+    if (node.nodeType !== 1) return null;
+
+    const tagName = node.tagName.toLowerCase();
+
+    // If not an allowed tag, return its text content
+    if (!allowedTags.includes(tagName)) {
+      return document.createTextNode(node.textContent);
+    }
+
+    // Create a new clean element in the current document context
+    const cleanElement = document.createElement(tagName);
+
+    // No attributes allowed - we don't copy any
+
+    // Recursively handle children
+    Array.from(node.childNodes).forEach(child => {
+      const cleanChild = sanitizeNode(child);
+      if (cleanChild) {
+        cleanElement.appendChild(cleanChild);
+      }
+    });
+
+    return cleanElement;
+  };
+
+  Array.from(doc.body.childNodes).forEach(node => {
+    const cleanNode = sanitizeNode(node);
+    if (cleanNode) {
+      fragment.appendChild(cleanNode);
+    }
+  });
+
+  return fragment;
+}
