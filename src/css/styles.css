@@ -1190,6 +1190,7 @@ p {
 .hidden { display: none; }
 .no-print {
     /* Styles applied via @media print */
+    /* This class is used to hide elements during printing */
 }
 
 /* Screen Reader Only
@@ -1952,6 +1953,28 @@ p {
     );
     background-size: 400% 100%;
     animation: shimmer 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Page Labels
+   ========================================================================== */
+
+.page-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+.page-label.centered {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Ensure page labels don't get clipped */
+.page-cell {
+    overflow: visible !important;
 }
 
 /* 3D Tilt & Micro-interactions
