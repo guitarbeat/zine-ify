@@ -12,11 +12,11 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Permanent+Marker&display=swap"
         rel="stylesheet" />
-  <script type="module" crossorigin src="./assets/index-D4_Iczfh.js"></script>
-  <link rel="modulepreload" crossorigin href="./assets/pdfjs-lFNHpD8d.js">
-  <link rel="modulepreload" crossorigin href="./assets/jspdf-2GeXGIBk.js">
+  <script type="module" crossorigin src="./assets/index-D3FyOYlz.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/pdfjs-B3gv32BU.js">
+  <link rel="modulepreload" crossorigin href="./assets/jspdf-6wBDX9PX.js">
   <link rel="modulepreload" crossorigin href="./assets/html2canvas-DcoBDRbt.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-BovPgwnr.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-CpI7NlPv.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
@@ -41,12 +41,17 @@
                     role="button" tabindex="0" aria-label="Upload PDF document" title="Upload PDF (Ctrl+O)" aria-keyshortcuts="Control+O">
                     <div
                         class="w-12 h-12 border-2 border-black flex items-center justify-center mb-3 group-hover:bg-black group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined text-3xl">cloud_upload</span>
+                        <span class="material-symbols-outlined text-3xl" aria-hidden="true">cloud_upload</span>
                     </div>
-                    <h2 class="text-lg font-bold font-marker mb-1">DROP PDF HERE</h2>
+                    <h2 class="text-lg font-bold font-marker mb-1">DROP PDFS HERE</h2>
                     <p id="upload-status" class="text-xs font-bold uppercase mt-1 bg-black text-white px-2 py-1">
-                        Any Page Count</p>
-                    <input type="file" id="pdf-upload" class="hidden" accept="application/pdf">
+                        Add PDFs to zine</p>
+                    <input type="file" id="pdf-upload" class="hidden" accept="application/pdf" multiple>
+                </div>
+
+                <!-- Uploaded Files List -->
+                <div id="uploaded-files-list" class="mt-4">
+                    <p class="text-xs text-gray-400">No files uploaded yet</p>
                 </div>
 
                 <div id="settings-group" class="bg-white p-4 md:p-6 settings-panel space-y-4 md:space-y-5">
@@ -103,13 +108,13 @@
                     <button id="exportPdfBtn"
                         class="action-button w-full bg-black text-white py-4 flex items-center justify-center gap-2 hover:bg-[#ff00ff] hover:text-black"
                         title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
-                        <span class="material-symbols-outlined">file_download</span>
+                        <span class="material-symbols-outlined" aria-hidden="true">file_download</span>
                         DOWNLOAD PDF
                     </button>
                     <button id="printBtn"
                         class="action-button w-full bg-white text-black py-4 flex items-center justify-center gap-2 hover:bg-black hover:text-white"
                         title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
-                        <span class="material-symbols-outlined">print</span>
+                        <span class="material-symbols-outlined" aria-hidden="true">print</span>
                         PRINT IT
                     </button>
                 </div>
@@ -179,7 +184,7 @@
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
   <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-DV-Z3Tr6.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-DNqKhuy0.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-EHGBsTau.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>

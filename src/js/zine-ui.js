@@ -272,7 +272,7 @@ export class UIManager {
       cell.innerHTML = `
         <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
         <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
-            <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
+            <span class="material-symbols-outlined text-lg font-bold" aria-hidden="true">rotate_right</span>
         </button>
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
         <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
@@ -373,7 +373,7 @@ export class UIManager {
       cell.innerHTML = `
         <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
         <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
-            <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
+            <span class="material-symbols-outlined text-lg font-bold" aria-hidden="true">rotate_right</span>
         </button>
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
         <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
@@ -442,7 +442,7 @@ export class UIManager {
         cell.innerHTML = `
           <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
         <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
-              <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
+              <span class="material-symbols-outlined text-lg font-bold" aria-hidden="true">rotate_right</span>
           </button>
           <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
         <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
@@ -765,7 +765,7 @@ export class UIManager {
     const filesHtml = uploadedFiles.map((fileInfo, index) => `
       <div class="uploaded-file-item flex items-center justify-between p-2 bg-white border border-black rounded mb-2">
         <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-sm">description</span>
+          <span class="material-symbols-outlined text-sm" aria-hidden="true">description</span>
           <div>
             <div class="text-xs font-bold font-typewriter">${fileInfo.name}</div>
             <div class="text-[10px] text-gray-500">${this.formatFileSize(fileInfo.size)}</div>
@@ -775,8 +775,9 @@ export class UIManager {
           class="remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs"
           onclick="window.zineMaker.removeUploadedFile(${index})"
           title="Remove this file"
+          aria-label="Remove ${fileInfo.name}"
         >
-          <span class="material-symbols-outlined">close</span>
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
         </button>
       </div>
     `).join('');
