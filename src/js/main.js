@@ -15,6 +15,7 @@ class PDFZineMaker {
     this.ui = new UIManager();
     this.referenceImageUrl = referenceImageUrl;
     this.allPageImages = new Array(16).fill(null);
+    this._blankPageUrl = null; // Optimization: Cache single blank page blob
     this.pageFlips = {}; // Track individual page flips: { pageIndex: true/false }
     this.gridSize = { rows: 2, cols: 4 }; // Default grid size
     this.init();
@@ -97,7 +98,6 @@ class PDFZineMaker {
       });
 
       const { numPages } = result;
-      this.selectedLayout = numPages; // Allow any number of pages
       const maxPages = numPages;
 
       let rows, cols;
@@ -107,9 +107,6 @@ class PDFZineMaker {
         rows = 4;
         cols = 4;
         this.gridSize = { rows, cols };
-
-        this.cleanupOldImages();
-        this.allPageImages = new Array(16).fill(null);
         this.ui.generateLayout(16, 'accordion-16');
       } else {
         // Determine grid size based on page count
@@ -125,10 +122,11 @@ class PDFZineMaker {
 
         this.gridSize = { rows, cols }; // Update internal state
 
-        this.cleanupOldImages();
         this.allPageImages = new Array(Math.max(rows * cols, numPages)).fill(null);
         this.ui.generateCustomGrid(rows, cols, this.allPageImages.length);
       }
+
+      this.selectedLayout = this.allPageImages.length;
 
       // Update grid inputs to match
       if (this.ui.elements.gridRows) {
@@ -176,6 +174,11 @@ class PDFZineMaker {
         await Promise.all(batch);
       }
 
+      // Fill blanks - using the same blank page logic
+      for (let i = maxPages + 1; i <= (this.selectedLayout); i++) {
+        await this.createBlankPage(i);
+      }
+
       this.ui.showProgress(false);
       this.ui.setStatus(`Successfully processed ${numPages} pages`, 'success');
       toast.success('Done!', 'Your zine is ready to print.');
@@ -187,14 +190,36 @@ class PDFZineMaker {
     }
   }
 
-  cleanupOldImages() {
-    if (this.allPageImages) {
-      this.allPageImages.forEach(url => {
-        if (url) {
-          this.pdfProcessor.revokeBlobUrl(url);
-        }
-      });
+  async createBlankPage(pageNum) {
+    let url;
+
+    // Use cached blank page if available (Flyweight pattern)
+    if (this._blankPageUrl) {
+      url = this._blankPageUrl;
+    } else {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1000;
+      canvas.height = 1400;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 1000, 1400);
+      ctx.fillStyle = '#f3f4f6';
+      ctx.font = 'bold 80px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('BLANK', 500, 700);
+
+      url = await this.pdfProcessor.canvasToBlob(canvas);
+      this._blankPageUrl = url;
     }
+
+    // Revoke old URL if it exists AND it's not the shared blank page
+    const oldUrl = this.allPageImages[pageNum - 1];
+    if (oldUrl && oldUrl !== this._blankPageUrl) {
+      this.pdfProcessor.revokeBlobUrl(oldUrl);
+    }
+
+    this.allPageImages[pageNum - 1] = url;
+    this.ui.updatePagePreview(pageNum - 1, url);
   }
 
   handlePagesSwapped({ fromIndex, toIndex }) {
