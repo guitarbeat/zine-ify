@@ -86,7 +86,7 @@ class PDFZineMaker {
   handleFileSelected(file) {
     // Add file to uploaded files list
     this.uploadedFiles.push({
-      file: file,
+      file,
       name: file.name,
       size: file.size,
       uploadedAt: new Date()
@@ -498,3 +498,6 @@ class PDFZineMaker {
     
   }
 }
+
+// Initialize and expose to window for UI bindings
+window.zineMaker = new PDFZineMaker();

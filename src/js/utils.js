@@ -63,7 +63,7 @@ export function delay(ms) {
  * @returns {DocumentFragment} Sanitized DocumentFragment
  */
 export function sanitizeHTML(str) {
-  if (!str) return document.createDocumentFragment();
+  if (!str) {return document.createDocumentFragment();}
   const parser = new DOMParser();
   const doc = parser.parseFromString(str, 'text/html');
   const allowedTags = ['b', 'i', 'strong', 'em', 'u', 'br', 'p', 'span'];
@@ -74,7 +74,7 @@ export function sanitizeHTML(str) {
       return document.createTextNode(node.textContent);
     }
 
-    if (node.nodeType !== 1) return null;
+    if (node.nodeType !== 1) {return null;}
 
     const tagName = node.tagName.toLowerCase();
 
