@@ -304,7 +304,7 @@ export class UIManager {
       }
 
       this.setupDragAndDrop(cell);
-      this.setupFlipButton(cell);
+      this.setupToolbar(cell);
       grid.appendChild(cell);
     }
 
