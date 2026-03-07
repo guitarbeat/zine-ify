@@ -398,9 +398,32 @@ class PDFZineMaker {
 
     const zineSheets = [];
 
-    // Get HTML for all sheets
-    document.querySelectorAll('.zine-grid').forEach(grid => {
-      zineSheets.push(grid.innerHTML);
+    // Build a clean print-only copy of each sheet.
+    document.querySelectorAll('.zine-grid').forEach((grid) => {
+      const gridClone = grid.cloneNode(true);
+
+      // Remove all interactive/UI-only elements from the print output.
+      gridClone.querySelectorAll('button, .page-label, .page-placeholder, .guidelines').forEach((el) => {
+        el.remove();
+      });
+
+      // Force print-safe layout styles without relying on Tailwind classes.
+      gridClone.querySelectorAll('.page-cell').forEach((cell) => {
+        cell.style.position = 'relative';
+        cell.style.display = 'flex';
+        cell.style.alignItems = 'center';
+        cell.style.justifyContent = 'center';
+        cell.style.overflow = 'hidden';
+        cell.style.border = 'none';
+      });
+
+      gridClone.querySelectorAll('.page-content-img').forEach((img) => {
+        img.style.display = 'block';
+        img.style.width = '100%';
+        img.style.height = '100%';
+      });
+
+      zineSheets.push(gridClone.outerHTML);
     });
 
     const dimensions = this.ui.getPaperDimensions(this.paperSize || 'a4', this.orientation || 'landscape');
@@ -426,7 +449,7 @@ class PDFZineMaker {
 
     const sheetsHtml = zineSheets.map((content) => `
       <div class="sheet">
-        <div class="zine-grid">${content}</div>
+        ${content}
         ${cutLinesHtml}
       </div>
       <div class="sheet"><div class="back-side"></div></div>
@@ -505,10 +528,41 @@ class PDFZineMaker {
 
     printWindow.document.write(html);
     printWindow.document.close();
-    printWindow.setTimeout(() => {
+
+    const waitForImagesToLoad = () => {
+      const images = printWindow.document.querySelectorAll('img');
+
+      if (images.length === 0) {
+        return Promise.resolve();
+      }
+
+      const loadingPromises = Array.from(images).map((img) => {
+        if (img.complete && img.naturalWidth > 0) {
+          return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+          const complete = () => {
+            img.removeEventListener('load', complete);
+            img.removeEventListener('error', complete);
+            resolve();
+          };
+
+          img.addEventListener('load', complete, { once: true });
+          img.addEventListener('error', complete, { once: true });
+        });
+      });
+
+      // Never block forever if a source fails to resolve.
+      const timeout = new Promise((resolve) => setTimeout(resolve, 2500));
+      return Promise.race([Promise.all(loadingPromises), timeout]);
+    };
+
+    waitForImagesToLoad().finally(() => {
+      printWindow.focus();
       printWindow.print();
       printWindow.close();
-    }, 500);
+    });
   }
 
 
