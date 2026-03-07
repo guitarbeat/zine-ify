@@ -473,6 +473,9 @@ class PDFZineMaker {
           }
 
           .page-label, .page-placeholder { display: none; }
+
+          /* Always hide interactive controls – Tailwind is not loaded here */
+          .zoom-btn, .crop-btn, .remove-btn, .flip-btn { display: none !important; }
           
           .back-side {
             width: 100%; height: 100%;
@@ -483,9 +486,9 @@ class PDFZineMaker {
             transform: rotate(180deg);
           }
           
-          /* CRITICAL: Hide controls in print */
+          /* Extra safeguard: hide controls when printing */
           @media print {
-            .flip-btn, .page-label, .guidelines, .page-placeholder, .page-cell::before, .page-cell::after { 
+            .zoom-btn, .crop-btn, .remove-btn, .flip-btn, .page-label, .guidelines, .page-placeholder, .page-cell::before, .page-cell::after { 
                 display: none !important; 
             }
             .page-cell { border: none !important; }
@@ -532,7 +535,7 @@ class PDFZineMaker {
 
         const canvas = await html2canvas(grid, {
           scale: 2, // Reduced from 3 for performance
-          useCORS: true,
+          allowTaint: true,
           backgroundColor: '#ffffff',
           logging: false
         });
@@ -547,8 +550,11 @@ class PDFZineMaker {
         backCanvas.height = canvas.height;
         const bctx = backCanvas.getContext('2d');
         const refImg = new Image();
-        refImg.src = this.referenceImageUrl;
-        await new Promise(r => { refImg.onload = r; });
+        await new Promise((resolve, reject) => {
+          refImg.onload = resolve;
+          refImg.onerror = reject;
+          refImg.src = this.referenceImageUrl;
+        });
 
         bctx.translate(backCanvas.width / 2, backCanvas.height / 2);
         bctx.rotate(Math.PI);

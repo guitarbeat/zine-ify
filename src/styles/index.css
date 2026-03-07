@@ -67,7 +67,7 @@ select:focus, input:focus {
         width: 100% !important;
         height: 100% !important;
     }
-    .flip-btn, .page-label, .guidelines {
+    .flip-btn, .zoom-btn, .crop-btn, .remove-btn, .page-label, .guidelines {
         display: none !important;
     }
     .page-cell {
@@ -77,6 +77,9 @@ select:focus, input:focus {
 
 /* Export clean-up (for html2canvas) */
 .is-exporting .flip-btn, 
+.is-exporting .zoom-btn,
+.is-exporting .crop-btn,
+.is-exporting .remove-btn,
 .is-exporting .page-label, 
 .is-exporting .page-placeholder,
 .is-exporting .guidelines {
