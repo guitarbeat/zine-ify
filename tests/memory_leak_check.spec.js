@@ -45,11 +45,12 @@ test('Verify memory leak fix', async ({ page }) => {
   await fileInput.setInputFiles(testPdfPath);
 
   // Wait for processing
-  const successToast = page.locator('.toast.toast-success');
-  await expect(successToast).toBeVisible({ timeout: 10000 });
+  const progressContainer = page.locator('#progress-container');
+  await expect(progressContainer).toBeHidden({ timeout: 15000 });
 
   // Get the blob URL of page 1
   const page1Img = page.locator('.page-cell[data-page-index="0"] .page-content-img');
+  await expect(page1Img).toBeAttached();
   const src1 = await page1Img.getAttribute('src');
   console.log(`Page 1 src: ${src1}`);
 

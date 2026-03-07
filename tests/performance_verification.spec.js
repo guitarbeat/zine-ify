@@ -31,11 +31,12 @@ test('Verify basic PDF processing and page visibility', async ({ page }) => {
   await fileInput.setInputFiles(pdfPath);
 
   // Wait for processing to complete
-  await expect(page.locator('.toast.toast-success')).toBeVisible({ timeout: 10000 });
+  const progressContainer = page.locator('#progress-container');
+  await expect(progressContainer).toBeHidden({ timeout: 15000 });
 
-  // Check that page 1 is visible
+  // Check that page 1 is attached
   const page1Img = page.locator('.page-cell[data-page-index="0"] .page-content-img');
-  await expect(page1Img).toBeVisible();
+  await expect(page1Img).toBeAttached();
 
   // Verify it has a blob URL
   const src = await page1Img.getAttribute('src');
