@@ -657,11 +657,11 @@ export class UIManager {
       if (isZoomed) {
         cell.classList.add('page-zoomed');
         const cropBtn = cell.querySelector('.crop-btn span');
-        if (cropBtn) cropBtn.textContent = 'aspect_ratio'; // Back to fit
+        if (cropBtn) {cropBtn.textContent = 'aspect_ratio';} // Back to fit
       } else {
         cell.classList.remove('page-zoomed');
         const cropBtn = cell.querySelector('.crop-btn span');
-        if (cropBtn) cropBtn.textContent = 'crop_free'; // To crop
+        if (cropBtn) {cropBtn.textContent = 'crop_free';} // To crop
       }
     });
   }
@@ -776,10 +776,10 @@ export class UIManager {
 
       closeBtn.addEventListener('click', hideModal);
       modal.addEventListener('click', (e) => {
-        if (e.target === modal) hideModal();
+        if (e.target === modal) {hideModal();}
       });
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.classList.contains('opacity-100')) hideModal();
+        if (e.key === 'Escape' && modal.classList.contains('opacity-100')) {hideModal();}
       });
     }
 
@@ -908,31 +908,54 @@ export class UIManager {
       return;
     }
 
-    const filesHtml = uploadedFiles.map((fileInfo, index) => `
-      <div class="uploaded-file-item flex items-center justify-between p-2 bg-white border border-black rounded mb-2">
-        <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-sm">description</span>
-          <div>
-            <div class="text-xs font-bold font-typewriter">${fileInfo.name}</div>
-            <div class="text-[10px] text-gray-500">${this.formatFileSize(fileInfo.size)}</div>
-          </div>
-        </div>
-        <button 
-          class="remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs"
-          onclick="window.zineMaker.removeUploadedFile(${index})"
-          title="Remove this file"
-        >
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-    `).join('');
+    this.elements.uploadedFilesList.innerHTML = '';
 
-    this.elements.uploadedFilesList.innerHTML = `
-      <div class="mb-2">
-        <h4 class="text-sm font-marker uppercase mb-2">Uploaded Files (${uploadedFiles.length})</h4>
-        ${filesHtml}
-      </div>
-    `;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mb-2';
+
+    const header = document.createElement('h4');
+    header.className = 'text-sm font-marker uppercase mb-2';
+    header.textContent = `Uploaded Files (${uploadedFiles.length})`;
+    wrapper.appendChild(header);
+
+    uploadedFiles.forEach((fileInfo, index) => {
+      const itemWrapper = document.createElement('div');
+      itemWrapper.className = 'uploaded-file-item flex items-center justify-between p-2 bg-white border border-black rounded mb-2';
+
+      const contentWrapper = document.createElement('div');
+      contentWrapper.className = 'flex items-center gap-2';
+      contentWrapper.innerHTML = '<span class="material-symbols-outlined text-sm">description</span>';
+
+      const textWrapper = document.createElement('div');
+
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'text-xs font-bold font-typewriter';
+      nameDiv.textContent = fileInfo.name;
+
+      const sizeDiv = document.createElement('div');
+      sizeDiv.className = 'text-[10px] text-gray-500';
+      sizeDiv.textContent = this.formatFileSize(fileInfo.size);
+
+      textWrapper.appendChild(nameDiv);
+      textWrapper.appendChild(sizeDiv);
+      contentWrapper.appendChild(textWrapper);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs';
+      removeBtn.title = 'Remove this file';
+      removeBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
+      removeBtn.addEventListener('click', () => {
+        if (window.zineMaker && typeof window.zineMaker.removeUploadedFile === 'function') {
+          window.zineMaker.removeUploadedFile(index);
+        }
+      });
+
+      itemWrapper.appendChild(contentWrapper);
+      itemWrapper.appendChild(removeBtn);
+      wrapper.appendChild(itemWrapper);
+    });
+
+    this.elements.uploadedFilesList.appendChild(wrapper);
   }
 
   /**
