@@ -17,6 +17,7 @@ class PDFZineMaker {
     this.allPageImages = new Array(16).fill(null);
     this._blankPageUrl = null;
     this.pageFlips = {}; // Track individual page flips: { pageIndex: true/false }
+    this.pageZooms = {}; // Track individual page zooms/crops
     this.gridSize = { rows: 2, cols: 4 }; // Default grid size
     this.uploadedFiles = []; // Track uploaded PDF files
     this.totalPages = 0; // Track total pages across all PDFs
@@ -53,6 +54,7 @@ class PDFZineMaker {
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
     this.ui.on('pageFlipped', (pageIndex) => this.handlePageFlipped(pageIndex));
     this.ui.on('pageZoomed', (pageIndex) => this.handlePageZoomed(pageIndex));
+    this.ui.on('pageCropToggled', (pageIndex) => this.handlePageCropToggled(pageIndex));
     this.ui.on('pageRemoved', (pageIndex) => this.handlePageRemoved(pageIndex));
     this.ui.on('gridSizeChanged', (data) => this.handleGridSizeChanged(data));
   }
@@ -78,6 +80,26 @@ class PDFZineMaker {
   }
 
   /**
+   * Handle individual page crop/zoom toggle
+   */
+  handlePageCropToggled(pageIndex) {
+    const imageUrl = this.allPageImages[pageIndex];
+    if (!imageUrl || imageUrl === this._blankPageUrl) {
+      toast.info('No Content', 'This page is currently empty.');
+      return;
+    }
+
+    this.pageZooms[pageIndex] = !this.pageZooms[pageIndex];
+    this.ui.setPageZoom(pageIndex, this.pageZooms[pageIndex]);
+
+    if (this.pageZooms[pageIndex]) {
+      toast.success('Page Cropped', 'Margins removed (Fill mode)');
+    } else {
+      toast.info('Normal Fit', 'Full page visible (Contain mode)');
+    }
+  }
+
+  /**
    * Handle individual page removal
    */
   handlePageRemoved(pageIndex) {
@@ -94,7 +116,9 @@ class PDFZineMaker {
 
     this.allPageImages[pageIndex] = this._blankPageUrl;
     this.pageFlips[pageIndex] = false;
+    this.pageZooms[pageIndex] = false;
     this.ui.setPageFlip(pageIndex, false);
+    this.ui.setPageZoom(pageIndex, false);
     this.ui.updatePagePreview(pageIndex, this._blankPageUrl);
     toast.success('Page Removed', `Page ${pageIndex + 1} has been cleared.`);
   }
@@ -109,10 +133,12 @@ class PDFZineMaker {
     // Generate a custom grid layout
     this.ui.generateCustomGrid(rows, cols, this.allPageImages.length);
 
-    // Re-apply existing page images
+    // Re-apply existing page images and states
     for (let i = 0; i < Math.min(totalPages, this.allPageImages.length); i++) {
       if (this.allPageImages[i]) {
         this.ui.updatePagePreview(i, this.allPageImages[i]);
+        this.ui.setPageFlip(i, !!this.pageFlips[i]);
+        this.ui.setPageZoom(i, !!this.pageZooms[i]);
       }
     }
   }
@@ -316,13 +342,20 @@ class PDFZineMaker {
     this.pageFlips[fromIndex] = this.pageFlips[toIndex];
     this.pageFlips[toIndex] = tempFlip;
 
+    // Swap zoom states
+    const tempZoom = this.pageZooms[fromIndex];
+    this.pageZooms[fromIndex] = this.pageZooms[toIndex];
+    this.pageZooms[toIndex] = tempZoom;
+
     // Update previews
     this.ui.updatePagePreview(fromIndex, this.allPageImages[fromIndex]);
     this.ui.updatePagePreview(toIndex, this.allPageImages[toIndex]);
 
-    // Update flip UI
+    // Update flip/zoom UI
     this.ui.setPageFlip(fromIndex, !!this.pageFlips[fromIndex]);
     this.ui.setPageFlip(toIndex, !!this.pageFlips[toIndex]);
+    this.ui.setPageZoom(fromIndex, !!this.pageZooms[fromIndex]);
+    this.ui.setPageZoom(toIndex, !!this.pageZooms[toIndex]);
 
 
     toast.info('Pages swapped');
@@ -434,6 +467,11 @@ class PDFZineMaker {
             object-fit: contain; 
             /* Rely on DOM transform for rotation */
           }
+          .page-zoomed .page-content-img {
+            object-fit: cover;
+            transform: scale(1.1);
+          }
+
           .page-label, .page-placeholder { display: none; }
           
           .back-side {

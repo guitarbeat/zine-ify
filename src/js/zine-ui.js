@@ -279,13 +279,16 @@ export class UIManager {
         <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
         
         <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-           <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+           <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Quick Preview">
                 <span class="material-symbols-outlined text-lg font-bold">zoom_in</span>
            </button>
-           <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+           <button class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Toggle Crop/Zoom">
+                <span class="material-symbols-outlined text-lg font-bold">crop_free</span>
+           </button>
+           <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Remove Page">
                 <span class="material-symbols-outlined text-lg font-bold">close</span>
            </button>
-           <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+           <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip 180°">
                 <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
            </button>
         </div>
@@ -390,13 +393,16 @@ export class UIManager {
         <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
         
         <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-           <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+           <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Quick Preview">
                 <span class="material-symbols-outlined text-lg font-bold">zoom_in</span>
            </button>
-           <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+           <button class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Toggle Crop/Zoom">
+                <span class="material-symbols-outlined text-lg font-bold">crop_free</span>
+           </button>
+           <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Remove Page">
                 <span class="material-symbols-outlined text-lg font-bold">close</span>
            </button>
-           <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+           <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip 180°">
                 <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
            </button>
         </div>
@@ -469,13 +475,16 @@ export class UIManager {
           <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
           
           <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-             <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+             <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Quick Preview">
                   <span class="material-symbols-outlined text-lg font-bold">zoom_in</span>
              </button>
-             <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+             <button class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Toggle Crop/Zoom">
+                  <span class="material-symbols-outlined text-lg font-bold">crop_free</span>
+             </button>
+             <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2_2_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Remove Page">
                   <span class="material-symbols-outlined text-lg font-bold">close</span>
              </button>
-             <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+             <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2_2_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip 180°">
                   <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
              </button>
           </div>
@@ -601,6 +610,7 @@ export class UIManager {
   setupToolbar(cell) {
     const flipBtn = cell.querySelector('.flip-btn');
     const zoomBtn = cell.querySelector('.zoom-btn');
+    const cropBtn = cell.querySelector('.crop-btn');
     const removeBtn = cell.querySelector('.remove-btn');
 
     const pageIndex = parseInt(cell.getAttribute('data-page-index'));
@@ -619,6 +629,13 @@ export class UIManager {
       });
     }
 
+    if (cropBtn) {
+      cropBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent drag
+        this.emitter.emit('pageCropToggled', pageIndex);
+      });
+    }
+
     if (removeBtn) {
       removeBtn.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent drag
@@ -628,11 +645,37 @@ export class UIManager {
   }
 
   /**
+   * Apply zoom/crop state to a page
+   */
+  setPageZoom(pageIndex, isZoomed) {
+    const cells = [
+      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
+      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
+    ];
+
+    cells.forEach(cell => {
+      if (isZoomed) {
+        cell.classList.add('page-zoomed');
+        const cropBtn = cell.querySelector('.crop-btn span');
+        if (cropBtn) cropBtn.textContent = 'aspect_ratio'; // Back to fit
+      } else {
+        cell.classList.remove('page-zoomed');
+        const cropBtn = cell.querySelector('.crop-btn span');
+        if (cropBtn) cropBtn.textContent = 'crop_free'; // To crop
+      }
+    });
+  }
+
+  /**
    * Apply flip state to a page
    */
   setPageFlip(pageIndex, isFlipped) {
-    const cell = this.elements.zineSheetsContainer.querySelector(`[data-page-index="${pageIndex}"]`);
-    if (cell) {
+    const cells = [
+      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
+      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
+    ];
+
+    cells.forEach(cell => {
       const img = cell.querySelector('.page-content-img');
       if (img) {
         if (isFlipped) {
@@ -643,8 +686,9 @@ export class UIManager {
           img.classList.remove('flipped');
         }
       }
-    }
+    });
   }
+
 
   triggerFileUpload() {
     this.elements.pdfUpload?.click();

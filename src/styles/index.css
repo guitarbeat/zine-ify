@@ -117,7 +117,13 @@ select:focus, input:focus {
     object-fit: contain;
     /* Multiply effect to look like ink on paper */
     mix-blend-mode: multiply; 
+    transition: transform 0.2s ease, object-fit 0.2s ease;
 }
+.page-zoomed .page-content-img {
+    object-fit: cover;
+    transform: scale(1.1); /* Subtle zoom to crop margins */
+}
+
 .page-label {
     position: absolute;
     background: black;
