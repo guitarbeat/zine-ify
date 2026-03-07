@@ -458,7 +458,7 @@ export class UIManager {
       for (let i = 1; i <= 8; i++) {
         const pageIdx = (s - 1) * 8 + i;
         const cell = document.createElement('div');
-        cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden';
+        cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
         cell.setAttribute('data-page-index', pageIdx - 1);
         cell.setAttribute('data-page', i);
         cell.setAttribute('draggable', 'true');
@@ -467,11 +467,21 @@ export class UIManager {
 
         cell.innerHTML = `
           <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
-        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
-              <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
-          </button>
+          
+          <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+             <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+                  <span class="material-symbols-outlined text-lg font-bold">zoom_in</span>
+             </button>
+             <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+                  <span class="material-symbols-outlined text-lg font-bold">close</span>
+             </button>
+             <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+                  <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
+             </button>
+          </div>
+
           <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
-        <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
+          <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
         `;
 
         const pageLabel = cell.querySelector('.page-label');
