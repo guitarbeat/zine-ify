@@ -261,13 +261,22 @@ class PDFZineMaker {
         this.ui.updateProgress(percent);
       };
 
-      for (let i = 1; i <= maxPages; i += batchSize) {
-        const batch = [];
-        for (let j = 0; j < batchSize && (i + j) <= maxPages; j++) {
-          batch.push(processPage(i + j));
+      // ⚡ Bolt: Replace discrete Promise.all batching with a sliding window worker pool.
+      // This keeps exactly `batchSize` workers active at all times, preventing "stuttering"
+      // where the pool waits for the slowest page in a batch before starting the next one.
+      const activeWorkers = new Set();
+
+      for (let i = 1; i <= maxPages; i++) {
+        const promise = processPage(i).finally(() => activeWorkers.delete(promise));
+        activeWorkers.add(promise);
+
+        if (activeWorkers.size >= batchSize) {
+          await Promise.race(activeWorkers);
         }
-        await Promise.all(batch);
       }
+
+      // Wait for remaining workers to finish
+      await Promise.all(activeWorkers);
 
       // Fill blanks
       for (let i = this.totalPages; i < rows * cols; i++) {
