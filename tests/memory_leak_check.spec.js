@@ -54,19 +54,14 @@ test('Verify memory leak fix', async ({ page }) => {
   const src1 = await page1Img.getAttribute('src');
   console.log(`Page 1 src: ${src1}`);
 
-  // 2. Upload PDF again to trigger reprocessing
-  // Reset input value to allow re-selecting same file
-  await page.evaluate(() => {
-    const input = document.querySelector('input[type="file"]');
-    if (input) input.value = '';
-  });
+  // 2. Click standard 'Remove' button to trigger revocation logic
+  // Reveal the toolbar via hover
+  await page.locator('.page-cell[data-page-index="0"]').hover();
+  const removeBtn = page.locator('.page-cell[data-page-index="0"] .remove-btn');
+  await removeBtn.click();
 
-  await fileInput.setInputFiles(testPdfPath);
-
-  // Wait for success message (wait for it to disappear and reappear, or just wait for last one)
-  // We can just wait for the progress bar to show up then hide
-  await expect(page.locator('#progress-container')).toBeVisible({ timeout: 5000 }).catch(() => { });
-  await expect(page.locator('#progress-container')).toBeHidden();
+  // Wait for the UI to update (placeholder appears)
+  await expect(page.locator('.page-cell[data-page-index="0"] .page-placeholder')).toBeVisible();
 
   // Check if src1 was revoked
   const wasRevoked = revokedUrls.includes(src1);
