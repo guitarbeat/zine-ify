@@ -5,20 +5,20 @@ import fs from 'fs';
 const testPdfPath = 'test-leak.pdf';
 
 test.beforeAll(() => {
-    const doc = new jsPDF();
-    doc.text('Test Page', 10, 10);
-    // Add 8 pages to ensure we have enough content to fill a grid if needed
-    for(let i=1; i<8; i++) {
-        doc.addPage();
-        doc.text(`Page ${i+1}`, 10, 10);
-    }
-    fs.writeFileSync(testPdfPath, Buffer.from(doc.output('arraybuffer')));
+  const doc = new jsPDF();
+  doc.text('Test Page', 10, 10);
+  // Add 8 pages to ensure we have enough content to fill a grid if needed
+  for (let i = 1; i < 8; i++) {
+    doc.addPage();
+    doc.text(`Page ${i + 1}`, 10, 10);
+  }
+  fs.writeFileSync(testPdfPath, Buffer.from(doc.output('arraybuffer')));
 });
 
 test.afterAll(() => {
-    if (fs.existsSync(testPdfPath)) {
-        fs.unlinkSync(testPdfPath);
-    }
+  if (fs.existsSync(testPdfPath)) {
+    fs.unlinkSync(testPdfPath);
+  }
 });
 
 test('Verify memory leak fix', async ({ page }) => {
@@ -45,7 +45,8 @@ test('Verify memory leak fix', async ({ page }) => {
   await fileInput.setInputFiles(testPdfPath);
 
   // Wait for processing
-  await expect(page.getByText('Successfully processed')).toBeVisible();
+  const successToast = page.locator('.toast.toast-success');
+  await expect(successToast).toBeVisible({ timeout: 10000 });
 
   // Get the blob URL of page 1
   const page1Img = page.locator('.page-cell[data-page-index="0"] .page-content-img');
@@ -63,7 +64,7 @@ test('Verify memory leak fix', async ({ page }) => {
 
   // Wait for success message (wait for it to disappear and reappear, or just wait for last one)
   // We can just wait for the progress bar to show up then hide
-  await expect(page.locator('#progress-container')).toBeVisible({ timeout: 5000 }).catch(() => {});
+  await expect(page.locator('#progress-container')).toBeVisible({ timeout: 5000 }).catch(() => { });
   await expect(page.locator('#progress-container')).toBeHidden();
 
   // Check if src1 was revoked

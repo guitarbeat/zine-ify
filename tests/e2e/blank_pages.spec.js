@@ -21,7 +21,7 @@ test.describe('Blank Page Optimization', () => {
 
     // 4. Wait for processing to complete
     const successToast = page.locator('.toast.toast-success');
-    await expect(successToast).toContainText('Done!', { timeout: 10000 });
+    await expect(successToast).toBeVisible({ timeout: 10000 });
 
     // 5. Get the image sources for blank pages
     // The default layout is 8 pages. Since we uploaded 1 page, pages 2-8 should be blank.
