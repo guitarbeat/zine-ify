@@ -268,7 +268,7 @@ export class UIManager {
     for (let i = 0; i < totalSlots; i++) {
       const pageNum = i + 1;
       const cell = document.createElement('div');
-      cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200';
+      cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
       cell.setAttribute('data-page-index', i);
       cell.setAttribute('data-page', pageNum);
       cell.setAttribute('draggable', 'true');
@@ -277,9 +277,19 @@ export class UIManager {
 
       cell.innerHTML = `
         <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
-        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
-            <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
-        </button>
+        
+        <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+           <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+                <span class="material-symbols-outlined text-lg font-bold">zoom_in</span>
+           </button>
+           <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+                <span class="material-symbols-outlined text-lg font-bold">close</span>
+           </button>
+           <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+                <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
+           </button>
+        </div>
+
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
         <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
       `;
@@ -369,7 +379,7 @@ export class UIManager {
     // Generate cells based on template layout
     template.layout.forEach((item) => {
       const cell = document.createElement('div');
-      cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden';
+      cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
       cell.setAttribute('data-page-index', item.page - 1);
       cell.setAttribute('data-page', item.page);
       cell.setAttribute('draggable', 'true');
@@ -378,9 +388,19 @@ export class UIManager {
 
       cell.innerHTML = `
         <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
-        <button class="flip-btn absolute top-2 right-2 w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm z-10 shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
-            <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
-        </button>
+        
+        <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+           <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+                <span class="material-symbols-outlined text-lg font-bold">zoom_in</span>
+           </button>
+           <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+                <span class="material-symbols-outlined text-lg font-bold">close</span>
+           </button>
+           <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none">
+                <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
+           </button>
+        </div>
+
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
         <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
       `;
@@ -395,7 +415,7 @@ export class UIManager {
       }
 
       this.setupDragAndDrop(cell);
-      this.setupFlipButton(cell);
+      this.setupToolbar(cell);
       grid.appendChild(cell);
     });
 
@@ -472,7 +492,7 @@ export class UIManager {
         }
 
         this.setupDragAndDrop(cell);
-        this.setupFlipButton(cell);
+        this.setupToolbar(cell);
         grid.appendChild(cell);
       }
 
@@ -566,15 +586,33 @@ export class UIManager {
   }
 
   /**
-   * Setup flip button click handler for a cell
+   * Setup toolbar button click handlers for a cell
    */
-  setupFlipButton(cell) {
+  setupToolbar(cell) {
     const flipBtn = cell.querySelector('.flip-btn');
+    const zoomBtn = cell.querySelector('.zoom-btn');
+    const removeBtn = cell.querySelector('.remove-btn');
+
+    const pageIndex = parseInt(cell.getAttribute('data-page-index'));
+
     if (flipBtn) {
       flipBtn.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent drag
-        const pageIndex = parseInt(cell.getAttribute('data-page-index'));
         this.emitter.emit('pageFlipped', pageIndex);
+      });
+    }
+
+    if (zoomBtn) {
+      zoomBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent drag
+        this.emitter.emit('pageZoomed', pageIndex);
+      });
+    }
+
+    if (removeBtn) {
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent drag
+        this.emitter.emit('pageRemoved', pageIndex);
       });
     }
   }
@@ -651,6 +689,54 @@ export class UIManager {
       e.preventDefault();
       this.emitter.emit('export');
     }
+  }
+
+  showZoomModal(imageUrl) {
+    let modal = document.getElementById('zoom-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'zoom-modal';
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300';
+      modal.innerHTML = `
+        <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white rounded shadow-2xl overflow-hidden flex flex-col scale-95 transition-transform duration-300">
+          <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200 bg-gray-50">
+            <h3 class="font-black text-gray-800 uppercase tracking-wider text-sm">Page Preview</h3>
+            <button class="close-modal w-8 h-8 rounded hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-red-500">
+              <span class="material-symbols-outlined font-bold">close</span>
+            </button>
+          </div>
+          <div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-200/50">
+            <img class="zoom-img max-w-full max-h-full object-contain shadow-lg" src="" alt="Zoomed Page Preview" />
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      const closeBtn = modal.querySelector('.close-modal');
+      const hideModal = () => {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        modal.classList.remove('opacity-100', 'pointer-events-auto');
+        modal.querySelector('div').classList.remove('scale-100');
+        modal.querySelector('div').classList.add('scale-95');
+      };
+
+      closeBtn.addEventListener('click', hideModal);
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) hideModal();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('opacity-100')) hideModal();
+      });
+    }
+
+    const img = modal.querySelector('.zoom-img');
+    img.src = imageUrl;
+
+    // Show modal
+    modal.classList.remove('opacity-0', 'pointer-events-none');
+    modal.classList.add('opacity-100', 'pointer-events-auto');
+    modal.querySelector('div').classList.remove('scale-95');
+    modal.querySelector('div').classList.add('scale-100');
   }
 
   showProgress(show, text = 'Processing PDF...', subtext = '') {

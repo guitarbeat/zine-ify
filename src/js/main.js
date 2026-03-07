@@ -52,6 +52,8 @@ class PDFZineMaker {
     this.ui.on('orientationChanged', (data) => this.updatePaperSettings(data));
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
     this.ui.on('pageFlipped', (pageIndex) => this.handlePageFlipped(pageIndex));
+    this.ui.on('pageZoomed', (pageIndex) => this.handlePageZoomed(pageIndex));
+    this.ui.on('pageRemoved', (pageIndex) => this.handlePageRemoved(pageIndex));
     this.ui.on('gridSizeChanged', (data) => this.handleGridSizeChanged(data));
   }
 
@@ -61,6 +63,29 @@ class PDFZineMaker {
   handlePageFlipped(pageIndex) {
     this.pageFlips[pageIndex] = !this.pageFlips[pageIndex];
     this.ui.setPageFlip(pageIndex, this.pageFlips[pageIndex]);
+  }
+
+  /**
+   * Handle individual page zoom preview
+   */
+  handlePageZoomed(pageIndex) {
+    const imageUrl = this.allPageImages[pageIndex];
+    if (imageUrl && imageUrl !== this._blankPageUrl) {
+      this.ui.showZoomModal(imageUrl);
+    } else {
+      toast.info('No Content', 'This page is currently empty.');
+    }
+  }
+
+  /**
+   * Handle individual page removal
+   */
+  handlePageRemoved(pageIndex) {
+    this.allPageImages[pageIndex] = this._blankPageUrl;
+    this.pageFlips[pageIndex] = false;
+    this.ui.setPageFlip(pageIndex, false);
+    this.ui.updatePagePreview(pageIndex, this._blankPageUrl);
+    toast.success('Page Removed', `Page ${pageIndex + 1} has been cleared.`);
   }
 
   /**
@@ -91,10 +116,10 @@ class PDFZineMaker {
       size: file.size,
       uploadedAt: new Date()
     });
-    
+
     this.ui.setStatus(`Adding: ${file.name} (${formatFileSize(file.size)})`, 'success');
     this.ui.updateUploadedFilesList(this.uploadedFiles);
-    
+
     // Start processing immediately on selection for better UX
     this.processAdditionalPDF(file);
   }
@@ -114,7 +139,7 @@ class PDFZineMaker {
       let currentFilledPages = 0;
       for (let i = 0; i < this.allPageImages.length; i++) {
         if (this.allPageImages[i] && this.allPageImages[i] !== this._blankPageUrl) {
-           currentFilledPages = Math.max(currentFilledPages, i + 1);
+          currentFilledPages = Math.max(currentFilledPages, i + 1);
         }
       }
 
@@ -128,10 +153,10 @@ class PDFZineMaker {
         cols = 4;
         this.gridSize = { rows, cols };
         this.ui.generateLayout(16, 'accordion-16');
-        
+
         // Ensure array size
         if (this.allPageImages.length < 16) {
-           this.allPageImages = new Array(16).fill(null);
+          this.allPageImages = new Array(16).fill(null);
         }
       } else {
         const sqrt = Math.ceil(Math.sqrt(this.totalPages));
@@ -144,13 +169,13 @@ class PDFZineMaker {
         this.gridSize = { rows, cols };
 
         const requiredLength = Math.max(rows * cols, this.totalPages);
-        
+
         // Resize array
         const newArray = new Array(requiredLength).fill(null);
         for (let i = 0; i < this.allPageImages.length; i++) {
-           if (i < newArray.length) {
-              newArray[i] = this.allPageImages[i];
-           }
+          if (i < newArray.length) {
+            newArray[i] = this.allPageImages[i];
+          }
         }
         this.allPageImages = newArray;
 
@@ -158,9 +183,9 @@ class PDFZineMaker {
 
         // Restore existing images
         for (let i = 0; i < this.allPageImages.length; i++) {
-           if (this.allPageImages[i]) {
-              this.ui.updatePagePreview(i, this.allPageImages[i]);
-           }
+          if (this.allPageImages[i]) {
+            this.ui.updatePagePreview(i, this.allPageImages[i]);
+          }
         }
       }
 
@@ -506,14 +531,14 @@ class PDFZineMaker {
     if (index < 0 || index >= this.uploadedFiles.length) { return; }
 
     const removedFile = this.uploadedFiles[index];
-    
+
     // For now, we'll just remove it from the list and show a message
     // In a full implementation, we'd need to track which pages belong to which file
     this.uploadedFiles.splice(index, 1);
     this.ui.updateUploadedFilesList(this.uploadedFiles);
-    
+
     toast.info('File Removed', `${removedFile.name} removed from list. Note: Pages remain in zine.`);
-    
+
   }
 }
 
