@@ -81,6 +81,17 @@ class PDFZineMaker {
    * Handle individual page removal
    */
   handlePageRemoved(pageIndex) {
+    const oldUrl = this.allPageImages[pageIndex];
+
+    // Revoke old blob URL to prevent memory leaks
+    if (oldUrl && oldUrl !== this._blankPageUrl && oldUrl.startsWith('blob:')) {
+      try {
+        URL.revokeObjectURL(oldUrl);
+      } catch (e) {
+        console.warn('Failed to revoke URL:', e);
+      }
+    }
+
     this.allPageImages[pageIndex] = this._blankPageUrl;
     this.pageFlips[pageIndex] = false;
     this.ui.setPageFlip(pageIndex, false);
