@@ -1,0 +1,3 @@
+## 2024-05-24 - PDF Processing Stutter vs Sliding Window Concurrency
+**Learning:** Using discrete `Promise.all` batches (e.g., chunking pages by 4) causes rendering "stutter" in the UI because the next batch can't start until the slowest page in the current batch finishes. This wastes potential concurrency.
+**Action:** Implement a sliding window worker pool pattern using `Set` and `Promise.race` for performance-critical page processing loops to maximize throughput and eliminate blocking caused by single slow tasks.
