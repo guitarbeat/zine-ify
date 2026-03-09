@@ -1,0 +1,3 @@
+## 2024-05-24 - PDF Processing Rendering Optimization
+**Learning:** The previous implementation used discrete `Promise.all` batches for rendering PDF pages. In this pattern, the application would wait for the slowest page in a batch to render before moving to the next batch, leading to "stuttering" and under-utilization of resources.
+**Action:** Replace discrete `Promise.all` batch loops with a sliding window worker pool pattern using `Set` and `Promise.race`. This keeps exactly `N` (e.g., 4) concurrent workers active at any given time, smoothing out rendering performance and improving overall throughput.
