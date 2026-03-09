@@ -274,8 +274,7 @@ export class UIManager {
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
         <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
       `;
-      cell.querySelector('.page-label').textContent = labelText;
-      cell.querySelector('img').alt = `Page ${pageNum}`;
+      this.setPageLabelAndAlt(cell, labelText, pageNum);
 
       this.setupDragAndDrop(cell);
       this.setupFlipButton(cell);
@@ -368,8 +367,7 @@ export class UIManager {
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
         <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
       `;
-      cell.querySelector('.page-label').textContent = labelText;
-      cell.querySelector('img').alt = `Page ${item.page}`;
+      this.setPageLabelAndAlt(cell, labelText, item.page);
 
       this.setupDragAndDrop(cell);
       this.setupFlipButton(cell);
@@ -431,17 +429,8 @@ export class UIManager {
         <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
         `;
 
-        const labelSpan = cell.querySelector('.page-label');
-        labelSpan.textContent = labelText;
-        if (numSheets > 1) {
-          const sheetLabelSpan = document.createElement('span');
-          sheetLabelSpan.className = 'opacity-50 text-[8px] ml-1';
-          sheetLabelSpan.textContent = `(Sheet ${s})`;
-          // Add a space before the sheet label span
-          labelSpan.appendChild(document.createTextNode(' '));
-          labelSpan.appendChild(sheetLabelSpan);
-        }
-        cell.querySelector('img').alt = `Page ${pageIdx}`;
+        const sheetLabel = numSheets > 1 ? s : null;
+        this.setPageLabelAndAlt(cell, labelText, pageIdx, sheetLabel);
 
         this.setupDragAndDrop(cell);
         this.setupFlipButton(cell);
@@ -459,6 +448,28 @@ export class UIManager {
       sheetWrapper.appendChild(grid);
       sheetWrapper.insertAdjacentHTML('beforeend', guidelines);
       this.elements.zineSheetsContainer.appendChild(sheetWrapper);
+    }
+  }
+
+  /**
+   * Helper method to set page label and alt text safely
+   */
+  setPageLabelAndAlt(cell, labelText, pageNum, sheetNumber = null) {
+    const labelSpan = cell.querySelector('.page-label');
+    if (labelSpan) {
+      labelSpan.textContent = labelText;
+      if (sheetNumber) {
+        const sheetLabelSpan = document.createElement('span');
+        sheetLabelSpan.className = 'opacity-50 text-[8px] ml-1';
+        sheetLabelSpan.textContent = `(Sheet ${sheetNumber})`;
+        // Add a space before the sheet label span
+        labelSpan.appendChild(document.createTextNode(' '));
+        labelSpan.appendChild(sheetLabelSpan);
+      }
+    }
+    const img = cell.querySelector('.page-content-img');
+    if (img) {
+      img.alt = `Page ${pageNum}`;
     }
   }
 
