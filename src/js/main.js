@@ -239,8 +239,14 @@ class PDFZineMaker {
       const description = `PDF arranged into a ${rows}×${cols} grid (${rows * cols} pages)`;
       this.ui.setReady(true, description);
 
-      const batchSize = 4;
+      // ⚡ Bolt: Sliding Window Worker Pool Optimization
+      // Replaced discrete Promise.all batching with a sliding window concurrency pattern.
+      // This keeps concurrency at exactly 4 (concurrencyLimit), preventing 'stuttering'
+      // where the pool would stall waiting for the slowest page in a batch to finish.
+      // Expected impact: smoother loading UI and potentially faster overall PDF processing time.
+      const concurrencyLimit = 4;
       let completedPages = 0;
+      const activePromises = new Set();
 
       const processPage = async (pageNum) => {
         const targetIndex = currentFilledPages + pageNum - 1;
@@ -261,13 +267,17 @@ class PDFZineMaker {
         this.ui.updateProgress(percent);
       };
 
-      for (let i = 1; i <= maxPages; i += batchSize) {
-        const batch = [];
-        for (let j = 0; j < batchSize && (i + j) <= maxPages; j++) {
-          batch.push(processPage(i + j));
+      for (let i = 1; i <= maxPages; i++) {
+        const promise = processPage(i).finally(() => activePromises.delete(promise));
+        activePromises.add(promise);
+
+        if (activePromises.size >= concurrencyLimit) {
+          await Promise.race(activePromises);
         }
-        await Promise.all(batch);
       }
+
+      // Wait for the remaining pages to finish
+      await Promise.all(activePromises);
 
       // Fill blanks
       for (let i = this.totalPages; i < rows * cols; i++) {
