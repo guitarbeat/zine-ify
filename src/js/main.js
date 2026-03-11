@@ -239,8 +239,10 @@ class PDFZineMaker {
       const description = `PDF arranged into a ${rows}×${cols} grid (${rows * cols} pages)`;
       this.ui.setReady(true, description);
 
-      const batchSize = 4;
+      const concurrencyLimit = 4;
       let completedPages = 0;
+      let nextPageIndex = 1;
+      const activeWorkers = new Set();
 
       const processPage = async (pageNum) => {
         const targetIndex = currentFilledPages + pageNum - 1;
@@ -261,13 +263,31 @@ class PDFZineMaker {
         this.ui.updateProgress(percent);
       };
 
-      for (let i = 1; i <= maxPages; i += batchSize) {
-        const batch = [];
-        for (let j = 0; j < batchSize && (i + j) <= maxPages; j++) {
-          batch.push(processPage(i + j));
+      // Implement sliding window worker pool to prevent UI stuttering
+      // This maintains a continuous flow of page processing up to concurrency limit
+      // instead of waiting for discrete batches of Promises to resolve entirely
+      const workerPool = async () => {
+        while (nextPageIndex <= maxPages) {
+          if (activeWorkers.size >= concurrencyLimit) {
+            // Wait for at least one worker to finish before spawning a new one
+            // We use Promise.race to wait for the FIRST one to finish, allowing the loop to continue
+            // and spawn another worker if needed. If any worker throws an error, Promise.race will
+            // reject and abort the entire process (bubble up to outer try/catch).
+            await Promise.race(activeWorkers);
+          }
+
+          const pageNumToProcess = nextPageIndex++;
+          const workerPromise = processPage(pageNumToProcess);
+          activeWorkers.add(workerPromise);
+
+          // Clean up worker from active set when it finishes
+          workerPromise.finally(() => activeWorkers.delete(workerPromise));
         }
-        await Promise.all(batch);
-      }
+        // Wait for all remaining active workers to finish
+        await Promise.all(activeWorkers);
+      };
+
+      await workerPool();
 
       // Fill blanks
       for (let i = this.totalPages; i < rows * cols; i++) {
