@@ -303,8 +303,8 @@ export class UIManager {
       const flipBtn = cell.querySelector('.flip-btn');
       if (flipBtn) {
         flipBtn.setAttribute('title', `Flip ${labelText}`);
-        flipBtn.setAttribute('aria-label', `Rotate ${labelText} 180 degrees`);
       }
+      this.setButtonAriaLabels(cell, labelText);
 
       this.setupDragAndDrop(cell);
       this.setupToolbar(cell);
@@ -417,8 +417,8 @@ export class UIManager {
       const flipBtn = cell.querySelector('.flip-btn');
       if (flipBtn) {
         flipBtn.setAttribute('title', `Flip ${labelText}`);
-        flipBtn.setAttribute('aria-label', `Rotate ${labelText} 180 degrees`);
       }
+      this.setButtonAriaLabels(cell, labelText);
 
       this.setupDragAndDrop(cell);
       this.setupToolbar(cell);
@@ -507,8 +507,8 @@ export class UIManager {
         const flipBtn = cell.querySelector('.flip-btn');
         if (flipBtn) {
           flipBtn.setAttribute('title', `Flip ${labelText}`);
-          flipBtn.setAttribute('aria-label', `Rotate ${labelText} 180 degrees`);
         }
+        this.setButtonAriaLabels(cell, labelText);
 
         this.setupDragAndDrop(cell);
         this.setupToolbar(cell);
@@ -527,6 +527,30 @@ export class UIManager {
       sheetWrapper.insertAdjacentHTML('beforeend', guidelines);
       this.elements.zineSheetsContainer.appendChild(sheetWrapper);
     }
+  }
+
+  /**
+   * Dynamically set context-specific ARIA labels for icon buttons in a cell
+   * and ensure ligature icons are hidden from screen readers.
+   */
+  setButtonAriaLabels(cell, labelText) {
+    const btnMap = [
+      { sel: '.zoom-btn', text: `Quick preview ${labelText}` },
+      { sel: '.crop-btn', text: `Toggle crop for ${labelText}` },
+      { sel: '.remove-btn', text: `Remove ${labelText}` },
+      { sel: '.flip-btn', text: `Rotate ${labelText} 180 degrees` }
+    ];
+
+    btnMap.forEach(({ sel, text }) => {
+      const btn = cell.querySelector(sel);
+      if (btn) {
+        btn.setAttribute('aria-label', text);
+        const icon = btn.querySelector('.material-symbols-outlined');
+        if (icon) {
+          icon.setAttribute('aria-hidden', 'true');
+        }
+      }
+    });
   }
 
   setupDragAndDrop(cell) {
@@ -755,8 +779,8 @@ export class UIManager {
         <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white rounded shadow-2xl overflow-hidden flex flex-col scale-95 transition-transform duration-300">
           <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200 bg-gray-50">
             <h3 class="font-black text-gray-800 uppercase tracking-wider text-sm">Page Preview</h3>
-            <button class="close-modal w-8 h-8 rounded hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-red-500">
-              <span class="material-symbols-outlined font-bold">close</span>
+            <button class="close-modal w-8 h-8 rounded hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-red-500" aria-label="Close Preview">
+              <span class="material-symbols-outlined font-bold" aria-hidden="true">close</span>
             </button>
           </div>
           <div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-200/50">
@@ -924,7 +948,7 @@ export class UIManager {
 
       const contentWrapper = document.createElement('div');
       contentWrapper.className = 'flex items-center gap-2';
-      contentWrapper.innerHTML = '<span class="material-symbols-outlined text-sm">description</span>';
+      contentWrapper.innerHTML = '<span class="material-symbols-outlined text-sm" aria-hidden="true">description</span>';
 
       const textWrapper = document.createElement('div');
 
@@ -943,7 +967,8 @@ export class UIManager {
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs';
       removeBtn.title = 'Remove this file';
-      removeBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
+      removeBtn.setAttribute('aria-label', `Remove file ${fileInfo.name}`);
+      removeBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">close</span>';
       removeBtn.addEventListener('click', () => {
         if (window.zineMaker && typeof window.zineMaker.removeUploadedFile === 'function') {
           window.zineMaker.removeUploadedFile(index);
