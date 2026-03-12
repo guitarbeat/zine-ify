@@ -144,8 +144,13 @@ export class UIManager {
     }, 300);
 
     const handleGridChange = () => {
-      const rows = parseInt(this.elements.gridRows?.value) || 2;
-      const cols = parseInt(this.elements.gridCols?.value) || 4;
+      let rows = parseInt(this.elements.gridRows?.value) || 2;
+      let cols = parseInt(this.elements.gridCols?.value) || 4;
+
+      // Security: clamp grid values between 1 and 10 to prevent DoS from massive DOM generation
+      rows = Math.max(1, Math.min(10, rows));
+      cols = Math.max(1, Math.min(10, cols));
+
       if (this.elements.gridTotal) {
         this.elements.gridTotal.textContent = `(${rows * cols} pages)`;
       }
