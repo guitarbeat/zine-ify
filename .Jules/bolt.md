@@ -1,0 +1,3 @@
+## 2024-03-12 - Prevent Promise.all Stuttering with Sliding Window Worker Pool
+**Learning:** Batched processing using `Promise.all([p1, p2, p3, p4])` in a loop causes stuttering. The next batch of 4 workers cannot start until the slowest task in the current batch finishes, leading to underutilized concurrency and longer overall processing times.
+**Action:** Replace discrete batching loops with a sliding window worker pool using `Promise.race()`. Maintain an `executing` Set of promises, removing them in `.finally()`, and `await Promise.race(executing)` whenever the concurrency limit is reached to ensure a new task starts immediately when any previous task completes. Always finish with `await Promise.all(results)` to catch errors.
