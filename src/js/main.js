@@ -239,8 +239,10 @@ class PDFZineMaker {
       const description = `PDF arranged into a ${rows}×${cols} grid (${rows * cols} pages)`;
       this.ui.setReady(true, description);
 
-      const batchSize = 4;
+      const concurrencyLimit = 4;
       let completedPages = 0;
+      const activePromises = new Set();
+      let poolError = null;
 
       const processPage = async (pageNum) => {
         const targetIndex = currentFilledPages + pageNum - 1;
@@ -261,13 +263,29 @@ class PDFZineMaker {
         this.ui.updateProgress(percent);
       };
 
-      for (let i = 1; i <= maxPages; i += batchSize) {
-        const batch = [];
-        for (let j = 0; j < batchSize && (i + j) <= maxPages; j++) {
-          batch.push(processPage(i + j));
+      for (let i = 1; i <= maxPages; i++) {
+        if (poolError) {throw poolError;}
+
+        const promise = processPage(i).catch(err => {
+          poolError = poolError || err;
+          throw err;
+        }).finally(() => {
+          activePromises.delete(promise);
+        });
+
+        // Prevent unhandled rejection warning, error is caught via poolError or Promise.race/all
+        promise.catch(() => {});
+        activePromises.add(promise);
+
+        if (activePromises.size >= concurrencyLimit) {
+          await Promise.race(activePromises).catch(err => {
+            throw poolError || err;
+          });
         }
-        await Promise.all(batch);
       }
+
+      if (poolError) {throw poolError;}
+      await Promise.all(activePromises);
 
       // Fill blanks
       for (let i = this.totalPages; i < rows * cols; i++) {

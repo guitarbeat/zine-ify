@@ -1,0 +1,3 @@
+## 2024-03-13 - Avoid batched Promise.all in favor of sliding window pools for parallel processing
+**Learning:** Using batched `Promise.all` for parallel tasks (like rendering PDF pages) causes "stuttering" performance. The loop waits for the slowest task in the batch to complete before starting any new tasks, leaving resources idle.
+**Action:** Implement a sliding window worker pool using a `Set` of active promises and `Promise.race()`. Ensure errors are explicitly caught and re-thrown to preserve the fail-fast behavior that `Promise.all` provides.
