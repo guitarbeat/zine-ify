@@ -1,0 +1,3 @@
+## 2024-05-24 - Accessible Action Buttons & Material Ligatures
+**Learning:** Icon-only action buttons repeated across dynamic grid cells require contextual `aria-label` attributes (e.g., "Remove Cover" instead of just "Remove") to be comprehensible to screen reader users. Additionally, Material Symbol ligatures (like `close` or `zoom_in`) must be explicitly hidden with `aria-hidden="true"` so screen readers don't announce the raw ligature text instead of the intended label.
+**Action:** Always utilize a helper function like `setPageLabelAndAlt` when generating multiple layout cells to uniformly apply contextual ARIA attributes and ensure font-icon ligatures are marked as hidden from assistive technologies.
