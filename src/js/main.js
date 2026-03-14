@@ -239,7 +239,9 @@ class PDFZineMaker {
       const description = `PDF arranged into a ${rows}×${cols} grid (${rows * cols} pages)`;
       this.ui.setReady(true, description);
 
-      const batchSize = 4;
+      // Use a sliding window worker pool pattern to prevent "stuttering" during rendering
+      // Performance: Replaces discrete batching (waiting for slowest in batch of 4)
+      const concurrencyLimit = 4;
       let completedPages = 0;
 
       const processPage = async (pageNum) => {
@@ -261,13 +263,29 @@ class PDFZineMaker {
         this.ui.updateProgress(percent);
       };
 
-      for (let i = 1; i <= maxPages; i += batchSize) {
-        const batch = [];
-        for (let j = 0; j < batchSize && (i + j) <= maxPages; j++) {
-          batch.push(processPage(i + j));
+      const activeWorkers = new Set();
+      const allWorkers = [];
+
+      for (let i = 1; i <= maxPages; i++) {
+        const workerPromise = processPage(i);
+        allWorkers.push(workerPromise);
+
+        const activeWorker = workerPromise.catch((e) => {
+          // Explicitly propagate errors
+          throw e;
+        }).finally(() => {
+          activeWorkers.delete(activeWorker);
+        });
+
+        activeWorkers.add(activeWorker);
+
+        if (activeWorkers.size >= concurrencyLimit) {
+          await Promise.race(activeWorkers);
         }
-        await Promise.all(batch);
       }
+
+      // Ensure all workers are complete and propagate any uncaught errors
+      await Promise.all(allWorkers);
 
       // Fill blanks
       for (let i = this.totalPages; i < rows * cols; i++) {

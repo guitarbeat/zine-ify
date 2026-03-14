@@ -1,0 +1,3 @@
+## 2025-03-14 - PDF Rendering Sliding Window Optimization
+**Learning:** In the PDFZineMaker, rendering PDF pages using discrete batches (e.g., `Promise.all` with chunks of 4) causes a noticeable "stuttering" effect. This happens because the next batch cannot begin until the absolute slowest page in the current batch completes, leaving workers idle and wasting processing time.
+**Action:** Replace batched `Promise.all` approaches with a sliding window worker pool pattern (using `Promise.race` combined with a concurrency limit and `Set` of active workers). Ensure you also track all initial promises to guarantee any uncaught errors properly propagate using `Promise.all(allWorkers)`.
