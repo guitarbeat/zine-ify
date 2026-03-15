@@ -76,6 +76,16 @@ export class PDFProcessor {
         throw new Error('Invalid file signature. Please select a valid PDF file.');
       }
 
+      // Cleanup previous file before loading a new one to prevent memory leaks
+      if (this.fileUrl) {
+        URL.revokeObjectURL(this.fileUrl);
+        this.fileUrl = null;
+      }
+      if (this.pdf) {
+        this.pdf.destroy();
+        this.pdf = null;
+      }
+
       // Use Blob URL instead of reading entire file into ArrayBuffer
       // This saves memory and prevents blocking the main thread
       this.fileUrl = URL.createObjectURL(file);
