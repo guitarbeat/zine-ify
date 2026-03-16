@@ -144,8 +144,17 @@ export class UIManager {
     }, 300);
 
     const handleGridChange = () => {
-      const rows = parseInt(this.elements.gridRows?.value) || 2;
-      const cols = parseInt(this.elements.gridCols?.value) || 4;
+      let rows = parseInt(this.elements.gridRows?.value) || 2;
+      let cols = parseInt(this.elements.gridCols?.value) || 4;
+
+      // Clamp values between 1 and 10 to prevent DoS via massive grid creation
+      rows = Math.max(1, Math.min(10, rows));
+      cols = Math.max(1, Math.min(10, cols));
+
+      // Sync the clamped values back to the UI inputs
+      if (this.elements.gridRows) { this.elements.gridRows.value = rows; }
+      if (this.elements.gridCols) { this.elements.gridCols.value = cols; }
+
       if (this.elements.gridTotal) {
         this.elements.gridTotal.textContent = `(${rows * cols} pages)`;
       }

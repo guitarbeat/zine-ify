@@ -1,0 +1,4 @@
+## 2024-05-01 - Prevent DoS via Massive DOM Node Generation
+**Vulnerability:** The application was generating the layout grid (in `src/js/zine-ui.js`) without clamping the raw inputs directly entered by the user. An attacker could bypass the `max` attributes of input tags by using dev tools or scripts to set values like 1000 for `gridRows` and `gridCols`. Creating 1,000,000 DOM nodes dynamically will crash the user's browser (Client-Side Denial of Service).
+**Learning:** HTML `min` and `max` limits are strictly UI guidelines. Any numerical user input that controls resource allocation or loop iterations must be explicitly constrained within JavaScript before use.
+**Prevention:** Always clamp raw numerical user inputs that affect loop conditions or array sizing using `Math.min()` and `Math.max()` in the logic layer.
