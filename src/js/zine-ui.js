@@ -4,6 +4,23 @@ import { PAPER_SIZES, ZINE_TEMPLATES } from './config.js';
 import { toast } from './toast.js';
 import { debounce } from './utils.js';
 
+const PAGE_TOOLBAR_HTML = `
+        <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+           <button aria-label="Zoom preview" class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Quick Preview">
+                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">zoom_in</span>
+           </button>
+           <button aria-label="Toggle crop" class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Toggle Crop/Zoom">
+                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">crop_free</span>
+           </button>
+           <button aria-label="Remove page" class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Remove Page">
+                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">close</span>
+           </button>
+           <button aria-label="Flip page" class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Flip 180°">
+                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">rotate_right</span>
+           </button>
+        </div>
+`;
+
 export class UIManager {
   constructor() {
     this.emitter = mitt();
@@ -278,20 +295,7 @@ export class UIManager {
       cell.innerHTML = `
         <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
         
-        <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-           <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Quick Preview">
-                <span class="material-symbols-outlined text-lg font-bold">zoom_in</span>
-           </button>
-           <button class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Toggle Crop/Zoom">
-                <span class="material-symbols-outlined text-lg font-bold">crop_free</span>
-           </button>
-           <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Remove Page">
-                <span class="material-symbols-outlined text-lg font-bold">close</span>
-           </button>
-           <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip 180°">
-                <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
-           </button>
-        </div>
+${PAGE_TOOLBAR_HTML}
 
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
         <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
@@ -392,20 +396,7 @@ export class UIManager {
       cell.innerHTML = `
         <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
         
-        <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-           <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Quick Preview">
-                <span class="material-symbols-outlined text-lg font-bold">zoom_in</span>
-           </button>
-           <button class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Toggle Crop/Zoom">
-                <span class="material-symbols-outlined text-lg font-bold">crop_free</span>
-           </button>
-           <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Remove Page">
-                <span class="material-symbols-outlined text-lg font-bold">close</span>
-           </button>
-           <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip 180°">
-                <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
-           </button>
-        </div>
+${PAGE_TOOLBAR_HTML}
 
         <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
         <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
@@ -474,20 +465,7 @@ export class UIManager {
         cell.innerHTML = `
           <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
           
-          <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-             <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Quick Preview">
-                  <span class="material-symbols-outlined text-lg font-bold">zoom_in</span>
-             </button>
-             <button class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Toggle Crop/Zoom">
-                  <span class="material-symbols-outlined text-lg font-bold">crop_free</span>
-             </button>
-             <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2_2_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Remove Page">
-                  <span class="material-symbols-outlined text-lg font-bold">close</span>
-             </button>
-             <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2_2_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip 180°">
-                  <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
-             </button>
-          </div>
+${PAGE_TOOLBAR_HTML}
 
           <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
           <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
@@ -755,8 +733,8 @@ export class UIManager {
         <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white rounded shadow-2xl overflow-hidden flex flex-col scale-95 transition-transform duration-300">
           <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200 bg-gray-50">
             <h3 class="font-black text-gray-800 uppercase tracking-wider text-sm">Page Preview</h3>
-            <button class="close-modal w-8 h-8 rounded hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-red-500">
-              <span class="material-symbols-outlined font-bold">close</span>
+            <button aria-label="Close preview" class="close-modal w-8 h-8 rounded hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black">
+              <span aria-hidden="true" class="material-symbols-outlined font-bold">close</span>
             </button>
           </div>
           <div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-200/50">
@@ -924,7 +902,7 @@ export class UIManager {
 
       const contentWrapper = document.createElement('div');
       contentWrapper.className = 'flex items-center gap-2';
-      contentWrapper.innerHTML = '<span class="material-symbols-outlined text-sm">description</span>';
+      contentWrapper.innerHTML = '<span aria-hidden="true" class="material-symbols-outlined text-sm">description</span>';
 
       const textWrapper = document.createElement('div');
 
@@ -941,9 +919,10 @@ export class UIManager {
       contentWrapper.appendChild(textWrapper);
 
       const removeBtn = document.createElement('button');
-      removeBtn.className = 'remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs';
+      removeBtn.className = 'remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black';
       removeBtn.title = 'Remove this file';
-      removeBtn.innerHTML = '<span class="material-symbols-outlined">close</span>';
+      removeBtn.setAttribute('aria-label', 'Remove file');
+      removeBtn.innerHTML = '<span aria-hidden="true" class="material-symbols-outlined">close</span>';
       removeBtn.addEventListener('click', () => {
         if (window.zineMaker && typeof window.zineMaker.removeUploadedFile === 'function') {
           window.zineMaker.removeUploadedFile(index);
