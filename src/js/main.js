@@ -261,13 +261,29 @@ class PDFZineMaker {
         this.ui.updateProgress(percent);
       };
 
-      for (let i = 1; i <= maxPages; i += batchSize) {
-        const batch = [];
-        for (let j = 0; j < batchSize && (i + j) <= maxPages; j++) {
-          batch.push(processPage(i + j));
+      // Optimization: Sliding window worker pool to maximize throughput and prevent stuttering
+      const activePromises = new Set();
+      let poolError = null;
+
+      for (let i = 1; i <= maxPages; i++) {
+        if (poolError) {throw poolError;} // Fail fast on error
+
+        const p = processPage(i).catch(err => {
+          poolError = err;
+        }).finally(() => {
+          activePromises.delete(p);
+        });
+
+        activePromises.add(p);
+
+        if (activePromises.size >= batchSize) {
+          await Promise.race(activePromises);
         }
-        await Promise.all(batch);
       }
+
+      if (poolError) {throw poolError;}
+      await Promise.all(activePromises);
+      if (poolError) {throw poolError;} // Check again after final batch completes
 
       // Fill blanks
       for (let i = this.totalPages; i < rows * cols; i++) {

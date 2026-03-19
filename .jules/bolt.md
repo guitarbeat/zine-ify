@@ -1,0 +1,3 @@
+## 2024-03-19 - Replacing Discrete Promise.all Batching with Sliding Window Worker Pools
+**Learning:** In a frontend context rendering expensive resources (like PDF pages to canvas), batched `Promise.all` causes stuttering because the next batch doesn't start until the slowest page in the current batch finishes. Using a sliding window pattern with `Set` and `Promise.race` maximizes throughput by constantly keeping the worker pool at maximum concurrency. We also need to manually track `poolError` to ensure explicit error propagation, preserving fail-fast behavior.
+**Action:** When working with parallel heavy processing in the browser, always default to a sliding window worker pool pattern rather than discrete batches to avoid CPU/worker idle time.
