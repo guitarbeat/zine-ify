@@ -12,3 +12,8 @@
 **Vulnerability:** A DOM-based XSS existed where user-uploaded file names were injected directly into the HTML using `innerHTML` in the `updateUploadedFilesList` component. Maliciously crafted filenames could execute arbitrary JavaScript.
 **Learning:** Data from file objects (like `file.name`) should always be treated as untrusted user input. Using template literals combined with `innerHTML` to display file metadata is a common source of injection vulnerabilities.
 **Prevention:** Construct UI elements dynamically using `document.createElement()` and bind untrusted input exclusively to safe properties like `textContent` rather than interpolating strings to be parsed as HTML. Bind handlers via `addEventListener` instead of inline string attributes.
+
+## 2024-05-24 - [Client-Side DoS via Massive DOM Generation]
+**Vulnerability:** Client-side Denial of Service (DoS) due to unbounded grid layout dimensions. The `handleGridChange` function generated a custom grid using unbounded `rows` and `cols` from user input.
+**Learning:** Numeric user inputs dictating loop iterations or massive resource allocation (such as `rows` and `cols` for grid generation) must be strictly clamped in JavaScript, as HTML `min` and `max` attributes can be easily bypassed by modifying the DOM or using JS eval.
+**Prevention:** Strictly clamp resource-determining user inputs (e.g., between 1 and 10) inside JavaScript event handlers before utilizing them in heavy DOM generation or loop iterations. Sync the clamped values back to the UI.
