@@ -12,3 +12,8 @@
 **Vulnerability:** A DOM-based XSS existed where user-uploaded file names were injected directly into the HTML using `innerHTML` in the `updateUploadedFilesList` component. Maliciously crafted filenames could execute arbitrary JavaScript.
 **Learning:** Data from file objects (like `file.name`) should always be treated as untrusted user input. Using template literals combined with `innerHTML` to display file metadata is a common source of injection vulnerabilities.
 **Prevention:** Construct UI elements dynamically using `document.createElement()` and bind untrusted input exclusively to safe properties like `textContent` rather than interpolating strings to be parsed as HTML. Bind handlers via `addEventListener` instead of inline string attributes.
+
+## 2025-02-23 - [Client-Side DoS via Unclamped Grid Inputs]
+**Vulnerability:** Client-side Denial of Service (DoS) due to unclamped numeric user inputs controlling DOM node generation. The `rows` and `cols` grid inputs relied entirely on HTML `min` and `max` attributes for validation, which can be bypassed via JavaScript (e.g., setting `10000`).
+**Learning:** HTML validation attributes are not sufficient for security or application stability when input values dictate resource allocation or loop iterations. Bypassing them and triggering massive iterations can crash the user's browser via infinite or massive DOM creation.
+**Prevention:** Always explicitly clamp or validate numeric user inputs in JavaScript logic (`Math.max(1, Math.min(10, value))`) before using them in loops or heavy DOM operations, and sync the clamped values back to the UI.
