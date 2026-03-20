@@ -1,4 +1,4 @@
-// @ts-check
+// playwright.config.js
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
@@ -6,11 +6,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 1, // Set to 1 to avoid port conflicts
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:8001',
     trace: 'on-first-retry',
+    baseURL: 'http://127.0.0.1:8001',
   },
   projects: [
     {
@@ -19,9 +19,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm run build && pnpm run serve:test',
-    url: 'http://localhost:8001',
+    command: 'pnpm run dev --port 8001 --host 127.0.0.1',
+    url: 'http://127.0.0.1:8001',
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
   },
 });
