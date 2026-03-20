@@ -1,0 +1,3 @@
+## 2025-02-17 - Optimize PDF processing with sliding window worker pool
+**Learning:** Discrete batching with `Promise.all` causes UI stuttering and uneven resource utilization because it waits for the slowest task in the batch to finish before starting the next batch.
+**Action:** Replace `Promise.all` batched processing with a sliding window worker pool pattern using `Promise.race` to maintain a constant concurrency limit. Ensure errors inside individual worker promises are tracked (e.g., using `poolError`) and explicitly thrown outside the loop and after the final `Promise.all` to preserve fail-fast behavior.
