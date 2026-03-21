@@ -262,9 +262,14 @@ class PDFZineMaker {
       };
 
       const activePromises = new Set();
+      let poolError = null;
 
       for (let i = 1; i <= maxPages; i++) {
-        const promise = processPage(i);
+        if (poolError) { throw poolError; }
+
+        const promise = processPage(i).catch(err => {
+          poolError = err;
+        });
         activePromises.add(promise);
 
         promise.finally(() => {
@@ -276,8 +281,9 @@ class PDFZineMaker {
         }
       }
 
-      // Wait for any remaining promises to complete, and throw on errors
+      // Wait for any remaining promises to complete
       await Promise.all(activePromises);
+      if (poolError) { throw poolError; }
 
       // Fill blanks
       for (let i = this.totalPages; i < rows * cols; i++) {
