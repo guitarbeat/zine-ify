@@ -22,3 +22,8 @@
 **Vulnerability:** The application previously lacked a Content Security Policy (CSP), leaving it fully exposed to Cross-Site Scripting (XSS), data injection, and unauthorized resource loading.
 **Learning:** Even if client-side validation is robust, defense-in-depth necessitates a CSP to mitigate risks when user-supplied content (like filenames or parsed PDF data) is processed. A well-configured CSP ensures that only trusted resources are executed or loaded, providing a critical safety net against XSS.
 **Prevention:** Always define a strict CSP via the `Content-Security-Policy` HTTP header or a `<meta>` tag in `index.html`. For modern web apps relying on local blob URLs (e.g. for canvas elements or Web Workers), carefully allow `blob:` and `data:` in `worker-src` and `img-src` respectively, without resorting to global wildcards.
+
+## 2024-05-24 - [Unsafe Eval in Content Security Policy]
+**Vulnerability:** The application's Content Security Policy (CSP) previously included `'unsafe-eval'` in the `script-src` directive, leaving it vulnerable to certain types of Cross-Site Scripting (XSS) attacks through the execution of string-based code (e.g., `eval()`, `new Function()`, `setTimeout()`).
+**Learning:** Even with secure programming practices, defense-in-depth requires strict CSP rules. It's often mistakenly assumed that external libraries like PDF.js necessitate `'unsafe-eval'`, but passing `isEvalSupported: false` alongside `enableScripting: false` allows strict CSP compliance without breaking functionality.
+**Prevention:** Remove `'unsafe-eval'` from `script-src` in the CSP. Always verify if external dependencies can be configured to avoid needing `eval()` before widening the policy.
