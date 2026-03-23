@@ -757,8 +757,8 @@ ${PAGE_TOOLBAR_HTML}
         <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white rounded shadow-2xl overflow-hidden flex flex-col scale-95 transition-transform duration-300">
           <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200 bg-gray-50">
             <h3 class="font-black text-gray-800 uppercase tracking-wider text-sm">Page Preview</h3>
-            <button class="close-modal w-8 h-8 rounded hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-red-500">
-              <span class="material-symbols-outlined font-bold">close</span>
+            <button class="close-modal w-8 h-8 rounded hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors focus:outline-none focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black focus-visible:ring-0">
+              <span class="material-symbols-outlined font-bold" aria-hidden="true">close</span>
             </button>
           </div>
           <div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-200/50">
@@ -926,7 +926,7 @@ ${PAGE_TOOLBAR_HTML}
 
       const contentWrapper = document.createElement('div');
       contentWrapper.className = 'flex items-center gap-2';
-      contentWrapper.innerHTML = '<span class="material-symbols-outlined text-sm">description</span>';
+      contentWrapper.innerHTML = '<span class="material-symbols-outlined text-sm" aria-hidden="true">description</span>';
 
       const textWrapper = document.createElement('div');
 
@@ -943,7 +943,7 @@ ${PAGE_TOOLBAR_HTML}
       contentWrapper.appendChild(textWrapper);
 
       const removeBtn = document.createElement('button');
-      removeBtn.className = 'remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs';
+      removeBtn.className = 'remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black';
       removeBtn.title = `Remove ${fileInfo.name}`;
       removeBtn.setAttribute('aria-label', `Remove ${fileInfo.name}`);
       removeBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">close</span>';
