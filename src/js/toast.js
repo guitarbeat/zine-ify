@@ -1,7 +1,5 @@
 // Modern toast notification system
 
-import { sanitizeHTML } from './utils.js';
-
 class Toast {
   constructor() {
     this.container = null;
