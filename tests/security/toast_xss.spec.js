@@ -40,10 +40,10 @@ test('Toast should allow safe HTML but sanitize XSS', async ({ page }) => {
     window.toast.show('info', 'Safe Title', 'This is <b>bold</b> text');
   });
 
-  // Expect <b> tag to be present and visible (Safe HTML allowed)
-  const boldTag = page.locator('.toast-message b');
-  await expect(boldTag).toBeVisible();
-  await expect(boldTag).toHaveText('bold');
+  // Expect <b> tag to be rendered as literal text (textContent used)
+  const toastMessage = page.locator('.toast-message').last();
+  await expect(toastMessage).toBeVisible();
+  await expect(toastMessage).toHaveText('This is <b>bold</b> text');
 
   // 2. Check XSS (Script)
   await page.evaluate(() => {

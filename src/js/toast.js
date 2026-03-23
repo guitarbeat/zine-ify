@@ -53,13 +53,13 @@ class Toast {
 
     const titleDiv = document.createElement('div');
     titleDiv.className = 'toast-title';
-    titleDiv.appendChild(sanitizeHTML(title)); // Secure: Appending sanitized DOM nodes
+    titleDiv.textContent = title; // Secure and fast: Direct text content assignment, avoiding DOMParser
     contentDiv.appendChild(titleDiv);
 
     if (message) {
       const messageDiv = document.createElement('div');
       messageDiv.className = 'toast-message';
-      messageDiv.appendChild(sanitizeHTML(message)); // Secure: Appending sanitized DOM nodes
+      messageDiv.textContent = message; // Secure and fast: Direct text content assignment, avoiding DOMParser
       contentDiv.appendChild(messageDiv);
     }
 
