@@ -160,11 +160,13 @@
 
     <!-- Progress Overlay -->
     <div id="progress-container"
-        class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center p-6 hidden backdrop-grayscale">
+        class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center p-6 hidden backdrop-grayscale"
+        role="dialog" aria-modal="true" aria-label="Processing Progress">
         <div
-            class="bg-white p-10 border-4 border-black w-full max-w-sm text-center shadow-[8px_8px_0_black] transform rotate-1">
+            class="bg-white p-10 border-4 border-black w-full max-w-sm text-center shadow-[8px_8px_0_black] transform rotate-1"
+            aria-live="polite" aria-atomic="true">
             <h3 id="progress-text" class="text-2xl font-marker mb-6 uppercase">PROCESSING...</h3>
-            <div class="progress-bar-container mb-4">
+            <div class="progress-bar-container mb-4" role="progressbar" aria-valuemin="0" aria-valuemax="100">
                 <div id="progress-fill"></div>
             </div>
             <p id="progress-subtext" class="text-xs font-bold font-typewriter uppercase">
