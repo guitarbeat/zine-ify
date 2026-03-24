@@ -191,6 +191,9 @@ export class PDFProcessor {
 
       await page.render(renderContext).promise;
 
+      // Free memory associated with the page rendering to reduce memory usage
+      page.cleanup();
+
       return canvas;
 
     } catch (error) {
