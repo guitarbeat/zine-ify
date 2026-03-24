@@ -1,7 +1,5 @@
 // Modern toast notification system
 
-import { sanitizeHTML } from './utils.js';
-
 class Toast {
   constructor() {
     this.container = null;
@@ -64,7 +62,7 @@ class Toast {
     }
 
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'toast-close';
+    closeBtn.className = 'toast-close focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black focus-visible:ring-0';
     closeBtn.setAttribute('aria-label', 'Close notification');
     closeBtn.innerHTML = '&times;'; // Safe entity
     closeBtn.addEventListener('click', () => this.remove(toast));

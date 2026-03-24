@@ -221,7 +221,7 @@ export class UIManager {
   setStatus(message, type = 'info') {
     if (this.elements.uploadStatus) {
       this.elements.uploadStatus.textContent = message;
-      this.elements.uploadStatus.className = `text-[11px] uppercase font-bold tracking-wider ${type === 'error' ? 'text-red-500' : type === 'success' ? 'text-green-500' : 'text-gray-400'
+      this.elements.uploadStatus.className = `text-[11px] uppercase font-bold tracking-wider mt-1 px-2 py-1 ${type === 'error' ? 'bg-red-600 text-white' : type === 'success' ? 'bg-green-700 text-white' : 'bg-black text-white'
         }`;
     }
   }
@@ -906,7 +906,7 @@ ${PAGE_TOOLBAR_HTML}
     if (!this.elements.uploadedFilesList) { return; }
 
     if (uploadedFiles.length === 0) {
-      this.elements.uploadedFilesList.innerHTML = '<p class="text-xs text-gray-400">No files uploaded yet</p>';
+      this.elements.uploadedFilesList.innerHTML = '<p class="text-xs text-gray-600">No files uploaded yet</p>';
       return;
     }
 
