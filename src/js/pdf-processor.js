@@ -34,7 +34,7 @@ export class PDFProcessor {
       errors.push('Please select a PDF file');
     }
 
-    const maxSize = 250 * 1024 * 1024; // 250MB
+    const maxSize = 50 * 1024 * 1024; // 50MB
     if (file.size > maxSize) {
       errors.push(`File too large (${formatFileSize(file.size)}). Maximum size is ${formatFileSize(maxSize)}`);
     }
@@ -110,6 +110,11 @@ export class PDFProcessor {
 
       if (numPages === 0) {
         throw new Error('PDF appears to be empty or corrupted');
+      }
+
+      const MAX_PAGES = 32;
+      if (numPages > MAX_PAGES) {
+        throw new Error(`PDF has too many pages (${numPages}). Maximum allowed is ${MAX_PAGES} pages to prevent performance issues.`);
       }
 
       return {
