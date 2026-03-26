@@ -27,6 +27,7 @@ export class UIManager {
     this.elements = {};
     this.paperSize = 'a4';
     this.orientation = 'landscape';
+    this._pageCellsCache = null;
     this.init();
   }
 
@@ -233,6 +234,7 @@ export class UIManager {
    */
   generateLayout(numPages = 8, templateType = null) {
     if (!this.elements.zineSheetsContainer) { return; }
+    this._pageCellsCache = null;
     this.elements.zineSheetsContainer.innerHTML = '';
 
     // Auto-detect template if not specified
@@ -273,6 +275,7 @@ export class UIManager {
    * Generate a custom grid layout with specified rows and columns
    */
   generateCustomGrid(rows, cols, totalPDFPages = 0) {
+    this._pageCellsCache = null;
     this.elements.zineSheetsContainer.innerHTML = '';
     const totalSlots = rows * cols;
     // Ensure we account for all pages if totalPDFPages is larger
@@ -334,6 +337,7 @@ ${PAGE_TOOLBAR_HTML}
   }
 
   generateUnusedBucket(startIndex, totalPages) {
+    this._pageCellsCache = null;
     const { unusedSection, unusedGrid } = this.elements;
     if (!unusedSection || !unusedGrid) { return; }
 
@@ -380,6 +384,7 @@ ${PAGE_TOOLBAR_HTML}
    * Generate the accordion-16 layout (single sheet, 4x4 grid)
    */
   generateAccordionLayout(template) {
+    this._pageCellsCache = null;
     const sheetWrapper = document.createElement('div');
     sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
     sheetWrapper.setAttribute('data-sheet', 1);
@@ -447,6 +452,7 @@ ${PAGE_TOOLBAR_HTML}
    * Generate mini-zine layout (8-page single or dual sheets)
    */
   generateMiniZineLayout(numPages, _template) {
+    this._pageCellsCache = null;
     const numSheets = numPages > 8 ? 2 : 1;
 
     for (let s = 1; s <= numSheets; s++) {
@@ -548,13 +554,33 @@ ${PAGE_TOOLBAR_HTML}
     });
   }
 
+  /**
+   * Cache wrapper for getting page cells to avoid O(N^2) querySelectorAll calls
+   */
+  _getPageCells(pageIndex) {
+    if (!this._pageCellsCache) {
+      this._pageCellsCache = new Map();
+      const allCells = [
+        ...Array.from(this.elements.zineSheetsContainer?.querySelectorAll('.page-cell') || []),
+        ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll('.page-cell')) : [])
+      ];
+
+      for (const cell of allCells) {
+        const idxStr = cell.getAttribute('data-page-index');
+        if (idxStr !== null) {
+          const idx = parseInt(idxStr, 10);
+          if (!this._pageCellsCache.has(idx)) {
+            this._pageCellsCache.set(idx, []);
+          }
+          this._pageCellsCache.get(idx).push(cell);
+        }
+      }
+    }
+    return this._pageCellsCache.get(Number(pageIndex)) || [];
+  }
+
   updatePagePreview(pageIndex, dataUrl) {
-    // Search in both main container (by data-page-index) and unused grid
-    // Note: Use querySelectorAll to catch duplicates if any, but usually unique by index
-    const cells = [
-      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
-      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
-    ];
+    const cells = this._getPageCells(pageIndex);
 
     cells.forEach(cell => {
       const img = cell.querySelector('.page-content-img');
@@ -650,10 +676,7 @@ ${PAGE_TOOLBAR_HTML}
    * Apply zoom/crop state to a page
    */
   setPageZoom(pageIndex, isZoomed) {
-    const cells = [
-      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
-      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
-    ];
+    const cells = this._getPageCells(pageIndex);
 
     cells.forEach(cell => {
       if (isZoomed) {
@@ -672,10 +695,7 @@ ${PAGE_TOOLBAR_HTML}
    * Apply flip state to a page
    */
   setPageFlip(pageIndex, isFlipped) {
-    const cells = [
-      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
-      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
-    ];
+    const cells = this._getPageCells(pageIndex);
 
     cells.forEach(cell => {
       const img = cell.querySelector('.page-content-img');
