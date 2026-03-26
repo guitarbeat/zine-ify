@@ -72,6 +72,7 @@ export class UIManager {
       progressFill: $('#progress-fill'),
       progressText: $('#progress-text'),
       progressSubtext: $('#progress-subtext'),
+      progressBarContainer: $('.progress-bar-container'),
 
       // Settings
       paperSizeSelect: $('#paper-size-select'),
@@ -212,6 +213,9 @@ export class UIManager {
   updateProgress(percent) {
     if (this.elements.progressFill) {
       this.elements.progressFill.style.width = `${percent}%`;
+    }
+    if (this.elements.progressBarContainer) {
+      this.elements.progressBarContainer.setAttribute('aria-valuenow', Math.round(percent));
     }
   }
 
