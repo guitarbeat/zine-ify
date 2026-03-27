@@ -27,6 +27,7 @@ export class UIManager {
     this.elements = {};
     this.paperSize = 'a4';
     this.orientation = 'landscape';
+    this._pageCellsCache = null;
     this.init();
   }
 
@@ -234,6 +235,7 @@ export class UIManager {
   generateLayout(numPages = 8, templateType = null) {
     if (!this.elements.zineSheetsContainer) { return; }
     this.elements.zineSheetsContainer.innerHTML = '';
+    this._pageCellsCache = null;
 
     // Auto-detect template if not specified
     if (!templateType) {
@@ -274,6 +276,7 @@ export class UIManager {
    */
   generateCustomGrid(rows, cols, totalPDFPages = 0) {
     this.elements.zineSheetsContainer.innerHTML = '';
+    this._pageCellsCache = null;
     const totalSlots = rows * cols;
     // Ensure we account for all pages if totalPDFPages is larger
     const actualPages = Math.max(totalSlots, totalPDFPages);
@@ -549,12 +552,7 @@ ${PAGE_TOOLBAR_HTML}
   }
 
   updatePagePreview(pageIndex, dataUrl) {
-    // Search in both main container (by data-page-index) and unused grid
-    // Note: Use querySelectorAll to catch duplicates if any, but usually unique by index
-    const cells = [
-      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
-      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
-    ];
+    const cells = this._getPageCells(pageIndex);
 
     cells.forEach(cell => {
       const img = cell.querySelector('.page-content-img');
@@ -646,14 +644,32 @@ ${PAGE_TOOLBAR_HTML}
     }
   }
 
+  _getPageCells(pageIndex) {
+    if (!this._pageCellsCache) {
+      this._pageCellsCache = new Map();
+      const cells = [
+        ...Array.from(this.elements.zineSheetsContainer?.querySelectorAll('.page-cell') || []),
+        ...Array.from(this.elements.unusedGrid?.querySelectorAll('.page-cell') || [])
+      ];
+
+      cells.forEach(cell => {
+        const idx = parseInt(cell.getAttribute('data-page-index'), 10);
+        if (!isNaN(idx)) {
+          if (!this._pageCellsCache.has(idx)) {
+            this._pageCellsCache.set(idx, []);
+          }
+          this._pageCellsCache.get(idx).push(cell);
+        }
+      });
+    }
+    return this._pageCellsCache.get(parseInt(pageIndex, 10)) || [];
+  }
+
   /**
    * Apply zoom/crop state to a page
    */
   setPageZoom(pageIndex, isZoomed) {
-    const cells = [
-      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
-      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
-    ];
+    const cells = this._getPageCells(pageIndex);
 
     cells.forEach(cell => {
       if (isZoomed) {
@@ -672,10 +688,7 @@ ${PAGE_TOOLBAR_HTML}
    * Apply flip state to a page
    */
   setPageFlip(pageIndex, isFlipped) {
-    const cells = [
-      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
-      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
-    ];
+    const cells = this._getPageCells(pageIndex);
 
     cells.forEach(cell => {
       const img = cell.querySelector('.page-content-img');
