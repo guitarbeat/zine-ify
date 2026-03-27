@@ -13,11 +13,11 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Permanent+Marker&display=swap"
         rel="stylesheet" />
-  <script type="module" crossorigin src="./assets/index-Dh5MDPzq.js"></script>
+  <script type="module" crossorigin src="./assets/index-BD6LvLMw.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/pdfjs-lFNHpD8d.js">
   <link rel="modulepreload" crossorigin href="./assets/jspdf-2GeXGIBk.js">
   <link rel="modulepreload" crossorigin href="./assets/html2canvas-DcoBDRbt.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-Z90ZpI-u.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-8jN62xx9.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
@@ -45,14 +45,14 @@
                         <span class="material-symbols-outlined text-3xl" aria-hidden="true">cloud_upload</span>
                     </div>
                     <h2 class="text-lg font-bold font-marker mb-1">DROP PDFS HERE</h2>
-                    <p id="upload-status" class="text-xs font-bold uppercase mt-1 bg-black text-white px-2 py-1">
+                    <p id="upload-status" class="text-xs font-bold uppercase mt-1 bg-black text-white px-2 py-1" aria-live="polite">
                         Add PDFs to zine</p>
                     <input type="file" id="pdf-upload" class="hidden" accept="application/pdf" multiple>
                 </div>
 
                 <!-- Uploaded Files List -->
                 <div id="uploaded-files-list" class="mt-4">
-                    <p class="text-xs text-gray-400">No files uploaded yet</p>
+                    <p class="text-xs text-gray-600">No files uploaded yet</p>
                 </div>
 
                 <div id="settings-group" class="bg-white p-4 md:p-6 settings-panel space-y-4 md:space-y-5">
@@ -167,14 +167,15 @@
 
     <!-- Progress Overlay -->
     <div id="progress-container"
-        class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center p-6 hidden backdrop-grayscale">
+        class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center p-6 hidden backdrop-grayscale"
+        role="dialog" aria-modal="true" aria-label="Processing Progress">
         <div
             class="bg-white p-10 border-4 border-black w-full max-w-sm text-center shadow-[8px_8px_0_black] transform rotate-1">
-            <h3 id="progress-text" class="text-2xl font-marker mb-6 uppercase">PROCESSING...</h3>
-            <div class="progress-bar-container mb-4">
+            <h3 id="progress-text" class="text-2xl font-marker mb-6 uppercase" aria-live="polite" aria-atomic="true">PROCESSING...</h3>
+            <div id="progress-bar" class="progress-bar-container mb-4" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                 <div id="progress-fill"></div>
             </div>
-            <p id="progress-subtext" class="text-xs font-bold font-typewriter uppercase">
+            <p id="progress-subtext" class="text-xs font-bold font-typewriter uppercase" aria-live="polite" aria-atomic="true">
                 DO NOT CLOSE THIS WINDOW</p>
         </div>
     </div>
@@ -185,7 +186,7 @@
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
   <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-DV-Z3Tr6.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-BIem6k28.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-eoSUl-Z5.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>
