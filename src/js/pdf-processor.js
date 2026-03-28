@@ -191,6 +191,9 @@ export class PDFProcessor {
 
       await page.render(renderContext).promise;
 
+      // Clean up the page proxy to prevent memory leaks during multi-page processing
+      page.cleanup();
+
       return canvas;
 
     } catch (error) {
