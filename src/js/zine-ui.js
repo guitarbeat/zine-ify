@@ -27,6 +27,7 @@ export class UIManager {
     this.elements = {};
     this.paperSize = 'a4';
     this.orientation = 'landscape';
+    this._pageCellsCache = null;
     this.init();
   }
 
@@ -233,6 +234,10 @@ export class UIManager {
    */
   generateLayout(numPages = 8, templateType = null) {
     if (!this.elements.zineSheetsContainer) { return; }
+
+    // Invalidate cell cache when layout changes
+    this._pageCellsCache = null;
+
     this.elements.zineSheetsContainer.innerHTML = '';
 
     // Auto-detect template if not specified
@@ -273,6 +278,9 @@ export class UIManager {
    * Generate a custom grid layout with specified rows and columns
    */
   generateCustomGrid(rows, cols, totalPDFPages = 0) {
+    // Invalidate cell cache when layout changes
+    this._pageCellsCache = null;
+
     this.elements.zineSheetsContainer.innerHTML = '';
     const totalSlots = rows * cols;
     // Ensure we account for all pages if totalPDFPages is larger
@@ -336,6 +344,9 @@ ${PAGE_TOOLBAR_HTML}
   generateUnusedBucket(startIndex, totalPages) {
     const { unusedSection, unusedGrid } = this.elements;
     if (!unusedSection || !unusedGrid) { return; }
+
+    // Invalidate cell cache when layout changes
+    this._pageCellsCache = null;
 
     unusedGrid.innerHTML = '';
 
@@ -550,11 +561,7 @@ ${PAGE_TOOLBAR_HTML}
 
   updatePagePreview(pageIndex, dataUrl) {
     // Search in both main container (by data-page-index) and unused grid
-    // Note: Use querySelectorAll to catch duplicates if any, but usually unique by index
-    const cells = [
-      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
-      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
-    ];
+    const cells = this._getPageCells(pageIndex);
 
     cells.forEach(cell => {
       const img = cell.querySelector('.page-content-img');
@@ -650,10 +657,7 @@ ${PAGE_TOOLBAR_HTML}
    * Apply zoom/crop state to a page
    */
   setPageZoom(pageIndex, isZoomed) {
-    const cells = [
-      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
-      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
-    ];
+    const cells = this._getPageCells(pageIndex);
 
     cells.forEach(cell => {
       if (isZoomed) {
@@ -672,10 +676,7 @@ ${PAGE_TOOLBAR_HTML}
    * Apply flip state to a page
    */
   setPageFlip(pageIndex, isFlipped) {
-    const cells = [
-      ...Array.from(this.elements.zineSheetsContainer.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)),
-      ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll(`.page-cell[data-page-index="${pageIndex}"]`)) : [])
-    ];
+    const cells = this._getPageCells(pageIndex);
 
     cells.forEach(cell => {
       const img = cell.querySelector('.page-content-img');
@@ -974,5 +975,35 @@ ${PAGE_TOOLBAR_HTML}
 
   on(event, handler) {
     this.emitter.on(event, handler);
+  }
+
+  /**
+   * Helper to get cached page cells grouped by data-page-index
+   * Prevents O(n^2) DOM querying bottlenecks during grid operations.
+   */
+  _getPageCells(pageIndex) {
+    if (!this._pageCellsCache) {
+      this._pageCellsCache = new Map();
+
+      const allCells = [
+        ...(this.elements.zineSheetsContainer ? Array.from(this.elements.zineSheetsContainer.querySelectorAll('.page-cell')) : []),
+        ...(this.elements.unusedGrid ? Array.from(this.elements.unusedGrid.querySelectorAll('.page-cell')) : [])
+      ];
+
+      for (let i = 0; i < allCells.length; i++) {
+        const cell = allCells[i];
+        const indexStr = cell.getAttribute('data-page-index');
+        if (indexStr !== null) {
+          const index = parseInt(indexStr, 10);
+          if (!this._pageCellsCache.has(index)) {
+            this._pageCellsCache.set(index, []);
+          }
+          this._pageCellsCache.get(index).push(cell);
+        }
+      }
+    }
+
+    // Always return an array, even if empty, to allow .forEach() calls
+    return this._pageCellsCache.get(parseInt(pageIndex, 10)) || [];
   }
 }
