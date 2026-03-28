@@ -5,3 +5,7 @@
 ## 2024-06-12 - Memory Management in PDF.js Page Rendering
 **Learning:** When using `pdfjs-dist` to render pages to a canvas, internal resources and caches associated with the `PDFPageProxy` instance are not automatically released immediately. This causes significant memory bloat, especially during multi-page processing.
 **Action:** Explicitly call `page.cleanup()` after `await page.render().promise` to release these internal resources and caches.
+
+## 2024-07-25 - DOM Query Caching for Grid Operations
+**Learning:** O(n^2) DOM querying bottlenecks during grid operations in `src/js/zine-ui.js` (e.g. `querySelectorAll` in `updatePagePreview`) degrade performance.
+**Action:** Cache `.page-cell` element lookups in a `_pageCellsCache` Map grouped by `data-page-index`. Invalidate this cache (`this._pageCellsCache = null`) during layout regenerations.
