@@ -29,3 +29,7 @@
 ## 2026-03-23 - Status Element Accessibility and Contrast
 **Learning:** Dynamically updated status text elements (like an upload progress indicator) must have `aria-live="polite"` to be announced by screen readers when their text content changes. Additionally, using low contrast text colors (like `text-gray-400` or `text-red-500` on light backgrounds) fails WCAG AA guidelines, and should be updated to high contrast combinations (e.g., `text-gray-600` or `bg-red-600 text-white`) for readability.
 **Action:** Always add `aria-live` attributes to static DOM nodes that receive dynamic text updates conveying status, and verify color contrast ratios for all dynamic states, especially error messages.
+
+## 2026-03-30 - Accessible Progress Bars
+**Learning:** Visual progress bars (like CSS width-based indicators) are invisible to screen readers unless they use `role="progressbar"` and dynamically update `aria-valuenow`.
+**Action:** Always add these ARIA attributes to custom progress indicators and ensure the JavaScript updating the visual progress also updates `aria-valuenow`.
