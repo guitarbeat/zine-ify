@@ -33,3 +33,6 @@
 ## 2026-03-30 - Accessible Progress Bars
 **Learning:** Visual progress bars (like CSS width-based indicators) are invisible to screen readers unless they use `role="progressbar"` and dynamically update `aria-valuenow`.
 **Action:** Always add these ARIA attributes to custom progress indicators and ensure the JavaScript updating the visual progress also updates `aria-valuenow`.
+## 2024-05-24 - Consistent Focus States
+**Learning:** Default browser focus outlines or overly aggressive reset classes (like `focus:outline-none` or `focus:ring-0`) severely hurt keyboard navigation visibility, especially on complex, interactive grids or custom UI components.
+**Action:** Always ensure high-contrast, visible focus rings are applied uniformly across both static HTML forms and dynamically generated DOM elements, explicitly overriding any reset classes.

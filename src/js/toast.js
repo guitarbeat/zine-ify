@@ -62,7 +62,7 @@ class Toast {
     }
 
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'toast-close focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black focus-visible:ring-0';
+    closeBtn.className = 'toast-close focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black';
     closeBtn.setAttribute('aria-label', 'Close notification');
     closeBtn.innerHTML = '&times;'; // Safe entity
     closeBtn.addEventListener('click', () => this.remove(toast));
