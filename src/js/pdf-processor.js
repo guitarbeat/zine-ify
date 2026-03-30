@@ -172,11 +172,16 @@ export class PDFProcessor {
       const width = Math.floor(viewport.width);
       const height = Math.floor(viewport.height);
 
-      // Create new canvas for each page to allow parallel processing
-      const canvas = document.createElement('canvas');
+      // ⚡ Bolt: Use OffscreenCanvas if supported to avoid DOM interactions and main thread blocking
+      const canvas = typeof OffscreenCanvas !== 'undefined'
+        ? new OffscreenCanvas(width, height)
+        : document.createElement('canvas');
       const context = canvas.getContext('2d', { alpha: false });
-      canvas.width = width;
-      canvas.height = height;
+
+      if (typeof OffscreenCanvas === 'undefined') {
+        canvas.width = width;
+        canvas.height = height;
+      }
 
       // Fill background white
       context.fillStyle = '#ffffff';
@@ -208,6 +213,12 @@ export class PDFProcessor {
    * @returns {Promise<string>} Blob URL
    */
   async canvasToBlob(canvas) {
+    // ⚡ Bolt: Fast path for OffscreenCanvas to prevent main thread blocking
+    if (typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas) {
+      const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.8 });
+      return URL.createObjectURL(blob);
+    }
+
     return new Promise((resolve) => {
       canvas.toBlob((blob) => {
         const url = URL.createObjectURL(blob);
