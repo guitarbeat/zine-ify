@@ -32,3 +32,8 @@
 **Vulnerability:** A client-side Denial of Service (DoS) vulnerability existed because there was no upper limit enforced on the number of pages a processed PDF could contain. While grid inputs were clamped, a massive PDF (e.g., 1000+ pages) would still be entirely parsed and looped over in `processAdditionalPDF`, causing excessive memory allocation, canvas rendering, and browser crashing.
 **Learning:** When dealing with files supplied by the user, trusting metadata fields that determine loop iterations or array allocations (like `numPages` in PDF.js) is unsafe without hard-coded sanity checks. Any process scaling with user input size must have a strict upper bound.
 **Prevention:** Always enforce strict maximum limits on file size AND intrinsic data dimensions (like page counts, row limits, or element counts) immediately upon reading the file metadata, aborting processing early if limits are exceeded.
+
+## 2025-02-14 - [Incomplete CSP allowing Plugin/Base/Form Hijacking]
+**Vulnerability:** The application's Content Security Policy (CSP) lacked directives to restrict objects, base URIs, and form actions (`object-src 'none'`, `base-uri 'self'`, `form-action 'self'`), leaving it vulnerable to plugin-based XSS, base tag hijacking, and unauthorized form submissions.
+**Learning:** A robust client-side tool CSP must explicitly deny obsolete/dangerous features like plugins and ensure that relative URLs and form submissions remain bound to the application's origin, even if the application doesn't currently use forms or plugins.
+**Prevention:** Always include `object-src 'none'`, `base-uri 'self'`, and `form-action 'self'` in the initial CSP configuration as a defense-in-depth measure.
