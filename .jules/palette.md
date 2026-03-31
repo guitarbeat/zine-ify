@@ -33,3 +33,7 @@
 ## 2026-03-30 - Accessible Progress Bars
 **Learning:** Visual progress bars (like CSS width-based indicators) are invisible to screen readers unless they use `role="progressbar"` and dynamically update `aria-valuenow`.
 **Action:** Always add these ARIA attributes to custom progress indicators and ensure the JavaScript updating the visual progress also updates `aria-valuenow`.
+
+## 2025-05-22 - Form Input Focus Styles Specificity
+**Learning:** Using anti-accessibility utility classes like `focus:ring-0 focus:ring-offset-0` on form inputs (e.g. checkboxes) suppresses the focus indicator, making the inputs invisible to keyboard-only users. Furthermore, form elements like `<select>` and `<input type="number">` also lack explicit focus styles out-of-the-box.
+**Action:** Always verify keyboard navigation for form elements and explicitly apply high-contrast focus styles (e.g. `focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:!bg-yellow-300`) to them, while ensuring conflicting classes are removed.
