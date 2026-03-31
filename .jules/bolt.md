@@ -13,3 +13,7 @@
 ## 2025-02-18 - Repeated DOM Parsing Bottleneck in Grid Generation
 **Learning:** Repeatedly setting `.innerHTML` inside a loop (e.g., when generating custom grid layouts) causes significant performance overhead because the browser has to parse the HTML string and construct the DOM fragment on every iteration. This creates a noticeable bottleneck when generating larger grids (like 10x10).
 **Action:** Implement the Template/Flyweight pattern using a `<template>` element. Create the structure once in `template.innerHTML`, and inside the loop, use `element.replaceChildren(template.content.cloneNode(true))` to safely and quickly duplicate the DOM structure without repeated parsing.
+
+## 2025-02-23 - Main Thread Offloading with OffscreenCanvas
+**Learning:** Rendering complex PDF pages or generating blank layouts using `document.createElement('canvas')` executes on the main thread, leading to potential UI blocking and stuttering, especially when processing multiple pages rapidly in background tasks.
+**Action:** Use `OffscreenCanvas` instead of standard DOM canvases where available (e.g., in PDF.js rendering loops and blank page generation) to allow asynchronous rendering without blocking the main UI thread. Ensure a fallback to `document.createElement('canvas')` for unsupported environments. Use `.convertToBlob()` for OffscreenCanvases in place of standard canvas `.toBlob()`.
