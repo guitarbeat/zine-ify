@@ -159,10 +159,14 @@ export class UIManager {
         toast.error('Error', 'PDF processing failed: Please select a PDF file');
       }
 
-      files.forEach(file => {
-        if (file.type === 'application/pdf') {
-          this.emitter.emit('fileSelected', file);
-        }
+      let validFiles = files.filter(f => f.type === 'application/pdf');
+      if (validFiles.length > 10) {
+        toast.warning('Limit Reached', 'Only the first 10 files will be processed.');
+        validFiles = validFiles.slice(0, 10);
+      }
+
+      validFiles.forEach(file => {
+        this.emitter.emit('fileSelected', file);
       });
     });
 
@@ -730,9 +734,13 @@ export class UIManager {
     }
 
     const files = Array.from(e.dataTransfer.files);
-    const pdfFiles = files.filter(file => file.type === 'application/pdf');
+    let pdfFiles = files.filter(file => file.type === 'application/pdf');
 
     if (pdfFiles.length > 0) {
+      if (pdfFiles.length > 10) {
+        toast.warning('Limit Reached', 'Only the first 10 files will be processed.');
+        pdfFiles = pdfFiles.slice(0, 10);
+      }
       pdfFiles.forEach(file => {
         this.emitter.emit('fileSelected', file);
       });

@@ -37,3 +37,8 @@
 **Vulnerability:** The application's Content Security Policy (CSP) lacked directives to restrict objects, base URIs, and form actions (`object-src 'none'`, `base-uri 'self'`, `form-action 'self'`), leaving it vulnerable to plugin-based XSS, base tag hijacking, and unauthorized form submissions.
 **Learning:** A robust client-side tool CSP must explicitly deny obsolete/dangerous features like plugins and ensure that relative URLs and form submissions remain bound to the application's origin, even if the application doesn't currently use forms or plugins.
 **Prevention:** Always include `object-src 'none'`, `base-uri 'self'`, and `form-action 'self'` in the initial CSP configuration as a defense-in-depth measure.
+
+## 2024-05-24 - [Client-Side DoS via Massive File Uploads]
+**Vulnerability:** A client-side Denial of Service (DoS) vulnerability existed in the file upload and drag-and-drop handlers. Users could select or drop thousands of PDF files at once, triggering an unbounded number of concurrent `processAdditionalPDF` operations, which exhausted memory and crashed the browser tab.
+**Learning:** Any operation that processes multiple files must enforce a strict upper limit. Processing files concurrently without batch limits or hard maximums is a classic vector for resource exhaustion on the client side.
+**Prevention:** Always clamp the length of the selected files array before initiating processing loops. In this case, capping the upload queue to a maximum of 10 files mitigates the DoS risk while maintaining usability. Provide a clear warning notification when the limit is reached so users understand the truncation.
