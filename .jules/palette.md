@@ -33,3 +33,7 @@
 ## 2026-03-30 - Accessible Progress Bars
 **Learning:** Visual progress bars (like CSS width-based indicators) are invisible to screen readers unless they use `role="progressbar"` and dynamically update `aria-valuenow`.
 **Action:** Always add these ARIA attributes to custom progress indicators and ensure the JavaScript updating the visual progress also updates `aria-valuenow`.
+
+## 2024-06-21 - Accessible Labels for Dynamically Created Modal Buttons
+**Learning:** Icon-only buttons within dynamically generated UI components (like a Zoom Modal created via `document.createElement`) are completely invisible to screen readers without explicitly added accessible names. They require both `title` for visual tooltips and `aria-label` for screen readers to provide interaction context.
+**Action:** Always include `title` and `aria-label` attributes for icon-only action buttons, even when generating the HTML structure dynamically in JavaScript.
