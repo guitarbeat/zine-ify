@@ -305,10 +305,18 @@ class PDFZineMaker {
     let url = this._blankPageUrl;
 
     if (!url) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 1000;
-      canvas.height = 1400;
-      const ctx = canvas.getContext('2d');
+      // ⚡ Bolt: Use OffscreenCanvas if available for background blank page generation
+      let canvas, ctx;
+      if (typeof OffscreenCanvas !== 'undefined') {
+        canvas = new OffscreenCanvas(1000, 1400);
+        ctx = canvas.getContext('2d');
+      } else {
+        canvas = document.createElement('canvas');
+        canvas.width = 1000;
+        canvas.height = 1400;
+        ctx = canvas.getContext('2d');
+      }
+
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, 1000, 1400);
       ctx.fillStyle = '#f3f4f6';
@@ -615,10 +623,18 @@ class PDFZineMaker {
 
         // Add back side
         doc.addPage();
-        const backCanvas = document.createElement('canvas');
-        backCanvas.width = canvas.width;
-        backCanvas.height = canvas.height;
-        const bctx = backCanvas.getContext('2d');
+        // ⚡ Bolt: Use OffscreenCanvas if available for background canvas processing
+        let backCanvas, bctx;
+        if (typeof OffscreenCanvas !== 'undefined') {
+          backCanvas = new OffscreenCanvas(canvas.width, canvas.height);
+          bctx = backCanvas.getContext('2d');
+        } else {
+          backCanvas = document.createElement('canvas');
+          backCanvas.width = canvas.width;
+          backCanvas.height = canvas.height;
+          bctx = backCanvas.getContext('2d');
+        }
+
         const refImg = new Image();
         await new Promise((resolve, reject) => {
           refImg.onload = resolve;
@@ -629,7 +645,20 @@ class PDFZineMaker {
         bctx.translate(backCanvas.width / 2, backCanvas.height / 2);
         bctx.rotate(Math.PI);
         bctx.drawImage(refImg, -backCanvas.width / 2, -backCanvas.height / 2, backCanvas.width, backCanvas.height);
-        doc.addImage(backCanvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, dimensions.width, dimensions.height);
+
+        let backDataUrl;
+        if (typeof OffscreenCanvas !== 'undefined' && backCanvas instanceof OffscreenCanvas) {
+          const blob = await backCanvas.convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+          backDataUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+        } else {
+          backDataUrl = backCanvas.toDataURL('image/jpeg', 0.9);
+        }
+
+        doc.addImage(backDataUrl, 'JPEG', 0, 0, dimensions.width, dimensions.height);
       };
 
       await captureZine(1);
