@@ -33,3 +33,7 @@
 ## 2026-03-30 - Accessible Progress Bars
 **Learning:** Visual progress bars (like CSS width-based indicators) are invisible to screen readers unless they use `role="progressbar"` and dynamically update `aria-valuenow`.
 **Action:** Always add these ARIA attributes to custom progress indicators and ensure the JavaScript updating the visual progress also updates `aria-valuenow`.
+
+## 2026-04-15 - Consistent Form Control Focus States
+**Learning:** Global CSS resets (like Tailwind's Preflight) or conflicting utility classes (e.g., `focus:ring-0`) can strip or obscure default browser focus rings on native form controls (`<select>`, `<input type="checkbox">`, `<input type="number">`), making them inaccessible to keyboard users.
+**Action:** Always explicitly apply the application's unified custom focus ring styles (e.g., `focus-visible:outline-4 ...`) to all interactive form elements, overriding resets or conflicting utilities to guarantee keyboard navigation visibility.
