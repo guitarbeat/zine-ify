@@ -33,3 +33,7 @@
 ## 2026-03-30 - Accessible Progress Bars
 **Learning:** Visual progress bars (like CSS width-based indicators) are invisible to screen readers unless they use `role="progressbar"` and dynamically update `aria-valuenow`.
 **Action:** Always add these ARIA attributes to custom progress indicators and ensure the JavaScript updating the visual progress also updates `aria-valuenow`.
+
+## 2024-05-23 - Communicating Async Button States
+**Learning:** During long-running tasks triggered by buttons (like PDF generation), disabling the button prevents multiple clicks but doesn't inform screen readers or visually indicate progress. Relying solely on separate toast notifications might not be enough context for the immediate button interaction.
+**Action:** Always combine `disabled=true` with `aria-busy="true"` on the triggering button during async operations, and replace the button's icon/text with a loading spinner to provide immediate visual and accessible feedback at the point of interaction.
