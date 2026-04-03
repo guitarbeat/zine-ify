@@ -33,3 +33,7 @@
 ## 2026-03-30 - Accessible Progress Bars
 **Learning:** Visual progress bars (like CSS width-based indicators) are invisible to screen readers unless they use `role="progressbar"` and dynamically update `aria-valuenow`.
 **Action:** Always add these ARIA attributes to custom progress indicators and ensure the JavaScript updating the visual progress also updates `aria-valuenow`.
+
+## 2024-04-03 - Accessible feedback during long-running tasks
+**Learning:** For long-running asynchronous UI tasks (like PDF generation), adding visual feedback is important but insufficient for screen readers if the button content completely disappears or isn't properly announced.
+**Action:** When a button triggers a long-running task, replace its content with an inline SVG spinner, apply `aria-busy="true"`, and disable it. Use a `finally` block to reliably restore its original `innerHTML`, removing `aria-busy`, and re-enabling it. Incorporate an active-state lock early in the function to avoid duplicate executions from keyboard shortcuts while disabled.
