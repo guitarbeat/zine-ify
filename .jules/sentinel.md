@@ -37,3 +37,8 @@
 **Vulnerability:** The application's Content Security Policy (CSP) lacked directives to restrict objects, base URIs, and form actions (`object-src 'none'`, `base-uri 'self'`, `form-action 'self'`), leaving it vulnerable to plugin-based XSS, base tag hijacking, and unauthorized form submissions.
 **Learning:** A robust client-side tool CSP must explicitly deny obsolete/dangerous features like plugins and ensure that relative URLs and form submissions remain bound to the application's origin, even if the application doesn't currently use forms or plugins.
 **Prevention:** Always include `object-src 'none'`, `base-uri 'self'`, and `form-action 'self'` in the initial CSP configuration as a defense-in-depth measure.
+
+## 2024-05-24 - [Missing CSP in Spawned Windows]
+**Vulnerability:** The application opened a new window (`window.open('', '_blank')`) to render the print layout and wrote user-influenced HTML strings into it using `document.write()`. While the main document had a strict CSP, the newly spawned document did not inherit it, leaving it vulnerable to XSS if malicious content bypassed HTML injection protections.
+**Learning:** When generating new HTML documents dynamically using `document.write()` in a blank window, the new document does not inherit the parent page's Content Security Policy. This creates an isolated context where XSS payloads could execute freely.
+**Prevention:** Always explicitly inject a robust `<meta http-equiv="Content-Security-Policy">` tag into the `<head>` of any dynamically constructed HTML document intended for a new window or iframe.
