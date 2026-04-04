@@ -37,3 +37,8 @@
 **Vulnerability:** The application's Content Security Policy (CSP) lacked directives to restrict objects, base URIs, and form actions (`object-src 'none'`, `base-uri 'self'`, `form-action 'self'`), leaving it vulnerable to plugin-based XSS, base tag hijacking, and unauthorized form submissions.
 **Learning:** A robust client-side tool CSP must explicitly deny obsolete/dangerous features like plugins and ensure that relative URLs and form submissions remain bound to the application's origin, even if the application doesn't currently use forms or plugins.
 **Prevention:** Always include `object-src 'none'`, `base-uri 'self'`, and `form-action 'self'` in the initial CSP configuration as a defense-in-depth measure.
+
+## 2024-05-24 - [Print Window XSS via Missing CSP]
+**Vulnerability:** A Cross-Site Scripting (XSS) vulnerability existed when dynamically generating HTML for the print layout in a new window (`window.open('', '_blank')`) because it did not inherit the parent document's Content Security Policy (CSP).
+**Learning:** When spawning local dynamic windows via `window.open` and populating them with `document.write()`, the resulting document does not automatically inherit the CSP from the parent window. If user-controlled data or dynamic HTML is rendered in this new window, it can lead to XSS.
+**Prevention:** Always inject explicit `<meta http-equiv="Content-Security-Policy">` tags into the generated `<head>` of any dynamically created window to ensure a restrictive security baseline, regardless of the parent window's policy.
