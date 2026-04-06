@@ -305,9 +305,15 @@ class PDFZineMaker {
     let url = this._blankPageUrl;
 
     if (!url) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 1000;
-      canvas.height = 1400;
+      let canvas;
+      if (typeof OffscreenCanvas !== 'undefined') {
+        canvas = new OffscreenCanvas(1000, 1400);
+      } else {
+        canvas = document.createElement('canvas');
+        canvas.width = 1000;
+        canvas.height = 1400;
+      }
+
       const ctx = canvas.getContext('2d');
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, 1000, 1400);
