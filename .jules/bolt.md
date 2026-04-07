@@ -13,3 +13,7 @@
 ## 2025-02-18 - Repeated DOM Parsing Bottleneck in Grid Generation
 **Learning:** Repeatedly setting `.innerHTML` inside a loop (e.g., when generating custom grid layouts) causes significant performance overhead because the browser has to parse the HTML string and construct the DOM fragment on every iteration. This creates a noticeable bottleneck when generating larger grids (like 10x10).
 **Action:** Implement the Template/Flyweight pattern using a `<template>` element. Create the structure once in `template.innerHTML`, and inside the loop, use `element.replaceChildren(template.content.cloneNode(true))` to safely and quickly duplicate the DOM structure without repeated parsing.
+
+## 2025-02-18 - OffscreenCanvas for Background Rendering
+**Learning:** Using `document.createElement('canvas')` for background rendering operations (like processing PDF pages) unnecessarily interacts with the main thread DOM, causing blocking and potential UI jank during heavy processing.
+**Action:** Use `OffscreenCanvas` when available, which operates entirely independent of the DOM and allows for asynchronous blob generation via `convertToBlob()`, reducing main thread contention. Always provide a fallback to standard `HTMLCanvasElement` for unsupported browsers.
