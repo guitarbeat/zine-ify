@@ -42,3 +42,8 @@
 **Vulnerability:** The application allowed an arbitrary number of PDF files to be uploaded simultaneously via both the file input and drag-and-drop mechanisms. Malicious users or unintended actions could upload hundreds of files at once, leading to excessive memory consumption, UI freezing, and ultimately a Denial of Service (DoS) in the client browser.
 **Learning:** Event handlers processing user-supplied data (such as `change` events on file inputs or `drop` events) must independently enforce limits on the size and quantity of data processed. Assuming users will only upload reasonable amounts of files is a security risk.
 **Prevention:** Always enforce a strict, hard-coded upper limit on the number of files processed in a single batch (e.g., maximum 10 files). Truncate any arrays derived from `e.target.files` or `e.dataTransfer.files` to this limit before initiating processing, and optionally display a user-friendly warning that the limit was enforced.
+
+## 2025-02-14 - [XSS via Missing CSP in Dynamic Print Windows]
+**Vulnerability:** The application dynamically generated HTML for printing using `window.open('', '_blank')` and `document.write(html)`. The resulting window lacked a Content Security Policy (CSP), leaving it vulnerable to Cross-Site Scripting (XSS) if any untrusted content reached the print template.
+**Learning:** Newly spawned windows created with `window.open` and populated via `document.write` do *not* inherit the parent document's Content Security Policy. This is a common oversight that bypasses strict parent policies.
+**Prevention:** Always explicitly inject a `<meta http-equiv="Content-Security-Policy" content="...">` tag into the `<head>` of any dynamically generated HTML document written to a new window.
