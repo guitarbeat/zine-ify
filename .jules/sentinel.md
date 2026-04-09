@@ -42,3 +42,8 @@
 **Vulnerability:** The application allowed an arbitrary number of PDF files to be uploaded simultaneously via both the file input and drag-and-drop mechanisms. Malicious users or unintended actions could upload hundreds of files at once, leading to excessive memory consumption, UI freezing, and ultimately a Denial of Service (DoS) in the client browser.
 **Learning:** Event handlers processing user-supplied data (such as `change` events on file inputs or `drop` events) must independently enforce limits on the size and quantity of data processed. Assuming users will only upload reasonable amounts of files is a security risk.
 **Prevention:** Always enforce a strict, hard-coded upper limit on the number of files processed in a single batch (e.g., maximum 10 files). Truncate any arrays derived from `e.target.files` or `e.dataTransfer.files` to this limit before initiating processing, and optionally display a user-friendly warning that the limit was enforced.
+
+## 2025-02-14 - [Error Data Exposure via Console Logs]
+**Vulnerability:** The application logged raw `Error` objects to the client-side console (e.g., `console.error(error)`), exposing stack traces, potentially sensitive internal paths, or application metadata to any user inspecting the console. This constitutes an Information Exposure vulnerability.
+**Learning:** Client-side logging in production environments must be carefully sanitized. Raw error objects often contain internal system data that provides attackers with insights into the application's structure or dependencies.
+**Prevention:** Sanitize all production-facing `console.error` and `console.warn` calls by logging only safe, generalized messages or specific properties like `error.message` rather than the entire `Error` object.

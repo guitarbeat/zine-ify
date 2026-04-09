@@ -35,7 +35,7 @@ class PDFZineMaker {
       this.ui.generateLayout(8); // Default to 8 pages
       this.ui.setStatus('Upload PDF files to get started', 'info');
     } catch (error) {
-      console.error('Initialization error:', error);
+      console.error('Initialization error:', error.message || 'An error occurred');
       this.ui.setStatus('Failed to initialize. Please refresh the page.', 'error');
       toast.error('Initialization Error', 'Failed to load required libraries.');
     }
@@ -110,7 +110,7 @@ class PDFZineMaker {
       try {
         URL.revokeObjectURL(oldUrl);
       } catch (e) {
-        console.warn('Failed to revoke URL:', e);
+        console.warn('Failed to revoke URL:', e.message || 'An error occurred');
       }
     }
 
@@ -295,7 +295,7 @@ class PDFZineMaker {
       toast.success('Done!', 'Your zine is ready to print.');
 
     } catch (error) {
-      console.error('PDF Error:', error);
+      console.error('PDF Error:', error.message || 'An error occurred');
       this.ui.showProgress(false);
       toast.error('Error', error.message || 'Failed to process PDF.');
     }
@@ -641,7 +641,7 @@ class PDFZineMaker {
       doc.save(`zine-${Date.now()}.pdf`);
       toast.success('Downloaded!', 'Your PDF is ready.');
     } catch (e) {
-      console.error(e);
+      console.error(e.message || 'An error occurred');
       toast.error('Export Failed', 'Something went wrong.');
     } finally {
       this.ui.elements.exportPdfBtn.disabled = false;
