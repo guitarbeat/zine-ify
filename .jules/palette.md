@@ -33,3 +33,7 @@
 ## 2026-03-30 - Accessible Progress Bars
 **Learning:** Visual progress bars (like CSS width-based indicators) are invisible to screen readers unless they use `role="progressbar"` and dynamically update `aria-valuenow`.
 **Action:** Always add these ARIA attributes to custom progress indicators and ensure the JavaScript updating the visual progress also updates `aria-valuenow`.
+
+## 2026-10-27 - Form Element Focus States
+**Learning:** Native form controls (like selects, number inputs, and checkboxes) often lack distinct focus states in custom designs or have their default focus rings removed by utility resets (like `focus:ring-0`), making keyboard navigation difficult to track.
+**Action:** Always verify keyboard navigation through all form controls and explicitly apply the design system's focus-visible utility classes to ensure a clear, consistent focus indicator.
