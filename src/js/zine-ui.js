@@ -5,18 +5,18 @@ import { toast } from './toast.js';
 import { debounce } from './utils.js';
 
 const PAGE_TOOLBAR_HTML = `
-        <div class="page-toolbar absolute top-1 right-1 flex flex-wrap justify-end gap-1 z-10 max-w-[calc(100%-0.5rem)] transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100">
-           <button class="zoom-btn w-7 h-7 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Quick Preview (Z)">
-                <span class="material-symbols-outlined text-base font-bold" aria-hidden="true">zoom_in</span>
+        <div class="page-toolbar absolute top-2 right-2 flex flex-wrap justify-end gap-1.5 z-10 max-w-[calc(100%-1rem)] transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100">
+           <button class="zoom-btn w-8 h-8 rounded-full bg-slate-900/80 backdrop-blur-md hover:bg-indigo-600 border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400" title="Quick Preview (Z)">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">zoom_in</span>
            </button>
-           <button class="crop-btn w-7 h-7 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Toggle Crop/Zoom (C)">
-                <span class="material-symbols-outlined text-base font-bold" aria-hidden="true">crop_free</span>
+           <button class="crop-btn w-8 h-8 rounded-full bg-slate-900/80 backdrop-blur-md hover:bg-emerald-600 border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-400" title="Toggle Crop/Zoom (C)">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">crop_free</span>
            </button>
-           <button class="remove-btn w-7 h-7 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Remove Page (Backspace)">
-                <span class="material-symbols-outlined text-base font-bold" aria-hidden="true">close</span>
+           <button class="flip-btn w-8 h-8 rounded-full bg-slate-900/80 backdrop-blur-md hover:bg-amber-500 border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400" title="Flip 180° (R)">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">rotate_right</span>
            </button>
-           <button class="flip-btn w-7 h-7 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Flip 180° (R)">
-                <span class="material-symbols-outlined text-base font-bold" aria-hidden="true">rotate_right</span>
+           <button class="remove-btn w-8 h-8 rounded-full bg-slate-900/80 backdrop-blur-md hover:bg-rose-500 border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-rose-400" title="Remove Page (Backspace)">
+                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
            </button>
         </div>`;
 
@@ -26,10 +26,13 @@ const PAGE_TOOLBAR_HTML = `
 // when generating large custom grids.
 const PAGE_CELL_TEMPLATE = document.createElement('template');
 PAGE_CELL_TEMPLATE.innerHTML = `
-  <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
+  <span class="page-label absolute top-2 left-2 px-2 py-1 bg-indigo-500/90 text-white text-[10px] font-bold tracking-wider rounded border border-indigo-400/50 uppercase z-10 shadow-md"></span>
   ${PAGE_TOOLBAR_HTML}
-  <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
-  <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
+  <div class="page-placeholder flex flex-col items-center justify-center text-slate-500/50 gap-2 absolute inset-0">
+     <span class="material-symbols-outlined text-3xl">note_stack</span>
+     <span class="text-[10px] font-bold uppercase tracking-widest">Empty</span>
+  </div>
+  <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out relative z-[5]" draggable="false" />
 `;
 
 export class UIManager {
@@ -418,20 +421,20 @@ export class UIManager {
     for (let i = startIndex; i < totalPages; i++) {
       const cell = document.createElement('div');
       // Using similar but distinct styling for bucket items
-      cell.className = 'page-cell bg-white aspect-[1/1.414] relative rounded-lg shadow-sm border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing hover:border-blue-500 transition-colors duration-200';
+      cell.className = 'page-cell bg-slate-800/50 aspect-[1/1.414] relative rounded-lg border border-white/10 flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing hover:border-indigo-500/50 transition-colors duration-200';
       cell.setAttribute('data-page-index', i);
       cell.draggable = true;
 
       const img = document.createElement('img');
-      img.className = 'page-content-img w-full h-full object-contain hidden pointer-events-none';
+      img.className = 'page-content-img w-full h-full object-contain hidden pointer-events-none opacity-80';
       img.draggable = false;
 
       const label = document.createElement('div');
-      label.className = 'absolute top-1 left-1 bg-gray-500 text-white text-[8px] px-1.5 py-0.5 rounded-sm font-bold z-10';
+      label.className = 'absolute top-1.5 left-1.5 bg-black/40 text-slate-300 text-[8px] px-1.5 py-0.5 rounded font-bold z-10 border border-white/5';
       label.textContent = `#${i + 1}`;
 
       const placeholder = document.createElement('div');
-      placeholder.className = 'text-[10px] uppercase font-bold text-gray-300 select-none';
+      placeholder.className = 'unused-placeholder-text text-[10px] uppercase font-bold text-slate-500/50 select-none';
       placeholder.textContent = 'Unused';
 
       cell.appendChild(label);
@@ -641,7 +644,7 @@ export class UIManager {
       const placeholder = cell.querySelector('.page-placeholder');
 
       // Handle "Unused" placeholder structure which is different
-      const unusedPlaceholder = cell.querySelector('.text-gray-300'); // The 'Unused' text div
+      const unusedPlaceholder = cell.querySelector('.unused-placeholder-text'); // The 'Unused' text div
 
       if (dataUrl) {
         if (img) {

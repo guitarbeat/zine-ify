@@ -187,8 +187,8 @@ class PDFZineMaker {
     // Generate a custom grid layout
     this.ui.generateCustomGrid(rows, cols, this.allPageImages.length);
 
-    // Re-apply existing page images and states
-    for (let i = 0; i < Math.min(totalPages, this.allPageImages.length); i++) {
+    // Re-apply existing page images and states to both grid and unused bucket
+    for (let i = 0; i < this.allPageImages.length; i++) {
       if (this.allPageImages[i]) {
         this.ui.updatePagePreview(i, this.allPageImages[i]);
         this.ui.setPageFlip(i, !!this.pageFlips[i]);

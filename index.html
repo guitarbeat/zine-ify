@@ -1,208 +1,206 @@
 <!DOCTYPE html>
-<html class="" lang="en">
+<html lang="en">
 
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <meta name="description" content="Convert PDFs into printable 8-page or 16-page zine layouts with ease" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self' ws: http://localhost:8001 http://127.0.0.1:8001 blob:;">
-    <title>Zine-ify PDF Upload</title>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet" />
-    <!-- Punk Fonts: Courier Prime (Typewriter) and Permanent Marker (Handwritten/Punk) -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Permanent+Marker&display=swap"
-        rel="stylesheet" />
+    <title>Zine-ify — DIY Zine Maker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
 </head>
 
-<body class="antialiased min-h-screen py-6 px-4">
-    <div class="max-w-4xl mx-auto space-y-8">
-        <header class="text-center flex flex-col items-center justify-center gap-2 transform -rotate-1">
-            <h1
-                class="text-3xl sm:text-4xl md:text-6xl font-marker tracking-widest uppercase text-black drop-shadow-[4px_4px_0_rgba(255,0,255,1)]">
-                Zine-ify</h1>
+<body class="min-h-screen font-typewriter" style="background-color: var(--bg-neutral);">
 
+    <div class="max-w-[1400px] mx-auto py-6 px-4 sm:px-6 space-y-6">
+        <header class="mb-6 flex items-center justify-between border-b-4 border-black pb-4">
+            <h1 class="font-marker text-4xl sm:text-5xl tracking-tight" style="color: var(--primary-vibrant); text-shadow: 3px 3px 0px black;">
+                ZINE-IFY
+            </h1>
         </header>
 
-        <main class="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4 md:gap-8 items-start">
+        <main class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 items-start">
             <!-- Left Column: Controls & Upload -->
-            <div class="space-y-4 md:space-y-6 md:sticky md:top-6 relative z-20">
-                <div id="upload-zone"
-                    class="upload-box p-4 md:p-6 flex flex-col items-center justify-center text-center cursor-pointer min-h-[140px] group focus:outline-none focus:bg-yellow-300 focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4"
-                    role="button" tabindex="0" aria-label="Upload PDF document" title="Upload PDF (Ctrl+O)" aria-keyshortcuts="Control+O">
-                    <div
-                        class="w-12 h-12 border-2 border-black flex items-center justify-center mb-3 group-hover:bg-black group-hover:text-white transition-colors">
-                        <span class="material-symbols-outlined text-3xl" aria-hidden="true">cloud_upload</span>
+            <aside class="space-y-4 lg:sticky lg:top-6 relative z-20 flex flex-col h-full max-h-[calc(100vh-6rem)]">
+
+                <div class="overflow-y-auto space-y-4 pr-2 flex-1 pb-10">
+                    <div id="upload-zone"
+                        class="upload-box relative overflow-hidden p-6 flex flex-col items-center justify-center text-center cursor-pointer min-h-[140px] group focus:outline-none"
+                        role="button" tabindex="0" aria-label="Upload PDF document" title="Upload PDF (Ctrl+O)" aria-keyshortcuts="Control+O">
+                        <span class="material-symbols-outlined text-4xl mb-3" style="color: var(--primary-vibrant);" aria-hidden="true">cloud_upload</span>
+                        <h2 class="font-marker text-lg mb-1">DROP PDF FILES</h2>
+                        <p id="upload-status" class="text-xs font-bold uppercase tracking-wider mt-1 px-2 py-1 bg-black text-white" aria-live="polite">
+                            Click or drag to add files</p>
+                        <input type="file" id="pdf-upload" class="hidden" accept="application/pdf" multiple>
                     </div>
-                    <h2 class="text-base sm:text-lg font-bold font-marker mb-1">DROP PDFS HERE</h2>
-                    <p id="upload-status" class="text-[10px] sm:text-xs font-bold uppercase mt-1 bg-black text-white px-2 py-1" aria-live="polite">
-                        Add PDFs to zine</p>
-                    <input type="file" id="pdf-upload" class="hidden" accept="application/pdf" multiple>
+
+                    <!-- Uploaded Files List -->
+                    <div id="uploaded-files-list" class="hidden">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <div id="settings-group" class="settings-panel bg-white p-4 space-y-4">
+                        <h3 class="font-marker text-sm uppercase tracking-widest border-b-2 border-black pb-2 mb-2 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[16px]">tune</span> Settings
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label for="paper-size-select" class="text-xs font-bold uppercase">Paper Size</label>
+                                <select id="paper-size-select" class="w-full text-sm p-2 bg-white">
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label for="orientation-select" class="text-xs font-bold uppercase">Orientation</label>
+                                <select id="orientation-select" class="w-full text-sm p-2 bg-white">
+                                    <option value="landscape">Landscape</option>
+                                    <option value="portrait">Portrait</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Grid Size Inputs -->
+                        <div class="pt-3 border-t-2 border-black" role="group" aria-labelledby="grid-layout-label">
+                            <div class="flex justify-between items-center mb-2">
+                                <label id="grid-layout-label" class="text-xs font-bold uppercase flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">grid_view</span> Grid Layout</label>
+                                <span id="grid-total" class="text-xs font-bold px-2 py-0.5 bg-black text-white">(8 Pages)</span>
+                            </div>
+                            <div class="flex gap-3 items-center">
+                                <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Grid Rows"
+                                    class="w-full font-bold text-center p-2 bg-white">
+                                <span class="font-bold text-lg" aria-hidden="true">×</span>
+                                <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Grid Columns"
+                                    class="w-full font-bold text-center p-2 bg-white">
+                            </div>
+                        </div>
+
+                        <!-- Page Numbers Toggle -->
+                        <div class="pt-3 border-t-2 border-black">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" id="show-page-numbers" checked class="w-5 h-5 accent-[var(--primary-vibrant)]" style="border: 2px solid black;">
+                                <span class="text-sm font-bold uppercase">Show Page Numbers</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- "Spare Parts" moved to sidebar -->
+                    <div id="unused-pages-section" class="settings-panel bg-white p-4 hidden">
+                        <div class="flex items-center justify-between gap-4 mb-3">
+                            <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]">inventory_2</span> Spare Parts
+                            </h3>
+                            <span class="text-[10px] font-bold uppercase px-2 py-1 bg-black text-white">Drag to swap</span>
+                        </div>
+
+                        <div id="unused-grid"
+                            class="grid grid-cols-3 gap-2 min-h-[80px] p-2 border-2 border-dashed border-black bg-[var(--bg-neutral)]">
+                            <!-- Unused pages injected here -->
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Uploaded Files List -->
-                <div id="uploaded-files-list" class="mt-4">
-                    <p class="text-xs text-gray-600">No files uploaded yet</p>
-                </div>
-
-                <div id="settings-group" class="bg-white p-4 md:p-6 settings-panel space-y-4 md:space-y-5">
-                    <h3 class="text-lg font-marker uppercase border-b-2 border-black pb-2 mb-2 transform -rotate-1">
-                        Settings</h3>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label for="paper-size-select" class="text-[10px] font-bold uppercase bg-black text-white inline-block px-1 mb-1">Paper</label>
-                            <select id="paper-size-select" class="w-full bg-white font-typewriter text-sm p-1.5 border-2 border-black focus:outline-none focus:ring-0">
-                                <!-- Populated by JS -->
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="orientation-select"
-                                class="text-[10px] font-bold uppercase bg-black text-white inline-block px-1 mb-1">Orient</label>
-                            <select id="orientation-select" class="w-full bg-white font-typewriter text-sm p-1.5 border-2 border-black focus:outline-none focus:ring-0">
-                                <option value="landscape">LANDSCAPE</option>
-                                <option value="portrait">PORTRAIT</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Grid Size Inputs -->
-                    <div class="pt-4 border-t-2 border-dashed border-black mt-2" role="group" aria-labelledby="grid-layout-label">
-                        <div class="flex justify-between items-center mb-2">
-                            <label id="grid-layout-label" class="text-[10px] font-bold uppercase bg-black text-white inline-block px-1">Grid Layout</label>
-                            <span id="grid-total" class="text-[10px] font-bold font-typewriter text-gray-500">(8 PAGES)</span>
-                        </div>
-                        <div class="flex gap-2 items-center">
-                            <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Grid Rows"
-                                class="w-16 bg-white font-bold text-lg p-1.5 text-center font-typewriter border-2 border-black">
-                            <span class="text-xl font-marker" aria-hidden="true">X</span>
-                            <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Grid Columns"
-                                class="w-16 bg-white font-bold text-lg p-1.5 text-center font-typewriter border-2 border-black">
-                        </div>
-                    </div>
-
-                    <!-- Page Numbers Toggle -->
-                    <div class="pt-4 border-t-2 border-dashed border-black mt-2">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" id="show-page-numbers" checked
-                                class="w-6 h-6 border-2 border-black rounded-none text-black focus:ring-0 focus:ring-offset-0">
-                            <label for="show-page-numbers" class="text-sm font-bold uppercase font-typewriter">Show Page
-                                #</label>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div id="action-buttons" class="space-y-3 hidden flex-col">
+                <div id="action-buttons" class="space-y-3 hidden flex-col pt-3 border-t-4 border-black mt-auto">
                     <button id="view3dBtn"
-                        class="action-button w-full py-3 flex items-center justify-center gap-2"
+                        class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-white text-black font-bold"
                         title="View 3D Folding Preview">
-                        <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
-                        VIEW 3D PREVIEW
+                        <span class="material-symbols-outlined" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span>
+                        3D PREVIEW
                     </button>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-3">
                         <button id="exportPdfBtn"
-                            class="action-button w-full py-3 flex items-center justify-center gap-1.5 text-sm"
+                            class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-white text-black font-bold"
                             title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
-                            <span class="material-symbols-outlined text-base" aria-hidden="true">file_download</span>
-                            DOWNLOAD
+                            <span class="material-symbols-outlined text-lg" aria-hidden="true">file_download</span>
+                            EXPORT
                         </button>
                         <button id="printBtn"
-                            class="action-button w-full py-3 flex items-center justify-center gap-1.5 text-sm"
+                            class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 text-white font-bold"
+                            style="background-color: var(--primary-vibrant);"
                             title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
-                            <span class="material-symbols-outlined text-base" aria-hidden="true">print</span>
+                            <span class="material-symbols-outlined text-lg" aria-hidden="true">print</span>
                             PRINT
                         </button>
                     </div>
                 </div>
-            </div>
+            </aside>
 
             <!-- Right Column: Preview Area -->
-            <div id="preview-area"
-                class="opacity-50 pointer-events-none transition-opacity duration-500 min-h-[400px] flex flex-col items-center">
-                <div class="w-full text-center md:text-left mb-6">
-                    <h2
-                        class="text-3xl font-marker uppercase transform rotate-1 inline-block border-b-4 border-[#ffff00]">
-                        Preview</h2>
-                    <p class="text-xs font-bold mt-2 font-typewriter max-w-md hidden" id="preview-description">
+            <section id="preview-area"
+                class="opacity-50 pointer-events-none transition-all duration-300 flex flex-col pt-4 lg:pt-0">
+                <div class="w-full flex items-center justify-between mb-4 border-b-4 border-black pb-3">
+                    <h2 class="font-marker text-xl tracking-wide flex items-center gap-2">
+                        <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">preview</span> CANVAS
+                    </h2>
+                    <p class="text-xs font-bold uppercase hidden px-2 py-1 bg-black text-white" id="preview-description">
                         Laying out your zine...
                     </p>
                 </div>
 
                 <!-- Unified Zine View -->
-                <div id="zine-sheets-container" class="w-full space-y-12 pb-12">
+                <div id="zine-sheets-container" class="w-full space-y-8 pb-8">
                     <!-- Sheets will be injected here -->
                 </div>
 
                 <div id="zine-container-legacy" class="hidden"></div>
-
-            </div>
+            </section>
         </main>
 
-        <!-- Unused Pages Bucket -->
-        <div id="unused-pages-section" class="w-full max-w-4xl mx-auto mt-12 px-6 pb-4 hidden">
-            <div class="flex items-center gap-4 mb-6 border-t-4 border-black pt-6">
-                <h3 class="text-2xl font-marker uppercase">Spare Parts</h3>
-                <span class="text-xs font-bold bg-[#ffff00] px-2 py-1 border-2 border-black transform -rotate-2">DRAG TO
-                    SWAP</span>
-            </div>
-
-            <div id="unused-grid"
-                class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4 min-h-[100px] p-4 sm:p-6 bg-white border-4 border-black border-dashed">
-                <!-- Unused pages injected here -->
-            </div>
-        </div>
-
-        <footer class="mt-20 mb-8 text-center font-typewriter uppercase border-t-4 border-black pt-8">
-            <p
-                class="text-sm font-bold bg-white inline-block px-4 py-2 border-2 border-black transform rotate-1 shadow-[4px_4px_0_black]">
-                Made by Aaron
-            </p>
+        <footer class="mt-12 pt-6 border-t-4 border-black text-center text-sm font-bold uppercase">
+            <p>Made with &hearts; by Aaron</p>
         </footer>
     </div>
 
     <!-- Progress Overlay -->
     <div id="progress-container"
-        class="fixed inset-0 bg-white/90 z-[100] flex flex-col items-center justify-center p-6 hidden backdrop-grayscale"
+        class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 hidden"
+        style="background-color: rgba(240, 240, 240, 0.95);"
         role="dialog" aria-modal="true" aria-label="Processing">
-        <div
-            class="bg-white p-10 border-4 border-black w-full max-w-sm text-center shadow-[8px_8px_0_black] transform rotate-1">
-            <h3 id="progress-text" class="text-2xl font-marker mb-6 uppercase" aria-live="polite" aria-atomic="true">PROCESSING...</h3>
-            <div id="progress-bar-wrap" class="progress-bar-container mb-4" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="bg-white border-4 border-black p-8 w-full max-w-sm text-center" style="box-shadow: 6px 6px 0px 0px black;">
+            <span class="material-symbols-outlined text-4xl mb-3 block" style="color: var(--primary-vibrant);">sync</span>
+            <h3 id="progress-text" class="font-marker text-xl mb-4" aria-live="polite" aria-atomic="true">Processing...</h3>
+            <div class="progress-bar-container mb-3" id="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                 <div id="progress-fill"></div>
             </div>
-            <p id="progress-subtext" class="text-xs font-bold font-typewriter uppercase" aria-live="polite" aria-atomic="true">
-                DO NOT CLOSE THIS WINDOW</p>
+            <p id="progress-subtext" class="text-xs font-bold uppercase" aria-live="polite" aria-atomic="true">
+                Please do not close this window</p>
         </div>
     </div>
 
     <!-- Toast Container -->
-    <div id="toast-container" class="fixed bottom-6 right-6 z-[300] space-y-4 font-typewriter" aria-live="polite" aria-atomic="true" role="region" aria-label="Notifications"></div>
+    <div id="toast-container" class="toast-container fixed bottom-6 right-6 z-[300] space-y-3" aria-live="polite" aria-atomic="true" role="region" aria-label="Notifications"></div>
+
     <!-- 3D Modal Container -->
-    <div id="zine-3d-modal" class="fixed inset-0 bg-black/90 z-[200] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 backdrop-blur-md">
-        <div class="w-full max-w-6xl p-4 flex flex-col h-[90vh]">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-white text-2xl font-marker uppercase tracking-widest"><span class="material-symbols-outlined align-middle mr-2 text-blue-500">view_in_ar</span> 3D Fold Preview</h3>
-                <button id="close-3d-btn" class="text-gray-400 hover:text-white transition-colors bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white">
-                    <span class="material-symbols-outlined text-2xl">close</span>
+    <div id="zine-3d-modal" class="fixed inset-0 z-[200] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300"
+        style="background-color: rgba(240, 240, 240, 0.97);">
+        <div class="w-full max-w-7xl p-4 sm:p-6 flex flex-col h-[100dvh]">
+            <div class="flex justify-between items-center mb-4 sm:mb-6">
+                <h3 class="font-marker text-xl sm:text-2xl tracking-wide flex items-center gap-2">
+                    <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">view_in_ar</span> 3D FOLD SIM
+                </h3>
+                <button id="close-3d-btn" class="action-button w-10 h-10 flex items-center justify-center bg-white text-black font-bold focus:outline-none"
+                    style="box-shadow: 3px 3px 0px 0px black;">
+                    <span class="material-symbols-outlined text-xl">close</span>
                 </button>
             </div>
-            
-            <div id="zine-3d-container" class="flex-1 w-full bg-black rounded-lg border border-white/20 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] relative">
+
+            <div id="zine-3d-container" class="flex-1 w-full bg-white overflow-hidden relative" style="border: 3px solid black; box-shadow: 6px 6px 0px 0px black;">
                 <!-- 3D Canvas goes here -->
             </div>
-            
-            <div class="mt-6 bg-white/10 backdrop-blur-md p-4 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 rounded-xl border border-white/20">
-                <label for="fold-slider" class="text-white font-bold font-typewriter uppercase text-xs sm:text-sm whitespace-nowrap">Fold Progress:</label>
-                <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full sm:w-auto h-3 bg-white/30 rounded-lg appearance-none cursor-pointer range-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <span id="fold-status" class="text-white font-typewriter text-[10px] sm:text-xs font-bold bg-black/50 px-3 py-1 rounded w-24 text-center">Flat</span>
+
+            <div class="mt-4 bg-white p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-6" style="border: 3px solid black; box-shadow: 4px 4px 0px 0px black;">
+                <label for="fold-slider" class="font-bold text-xs sm:text-sm uppercase whitespace-nowrap flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);">animation</span> Fold Progress:
+                </label>
+                <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-2 cursor-pointer" style="accent-color: var(--primary-vibrant);">
+                <span id="fold-status" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1.5 min-w-[80px] text-center bg-black text-white">Flat</span>
             </div>
         </div>
     </div>
 
     <script type="module" src="/src/js/main.js"></script>
-
 </body>
 
 </html>
