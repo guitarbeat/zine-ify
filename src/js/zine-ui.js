@@ -5,18 +5,18 @@ import { toast } from './toast.js';
 import { debounce } from './utils.js';
 
 const PAGE_TOOLBAR_HTML = `
-        <div class="page-toolbar absolute top-2 right-2 flex flex-wrap justify-end gap-1.5 z-10 max-w-[calc(100%-1rem)] transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100">
-           <button class="zoom-btn w-8 h-8 rounded-full bg-slate-900/80 backdrop-blur-md hover:bg-indigo-600 border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400" title="Quick Preview (Z)">
-                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">zoom_in</span>
+        <div class="page-toolbar absolute top-1 right-1 flex flex-wrap justify-end gap-1 z-10 max-w-[calc(100%-0.5rem)] transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100">
+           <button class="zoom-btn w-7 h-7 bg-white border-2 border-black text-black flex items-center justify-center transition-all duration-100 focus:outline-none hover:bg-[var(--primary-vibrant)] hover:text-white" style="box-shadow: 2px 2px 0px 0px black;" title="Quick Preview (Z)">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">zoom_in</span>
            </button>
-           <button class="crop-btn w-8 h-8 rounded-full bg-slate-900/80 backdrop-blur-md hover:bg-emerald-600 border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-400" title="Toggle Crop/Zoom (C)">
-                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">crop_free</span>
+           <button class="crop-btn w-7 h-7 bg-white border-2 border-black text-black flex items-center justify-center transition-all duration-100 focus:outline-none hover:bg-[var(--primary-vibrant)] hover:text-white" style="box-shadow: 2px 2px 0px 0px black;" title="Toggle Crop/Zoom (C)">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">crop_free</span>
            </button>
-           <button class="flip-btn w-8 h-8 rounded-full bg-slate-900/80 backdrop-blur-md hover:bg-amber-500 border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-amber-400" title="Flip 180° (R)">
-                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">rotate_right</span>
+           <button class="flip-btn w-7 h-7 bg-white border-2 border-black text-black flex items-center justify-center transition-all duration-100 focus:outline-none hover:bg-[var(--primary-vibrant)] hover:text-white" style="box-shadow: 2px 2px 0px 0px black;" title="Flip 180° (R)">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">rotate_right</span>
            </button>
-           <button class="remove-btn w-8 h-8 rounded-full bg-slate-900/80 backdrop-blur-md hover:bg-rose-500 border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-rose-400" title="Remove Page (Backspace)">
-                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
+           <button class="remove-btn w-7 h-7 bg-white border-2 border-black text-black flex items-center justify-center transition-all duration-100 focus:outline-none hover:bg-red-600 hover:text-white" style="box-shadow: 2px 2px 0px 0px black;" title="Remove Page (Backspace)">
+                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">close</span>
            </button>
         </div>`;
 
@@ -26,13 +26,13 @@ const PAGE_TOOLBAR_HTML = `
 // when generating large custom grids.
 const PAGE_CELL_TEMPLATE = document.createElement('template');
 PAGE_CELL_TEMPLATE.innerHTML = `
-  <span class="page-label absolute top-2 left-2 px-2 py-1 bg-indigo-500/90 text-white text-[10px] font-bold tracking-wider rounded border border-indigo-400/50 uppercase z-10 shadow-md"></span>
+  <span class="page-label"></span>
   ${PAGE_TOOLBAR_HTML}
-  <div class="page-placeholder flex flex-col items-center justify-center text-slate-500/50 gap-2 absolute inset-0">
+  <div class="page-placeholder flex flex-col items-center justify-center text-gray-400 gap-2 absolute inset-0">
      <span class="material-symbols-outlined text-3xl">note_stack</span>
      <span class="text-[10px] font-bold uppercase tracking-widest">Empty</span>
   </div>
-  <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out relative z-[5]" draggable="false" />
+  <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-200 ease-in-out relative z-[5]" draggable="false" />
 `;
 
 export class UIManager {
@@ -294,7 +294,7 @@ export class UIManager {
   setStatus(message, type = 'info') {
     if (this.elements.uploadStatus) {
       this.elements.uploadStatus.textContent = message;
-      this.elements.uploadStatus.className = `text-[11px] uppercase font-bold tracking-wider mt-1 px-2 py-1 ${type === 'error' ? 'bg-red-600 text-white' : type === 'success' ? 'bg-green-700 text-white' : 'bg-black text-white'
+      this.elements.uploadStatus.className = `text-[11px] uppercase font-bold tracking-wider mt-1 px-2 py-1 ${type === 'error' ? 'bg-red-600 text-white' : type === 'success' ? 'bg-green-600 text-white' : 'bg-black text-white'
         }`;
     }
   }
@@ -421,20 +421,20 @@ export class UIManager {
     for (let i = startIndex; i < totalPages; i++) {
       const cell = document.createElement('div');
       // Using similar but distinct styling for bucket items
-      cell.className = 'page-cell bg-slate-800/50 aspect-[1/1.414] relative rounded-lg border border-white/10 flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing hover:border-indigo-500/50 transition-colors duration-200';
+      cell.className = 'page-cell bg-white aspect-[1/1.414] relative border-2 border-black flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing hover:border-[var(--primary-vibrant)] transition-colors duration-100';
       cell.setAttribute('data-page-index', i);
       cell.draggable = true;
 
       const img = document.createElement('img');
-      img.className = 'page-content-img w-full h-full object-contain hidden pointer-events-none opacity-80';
+      img.className = 'page-content-img w-full h-full object-contain hidden pointer-events-none';
       img.draggable = false;
 
       const label = document.createElement('div');
-      label.className = 'absolute top-1.5 left-1.5 bg-black/40 text-slate-300 text-[8px] px-1.5 py-0.5 rounded font-bold z-10 border border-white/5';
+      label.className = 'page-label';
       label.textContent = `#${i + 1}`;
 
       const placeholder = document.createElement('div');
-      placeholder.className = 'unused-placeholder-text text-[10px] uppercase font-bold text-slate-500/50 select-none';
+      placeholder.className = 'unused-placeholder-text text-[10px] uppercase font-bold text-gray-400 select-none';
       placeholder.textContent = 'Unused';
 
       cell.appendChild(label);
