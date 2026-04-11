@@ -68,7 +68,7 @@ class PDFZineMaker {
    */
   handleView3d() {
       // Check if it's the standard 8-page mini zine layout
-      if (this.currentTemplate !== 'mini-8' && this.gridSize.rows * this.gridSize.cols !== 8) {
+      if (this.ui.currentTemplate !== 'mini-8' && this.gridSize.rows * this.gridSize.cols !== 8) {
           toast.warning('Not Supported', '3D Preview is currently only matched to the 8-Page Mini-Zine layout.');
           return;
       }
@@ -384,22 +384,7 @@ class PDFZineMaker {
     this.ui.updatePagePreview(pageNum - 1, url);
   }
 
-  /**
-   * Revoke all existing blob URLs to prevent memory leaks
-   */
-  cleanupOldImages() {
-    if (this.allPageImages) {
-      this.allPageImages.forEach(url => {
-        if (url && url !== this._blankPageUrl) {
-          this.pdfProcessor.revokeBlobUrl(url);
-        }
-      });
-      // Reset array to avoid double-revocation or using invalid URLs
-      for (let i = 0; i < this.allPageImages.length; i++) {
-        this.allPageImages[i] = null;
-      }
-    }
-  }
+
 
   handlePagesSwapped({ fromIndex, toIndex }) {
     // Swap images in array
@@ -431,15 +416,7 @@ class PDFZineMaker {
     toast.info('Pages swapped');
   }
 
-  updateZineView(zineNum) {
-    // Update the UI to show the correct 8 pages for the selected zine (1 or 2)
-    const startPageIndex = (zineNum - 1) * 8;
-    for (let i = 0; i < 8; i++) {
-      const globalPageIndex = startPageIndex + i;
-      const imageUrl = this.allPageImages[globalPageIndex];
-      this.ui.updatePagePreview(i, imageUrl); // Update the 8 visible cells
-    }
-  }
+
 
   updatePaperSettings(settings) {
     this.paperSize = settings.paperSize;
@@ -688,7 +665,7 @@ class PDFZineMaker {
 
       await captureZine(1);
       // Only capture second sheet for dual-16 template (not accordion-16 which is single sheet)
-      if (this.currentTemplate !== 'accordion-16' && this.selectedLayout > 8) {
+      if (this.ui.currentTemplate !== 'accordion-16' && this.selectedLayout > 8) {
         await captureZine(2);
       }
 

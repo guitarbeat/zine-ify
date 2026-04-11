@@ -62,7 +62,7 @@ class Toast {
     }
 
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'toast-close hover:bg-slate-700/50 rounded-full w-6 h-6 ml-2 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-slate-400 text-slate-400 hover:text-white transition-colors';
+    closeBtn.className = 'toast-close w-6 h-6 ml-2 flex items-center justify-center focus:outline-none';
     closeBtn.setAttribute('aria-label', 'Close notification');
     closeBtn.innerHTML = '&times;'; // Safe entity
     closeBtn.addEventListener('click', () => this.remove(toast));

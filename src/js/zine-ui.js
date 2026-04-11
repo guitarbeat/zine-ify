@@ -2,7 +2,7 @@
 import mitt from 'mitt';
 import { PAPER_SIZES, ZINE_TEMPLATES } from './config.js';
 import { toast } from './toast.js';
-import { debounce } from './utils.js';
+import { debounce, formatFileSize } from './utils.js';
 
 const PAGE_TOOLBAR_HTML = `
         <div class="page-toolbar absolute top-1 right-1 flex flex-wrap justify-end gap-1 z-10 max-w-[calc(100%-0.5rem)] transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100">
@@ -98,10 +98,6 @@ export class UIManager {
       // Toast
       toastContainer: $('#toast-container'),
 
-      // Zine Tabs
-      zineTabs: $('#zine-tabs'),
-      zineTab1: $('#zine-tab-1'),
-      zineTab2: $('#zine-tab-2'),
 
       gridRows: $('#grid-rows'),
       gridCols: $('#grid-cols'),
@@ -874,17 +870,18 @@ export class UIManager {
     if (!modal) {
       modal = document.createElement('div');
       modal.id = 'zoom-modal';
-      modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300';
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300';
+      modal.style.backgroundColor = 'rgba(240, 240, 240, 0.95)';
       modal.innerHTML = `
-        <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white rounded shadow-2xl overflow-hidden flex flex-col scale-95 transition-transform duration-300">
-          <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200 bg-gray-50">
-            <h3 class="font-black text-gray-800 uppercase tracking-wider text-sm">Page Preview</h3>
-            <button class="close-modal w-8 h-8 rounded hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors focus:outline-none focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black focus-visible:ring-0">
+        <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white overflow-hidden flex flex-col scale-95 transition-transform duration-300" style="border: 3px solid black; box-shadow: 6px 6px 0px 0px black;">
+          <div class="flex justify-between items-center px-4 py-2 border-b-2 border-black">
+            <h3 class="font-bold uppercase tracking-wider text-sm">Page Preview</h3>
+            <button class="close-modal w-8 h-8 bg-white border-2 border-black text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors focus:outline-none" style="box-shadow: 2px 2px 0px 0px black;">
               <span class="material-symbols-outlined font-bold" aria-hidden="true">close</span>
             </button>
           </div>
-          <div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-200/50">
-            <img class="zoom-img max-w-full max-h-full object-contain shadow-lg" src="" alt="Zoomed Page Preview" />
+          <div class="flex-1 overflow-auto p-4 flex items-center justify-center" style="background-color: var(--bg-neutral);">
+            <img class="zoom-img max-w-full max-h-full object-contain" style="border: 2px solid black; box-shadow: 4px 4px 0px 0px black;" src="" alt="Zoomed Page Preview" />
           </div>
         </div>
       `;
@@ -1012,9 +1009,7 @@ export class UIManager {
     return { width: size.width, height: size.height };
   }
 
-  getPaperSizeLabel(paperSize) {
-    return PAPER_SIZES[paperSize]?.label || 'Letter';
-  }
+
 
   hasContent() {
     return this.elements.zineSheetsContainer &&
@@ -1028,10 +1023,12 @@ export class UIManager {
     if (!this.elements.uploadedFilesList) { return; }
 
     if (uploadedFiles.length === 0) {
-      this.elements.uploadedFilesList.innerHTML = '<p class="text-xs text-gray-600">No files uploaded yet</p>';
+      this.elements.uploadedFilesList.classList.add('hidden');
+      this.elements.uploadedFilesList.innerHTML = '<p class="text-xs font-bold uppercase">No files uploaded yet</p>';
       return;
     }
 
+    this.elements.uploadedFilesList.classList.remove('hidden');
     this.elements.uploadedFilesList.innerHTML = '';
 
     const wrapper = document.createElement('div');
@@ -1058,7 +1055,7 @@ export class UIManager {
 
       const sizeDiv = document.createElement('div');
       sizeDiv.className = 'text-[10px] text-gray-500';
-      sizeDiv.textContent = this.formatFileSize(fileInfo.size);
+      sizeDiv.textContent = formatFileSize(fileInfo.size);
 
       textWrapper.appendChild(nameDiv);
       textWrapper.appendChild(sizeDiv);
@@ -1081,17 +1078,6 @@ export class UIManager {
     });
 
     this.elements.uploadedFilesList.appendChild(wrapper);
-  }
-
-  /**
-   * Format file size for display
-   */
-  formatFileSize(bytes) {
-    if (bytes === 0) { return '0 Bytes'; }
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
   on(event, handler) {
