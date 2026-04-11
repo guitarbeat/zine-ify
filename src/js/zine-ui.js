@@ -5,18 +5,18 @@ import { toast } from './toast.js';
 import { debounce } from './utils.js';
 
 const PAGE_TOOLBAR_HTML = `
-        <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100">
-           <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Quick Preview">
-                <span class="material-symbols-outlined text-lg font-bold" aria-hidden="true">zoom_in</span>
+        <div class="absolute top-1 right-1 sm:top-2 sm:right-2 flex flex-wrap justify-end gap-1.5 z-10 transition-all duration-300 opacity-0 group-hover:opacity-100 focus-within:opacity-100 max-w-[calc(100%-0.5rem)]">
+           <button class="zoom-btn w-6 h-6 sm:w-8 sm:h-8 bg-black/50 hover:bg-primary-vibrant border border-white/20 text-white rounded-full flex items-center justify-center text-sm backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-vibrant" title="Quick Preview">
+                <span class="material-symbols-outlined text-base sm:text-lg font-bold" aria-hidden="true">zoom_in</span>
            </button>
-           <button class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Toggle Crop/Zoom">
-                <span class="material-symbols-outlined text-lg font-bold" aria-hidden="true">crop_free</span>
+           <button class="crop-btn w-6 h-6 sm:w-8 sm:h-8 bg-black/50 hover:bg-secondary-cyan border border-white/20 text-white rounded-full flex items-center justify-center text-sm backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-secondary-cyan" title="Toggle Crop/Zoom">
+                <span class="material-symbols-outlined text-base sm:text-lg font-bold" aria-hidden="true">crop_free</span>
            </button>
-           <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Remove Page">
-                <span class="material-symbols-outlined text-lg font-bold" aria-hidden="true">close</span>
+           <button class="flip-btn w-6 h-6 sm:w-8 sm:h-8 bg-black/50 hover:bg-blue-500 border border-white/20 text-white rounded-full flex items-center justify-center text-sm backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-500" title="Flip 180°">
+                <span class="material-symbols-outlined text-base sm:text-lg font-bold" aria-hidden="true">rotate_right</span>
            </button>
-           <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Flip 180°">
-                <span class="material-symbols-outlined text-lg font-bold" aria-hidden="true">rotate_right</span>
+           <button class="remove-btn w-6 h-6 sm:w-8 sm:h-8 bg-black/50 hover:bg-red-500 border border-white/20 text-white rounded-full flex items-center justify-center text-sm backdrop-blur-md shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-all hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500" title="Remove Page">
+                <span class="material-symbols-outlined text-base sm:text-lg font-bold" aria-hidden="true">close</span>
            </button>
         </div>`;
 
@@ -26,9 +26,9 @@ const PAGE_TOOLBAR_HTML = `
 // when generating large custom grids.
 const PAGE_CELL_TEMPLATE = document.createElement('template');
 PAGE_CELL_TEMPLATE.innerHTML = `
-  <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
+  <span class="page-label"></span>
   ${PAGE_TOOLBAR_HTML}
-  <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
+  <div class="page-placeholder text-gray-400/50 text-xs font-semibold uppercase tracking-widest">Empty</div>
   <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
 `;
 
@@ -368,20 +368,20 @@ export class UIManager {
     for (let i = startIndex; i < totalPages; i++) {
       const cell = document.createElement('div');
       // Using similar but distinct styling for bucket items
-      cell.className = 'page-cell bg-white aspect-[1/1.414] relative rounded-lg shadow-sm border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing hover:border-blue-500 transition-colors duration-200';
+      cell.className = 'page-cell bg-black/40 aspect-[1/1.414] relative rounded-xl shadow-lg border border-dashed border-white/20 flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing hover:border-primary-vibrant transition-all duration-300 hover:shadow-[0_0_15px_rgba(255,0,255,0.2)]';
       cell.setAttribute('data-page-index', i);
       cell.draggable = true;
 
       const img = document.createElement('img');
-      img.className = 'page-content-img w-full h-full object-contain hidden pointer-events-none';
+      img.className = 'page-content-img w-full h-full object-contain hidden pointer-events-none rounded-xl';
       img.draggable = false;
 
       const label = document.createElement('div');
-      label.className = 'absolute top-1 left-1 bg-gray-500 text-white text-[8px] px-1.5 py-0.5 rounded-sm font-bold z-10';
+      label.className = 'absolute top-2 left-2 bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded border border-white/10 font-bold z-10';
       label.textContent = `#${i + 1}`;
 
       const placeholder = document.createElement('div');
-      placeholder.className = 'text-[10px] uppercase font-bold text-gray-300 select-none';
+      placeholder.className = 'text-[10px] uppercase font-semibold text-gray-500 tracking-wider select-none';
       placeholder.textContent = 'Unused';
 
       cell.appendChild(label);
@@ -772,17 +772,19 @@ export class UIManager {
     if (!modal) {
       modal = document.createElement('div');
       modal.id = 'zoom-modal';
-      modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300';
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-400';
       modal.innerHTML = `
-        <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white rounded shadow-2xl overflow-hidden flex flex-col scale-95 transition-transform duration-300">
-          <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200 bg-gray-50">
-            <h3 class="font-black text-gray-800 uppercase tracking-wider text-sm">Page Preview</h3>
-            <button class="close-modal w-8 h-8 rounded hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors focus:outline-none focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black focus-visible:ring-0">
+        <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-accent-dark border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.7)] overflow-hidden flex flex-col scale-95 transition-transform duration-400">
+          <div class="flex justify-between items-center px-6 py-4 border-b border-white/10 bg-black/40 backdrop-blur-md">
+            <h3 class="font-display font-medium text-white uppercase tracking-widest text-sm flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary-cyan text-sm">visibility</span> Page Preview
+            </h3>
+            <button class="close-modal w-8 h-8 rounded-full hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
               <span class="material-symbols-outlined font-bold" aria-hidden="true">close</span>
             </button>
           </div>
-          <div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-200/50">
-            <img class="zoom-img max-w-full max-h-full object-contain shadow-lg" src="" alt="Zoomed Page Preview" />
+          <div class="flex-1 overflow-auto p-6 flex items-center justify-center bg-black/20">
+            <img class="zoom-img max-w-full max-h-full object-contain drop-shadow-2xl rounded-sm" src="" alt="Zoomed Page Preview" />
           </div>
         </div>
       `;

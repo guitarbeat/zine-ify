@@ -3,79 +3,113 @@
 @layer components {
 
 :root {
-    --bg-neutral: #f0f0f0;
-    --accent-dark: #000000;
+    --bg-neutral: #0a0a0f;
+    --accent-dark: #13131c;
     --primary-vibrant: #ff00ff; /* Neon Pink */
-    --border-color: #000000;
-    --paper-bg: #FFFFFF;
+    --secondary-cyan: #00ffff; /* Neon Cyan */
+    --paper-bg: #1a1a24;
+    --text-main: #e2e8f0;
 }
+
 body {
     background-color: var(--bg-neutral);
-    /* Add noise texture */
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
-    font-family: 'Courier Prime', monospace;
-    color: var(--accent-dark);
+    /* Animated Mesh Gradient Background */
+    background: radial-gradient(circle at 15% 50%, rgba(255, 0, 255, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(0, 255, 255, 0.08), transparent 25%);
+    background-color: var(--bg-neutral);
+    background-attachment: fixed;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+    min-height: 100vh;
 }
 
-/* Typography utilities */
+/* Glassmorphism Utilities */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
 .font-marker { font-family: 'Permanent Marker', cursive; }
 .font-typewriter { font-family: 'Courier Prime', monospace; }
+.font-display { font-family: 'Outfit', sans-serif; }
 
 .upload-box {
-    border: 3px dashed var(--border-color);
-    background-color: white;
-    transition: all 0.1s ease;
-    box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+    @apply glass-panel;
+    border: 2px dashed rgba(255, 0, 255, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.upload-box:hover {
+    border-color: var(--secondary-cyan);
+    background: rgba(0, 255, 255, 0.05);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+    transform: translateY(-2px);
 }
 .upload-box:active, .upload-box.dragover {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px 0px rgba(0,0,0,1);
-    background-color: #ffff00; /* Highlighter yellow active */
+    transform: scale(0.98);
+    border-color: var(--primary-vibrant);
+    background: rgba(255, 0, 255, 0.08);
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.2);
 }
 
-/* Harsh aesthetic for inputs/selects */
+/* Sleek inputs/selects */
 select, input {
-    border: 2px solid black !important;
-    border-radius: 0 !important;
-    box-shadow: 2px 2px 0px 0px rgba(0,0,0,1);
+    background: rgba(0,0,0,0.3) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 8px !important;
+    color: white !important;
+    transition: all 0.2s ease;
 }
 select:focus, input:focus {
     outline: none;
-    box-shadow: 4px 4px 0px 0px var(--primary-vibrant);
-    transform: translate(-1px, -1px);
+    border-color: var(--secondary-cyan) !important;
+    box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.2) !important;
+    background: rgba(0,0,0,0.5) !important;
+}
+
+/* Custom Select Dropdown Styling for Dark Mode */
+select option {
+    background-color: var(--accent-dark);
+    color: white;
 }
 
 /* Preview specific styles */
 .print-sheet {
     background-color: var(--paper-bg);
-    /* Aspect ratio set by JS */
-    box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
-    border: 2px solid black;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+    border: none;
+    border-radius: 12px;
     position: relative;
     flex-shrink: 0;
-    transition: all 0.2s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media print {
     .print-sheet {
+        background-color: white !important;
         border: none;
         box-shadow: none;
         margin: 0;
+        border-radius: 0;
         page-break-after: always;
         max-width: none !important;
         max-height: none !important;
         width: 100% !important;
         height: 100% !important;
     }
+    .print-sheet .page-cell {
+        background-color: white !important;
+        border-color: #ccc !important;
+    }
     .flip-btn, .zoom-btn, .crop-btn, .remove-btn, .page-label, .guidelines {
         display: none !important;
     }
-    .page-cell {
-        border: none !important; /* Optional: remove grid lines in print if desired, but user might want cut lines? Keeping simple for now */
-    }
+    body { background: white; }
 }
 
-/* Export clean-up (for html2canvas) */
 .is-exporting .flip-btn, 
 .is-exporting .zoom-btn,
 .is-exporting .crop-btn,
@@ -85,70 +119,78 @@ select:focus, input:focus {
 .is-exporting .guidelines {
     display: none !important;
 }
-.is-exporting .page-cell {
-    border: none !important;
-}
+.is-exporting .page-cell { border: none !important; }
+.is-exporting .print-sheet { background-color: white; border-radius: 0; box-shadow: none; }
+.is-exporting .page-cell { background-color: white; }
 
 .zine-grid {
     display: grid;
     height: 100%;
     width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
 }
 .page-cell {
-    border: 1px solid black; /* Hard grid lines */
+    border: 1px solid rgba(255,255,255,0.05);
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     cursor: grab;
-    background: white;
+    background: #1e1e2c;
+    transition: background 0.2s ease;
 }
+.page-cell:hover { background: #232333; }
 .page-cell.dragging {
-    opacity: 0.8;
+    opacity: 0.5;
     cursor: grabbing;
-    filter: invert(1); /* Punk style invert */
     z-index: 50;
+    background: rgba(0, 255, 255, 0.1);
 }
 .page-cell.drag-over {
-    background-color: var(--primary-vibrant);
+    background-color: rgba(255, 0, 255, 0.15);
+    border: 2px solid var(--primary-vibrant);
     z-index: 40;
 }
 .page-content-img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    /* Multiply effect to look like ink on paper */
-    mix-blend-mode: multiply; 
-    transition: transform 0.2s ease, object-fit 0.2s ease;
+    /* Soften the image blending for dark mode instead of hard multiply */
+    mix-blend-mode: normal; 
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease;
 }
 .page-zoomed .page-content-img {
     object-fit: cover;
-    transform: scale(1.1); /* Subtle zoom to crop margins */
+    transform: scale(1.05);
 }
 
 .page-label {
     position: absolute;
-    background: black;
-    color: white;
-    font-family: 'Courier Prime', monospace;
-    font-weight: bold;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    color: #00ffff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
     font-size: 10px;
-    padding: 2px 4px;
+    padding: 4px 8px;
     z-index: 20;
-    top: 0;
-    left: 0;
-    border-bottom: 1px solid black;
-    border-right: 1px solid black;
+    top: 6px;
+    left: 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
-/* Rotations for default layout */
+/* Default rotations */
 .page-cell[data-page="2"], .page-cell[data-page="3"], 
 .page-cell[data-page="4"], .page-cell[data-page="5"] {
     transform: rotate(180deg);
 }
 
-/* Accordion-16 specific upside-down pages */
+/* Accordion Rotations */
 .zine-grid.accordion-16 .page-cell[data-page="1"],
 .zine-grid.accordion-16 .page-cell[data-page="2"],
 .zine-grid.accordion-16 .page-cell[data-page="3"],
@@ -159,7 +201,6 @@ select:focus, input:focus {
 .zine-grid.accordion-16 .page-cell[data-page="12"] {
     transform: rotate(180deg);
 }
-/* Override default rotations for accordion template */
 .zine-grid.accordion-16 .page-cell[data-page="5"],
 .zine-grid.accordion-16 .page-cell[data-page="6"],
 .zine-grid.accordion-16 .page-cell[data-page="7"],
@@ -171,132 +212,114 @@ select:focus, input:focus {
     transform: rotate(0deg);
 }
 
-/* Buttons matching the punk vibe */
+/* Premium Gradient Buttons */
 .action-button {
-    border: 3px solid black !important;
-    border-radius: 0 !important;
-    box-shadow: 4px 4px 0px 0px black;
-    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, var(--primary-vibrant) 0%, #8a2be2 100%);
+    border: none !important;
+    border-radius: 9999px !important; /* Full rounded pill */
+    color: white !important;
+    font-family: 'Outfit', sans-serif;
     text-transform: uppercase;
-    font-weight: 900;
+    font-weight: 700;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 0, 255, 0.3);
+}
+.action-button::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: all 0.5s ease;
 }
 .action-button:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px 0px var(--primary-vibrant);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 0, 255, 0.4);
 }
+.action-button:hover::before { left: 100%; }
 .action-button:active {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px 0px black;
-}
-  /* Centered Page Label (Sticker Style) */
-.page-label.centered {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-5deg);
-    font-size: 24px;
-    padding: 8px 12px;
-    border: 3px solid black;
-    box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
-    z-index: 100;
-    background-color: white;
-    color: black;
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(255, 0, 255, 0.3);
 }
 
-/* View transitions */
-.view-section {
-    transition: opacity 0.3s ease, transform 0.3s ease;
+/* Secondary Button Variant */
+#printBtn.action-button {
+    background: linear-gradient(135deg, var(--secondary-cyan) 0%, #0088ff 100%);
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
 }
-.view-section.hidden {
-    display: none;
-    opacity: 0;
-    transform: translateY(10px);
+#printBtn.action-button:hover {
+    box-shadow: 0 6px 20px rgba(0, 255, 255, 0.4);
+}
+
+.page-label.centered {
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    color: white;
 }
 
 /* Progress Bar */
 .progress-bar-container {
     width: 100%;
-    height: 12px;
-    background: white;
-    border: 2px solid black;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 9999px;
     overflow: hidden;
 }
 #progress-fill {
     height: 100%;
-    background: var(--primary-vibrant);
+    background: linear-gradient(90deg, var(--secondary-cyan), var(--primary-vibrant));
     width: 0%;
-    /* Striped pattern for progress */
-    background-image: linear-gradient(
-        45deg, 
-        rgba(0,0,0,0.15) 25%, 
-        transparent 25%, 
-        transparent 50%, 
-        rgba(0,0,0,0.15) 50%, 
-        rgba(0,0,0,0.15) 75%, 
-        transparent 75%, 
-        transparent
-    );
-    background-size: 20px 20px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 10px rgba(255,0,255,0.5);
 }
 
-/* Layout toggle style override (if used later) */
+/* Settings panel */
 .settings-panel {
-    border: 3px solid black;
-    box-shadow: 4px 4px 0px 0px black;
-    border-radius: 0;
+    @apply glass-panel;
 }
 
-/* Punk Toast Notifications */
-.toast-container {
-    pointer-events: none;
-}
+/* Sleek Toast Notifications */
+.toast-container { pointer-events: none; }
 .toast {
-    background: white;
-    border: 3px solid black;
-    box-shadow: 4px 4px 0px 0px black;
-    padding: 1rem;
+    @apply glass-panel;
+    padding: 1rem 1.25rem;
     width: 320px;
     pointer-events: auto;
     display: flex;
     align-items: flex-start;
     gap: 12px;
     transform: translateX(120%);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     opacity: 0;
 }
-.toast svg { width: 20px; height: 20px; }
-.toast-visible {
-    transform: translateX(0);
-    opacity: 1;
-}
+.toast svg { width: 22px; height: 22px; }
+.toast-visible { transform: translateX(0); opacity: 1; }
 
-/* Toast Variants */
-.toast-success { border-color: black; }
-.toast-success .toast-icon { color: #00cc00; }  /* Green accent Icon */
-.toast-success::after {
-    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: #00cc00;
-}
+.toast-success { border-left: 4px solid #00ffcc; }
+.toast-success .toast-icon { color: #00ffcc; }
+.toast-error { border-left: 4px solid #ff3366; }
+.toast-error .toast-icon { color: #ff3366; }
+.toast-info { border-left: 4px solid #00ccff; }
+.toast-info .toast-icon { color: #00ccff; }
 
-.toast-error { border-color: black; }
-.toast-error .toast-icon { color: #ff0000; }
-.toast-error::after {
-    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: #ff0000;
-}
-
-.toast-info { border-color: black; }
-.toast-info .toast-icon { color: blue; }
-.toast-info::after {
-    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: cyan;
-}
-
-.toast-content { flex: 1; padding-left: 8px; }
-.toast-title { font-weight: 900; text-transform: uppercase; font-size: 0.9rem; margin-bottom: 2px; font-family: 'Permanent Marker', cursive; }
-.toast-message { font-size: 0.8rem; font-family: 'Courier Prime', monospace; font-weight: bold; }
+.toast-content { flex: 1; }
+.toast-title { font-weight: 700; text-transform: uppercase; font-size: 0.9rem; margin-bottom: 2px; color: white; letter-spacing: 0.5px; }
+.toast-message { font-size: 0.8rem; color: #cbd5e1; }
 
 .toast-close {
     background: transparent; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0 4px;
-    color: black; opacity: 0.5;
+    color: white; opacity: 0.4; transition: opacity 0.2s;
 }
-.toast-close:hover { opacity: 1; color: red; }
+.toast-close:hover { opacity: 1; }
 
 }
