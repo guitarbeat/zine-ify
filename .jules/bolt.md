@@ -16,3 +16,6 @@
 ## 2025-02-18 - OffscreenCanvas for PDF Processing
 **Learning:** Using `document.createElement('canvas')` in background PDF processing tasks interacts with the DOM and blocks the main thread unnecessarily.
 **Action:** Use `OffscreenCanvas` when available to render PDF pages and extract blobs asynchronously (via `convertToBlob`), reducing main thread blocking and improving performance, while keeping a fallback for unsupported browsers.
+## 2026-04-11 - Cached back cover to avoid redundant rendering
+**Learning:** In multi-sheet PDF generation loops, calling synchronous methods like `toDataURL` repeatedly for static/identical parts (like the back cover) severely impacts performance and blocks the main thread.
+**Action:** Extract the static rendering logic outside the loop, cache the result once (e.g. `toDataURL`), and reuse the cached string across iterations.

@@ -13,11 +13,11 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Permanent+Marker&display=swap"
         rel="stylesheet" />
-  <script type="module" crossorigin src="./assets/index-BbYNnFTq.js"></script>
+  <script type="module" crossorigin src="./assets/index-BmfnMnyj.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/pdfjs-lFNHpD8d.js">
   <link rel="modulepreload" crossorigin href="./assets/jspdf-2GeXGIBk.js">
   <link rel="modulepreload" crossorigin href="./assets/html2canvas-DcoBDRbt.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-8jN62xx9.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-CytQiqFJ.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
@@ -26,15 +26,12 @@
     <div class="max-w-4xl mx-auto space-y-8">
         <header class="text-center flex flex-col items-center justify-center gap-2 transform -rotate-1">
             <h1
-                class="text-4xl md:text-6xl font-marker tracking-widest uppercase text-black drop-shadow-[4px_4px_0_rgba(255,0,255,1)]">
+                class="text-3xl sm:text-4xl md:text-6xl font-marker tracking-widest uppercase text-black drop-shadow-[4px_4px_0_rgba(255,0,255,1)]">
                 Zine-ify</h1>
-            <p
-                class="text-black font-typewriter font-bold text-xs md:text-sm bg-white px-2 py-1 border-2 border-black inline-block rotate-1">
-                MAKE ZINES // BREAK THINGS
-            </p>
+
         </header>
 
-        <main class="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-4 md:gap-8 items-start">
+        <main class="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-4 md:gap-8 items-start">
             <!-- Left Column: Controls & Upload -->
             <div class="space-y-4 md:space-y-6 md:sticky md:top-6 relative z-20">
                 <div id="upload-zone"
@@ -44,8 +41,8 @@
                         class="w-12 h-12 border-2 border-black flex items-center justify-center mb-3 group-hover:bg-black group-hover:text-white transition-colors">
                         <span class="material-symbols-outlined text-3xl" aria-hidden="true">cloud_upload</span>
                     </div>
-                    <h2 class="text-lg font-bold font-marker mb-1">DROP PDFS HERE</h2>
-                    <p id="upload-status" class="text-xs font-bold uppercase mt-1 bg-black text-white px-2 py-1" aria-live="polite">
+                    <h2 class="text-base sm:text-lg font-bold font-marker mb-1">DROP PDFS HERE</h2>
+                    <p id="upload-status" class="text-[10px] sm:text-xs font-bold uppercase mt-1 bg-black text-white px-2 py-1" aria-live="polite">
                         Add PDFs to zine</p>
                     <input type="file" id="pdf-upload" class="hidden" accept="application/pdf" multiple>
                 </div>
@@ -59,19 +56,18 @@
                     <h3 class="text-lg font-marker uppercase border-b-2 border-black pb-2 mb-2 transform -rotate-1">
                         Settings</h3>
 
-                    <div class="grid grid-cols-1 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                            <label for="paper-size-select" class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Paper
-                                Size</label>
-                            <select id="paper-size-select" class="w-full bg-white font-typewriter text-sm p-2">
+                            <label for="paper-size-select" class="text-[10px] font-bold uppercase bg-black text-white inline-block px-1 mb-1">Paper</label>
+                            <select id="paper-size-select" class="w-full bg-white font-typewriter text-sm p-1.5 border-2 border-black focus:outline-none focus:ring-0">
                                 <!-- Populated by JS -->
                             </select>
                         </div>
 
                         <div>
                             <label for="orientation-select"
-                                class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-1">Orientation</label>
-                            <select id="orientation-select" class="w-full bg-white font-typewriter text-sm p-2">
+                                class="text-[10px] font-bold uppercase bg-black text-white inline-block px-1 mb-1">Orient</label>
+                            <select id="orientation-select" class="w-full bg-white font-typewriter text-sm p-1.5 border-2 border-black focus:outline-none focus:ring-0">
                                 <option value="landscape">LANDSCAPE</option>
                                 <option value="portrait">PORTRAIT</option>
                             </select>
@@ -80,17 +76,17 @@
 
                     <!-- Grid Size Inputs -->
                     <div class="pt-4 border-t-2 border-dashed border-black mt-2" role="group" aria-labelledby="grid-layout-label">
-                        <label id="grid-layout-label" class="text-xs font-bold uppercase bg-black text-white inline-block px-1 mb-2">Grid
-                            Layout</label>
+                        <div class="flex justify-between items-center mb-2">
+                            <label id="grid-layout-label" class="text-[10px] font-bold uppercase bg-black text-white inline-block px-1">Grid Layout</label>
+                            <span id="grid-total" class="text-[10px] font-bold font-typewriter text-gray-500">(8 PAGES)</span>
+                        </div>
                         <div class="flex gap-2 items-center">
                             <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Grid Rows"
-                                class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
-                            <span class="text-2xl font-marker" aria-hidden="true">X</span>
+                                class="w-16 bg-white font-bold text-lg p-1.5 text-center font-typewriter border-2 border-black">
+                            <span class="text-xl font-marker" aria-hidden="true">X</span>
                             <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Grid Columns"
-                                class="w-16 bg-white font-bold text-lg p-2 text-center font-typewriter">
+                                class="w-16 bg-white font-bold text-lg p-1.5 text-center font-typewriter border-2 border-black">
                         </div>
-                        <span id="grid-total" class="text-xs mt-2 block font-bold font-typewriter text-gray-500">(8
-                            PAGES TOTAL)</span>
                     </div>
 
                     <!-- Page Numbers Toggle -->
@@ -105,19 +101,27 @@
 
                 </div>
 
-                <div id="action-buttons" class="space-y-3 hidden">
-                    <button id="exportPdfBtn"
-                        class="action-button w-full bg-black text-white py-4 flex items-center justify-center gap-2 hover:bg-[#ff00ff] hover:text-black focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
-                        <span class="material-symbols-outlined" aria-hidden="true">file_download</span>
-                        DOWNLOAD PDF
+                <div id="action-buttons" class="space-y-3 hidden flex-col">
+                    <button id="view3dBtn"
+                        class="action-button w-full py-3 flex items-center justify-center gap-2"
+                        title="View 3D Folding Preview">
+                        <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
+                        VIEW 3D PREVIEW
                     </button>
-                    <button id="printBtn"
-                        class="action-button w-full bg-white text-black py-4 flex items-center justify-center gap-2 hover:bg-black hover:text-white focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black disabled:opacity-50 disabled:cursor-not-allowed"
-                        title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
-                        <span class="material-symbols-outlined" aria-hidden="true">print</span>
-                        PRINT IT
-                    </button>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button id="exportPdfBtn"
+                            class="action-button w-full py-3 flex items-center justify-center gap-1.5 text-sm"
+                            title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
+                            <span class="material-symbols-outlined text-base" aria-hidden="true">file_download</span>
+                            DOWNLOAD
+                        </button>
+                        <button id="printBtn"
+                            class="action-button w-full py-3 flex items-center justify-center gap-1.5 text-sm"
+                            title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
+                            <span class="material-symbols-outlined text-base" aria-hidden="true">print</span>
+                            PRINT
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -152,7 +156,7 @@
             </div>
 
             <div id="unused-grid"
-                class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 min-h-[100px] p-6 bg-white border-4 border-black border-dashed">
+                class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4 min-h-[100px] p-4 sm:p-6 bg-white border-4 border-black border-dashed">
                 <!-- Unused pages injected here -->
             </div>
         </div>
@@ -182,11 +186,32 @@
 
     <!-- Toast Container -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-[300] space-y-4 font-typewriter" aria-live="polite" aria-atomic="true" role="region" aria-label="Notifications"></div>
+    <!-- 3D Modal Container -->
+    <div id="zine-3d-modal" class="fixed inset-0 bg-black/90 z-[200] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 backdrop-blur-md">
+        <div class="w-full max-w-6xl p-4 flex flex-col h-[90vh]">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-white text-2xl font-marker uppercase tracking-widest"><span class="material-symbols-outlined align-middle mr-2 text-blue-500">view_in_ar</span> 3D Fold Preview</h3>
+                <button id="close-3d-btn" class="text-gray-400 hover:text-white transition-colors bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white">
+                    <span class="material-symbols-outlined text-2xl">close</span>
+                </button>
+            </div>
+
+            <div id="zine-3d-container" class="flex-1 w-full bg-black rounded-lg border border-white/20 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] relative">
+                <!-- 3D Canvas goes here -->
+            </div>
+
+            <div class="mt-6 bg-white/10 backdrop-blur-md p-4 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 rounded-xl border border-white/20">
+                <label for="fold-slider" class="text-white font-bold font-typewriter uppercase text-xs sm:text-sm whitespace-nowrap">Fold Progress:</label>
+                <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full sm:w-auto h-3 bg-white/30 rounded-lg appearance-none cursor-pointer range-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <span id="fold-status" class="text-white font-typewriter text-[10px] sm:text-xs font-bold bg-black/50 px-3 py-1 rounded w-24 text-center">Flat</span>
+            </div>
+        </div>
+    </div>
 
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
-  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-DV-Z3Tr6.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-DBxn-k8u.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-B_bHoojG.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-CXtuSSIj.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>

@@ -651,6 +651,9 @@ class PDFZineMaker {
 
       const dimensions = this.ui.getPaperDimensions(this.paperSize || 'letter', this.orientation || 'landscape');
 
+      // ⚡ Bolt: Cache back cover generation to avoid redundant synchronous canvas.toDataURL calls
+      let cachedBackCoverDataUrl = null;
+
       const captureZine = async (sheetNum) => {
         const grid = document.querySelector(`#zine-grid-sheet-${sheetNum}`);
         if (!grid) { return; }
@@ -669,21 +672,24 @@ class PDFZineMaker {
 
         // Add back side
         doc.addPage();
-        const backCanvas = document.createElement('canvas');
-        backCanvas.width = canvas.width;
-        backCanvas.height = canvas.height;
-        const bctx = backCanvas.getContext('2d');
-        const refImg = new Image();
-        await new Promise((resolve, reject) => {
-          refImg.onload = resolve;
-          refImg.onerror = reject;
-          refImg.src = this.referenceImageUrl;
-        });
+        if (!cachedBackCoverDataUrl) {
+          const backCanvas = document.createElement('canvas');
+          backCanvas.width = canvas.width;
+          backCanvas.height = canvas.height;
+          const bctx = backCanvas.getContext('2d');
+          const refImg = new Image();
+          await new Promise((resolve, reject) => {
+            refImg.onload = resolve;
+            refImg.onerror = reject;
+            refImg.src = this.referenceImageUrl;
+          });
 
-        bctx.translate(backCanvas.width / 2, backCanvas.height / 2);
-        bctx.rotate(Math.PI);
-        bctx.drawImage(refImg, -backCanvas.width / 2, -backCanvas.height / 2, backCanvas.width, backCanvas.height);
-        doc.addImage(backCanvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, dimensions.width, dimensions.height);
+          bctx.translate(backCanvas.width / 2, backCanvas.height / 2);
+          bctx.rotate(Math.PI);
+          bctx.drawImage(refImg, -backCanvas.width / 2, -backCanvas.height / 2, backCanvas.width, backCanvas.height);
+          cachedBackCoverDataUrl = backCanvas.toDataURL('image/jpeg', 0.9);
+        }
+        doc.addImage(cachedBackCoverDataUrl, 'JPEG', 0, 0, dimensions.width, dimensions.height);
       };
 
       await captureZine(1);
