@@ -318,8 +318,7 @@ export class UIManager {
     const template = ZINE_TEMPLATES[templateType];
 
     if (!template) {
-      console.error(`Unknown template: ${templateType}`);
-      return;
+      throw new Error(`Unknown template: ${templateType}`);
     }
 
     // For accordion-16, we use a single sheet with 4x4 grid
@@ -345,56 +344,58 @@ export class UIManager {
   generateCustomGrid(rows, cols, totalPDFPages = 0) {
     this.elements.zineSheetsContainer.innerHTML = '';
     this._pageCellsCache = null;
+    this.currentTemplate = `custom-${rows}x${cols}`;
     const totalSlots = rows * cols;
-    // Ensure we account for all pages if totalPDFPages is larger
     const actualPages = Math.max(totalSlots, totalPDFPages);
+    const sheetCount = Math.max(1, Math.ceil(actualPages / totalSlots));
 
-    const sheetWrapper = document.createElement('div');
-    sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
-    sheetWrapper.setAttribute('data-sheet', 1);
-    sheetWrapper.setAttribute('data-template', `custom-${rows}x${cols}`);
+    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
+      const sheetWrapper = document.createElement('div');
+      sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
+      sheetWrapper.setAttribute('data-sheet', sheetIndex + 1);
+      sheetWrapper.setAttribute('data-template', `custom-${rows}x${cols}`);
 
-    const grid = document.createElement('div');
-    grid.className = 'zine-grid';
-    grid.id = 'zine-grid-sheet-1';
-    grid.style.display = 'grid';
-    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-    grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-    grid.style.gridTemplateAreas = 'none'; // Critical: override default CSS areas
+      const grid = document.createElement('div');
+      grid.className = 'zine-grid';
+      grid.id = `zine-grid-sheet-${sheetIndex + 1}`;
+      grid.style.display = 'grid';
+      grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+      grid.style.gridTemplateAreas = 'none';
 
-    for (let i = 0; i < totalSlots; i++) {
-      const pageNum = i + 1;
-      const cell = document.createElement('div');
-      cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
-      cell.setAttribute('data-page-index', i);
-      cell.setAttribute('data-page', pageNum);
-      cell.setAttribute('draggable', 'true');
+      for (let slotIndex = 0; slotIndex < totalSlots; slotIndex++) {
+        const pageIndex = (sheetIndex * totalSlots) + slotIndex;
+        const pageNum = pageIndex + 1;
+        const cell = document.createElement('div');
+        cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
+        cell.setAttribute('data-page-index', pageIndex);
+        cell.setAttribute('data-page', slotIndex + 1);
+        cell.setAttribute('draggable', 'true');
 
-      const labelText = pageNum === 1 ? 'Cover' : (pageNum === totalSlots ? 'Back' : `Page ${pageNum}`);
+        const labelText = pageNum === 1 ? 'Cover' : `Page ${pageNum}`;
 
-      // ⚡ Bolt: Use replaceChildren with cloned template instead of innerHTML to safely overwrite and avoid re-parsing
-      cell.replaceChildren(PAGE_CELL_TEMPLATE.content.cloneNode(true));
+        cell.replaceChildren(PAGE_CELL_TEMPLATE.content.cloneNode(true));
 
-      cell.querySelector('.page-label').textContent = labelText;
-      cell.querySelector('.page-content-img').alt = `Page ${pageNum}`;
+        cell.querySelector('.page-label').textContent = labelText;
+        cell.querySelector('.page-content-img').alt = `Page ${pageNum}`;
 
-      const flipBtn = cell.querySelector('.flip-btn');
-      if (flipBtn) {
-        flipBtn.setAttribute('title', `Flip ${labelText}`);
-        flipBtn.setAttribute('aria-label', `Rotate ${labelText} 180 degrees`);
+        const flipBtn = cell.querySelector('.flip-btn');
+        if (flipBtn) {
+          flipBtn.setAttribute('title', `Flip ${labelText}`);
+          flipBtn.setAttribute('aria-label', `Rotate ${labelText} 180 degrees`);
+        }
+
+        this.setupDragAndDrop(cell);
+        this.setupToolbar(cell, labelText);
+        this.setupSelection(cell, pageIndex);
+        grid.appendChild(cell);
       }
 
-      this.setupDragAndDrop(cell);
-      this.setupToolbar(cell, labelText);
-      this.setupSelection(cell, i);
-      grid.appendChild(cell);
+      sheetWrapper.appendChild(grid);
+      this.elements.zineSheetsContainer.appendChild(sheetWrapper);
     }
 
-    sheetWrapper.appendChild(grid);
-    this.elements.zineSheetsContainer.appendChild(sheetWrapper);
-
-    // Generate bucket for extra pages
-    this.generateUnusedBucket(totalSlots, actualPages);
+    this.generateUnusedBucket(actualPages, actualPages);
 
     this.updatePreviewLayout();
   }
@@ -509,7 +510,8 @@ export class UIManager {
    * Generate mini-zine layout (8-page single or dual sheets)
    */
   generateMiniZineLayout(numPages, _template) {
-    const numSheets = numPages > 8 ? 2 : 1;
+    const numSheets = Math.max(1, Math.ceil(numPages / 8));
+    const miniLayout = ZINE_TEMPLATES['mini-8'].layout;
 
     for (let s = 1; s <= numSheets; s++) {
       const sheetWrapper = document.createElement('div');
@@ -517,21 +519,22 @@ export class UIManager {
       sheetWrapper.setAttribute('data-sheet', s);
 
       const grid = document.createElement('div');
-      grid.className = 'zine-grid';
+      grid.className = 'zine-grid mini-zine';
       grid.id = `zine-grid-sheet-${s}`;
       grid.style.display = 'grid';
       grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
       grid.style.gridTemplateRows = 'repeat(2, 1fr)';
 
-      for (let i = 1; i <= 8; i++) {
-        const pageIdx = (s - 1) * 8 + i;
+      for (const item of miniLayout) {
+        const pageNumberOnSheet = item.page;
+        const pageIdx = ((s - 1) * 8) + pageNumberOnSheet;
         const cell = document.createElement('div');
         cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
         cell.setAttribute('data-page-index', pageIdx - 1);
-        cell.setAttribute('data-page', i);
+        cell.setAttribute('data-page', pageNumberOnSheet);
         cell.setAttribute('draggable', 'true');
 
-        const labelText = i === 1 ? 'Cover' : (i === 8 ? 'Back' : `Page ${i}`);
+        const labelText = pageIdx === 1 ? 'Cover' : (pageNumberOnSheet === 8 ? 'Back' : `Page ${pageIdx}`);
 
         // ⚡ Bolt: Use replaceChildren with cloned template instead of innerHTML to safely overwrite and avoid re-parsing
         cell.replaceChildren(PAGE_CELL_TEMPLATE.content.cloneNode(true));
@@ -608,7 +611,9 @@ export class UIManager {
   setupSelection(cell, pageIndex) {
     cell.addEventListener('click', (e) => {
       // Don't trigger if they clicked a toolbar button natively
-      if (e.target.closest('.page-toolbar')) return;
+      if (e.target.closest('.page-toolbar')) {
+        return;
+      }
 
       e.stopPropagation();
       this.setActivePage(pageIndex);
@@ -616,20 +621,24 @@ export class UIManager {
   }
 
   setActivePage(pageIndex) {
-      if (this.activePageIndex === pageIndex) return; // Already active
+    if (this.activePageIndex === pageIndex) {
+      return;
+    }
 
-      this.clearActiveSelection();
-      this.activePageIndex = pageIndex;
-      
-      const cells = this._getPageCells(pageIndex);
-      cells.forEach(c => c.classList.add('active'));
+    this.clearActiveSelection();
+    this.activePageIndex = pageIndex;
+
+    const cells = this._getPageCells(pageIndex);
+    cells.forEach(c => c.classList.add('active'));
   }
 
   clearActiveSelection() {
-      if (this.activePageIndex === null) return;
-      const prevCells = this._getPageCells(this.activePageIndex);
-      prevCells.forEach(c => c.classList.remove('active'));
-      this.activePageIndex = null;
+    if (this.activePageIndex === null) {
+      return;
+    }
+    const prevCells = this._getPageCells(this.activePageIndex);
+    prevCells.forEach(c => c.classList.remove('active'));
+    this.activePageIndex = null;
   }
 
   updatePagePreview(pageIndex, dataUrl) {
@@ -772,15 +781,10 @@ export class UIManager {
     const cells = this._getPageCells(pageIndex);
 
     cells.forEach(cell => {
-      const img = cell.querySelector('.page-content-img');
-      if (img) {
-        if (isFlipped) {
-          img.style.transform = `${img.style.transform || ''} rotate(180deg)`.trim();
-          img.classList.add('flipped');
-        } else {
-          img.style.transform = img.style.transform.replace('rotate(180deg)', '').trim();
-          img.classList.remove('flipped');
-        }
+      if (isFlipped) {
+        cell.classList.add('is-flipped');
+      } else {
+        cell.classList.remove('is-flipped');
       }
     });
   }

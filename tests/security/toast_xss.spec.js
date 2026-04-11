@@ -1,38 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { spawn } from 'child_process';
-
-let server;
-
-test.beforeAll(async () => {
-  // Start the vite dev server on port 3000
-  // Use 'exec' or 'spawn' with shell: true for pnpm
-  // We use a different port to avoid conflicts
-  console.log('Starting dev server...');
-  server = spawn('pnpm', ['dev', '--port', '3000'], {
-    stdio: 'ignore', // Ignore output to keep test logs clean
-    shell: true,
-    detached: true // Allow killing the process group
-  });
-
-  // Wait for server to be ready
-  // A simple delay is usually enough for Vite
-  await new Promise(resolve => setTimeout(resolve, 3000));
-});
-
-test.afterAll(() => {
-  if (server) {
-    // Kill the process group to ensure cleanup
-    try {
-      process.kill(-server.pid);
-    } catch (e) {
-      // Ignore if already dead
-    }
-  }
-});
 
 test('Toast should allow safe HTML but sanitize XSS', async ({ page }) => {
   // Navigate to our test page served by Vite
-  await page.goto('http://localhost:3000/tests/security/test-toast.html');
+  await page.goto('/tests/security/test-toast.html');
   await page.waitForFunction(() => window.toast);
 
   // 1. Check Safe HTML (Bold)

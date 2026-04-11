@@ -4,14 +4,15 @@ A modern, progressive web application that converts PDF files into printable 8-p
 
 ## Features
 
-- **Modern UI**: Clean, responsive design with dark/light mode support
+- **Modern UI**: Clean, responsive design for desktop and mobile
 - **Drag & Drop**: Drag PDF files directly onto the upload area
-- **PDF Upload**: Upload any PDF file (up to 8 pages, 50MB max)
+- **PDF Upload**: Queue up to 10 PDF files, 50MB max per file
+- **Flexible Layouts**: Standard mini-zine ordering for 8-up sheets plus custom grids
 - **Real-time Preview**: See your zine layout update as pages are processed
 - **Progress Feedback**: Visual progress indicators and toast notifications
 - **Automatic Conversion**: High-quality PDF rendering with HiDPI support
 - **Correct Layout**: Proper 8-page mini zine arrangement for printing
-- **Print Ready**: Optimized for A4 landscape printing
+- **Print Ready**: Supports multi-sheet print and export output
 - **PDF Export**: Download the assembled zine layout as a PDF file
 - **Folding Guide**: Visual cut line shows where to fold and cut
 - **Keyboard Shortcuts**: Ctrl+O (upload), Ctrl+P (print), Ctrl+S (export)
@@ -24,19 +25,19 @@ A modern, progressive web application that converts PDF files into printable 8-p
    - Drag and drop a PDF file onto the upload area, or
    - Click the upload area or "browse files" link, or
    - Press Ctrl+O to open the file picker
-2. **Preview**: Watch as your PDF pages are converted and arranged in the correct zine layout
-3. **Adjust Scale**: Use the scale slider to adjust the size (50%-200%) for optimal printing
+2. **Preview**: Watch as your PDF pages are converted and arranged in the current grid
+3. **Adjust Layout**: Change the grid size if you want a custom sheet layout
 4. **Print or Export**:
    - Click "Print Zine" (Ctrl+P) to print on A4 landscape paper
    - Click "Export PDF" (Ctrl+S) to download the zine layout as a PDF file
-5. **Fold & Cut**: Follow the dashed line to fold and cut your zine
+5. **Fold & Cut**: Use the printable guide on the back side after export or print
 
 ## Keyboard Shortcuts
 
 - **Ctrl+O**: Open file picker
 - **Ctrl+P**: Print zine
 - **Ctrl+S**: Export PDF
-- **Space**: Toggle dark/light mode
+- **R / Z / C / Delete**: Rotate, preview, crop, or clear the selected page
 
 ## 8-Page Mini Zine Layout
 
@@ -65,7 +66,6 @@ Page 6 | Page 3 | Page 4 | Page 5
 ### Architecture
 - **ES6 Modules**: Modern JavaScript with import/export
 - **Class-based**: Object-oriented design with dedicated classes
-- **Progressive Enhancement**: Works with or without JavaScript
 - **PWA Features**: Service worker, web app manifest, installable
 
 ### Libraries
@@ -81,6 +81,7 @@ Page 6 | Page 3 | Page 4 | Page 5
 - **HiDPI Support**: Optimized for high-resolution displays
 - **Accessibility**: ARIA labels, keyboard navigation, screen reader support
 - **Performance**: Lazy loading, memory management, optimized rendering
+- **PDF Limits**: 50MB per file, up to 128 pages per PDF
 
 ## Development
 
@@ -106,16 +107,21 @@ pnpm run preview
 ### Project Structure
 ```
 src/
-├── js/
-│   ├── app.js           # Main application entry point
-│   ├── pdf-processor.js # PDF processing logic
-│   ├── ui-manager.js    # UI interaction management
-│   ├── toast.js         # Notification system
-│   └── utils.js         # Utility functions
-├── css/
-│   └── styles.css       # Application styles
-└── assets/
-    └── reference-back-side.jpg # Folding reference image
+├── assets/
+│   └── reference-back-side.jpg # Folding reference image
+├── components/
+│   ├── Toast.js
+│   ├── Zine3DViewer.js
+│   └── UI/Manager.js
+├── core/
+│   └── main.js
+├── services/
+│   └── PDFProcessor.js
+├── styles/
+│   └── index.css
+└── utils/
+    ├── config.js
+    └── helpers.js
 ```
 
 ## Browser Support

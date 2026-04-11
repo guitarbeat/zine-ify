@@ -20,8 +20,7 @@ test.describe('Blank Page Optimization', () => {
     });
 
     // 4. Wait for processing to complete
-    const progressContainer = page.locator('#progress-container');
-    await expect(progressContainer).toBeHidden({ timeout: 10000 });
+    await expect(page.locator('#upload-status')).toContainText('Successfully processed 1 pages', { timeout: 10000 });
 
     // 5. Get the image sources for blank pages
     // The default layout is 8 pages. Since we uploaded 1 page, pages 2-8 should be blank.
@@ -39,14 +38,9 @@ test.describe('Blank Page Optimization', () => {
     const src2 = await page2Img.getAttribute('src');
     const src3 = await page3Img.getAttribute('src');
 
-    // 6. Assert that they are the same
-    console.log(`Page 2 src: ${src2}`);
-    console.log(`Page 3 src: ${src3}`);
-
     expect(src2).toBeTruthy();
     expect(src3).toBeTruthy();
 
-    // This assertion is expected to fail before the optimization
     expect(src2).toBe(src3);
   });
 });

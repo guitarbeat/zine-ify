@@ -1,26 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { spawn } from 'child_process';
-
-let server;
-
-test.beforeAll(async () => {
-  console.log('Starting dev server for strict pdf validation test...');
-  server = spawn('pnpm', ['dev', '--port', '3002'], {
-    stdio: 'ignore',
-    shell: true,
-    detached: true
-  });
-  await new Promise(resolve => setTimeout(resolve, 3000));
-});
-
-test.afterAll(() => {
-  if (server) {
-    try { process.kill(-server.pid); } catch (e) {}
-  }
-});
 
 test('Should reject polyglot files (PDF signature not at offset 0)', async ({ page }) => {
-  await page.goto('http://localhost:3002');
+  await page.goto('/');
 
   // Create a polyglot file: 10 bytes of garbage, then the PDF header
   const garbage = 'JAVASCRIPT';

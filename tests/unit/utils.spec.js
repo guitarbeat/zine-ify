@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { formatFileSize, isNumber, debounce } from '../../src/js/utils.js';
+import { formatFileSize, isNumber, debounce } from '../../src/utils/helpers.js';
 
 test.describe('Utils', () => {
   test('formatFileSize', () => {

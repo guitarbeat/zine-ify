@@ -129,13 +129,19 @@ select:focus, input:focus {
     width: 100%;
     height: 100%;
     object-fit: contain;
+    --page-image-rotation: 0deg;
+    --page-image-scale: 1;
+    transform: rotate(var(--page-image-rotation)) scale(var(--page-image-scale));
     /* Multiply effect to look like ink on paper */
     mix-blend-mode: multiply; 
     transition: transform 0.2s ease, object-fit 0.2s ease;
 }
 .page-zoomed .page-content-img {
     object-fit: cover;
-    transform: scale(1.1); /* Subtle zoom to crop margins */
+    --page-image-scale: 1.1; /* Subtle zoom to crop margins */
+}
+.page-cell.is-flipped .page-content-img {
+    --page-image-rotation: 180deg;
 }
 
 .page-label {
@@ -153,9 +159,9 @@ select:focus, input:focus {
     border-right: 1px solid black;
 }
 
-/* Rotations for default layout */
-.page-cell[data-page="2"], .page-cell[data-page="3"], 
-.page-cell[data-page="4"], .page-cell[data-page="5"] {
+/* Rotations for the standard mini-zine layout only */
+.zine-grid.mini-zine .page-cell[data-page="2"], .zine-grid.mini-zine .page-cell[data-page="3"], 
+.zine-grid.mini-zine .page-cell[data-page="4"], .zine-grid.mini-zine .page-cell[data-page="5"] {
     transform: rotate(180deg);
 }
 

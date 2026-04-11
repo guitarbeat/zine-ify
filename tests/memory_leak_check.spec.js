@@ -27,7 +27,6 @@ test('Verify memory leak fix', async ({ page }) => {
   // Spy on URL.revokeObjectURL
   await page.exposeFunction('onRevoke', (url) => {
     revokedUrls.push(url);
-    console.log(`Reported revoke: ${url}`);
   });
 
   await page.addInitScript(() => {
@@ -44,15 +43,11 @@ test('Verify memory leak fix', async ({ page }) => {
   const fileInput = page.locator('input[type="file"]');
   await fileInput.setInputFiles(testPdfPath);
 
-  // Wait for processing
-  const progressContainer = page.locator('#progress-container');
-  await expect(progressContainer).toBeHidden({ timeout: 15000 });
-
   // Get the blob URL of page 1
   const page1Img = page.locator('.page-cell[data-page-index="0"] .page-content-img');
-  await expect(page1Img).toBeAttached();
+  await expect(page.locator('#upload-status')).toContainText('Successfully processed 8 pages', { timeout: 15000 });
+  await expect(page1Img).toHaveAttribute('src', /^blob:/);
   const src1 = await page1Img.getAttribute('src');
-  console.log(`Page 1 src: ${src1}`);
 
   // 2. Click standard 'Remove' button to trigger revocation logic
   // Reveal the toolbar via hover
@@ -65,7 +60,6 @@ test('Verify memory leak fix', async ({ page }) => {
 
   // Check if src1 was revoked
   const wasRevoked = revokedUrls.includes(src1);
-  console.log(`Was ${src1} revoked? ${wasRevoked}`);
 
   expect(wasRevoked).toBe(true);
 });

@@ -7,7 +7,9 @@ import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 export class PDFProcessor {
   constructor() {
     this.pdf = null;
+    this.fileUrl = null;
     this.isProcessing = false;
+    this.loadingTask = null;
   }
 
   /**
@@ -61,6 +63,7 @@ export class PDFProcessor {
     }
 
     this.isProcessing = true;
+    let timeoutId;
 
     try {
       const validation = this.validateFile(file);
@@ -93,18 +96,27 @@ export class PDFProcessor {
       onProgress?.('Processing PDF...');
 
       // Add timeout to PDF loading
-      const loadingPromise = pdfjsLib.getDocument({
+      this.loadingTask = pdfjsLib.getDocument({
         url: this.fileUrl,
         verbosity: 0, // Reduce console output
         enableScripting: false,
         isEvalSupported: false
-      }).promise;
+      });
 
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('PDF loading timed out')), 60000)
-      );
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(async () => {
+          try {
+            await this.loadingTask?.destroy();
+          } catch (destroyError) {
+            void destroyError;
+          }
+          reject(new Error('PDF loading timed out'));
+        }, 60000);
+      });
 
-      this.pdf = await Promise.race([loadingPromise, timeoutPromise]);
+      this.pdf = await Promise.race([this.loadingTask.promise, timeoutPromise]);
+      clearTimeout(timeoutId);
+      this.loadingTask = null;
 
       const numPages = this.pdf.numPages;
 
@@ -125,9 +137,10 @@ export class PDFProcessor {
       };
 
     } catch (error) {
-      console.error('PDF loading error:', error);
+      await this.cleanupFailedLoad();
       throw this.handlePDFError(error);
     } finally {
+      clearTimeout(timeoutId);
       this.isProcessing = false;
     }
   }
@@ -166,21 +179,30 @@ export class PDFProcessor {
       onProgress?.(`Rendering page ${pageNum}...`);
 
       const page = await this.pdf.getPage(pageNum);
-      // Reduced scale for better performance and smaller data URLs
-      const scale = 1.5; // Balanced quality vs performance
+      const baseViewport = page.getViewport({ scale: 1 });
+      const maxDimension = 4096;
+      const maxPixels = 4096 * 4096;
+      const preferredScale = 1.5;
+      const dimensionScale = Math.min(
+        1,
+        maxDimension / Math.max(baseViewport.width, baseViewport.height)
+      );
+      const pixelScale = Math.min(
+        1,
+        Math.sqrt(maxPixels / (baseViewport.width * baseViewport.height))
+      );
+      const scale = Math.max(0.1, preferredScale * Math.min(dimensionScale, pixelScale));
       const viewport = page.getViewport({ scale });
       const width = Math.floor(viewport.width);
       const height = Math.floor(viewport.height);
 
-      // Create new canvas for each page to allow parallel processing
-      // ⚡ Bolt: Prefer OffscreenCanvas to avoid DOM interaction and reduce main thread blocking
-      const canvas = typeof OffscreenCanvas !== 'undefined'
-        ? new OffscreenCanvas(width, height)
-        : document.createElement('canvas');
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
       const context = canvas.getContext('2d', { alpha: false });
-      if (typeof OffscreenCanvas === 'undefined') {
-        canvas.width = width;
-        canvas.height = height;
+
+      if (!context) {
+        throw new Error(`Failed to acquire canvas context for page ${pageNum}`);
       }
 
       // Fill background white
@@ -202,7 +224,6 @@ export class PDFProcessor {
       return canvas;
 
     } catch (error) {
-      console.error(`Failed to render page ${pageNum}:`, error);
       throw new Error(`Failed to render page ${pageNum}`, { cause: error });
     }
   }
@@ -237,6 +258,25 @@ export class PDFProcessor {
     }
   }
 
+  async cleanupFailedLoad() {
+    try {
+      await this.loadingTask?.destroy();
+    } catch (destroyError) {
+      void destroyError;
+    }
+    this.loadingTask = null;
+
+    if (this.pdf) {
+      this.pdf.destroy();
+      this.pdf = null;
+    }
+
+    if (this.fileUrl) {
+      URL.revokeObjectURL(this.fileUrl);
+      this.fileUrl = null;
+    }
+  }
+
   /**
    * Handle PDF-specific errors
    * @param {Error} error - Original error
@@ -268,6 +308,8 @@ export class PDFProcessor {
    * Clean up resources
    */
   cleanup() {
+    this.loadingTask?.destroy().catch(() => {});
+    this.loadingTask = null;
     if (this.pdf) {
       this.pdf.destroy();
       this.pdf = null;

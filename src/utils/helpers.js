@@ -23,7 +23,7 @@ export function debounce(func, wait) {
  * @param {*} value - Value to check
  * @returns {boolean} True if value is a number
  */
-function isNumber(value) {
+export function isNumber(value) {
   return typeof value === 'number' && !isNaN(value) && isFinite(value);
 }
 

@@ -11,10 +11,22 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          pdfjs: ['pdfjs-dist'],
-          jspdf: ['jspdf'],
-          html2canvas: ['html2canvas']
+        manualChunks(id) {
+          if (id.includes('node_modules/pdfjs-dist')) {
+            return 'pdfjs';
+          }
+
+          if (id.includes('node_modules/jspdf')) {
+            return 'jspdf';
+          }
+
+          if (id.includes('node_modules/html2canvas')) {
+            return 'html2canvas';
+          }
+
+          if (id.includes('node_modules/three')) {
+            return 'three';
+          }
         }
       }
     }
