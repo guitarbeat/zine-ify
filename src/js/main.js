@@ -5,6 +5,7 @@ import { toast } from './toast.js';
 import { formatFileSize } from './utils.js';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Zine3DViewer } from './zine-3d.js';
 
 // Import assets
 import referenceImageUrl from '../assets/reference-back-side.jpg';
@@ -21,6 +22,7 @@ class PDFZineMaker {
     this.gridSize = { rows: 2, cols: 4 }; // Default grid size
     this.uploadedFiles = []; // Track uploaded PDF files
     this.totalPages = 0; // Track total pages across all PDFs
+    this.viewer3d = null;
     this.init();
   }
 
@@ -57,6 +59,58 @@ class PDFZineMaker {
     this.ui.on('pageCropToggled', (pageIndex) => this.handlePageCropToggled(pageIndex));
     this.ui.on('pageRemoved', (pageIndex) => this.handlePageRemoved(pageIndex));
     this.ui.on('gridSizeChanged', (data) => this.handleGridSizeChanged(data));
+    this.ui.on('view3d', () => this.handleView3d());
+    this.ui.on('foldProgress', (val) => this.handleFoldProgress(val));
+  }
+
+  /**
+   * Handle View 3D request
+   */
+  handleView3d() {
+      // Check if it's the standard 8-page mini zine layout
+      if (this.currentTemplate !== 'mini-8' && this.gridSize.rows * this.gridSize.cols !== 8) {
+          toast.warning('Not Supported', '3D Preview is currently only matched to the 8-Page Mini-Zine layout.');
+          return;
+      }
+      
+      if (!this.viewer3d) {
+          const container = document.getElementById('zine-3d-container');
+          if (container) {
+              this.viewer3d = new Zine3DViewer(container);
+          }
+      }
+      
+      if (this.viewer3d) {
+          // Reset slider
+          const slider = document.getElementById('fold-slider');
+          if (slider) {slider.value = 0;}
+          const status = document.getElementById('fold-status');
+          if (status) {status.textContent = 'Flat';}
+          
+          // Generate an array of 8 URLs representing the current grid
+          const imageUrls = [
+              this.allPageImages[0] || this._blankPageUrl,
+              this.allPageImages[1] || this._blankPageUrl,
+              this.allPageImages[2] || this._blankPageUrl,
+              this.allPageImages[3] || this._blankPageUrl,
+              this.allPageImages[4] || this._blankPageUrl,
+              this.allPageImages[5] || this._blankPageUrl,
+              this.allPageImages[6] || this._blankPageUrl,
+              this.allPageImages[7] || this._blankPageUrl
+          ];
+          
+          this.viewer3d.loadPages(imageUrls);
+          this.ui.toggle3DModal(true);
+      }
+  }
+
+  /**
+   * Handle standard fold progress update
+   */
+  handleFoldProgress(val) {
+      if (this.viewer3d) {
+          this.viewer3d.setFoldProgress(val);
+      }
   }
 
   /**

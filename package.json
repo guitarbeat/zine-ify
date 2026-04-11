@@ -21,7 +21,8 @@
     "jspdf": "^4.0.0",
     "lucide": "^0.562.0",
     "mitt": "^3.0.1",
-    "pdfjs-dist": "^5.4.530"
+    "pdfjs-dist": "^5.4.530",
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
