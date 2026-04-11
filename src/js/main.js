@@ -496,7 +496,7 @@ class PDFZineMaker {
       zineSheets.push(gridClone.outerHTML);
     });
 
-    const dimensions = this.ui.getPaperDimensions(this.paperSize || 'a4', this.orientation || 'landscape');
+    const dimensions = this.ui.getPaperDimensions(this.paperSize || 'letter', this.orientation || 'landscape');
 
 
     // Dynamic grid CSS based on current settings
@@ -646,10 +646,10 @@ class PDFZineMaker {
       const doc = new jsPDF({
         orientation: this.orientation || 'landscape',
         unit: 'mm',
-        format: this.paperSize || 'a4'
+        format: this.paperSize || 'letter'
       });
 
-      const dimensions = this.ui.getPaperDimensions(this.paperSize || 'a4', this.orientation || 'landscape');
+      const dimensions = this.ui.getPaperDimensions(this.paperSize || 'letter', this.orientation || 'landscape');
 
       const captureZine = async (sheetNum) => {
         const grid = document.querySelector(`#zine-grid-sheet-${sheetNum}`);
