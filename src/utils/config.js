@@ -6,11 +6,6 @@ export const PAPER_SIZES = {
     a5: { label: 'A5 (148 × 210 mm)', width: 148, height: 210 }
 };
 
-export const ORIENTATIONS = {
-    LANDSCAPE: 'landscape',
-    PORTRAIT: 'portrait'
-};
-
 /**
  * Zine template definitions
  * layout: Array of [pageNumber, isUpsideDown] tuples in grid order (row by row)

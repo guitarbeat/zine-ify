@@ -1,7 +1,7 @@
 // Modern PDF processing class
 
 import * as pdfjsLib from 'pdfjs-dist';
-import { formatFileSize } from './utils.js';
+import { formatFileSize } from '../utils/helpers.js';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 export class PDFProcessor {
@@ -234,25 +234,6 @@ export class PDFProcessor {
   revokeBlobUrl(url) {
     if (url && url.startsWith('blob:')) {
       URL.revokeObjectURL(url);
-    }
-  }
-
-  /**
-   * Convert canvas to data URL (legacy/fallback)
-   * @param {HTMLCanvasElement} canvas - Canvas to convert
-   * @param {string} format - Image format ('image/png' or 'image/jpeg')
-   * @param {number} quality - Image quality (0-1, only for JPEG)
-   * @returns {string} Data URL
-   */
-  canvasToDataURL(canvas, format = 'image/jpeg', quality = 0.85) {
-    try {
-      // Use JPEG for smaller file sizes, PNG as fallback
-      const dataUrl = canvas.toDataURL(format, quality);
-      return dataUrl;
-    } catch (error) {
-      console.warn(`Failed to generate ${format}, falling back to PNG:`, error);
-      // Fallback to PNG if JPEG fails
-      return canvas.toDataURL('image/png', 1.0);
     }
   }
 

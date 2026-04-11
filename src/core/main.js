@@ -1,11 +1,11 @@
-import '../css/styles.css';
-import { PDFProcessor } from './pdf-processor.js';
-import { UIManager } from './zine-ui.js';
-import { toast } from './toast.js';
-import { formatFileSize } from './utils.js';
+import '../styles/index.css';
+import { PDFProcessor } from '../services/PDFProcessor.js';
+import { UIManager } from '../components/UI/Manager.js';
+import { toast } from '../components/Toast.js';
+import { formatFileSize } from '../utils/helpers.js';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
-import { Zine3DViewer } from './zine-3d.js';
+import { Zine3DViewer } from '../components/Zine3DViewer.js';
 
 // Import assets
 import referenceImageUrl from '../assets/reference-back-side.jpg';
@@ -238,39 +238,23 @@ class PDFZineMaker {
       this.selectedLayout = this.totalPages;
       const maxPages = numPages;
 
-      let rows, cols;
-      if (this.totalPages === 16 && currentFilledPages === 0) {
-        rows = 4;
-        cols = 4;
-        this.gridSize = { rows, cols };
-        this.ui.generateLayout(16, 'accordion-16');
+      let rows = 2;
+      let cols = 4;
+      
+      this.gridSize = { rows, cols };
 
-        // Ensure array size
-        if (this.allPageImages.length < 16) {
-          this.allPageImages = new Array(16).fill(null);
+      const requiredLength = Math.max(rows * cols, this.totalPages);
+
+      // Resize array
+      const newArray = new Array(requiredLength).fill(null);
+      for (let i = 0; i < this.allPageImages.length; i++) {
+        if (i < newArray.length) {
+          newArray[i] = this.allPageImages[i];
         }
-      } else {
-        const sqrt = Math.ceil(Math.sqrt(this.totalPages));
-        rows = this.totalPages <= 8 ? 2 : (sqrt > 2 ? sqrt : 2);
-        cols = this.totalPages <= 8 ? 4 : Math.ceil(this.totalPages / rows);
+      }
+      this.allPageImages = newArray;
 
-        rows = Math.min(rows, 10);
-        cols = Math.min(cols, 10);
-
-        this.gridSize = { rows, cols };
-
-        const requiredLength = Math.max(rows * cols, this.totalPages);
-
-        // Resize array
-        const newArray = new Array(requiredLength).fill(null);
-        for (let i = 0; i < this.allPageImages.length; i++) {
-          if (i < newArray.length) {
-            newArray[i] = this.allPageImages[i];
-          }
-        }
-        this.allPageImages = newArray;
-
-        this.ui.generateCustomGrid(rows, cols, this.allPageImages.length);
+      this.ui.generateCustomGrid(rows, cols, this.allPageImages.length);
 
         // Restore existing images
         for (let i = 0; i < this.allPageImages.length; i++) {
@@ -278,7 +262,6 @@ class PDFZineMaker {
             this.ui.updatePagePreview(i, this.allPageImages[i]);
           }
         }
-      }
 
       if (this.ui.elements.gridRows) {
         this.ui.elements.gridRows.value = rows;
@@ -384,8 +367,6 @@ class PDFZineMaker {
     this.ui.updatePagePreview(pageNum - 1, url);
   }
 
-
-
   handlePagesSwapped({ fromIndex, toIndex }) {
     // Swap images in array
     const temp = this.allPageImages[fromIndex];
@@ -412,11 +393,8 @@ class PDFZineMaker {
     this.ui.setPageZoom(fromIndex, !!this.pageZooms[fromIndex]);
     this.ui.setPageZoom(toIndex, !!this.pageZooms[toIndex]);
 
-
     toast.info('Pages swapped');
   }
-
-
 
   updatePaperSettings(settings) {
     this.paperSize = settings.paperSize;

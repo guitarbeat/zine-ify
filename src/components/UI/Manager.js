@@ -1,8 +1,8 @@
 // Modern UI management class
 import mitt from 'mitt';
-import { PAPER_SIZES, ZINE_TEMPLATES } from './config.js';
-import { toast } from './toast.js';
-import { debounce, formatFileSize } from './utils.js';
+import { PAPER_SIZES, ZINE_TEMPLATES } from '../../utils/config.js';
+import { toast } from '../Toast.js';
+import { debounce, formatFileSize } from '../../utils/helpers.js';
 
 const PAGE_TOOLBAR_HTML = `
         <div class="page-toolbar absolute top-1 right-1 flex flex-wrap justify-end gap-1 z-10 max-w-[calc(100%-0.5rem)] transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100">
@@ -417,16 +417,16 @@ export class UIManager {
     for (let i = startIndex; i < totalPages; i++) {
       const cell = document.createElement('div');
       // Using similar but distinct styling for bucket items
-      cell.className = 'page-cell bg-white aspect-[1/1.414] relative border-2 border-black flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing hover:border-[var(--primary-vibrant)] transition-colors duration-100';
+      cell.className = 'page-cell bg-white aspect-[1/1.414] relative border-2 border-black flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing hover:-translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:border-[var(--primary-vibrant)] transition-all duration-200 group';
       cell.setAttribute('data-page-index', i);
       cell.draggable = true;
 
       const img = document.createElement('img');
-      img.className = 'page-content-img w-full h-full object-contain hidden pointer-events-none';
+      img.className = 'page-content-img w-full h-full object-contain hidden pointer-events-none group-hover:scale-105 transition-transform duration-200';
       img.draggable = false;
 
       const label = document.createElement('div');
-      label.className = 'page-label';
+      label.className = 'page-label bg-black text-white text-[10px] font-bold px-1.5 py-0.5 absolute top-0 left-0 z-10';
       label.textContent = `#${i + 1}`;
 
       const placeholder = document.createElement('div');
