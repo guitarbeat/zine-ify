@@ -609,7 +609,7 @@ export class UIManager {
   setupSelection(cell, pageIndex) {
     cell.addEventListener('click', (e) => {
       // Don't trigger if they clicked a toolbar button natively
-      if (e.target.closest('.page-toolbar')) return;
+      if (e.target.closest('.page-toolbar')) {return;}
 
       e.stopPropagation();
       this.setActivePage(pageIndex);
@@ -617,7 +617,7 @@ export class UIManager {
   }
 
   setActivePage(pageIndex) {
-      if (this.activePageIndex === pageIndex) return; // Already active
+      if (this.activePageIndex === pageIndex) {return;} // Already active
 
       this.clearActiveSelection();
       this.activePageIndex = pageIndex;
@@ -627,7 +627,7 @@ export class UIManager {
   }
 
   clearActiveSelection() {
-      if (this.activePageIndex === null) return;
+      if (this.activePageIndex === null) {return;}
       const prevCells = this._getPageCells(this.activePageIndex);
       prevCells.forEach(c => c.classList.remove('active'));
       this.activePageIndex = null;

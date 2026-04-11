@@ -125,7 +125,7 @@ export class PDFProcessor {
       };
 
     } catch (error) {
-      console.error('PDF loading error:', error);
+      console.error('PDF loading error:', error.message || 'Unknown error');
       throw this.handlePDFError(error);
     } finally {
       this.isProcessing = false;
@@ -202,7 +202,7 @@ export class PDFProcessor {
       return canvas;
 
     } catch (error) {
-      console.error(`Failed to render page ${pageNum}:`, error);
+      console.error(`Failed to render page ${pageNum}:`, error.message || 'Unknown error');
       throw new Error(`Failed to render page ${pageNum}`, { cause: error });
     }
   }
@@ -250,7 +250,7 @@ export class PDFProcessor {
       const dataUrl = canvas.toDataURL(format, quality);
       return dataUrl;
     } catch (error) {
-      console.warn(`Failed to generate ${format}, falling back to PNG:`, error);
+      console.warn(`Failed to generate ${format}, falling back to PNG:`, error.message || 'Unknown error');
       // Fallback to PNG if JPEG fails
       return canvas.toDataURL('image/png', 1.0);
     }
