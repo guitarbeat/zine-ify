@@ -6,16 +6,16 @@ import { debounce } from './utils.js';
 
 const PAGE_TOOLBAR_HTML = `
         <div class="page-toolbar absolute top-1 right-1 flex flex-wrap justify-end gap-1 z-10 max-w-[calc(100%-0.5rem)] transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100">
-           <button class="zoom-btn w-7 h-7 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Quick Preview (Z)">
+           <button class="zoom-btn w-7 h-7 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" aria-label="Quick Preview" title="Quick Preview (Z)">
                 <span class="material-symbols-outlined text-base font-bold" aria-hidden="true">zoom_in</span>
            </button>
-           <button class="crop-btn w-7 h-7 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Toggle Crop/Zoom (C)">
+           <button class="crop-btn w-7 h-7 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" aria-label="Toggle Crop/Zoom" title="Toggle Crop/Zoom (C)">
                 <span class="material-symbols-outlined text-base font-bold" aria-hidden="true">crop_free</span>
            </button>
-           <button class="remove-btn w-7 h-7 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Remove Page (Backspace)">
+           <button class="remove-btn w-7 h-7 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" aria-label="Remove Page" title="Remove Page (Backspace)">
                 <span class="material-symbols-outlined text-base font-bold" aria-hidden="true">close</span>
            </button>
-           <button class="flip-btn w-7 h-7 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Flip 180° (R)">
+           <button class="flip-btn w-7 h-7 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" aria-label="Flip 180 degrees" title="Flip 180° (R)">
                 <span class="material-symbols-outlined text-base font-bold" aria-hidden="true">rotate_right</span>
            </button>
         </div>`;
@@ -609,7 +609,7 @@ export class UIManager {
   setupSelection(cell, pageIndex) {
     cell.addEventListener('click', (e) => {
       // Don't trigger if they clicked a toolbar button natively
-      if (e.target.closest('.page-toolbar')) return;
+      if (e.target.closest('.page-toolbar')) {return;}
 
       e.stopPropagation();
       this.setActivePage(pageIndex);
@@ -617,7 +617,7 @@ export class UIManager {
   }
 
   setActivePage(pageIndex) {
-      if (this.activePageIndex === pageIndex) return; // Already active
+      if (this.activePageIndex === pageIndex) {return;} // Already active
 
       this.clearActiveSelection();
       this.activePageIndex = pageIndex;
@@ -627,7 +627,7 @@ export class UIManager {
   }
 
   clearActiveSelection() {
-      if (this.activePageIndex === null) return;
+      if (this.activePageIndex === null) {return;}
       const prevCells = this._getPageCells(this.activePageIndex);
       prevCells.forEach(c => c.classList.remove('active'));
       this.activePageIndex = null;
@@ -876,7 +876,7 @@ export class UIManager {
         <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white rounded shadow-2xl overflow-hidden flex flex-col scale-95 transition-transform duration-300">
           <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200 bg-gray-50">
             <h3 class="font-black text-gray-800 uppercase tracking-wider text-sm">Page Preview</h3>
-            <button class="close-modal w-8 h-8 rounded hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors focus:outline-none focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black focus-visible:ring-0">
+            <button class="close-modal w-8 h-8 rounded hover:bg-red-100 text-gray-500 hover:text-red-500 flex items-center justify-center transition-colors focus:outline-none focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black focus-visible:ring-0" aria-label="Close page preview" title="Close">
               <span class="material-symbols-outlined font-bold" aria-hidden="true">close</span>
             </button>
           </div>

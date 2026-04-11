@@ -33,3 +33,7 @@
 ## 2026-03-30 - Accessible Progress Bars
 **Learning:** Visual progress bars (like CSS width-based indicators) are invisible to screen readers unless they use `role="progressbar"` and dynamically update `aria-valuenow`.
 **Action:** Always add these ARIA attributes to custom progress indicators and ensure the JavaScript updating the visual progress also updates `aria-valuenow`.
+
+## 2024-05-23 - ARIA Labels for Dynamically Generated Icon-Only Buttons
+**Learning:** Icon-only buttons without text (such as those containing only Material Icons like `<span class="material-symbols-outlined">close</span>`) are completely inaccessible to screen readers unless they have an `aria-label`. When these buttons are generated dynamically through JavaScript (e.g., in a toolbar template like `PAGE_TOOLBAR_HTML`), it is critical to provide default fallback `aria-label`s, as they might be instantiated without specific text context.
+**Action:** Always include `aria-label` and `title` attributes with descriptive text on all icon-only buttons, especially those generated via JavaScript templates. Additionally, use `aria-hidden="true"` on the icon span itself to hide the ligature text from screen readers to prevent redundant or confusing announcements.
