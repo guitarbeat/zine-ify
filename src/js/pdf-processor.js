@@ -112,7 +112,7 @@ export class PDFProcessor {
         throw new Error('PDF appears to be empty or corrupted');
       }
 
-      const MAX_PAGES = 32;
+      const MAX_PAGES = 128;
       if (numPages > MAX_PAGES) {
         throw new Error(`PDF has too many pages (${numPages}). Maximum allowed is ${MAX_PAGES} pages to prevent performance issues.`);
       }
