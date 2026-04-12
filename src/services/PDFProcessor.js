@@ -207,7 +207,7 @@ export class PDFProcessor {
 
       // Fill background white
       context.fillStyle = '#ffffff';
-      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.fillRect(0, 0, width, height);
 
       // Render page to canvas
       const renderContext = {
