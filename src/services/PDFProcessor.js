@@ -183,9 +183,15 @@ export class PDFProcessor {
       const width = Math.floor(viewport.width);
       const height = Math.floor(viewport.height);
 
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
+      // ⚡ Bolt: Use OffscreenCanvas if available to prevent main thread blocking during page rendering
+      let canvas;
+      if (typeof OffscreenCanvas !== 'undefined') {
+        canvas = new OffscreenCanvas(width, height);
+      } else {
+        canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+      }
       const context = canvas.getContext('2d', { alpha: false });
 
       if (!context) {
@@ -235,9 +241,18 @@ export class PDFProcessor {
       );
       const viewport = page.getViewport({ scale });
 
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.max(1, Math.floor(viewport.width));
-      canvas.height = Math.max(1, Math.floor(viewport.height));
+      const canvasWidth = Math.max(1, Math.floor(viewport.width));
+      const canvasHeight = Math.max(1, Math.floor(viewport.height));
+
+      // ⚡ Bolt: Use OffscreenCanvas if available to prevent main thread blocking during thumbnail rendering
+      let canvas;
+      if (typeof OffscreenCanvas !== 'undefined') {
+        canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
+      } else {
+        canvas = document.createElement('canvas');
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+      }
 
       const context = canvas.getContext('2d', { alpha: false });
       if (!context) {
@@ -292,9 +307,15 @@ export class PDFProcessor {
       const width = Math.max(1, Math.floor(sourceWidth * scale));
       const height = Math.max(1, Math.floor(sourceHeight * scale));
 
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
+      // ⚡ Bolt: Use OffscreenCanvas if available to prevent main thread blocking during image rendering
+      let canvas;
+      if (typeof OffscreenCanvas !== 'undefined') {
+        canvas = new OffscreenCanvas(width, height);
+      } else {
+        canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+      }
 
       const context = canvas.getContext('2d', { alpha: false });
       if (!context) {
