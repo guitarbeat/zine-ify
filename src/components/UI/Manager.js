@@ -302,6 +302,10 @@ export class UIManager {
    */
   generateLayout(numPages = 8, templateType = null) {
     if (!this.elements.zineSheetsContainer) { return; }
+
+    // Invalidate cell cache when layout changes
+    this._pageCellsCache = null;
+
     this.elements.zineSheetsContainer.innerHTML = '';
     this._pageCellsCache = null;
 
@@ -342,6 +346,9 @@ export class UIManager {
    * Generate a custom grid layout with specified rows and columns
    */
   generateCustomGrid(rows, cols, totalPDFPages = 0) {
+    // Invalidate cell cache when layout changes
+    this._pageCellsCache = null;
+
     this.elements.zineSheetsContainer.innerHTML = '';
     this._pageCellsCache = null;
     this.currentTemplate = `custom-${rows}x${cols}`;
@@ -403,6 +410,9 @@ export class UIManager {
   generateUnusedBucket(startIndex, totalPages) {
     const { unusedSection, unusedGrid } = this.elements;
     if (!unusedSection || !unusedGrid) { return; }
+
+    // Invalidate cell cache when layout changes
+    this._pageCellsCache = null;
 
     unusedGrid.innerHTML = '';
 
