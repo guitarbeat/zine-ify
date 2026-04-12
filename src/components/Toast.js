@@ -66,6 +66,9 @@ class Toast {
     closeBtn.setAttribute('aria-label', 'Close notification');
     closeBtn.innerHTML = '&times;'; // Safe entity
     closeBtn.addEventListener('click', () => this.remove(toast));
+    toast.appendChild(closeBtn);
+
+    this.container.appendChild(toast);
 
     toast.appendChild(iconDiv);
     toast.appendChild(contentDiv);
