@@ -147,11 +147,13 @@ export class Zine3DViewer {
 
   /**
    * progressed folded state 0 to 3
-   * @param {number} progress  0=flat, 1=hotdog, 2=cross, 3=closed
+   * The mini-zine is formed by folding lengthwise, opening the center slit,
+   * and then closing the resulting booklet around its spine.
+   * @param {number} progress  0=flat, 1=lengthwise fold, 2=slit collapse, 3=closed booklet
    */
   setFoldProgress(progress) {
-    const centerAndQuarter = Math.max(0, Math.min(1, progress));
-    const horizontalFold = Math.max(0, Math.min(1, progress - 1));
+    const horizontalFold = Math.max(0, Math.min(1, progress));
+    const slitCollapse = Math.max(0, Math.min(1, progress - 1));
     const bookletClose = Math.max(0, Math.min(1, progress - 2));
     const w = this.w;
     const h = this.h;
@@ -190,32 +192,32 @@ export class Zine3DViewer {
       let ry = 0;
       const rz = 0;
 
-      // 1. Vertical folds first: center/quarter folds collapse columns into two booklet panels.
-      let verticalAngle = 0;
-      let hingeX = 0;
-      if (config.col === 0) {
-        verticalAngle = centerAndQuarter * Math.PI;
-        hingeX = -w;
-      } else if (config.col === 1) {
-        verticalAngle = centerAndQuarter * Math.PI;
-        hingeX = 0;
-      } else if (config.col === 2) {
-        verticalAngle = -centerAndQuarter * Math.PI;
-        hingeX = 0;
-      } else if (config.col === 3) {
-        verticalAngle = -centerAndQuarter * Math.PI;
-        hingeX = w;
-      }
-
-      ({ x, z } = rotateAroundY(x, z, hingeX, verticalAngle));
-      ry += verticalAngle;
-
-      // 2. Fold the top strip down over the bottom strip along the center slit/fold axis.
+      // 1. Fold lengthwise first so the slit can open.
       if (config.isTop) {
         const horizontalAngle = -horizontalFold * Math.PI;
         ({ y, z } = rotateAroundX(y, z, 0, horizontalAngle));
         rx += horizontalAngle;
       }
+
+      // 2. Pinch the sheet inward so the slit opens and the pages collapse into spreads.
+      let verticalAngle = 0;
+      let hingeX = 0;
+      if (config.col === 0) {
+        verticalAngle = slitCollapse * Math.PI;
+        hingeX = -w;
+      } else if (config.col === 1) {
+        verticalAngle = slitCollapse * Math.PI;
+        hingeX = 0;
+      } else if (config.col === 2) {
+        verticalAngle = -slitCollapse * Math.PI;
+        hingeX = 0;
+      } else if (config.col === 3) {
+        verticalAngle = -slitCollapse * Math.PI;
+        hingeX = w;
+      }
+
+      ({ x, z } = rotateAroundY(x, z, hingeX, verticalAngle));
+      ry += verticalAngle;
 
       // 3. Close the booklet around the spine so both halves participate.
       if (bookletClose > 0) {

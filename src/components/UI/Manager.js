@@ -198,7 +198,15 @@ export class UIManager {
     this.elements.foldSlider?.addEventListener('input', (e) => {
         const val = parseFloat(e.target.value);
         let status = 'Flat';
-        if (val >= 3) {status = 'Booklet';} else if (val >= 2) {status = 'Closing';} else if (val >= 1) {status = 'Cross';} else if (val > 0) {status = 'Folding';}
+        if (val >= 3) {
+            status = 'Booklet';
+        } else if (val >= 2) {
+            status = 'Closing';
+        } else if (val >= 1) {
+            status = 'Slit Open';
+        } else if (val > 0) {
+            status = 'Lengthwise Fold';
+        }
         if (this.elements.foldStatus) {
             this.elements.foldStatus.textContent = status;
         }
