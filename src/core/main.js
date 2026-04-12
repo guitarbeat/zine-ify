@@ -381,10 +381,18 @@ class PDFZineMaker {
     let url = this._blankPageUrl;
 
     if (!url) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 1000;
-      canvas.height = 1400;
-      const ctx = canvas.getContext('2d');
+      // ⚡ Bolt: Use OffscreenCanvas if available for background blank page generation
+      let canvas, ctx;
+      if (typeof OffscreenCanvas !== 'undefined') {
+        canvas = new OffscreenCanvas(1000, 1400);
+        ctx = canvas.getContext('2d');
+      } else {
+        canvas = document.createElement('canvas');
+        canvas.width = 1000;
+        canvas.height = 1400;
+        ctx = canvas.getContext('2d');
+      }
+
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, 1000, 1400);
       ctx.fillStyle = '#f3f4f6';
