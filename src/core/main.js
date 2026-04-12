@@ -3,6 +3,7 @@ import { PDFProcessor } from '../services/PDFProcessor.js';
 import { UIManager } from '../components/UI/Manager.js';
 import { toast } from '../components/Toast.js';
 import { formatFileSize } from '../utils/helpers.js';
+import { classifyFileKind, getFileTypeLabel } from '../utils/fileValidation.js';
 
 // Import assets
 import referenceImageUrl from '../assets/reference-back-side.jpg';
@@ -17,8 +18,8 @@ class PDFZineMaker {
     this.pageFlips = {}; // Track individual page flips: { pageIndex: true/false }
     this.pageZooms = {}; // Track individual page zooms/crops
     this.gridSize = { rows: 2, cols: 4 }; // Default grid size
-    this.uploadedFiles = []; // Track uploaded PDF files
-    this.totalPages = 0; // Track total pages across all PDFs
+    this.uploadedFiles = []; // Track uploaded files
+    this.totalPages = 0; // Track total pages across all imports
     this.fileQueue = [];
     this.isProcessingQueue = false;
     this.viewer3d = null;
@@ -36,7 +37,7 @@ class PDFZineMaker {
       await this.pdfProcessor.initialize();
       this.setupEventListeners();
       this.ui.generateLayout(8); // Default to 8 pages
-      this.ui.setStatus('Upload PDF files to get started', 'info');
+      this.ui.setStatus('Upload PDF or image files to get started', 'info');
     } catch {
       this.ui.setStatus('Failed to initialize. Please refresh the page.', 'error');
       toast.error('Initialization Error', 'Failed to load required libraries.');
@@ -236,10 +237,14 @@ class PDFZineMaker {
 
 
   handleFileSelected(file) {
+    const kind = classifyFileKind(file);
+
     // Add file to uploaded files list
     this.uploadedFiles.push({
       file,
       name: file.name,
+      kind,
+      typeLabel: getFileTypeLabel(kind),
       size: file.size,
       uploadedAt: new Date()
     });
@@ -259,9 +264,64 @@ class PDFZineMaker {
     this.isProcessingQueue = true;
     while (this.fileQueue.length > 0) {
       const nextFile = this.fileQueue.shift();
-      await this.processAdditionalPDF(nextFile);
+      await this.processQueuedFile(nextFile);
     }
     this.isProcessingQueue = false;
+  }
+
+  async processQueuedFile(file) {
+    const kind = classifyFileKind(file);
+
+    if (kind === 'pdf') {
+      await this.processAdditionalPDF(file);
+      return;
+    }
+
+    if (kind === 'image') {
+      await this.processAdditionalImage(file);
+      return;
+    }
+
+    toast.error('Error', 'Unsupported file type.');
+  }
+
+  getCurrentFilledPages() {
+    let currentFilledPages = 0;
+    for (let i = 0; i < this.allPageImages.length; i++) {
+      if (this.allPageImages[i] && this.allPageImages[i] !== this._blankPageUrl) {
+        currentFilledPages = Math.max(currentFilledPages, i + 1);
+      }
+    }
+
+    return currentFilledPages;
+  }
+
+  prepareLayoutForAdditionalPages(pageCount) {
+    const currentFilledPages = this.getCurrentFilledPages();
+    this.totalPages = currentFilledPages + pageCount;
+    this.selectedLayout = this.totalPages;
+
+    const requiredLength = this.getRequiredPageCapacity(this.totalPages);
+    const newArray = new Array(requiredLength).fill(null);
+    for (let i = 0; i < this.allPageImages.length; i++) {
+      if (i < newArray.length) {
+        newArray[i] = this.allPageImages[i];
+      }
+    }
+    this.allPageImages = newArray;
+
+    this.renderCurrentLayout();
+
+    const { rows, cols } = this.gridSize;
+    this.ui.setReady(true, `Content arranged into a ${rows}×${cols} grid`);
+
+    return { currentFilledPages, requiredLength };
+  }
+
+  async fillRemainingBlanks(requiredLength) {
+    for (let i = this.totalPages; i < requiredLength; i++) {
+      await this.createBlankPage(i + 1);
+    }
   }
 
   async processAdditionalPDF(file) {
@@ -282,33 +342,8 @@ class PDFZineMaker {
         return;
       }
 
-      // Find the current filled pages
-      let currentFilledPages = 0;
-      for (let i = 0; i < this.allPageImages.length; i++) {
-        if (this.allPageImages[i] && this.allPageImages[i] !== this._blankPageUrl) {
-          currentFilledPages = Math.max(currentFilledPages, i + 1);
-        }
-      }
-
-      this.totalPages = currentFilledPages + selectedPages.length;
-      this.selectedLayout = this.totalPages;
+      const { currentFilledPages, requiredLength } = this.prepareLayoutForAdditionalPages(selectedPages.length);
       const maxPages = selectedPages.length;
-      const { rows, cols } = this.gridSize;
-      const requiredLength = this.getRequiredPageCapacity(this.totalPages);
-
-      // Resize array
-      const newArray = new Array(requiredLength).fill(null);
-      for (let i = 0; i < this.allPageImages.length; i++) {
-        if (i < newArray.length) {
-          newArray[i] = this.allPageImages[i];
-        }
-      }
-      this.allPageImages = newArray;
-
-      this.renderCurrentLayout();
-
-      const description = `PDF arranged into a ${rows}×${cols} grid`;
-      this.ui.setReady(true, description);
 
       const concurrencyLimit = 4;
       let completedPages = 0;
@@ -361,18 +396,50 @@ class PDFZineMaker {
 
       if (poolError) { throw poolError; }
 
-      // Fill blanks
-      for (let i = this.totalPages; i < requiredLength; i++) {
-        await this.createBlankPage(i + 1);
-      }
+      await this.fillRemainingBlanks(requiredLength);
 
       this.ui.showProgress(false);
-      this.ui.setStatus(`Imported ${selectedPages.length} of ${numPages} pages`, 'success');
+      this.ui.setStatus(`Imported ${selectedPages.length} of ${numPages} pages from ${file.name}`, 'success');
       toast.success('Done!', 'Your zine is ready to print.');
 
     } catch (error) {
       this.ui.showProgress(false);
       toast.error('Error', error.message || 'Failed to process PDF.');
+    }
+  }
+
+  async processAdditionalImage(file) {
+    try {
+      toast.info('Reading image...', 'Please wait');
+      this.ui.showProgress(true, 'Reading image...', '0%');
+
+      const { currentFilledPages, requiredLength } = this.prepareLayoutForAdditionalPages(1);
+      const targetIndex = currentFilledPages;
+
+      this.ui.updateProgress(35);
+      const canvas = await this.pdfProcessor.renderImageFile(file);
+      this.ui.showProgress(true, 'Processing image...', '70%');
+      this.ui.updateProgress(70);
+
+      const url = await this.pdfProcessor.canvasToBlob(canvas);
+      const oldUrl = this.allPageImages[targetIndex];
+      if (oldUrl && oldUrl !== this._blankPageUrl) {
+        this.pdfProcessor.revokeBlobUrl(oldUrl);
+      }
+
+      this.allPageImages[targetIndex] = url;
+      this.ui.updatePagePreview(targetIndex, url);
+
+      await this.fillRemainingBlanks(requiredLength);
+
+      this.ui.showProgress(true, 'Processing image...', '100%');
+      this.ui.updateProgress(100);
+      this.ui.showProgress(false);
+      this.ui.setStatus(`Imported image: ${file.name}`, 'success');
+      toast.success('Done!', 'Your image was added to the zine.');
+    } catch (error) {
+      this.ui.showProgress(false);
+      toast.error('Error', error.message || 'Failed to process image.');
     }
   }
 

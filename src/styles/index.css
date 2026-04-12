@@ -19,6 +19,10 @@ body {
     color: var(--accent-dark);
 }
 
+.mobile-zine-app {
+    -webkit-tap-highlight-color: transparent;
+}
+
 /* Typography utilities */
 .font-marker { font-family: 'Permanent Marker', cursive; }
 .font-typewriter { font-family: 'Courier Prime', monospace; }
@@ -56,6 +60,7 @@ select:focus, input:focus {
     position: relative;
     flex-shrink: 0;
     transition: all 0.2s ease;
+    scroll-margin-top: 1rem;
 }
 
 @media print {
@@ -204,6 +209,14 @@ select:focus, input:focus {
 .action-button:active {
     transform: translate(2px, 2px);
     box-shadow: 2px 2px 0px 0px black;
+}
+
+.workspace-panel {
+    min-width: 0;
+}
+
+.control-scroll {
+    min-height: 0;
 }
   /* Centered Page Label (Sticker Style) */
 .page-label.centered {
@@ -413,6 +426,137 @@ select:focus, input:focus {
     color: white;
     border: 2px solid black;
     font-size: 0.75rem;
+}
+
+@media (max-width: 1023px) {
+    body {
+        background-size: 140px 140px;
+    }
+
+    .upload-box {
+        box-shadow: 3px 3px 0px 0px rgba(0,0,0,1);
+    }
+
+    .settings-panel {
+        box-shadow: 3px 3px 0px 0px black;
+    }
+
+    .mobile-action-dock {
+        position: fixed;
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+        z-index: 90;
+        margin-top: 0;
+        padding: 0.75rem;
+        border: 3px solid black;
+        background: rgba(240, 240, 240, 0.96);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.16), 4px 4px 0px 0px black;
+    }
+
+    .mobile-action-dock .action-button {
+        min-height: 3.25rem;
+        padding-top: 0.85rem;
+        padding-bottom: 0.85rem;
+        font-size: 0.82rem;
+        letter-spacing: 0.08em;
+    }
+
+    .mobile-action-dock .grid {
+        gap: 0.65rem;
+    }
+
+    .page-toolbar {
+        opacity: 1 !important;
+        top: auto;
+        right: auto;
+        left: 0.3rem;
+        bottom: 0.3rem;
+        max-width: calc(100% - 0.6rem);
+        justify-content: flex-start;
+        gap: 0.3rem;
+        padding: 0.2rem;
+        background: rgba(255,255,255,0.88);
+        border: 2px solid black;
+        box-shadow: 2px 2px 0px 0px black;
+        backdrop-filter: blur(8px);
+    }
+
+    .page-toolbar button {
+        width: 2rem !important;
+        height: 2rem !important;
+        box-shadow: none !important;
+    }
+
+    .page-label {
+        font-size: 9px;
+        padding: 2px 3px;
+    }
+
+    .page-label.centered {
+        font-size: 18px;
+        padding: 6px 9px;
+    }
+
+    .print-sheet {
+        box-shadow: 3px 3px 0px 0px rgba(0,0,0,1);
+        max-height: 62svh !important;
+    }
+
+    .zine-grid {
+        touch-action: pan-y;
+    }
+
+    .toast-container {
+        left: 0.75rem;
+        right: 0.75rem;
+        bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .toast {
+        width: 100%;
+        padding: 0.875rem;
+        transform: translateY(120%);
+    }
+
+    .toast-visible {
+        transform: translateY(0);
+    }
+
+    .page-picker-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+
+    .page-picker-chip {
+        flex: 1 1 calc(50% - 0.5rem);
+        text-align: center;
+        min-height: 2.75rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .page-picker-thumb {
+        padding: 0.4rem;
+        box-shadow: 3px 3px 0px 0px black;
+    }
+
+    .page-picker-thumb:hover,
+    .page-picker-thumb:focus-visible {
+        transform: none;
+        box-shadow: 4px 4px 0px 0px var(--primary-vibrant);
+    }
+
+    .page-picker-thumb-page {
+        font-size: 0.68rem;
+    }
+
+    .page-picker-thumb-order {
+        min-width: 1.5rem;
+        height: 1.5rem;
+        font-size: 0.68rem;
+    }
 }
 
 }

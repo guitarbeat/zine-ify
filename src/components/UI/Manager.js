@@ -3,6 +3,13 @@ import mitt from 'mitt';
 import { PAPER_SIZES, ZINE_TEMPLATES } from '../../utils/config.js';
 import { toast } from '../Toast.js';
 import { debounce, formatFileSize } from '../../utils/helpers.js';
+import {
+  MAX_UPLOAD_FILES,
+  MIXED_UPLOAD_WARNING,
+  SUPPORTED_UPLOAD_MESSAGE,
+  getFileTypeLabel,
+  partitionSupportedFiles
+} from '../../utils/fileValidation.js';
 
 const PAGE_TOOLBAR_HTML = `
         <div class="page-toolbar absolute top-1 right-1 flex flex-wrap justify-end gap-1 z-10 max-w-[calc(100%-0.5rem)] transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100">
@@ -238,22 +245,8 @@ export class UIManager {
 
     this.elements.pdfUpload?.addEventListener('change', (e) => {
       const files = Array.from(e.target.files);
-      const invalidFiles = files.filter(f => f.type !== 'application/pdf');
-
-      if (invalidFiles.length > 0) {
-        toast.error('Error', 'PDF processing failed: Please select a PDF file');
-      }
-
-      const validFiles = files.filter(f => f.type === 'application/pdf');
-
-      if (validFiles.length > 10) {
-        toast.warning('Limit Exceeded', 'Maximum 10 files allowed at once. Processing first 10 files.');
-        validFiles.splice(10);
-      }
-
-      validFiles.forEach(file => {
-        this.emitter.emit('fileSelected', file);
-      });
+      this.handleIncomingFiles(files);
+      e.target.value = '';
     });
 
 
@@ -1018,20 +1011,27 @@ export class UIManager {
     }
 
     const files = Array.from(e.dataTransfer.files);
-    const pdfFiles = files.filter(file => file.type === 'application/pdf');
+    this.handleIncomingFiles(files);
+  }
 
-    if (pdfFiles.length > 0) {
-      if (pdfFiles.length > 10) {
-        toast.warning('Limit Exceeded', 'Maximum 10 files allowed at once. Processing first 10 files.');
-        pdfFiles.splice(10);
-      }
+  handleIncomingFiles(files) {
+    const limitedFiles = files.slice(0, MAX_UPLOAD_FILES);
 
-      pdfFiles.forEach(file => {
-        this.emitter.emit('fileSelected', file);
-      });
-    } else {
-      toast.error('Error', 'PDF processing failed: Please select a PDF file');
+    if (files.length > MAX_UPLOAD_FILES) {
+      toast.warning('Limit Exceeded', `Maximum ${MAX_UPLOAD_FILES} files allowed at once. Processing first ${MAX_UPLOAD_FILES} files.`);
     }
+
+    const { acceptedFiles, rejectedFiles } = partitionSupportedFiles(limitedFiles);
+
+    if (rejectedFiles.length > 0) {
+      const title = acceptedFiles.length > 0 ? 'Unsupported Files' : 'Error';
+      const message = acceptedFiles.length > 0 ? MIXED_UPLOAD_WARNING : SUPPORTED_UPLOAD_MESSAGE;
+      toast[acceptedFiles.length > 0 ? 'warning' : 'error'](title, message);
+    }
+
+    acceptedFiles.forEach(file => {
+      this.emitter.emit('fileSelected', file);
+    });
   }
 
   handleKeyboard(e) {
@@ -1241,7 +1241,7 @@ export class UIManager {
     const icon = document.createElement('span');
     icon.className = 'material-symbols-outlined text-sm';
     icon.setAttribute('aria-hidden', 'true');
-    icon.textContent = 'description';
+    icon.textContent = fileInfo.kind === 'image' ? 'image' : 'description';
 
     const textWrapper = document.createElement('div');
 
@@ -1251,7 +1251,7 @@ export class UIManager {
 
     const sizeDiv = document.createElement('div');
     sizeDiv.className = 'text-[10px] text-gray-500';
-    sizeDiv.textContent = formatFileSize(fileInfo.size);
+    sizeDiv.textContent = `${getFileTypeLabel(fileInfo.kind)} • ${formatFileSize(fileInfo.size)}`;
 
     textWrapper.appendChild(nameDiv);
     textWrapper.appendChild(sizeDiv);

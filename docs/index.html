@@ -10,36 +10,50 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
-  <script type="module" crossorigin src="./assets/index-mm6_j4Yc.js"></script>
+  <script type="module" crossorigin src="./assets/index-W41we1WQ.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/jspdf-D9g9k289.js">
   <link rel="modulepreload" crossorigin href="./assets/pdfjs-6LAvbAPc.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-DM_5HJRJ.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-C3ACJ_xi.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
 
-<body class="min-h-screen font-typewriter" style="background-color: var(--bg-neutral);">
+<body class="min-h-screen font-typewriter mobile-zine-app" style="background-color: var(--bg-neutral);">
 
-    <div class="max-w-[1400px] mx-auto py-6 px-4 sm:px-6 space-y-6">
-        <header class="pt-8 mb-6 flex items-center justify-between border-b-4 border-black pb-4">
-            <h1 class="font-marker text-4xl sm:text-5xl tracking-tight" style="color: var(--primary-vibrant); text-shadow: 3px 3px 0px black;">
-                ZINE-IFY
-            </h1>
+    <div class="max-w-[1400px] mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6">
+        <header class="pt-2 sm:pt-8 mb-2 sm:mb-6 border-b-4 border-black pb-3 sm:pb-4">
+            <div class="flex items-start justify-between gap-4">
+                <div class="space-y-1">
+                    <h1 class="font-marker text-[2.25rem] leading-none sm:text-5xl tracking-tight" style="color: var(--primary-vibrant); text-shadow: 3px 3px 0px black;">
+                        ZINE-IFY
+                    </h1>
+                    <p class="text-[11px] sm:text-xs font-bold uppercase tracking-[0.18em] max-w-[18rem] sm:max-w-none">
+                        Build fold-ready zines from PDFs and phone photos.
+                    </p>
+                </div>
+                <div class="hidden sm:flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] px-3 py-2 bg-white border-2 border-black shadow-[3px_3px_0_0_black]">
+                    <span class="material-symbols-outlined text-sm" aria-hidden="true">touch_app</span>
+                    Drag, tap, reorder
+                </div>
+            </div>
         </header>
 
-        <main class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 items-start">
+        <main class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-4 sm:gap-6 items-start">
             <!-- Left Column: Controls & Upload -->
-            <aside class="space-y-4 lg:sticky lg:top-6 relative z-20 flex flex-col h-full max-h-[calc(100vh-6rem)]">
+            <aside class="control-rail space-y-3 sm:space-y-4 lg:sticky lg:top-6 relative z-20 flex flex-col h-full lg:max-h-[calc(100vh-6rem)]">
 
-                <div class="overflow-y-auto space-y-4 pr-2 flex-1 pb-10">
+                <div class="control-scroll overflow-y-visible lg:overflow-y-auto space-y-3 sm:space-y-4 lg:pr-2 flex-1 pb-28 lg:pb-10">
                     <div id="upload-zone"
-                        class="upload-box relative overflow-hidden p-6 flex flex-col items-center justify-center text-center cursor-pointer min-h-[140px] group focus:outline-none"
-                        role="button" tabindex="0" aria-label="Upload PDF document" title="Upload PDF (Ctrl+O)" aria-keyshortcuts="Control+O">
+                        class="upload-box relative overflow-hidden px-4 py-5 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer min-h-[128px] sm:min-h-[140px] group focus:outline-none"
+                        role="button" tabindex="0" aria-label="Upload PDF or image files" title="Upload PDFs or images (Ctrl+O)" aria-keyshortcuts="Control+O">
                         <span class="material-symbols-outlined text-4xl mb-3" style="color: var(--primary-vibrant);" aria-hidden="true">cloud_upload</span>
-                        <h2 class="font-marker text-lg mb-1">DROP PDF FILES</h2>
+                        <h2 class="font-marker text-base sm:text-lg leading-tight mb-1">DROP PDFS OR IMAGES</h2>
                         <p id="upload-status" class="text-xs font-bold uppercase tracking-wider mt-1 px-2 py-1 bg-black text-white" aria-live="polite">
                             Click or drag to add files</p>
-                        <input type="file" id="pdf-upload" class="hidden" accept="application/pdf" multiple>
+                        <p class="mt-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.16em] text-black/65">
+                            Queue multiple files. Rearrange pages after import.
+                        </p>
+                        <input type="file" id="pdf-upload" class="hidden" accept="application/pdf,image/*" multiple>
                     </div>
 
                     <!-- Uploaded Files List -->
@@ -47,7 +61,7 @@
                         <!-- Populated by JS -->
                     </div>
 
-                    <div id="settings-group" class="settings-panel bg-white p-4 space-y-4">
+                    <div id="settings-group" class="settings-panel bg-white p-3 sm:p-4 space-y-4">
                         <h3 class="font-marker text-sm uppercase tracking-widest border-b-2 border-black pb-2 mb-2 flex items-center gap-2">
                             <span class="material-symbols-outlined text-[16px]">tune</span> Settings
                         </h3>
@@ -94,7 +108,7 @@
                     </div>
 
                     <!-- "Spare Parts" moved to sidebar -->
-                    <div id="unused-pages-section" class="settings-panel bg-white p-4 hidden">
+                    <div id="unused-pages-section" class="settings-panel bg-white p-3 sm:p-4 hidden">
                         <div class="flex items-center justify-between gap-4 mb-3">
                             <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
                                 <span class="material-symbols-outlined text-[16px]">inventory_2</span> Spare Parts
@@ -109,7 +123,7 @@
                     </div>
                 </div>
 
-                <div id="action-buttons" class="space-y-3 hidden flex-col pt-3 border-t-4 border-black mt-auto">
+                <div id="action-buttons" class="mobile-action-dock space-y-3 hidden flex-col pt-3 border-t-4 border-black mt-auto">
                     <button id="view3dBtn"
                         class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-black text-white font-bold"
                         title="View 3D Folding Preview">
@@ -136,18 +150,18 @@
 
             <!-- Right Column: Preview Area -->
             <section id="preview-area"
-                class="opacity-50 pointer-events-none transition-all duration-300 flex flex-col pt-4 lg:pt-0">
-                <div class="w-full flex items-center justify-between mb-4 border-b-4 border-black pb-3">
-                    <h2 class="font-marker text-xl tracking-wide flex items-center gap-2">
+                class="workspace-panel opacity-50 pointer-events-none transition-all duration-300 flex flex-col pt-1 sm:pt-4 lg:pt-0">
+                <div class="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3 sm:mb-4 border-b-4 border-black pb-3">
+                    <h2 class="font-marker text-lg sm:text-xl tracking-wide flex items-center gap-2">
                         <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">preview</span> CANVAS
                     </h2>
-                    <p class="text-xs font-bold uppercase hidden px-2 py-1 bg-black text-white" id="preview-description">
+                    <p class="text-[11px] sm:text-xs font-bold uppercase hidden px-2 py-1 bg-black text-white self-start sm:self-auto" id="preview-description">
                         Laying out your zine...
                     </p>
                 </div>
 
                 <!-- Unified Zine View -->
-                <div id="zine-sheets-container" class="w-full space-y-8 pb-8">
+                <div id="zine-sheets-container" class="w-full space-y-5 sm:space-y-8 pb-32 sm:pb-8">
                     <!-- Sheets will be injected here -->
                 </div>
             </section>
@@ -265,7 +279,7 @@
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
   <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-BGl66PUP.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-C-fHIngO.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-21R4CeDX.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>

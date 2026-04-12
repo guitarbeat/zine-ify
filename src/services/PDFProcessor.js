@@ -1,7 +1,7 @@
 // Modern PDF processing class
 
 import * as pdfjsLib from 'pdfjs-dist';
-import { formatFileSize } from '../utils/helpers.js';
+import { validateUploadFile } from '../utils/fileValidation.js';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 export class PDFProcessor {
@@ -25,24 +25,11 @@ export class PDFProcessor {
    * @returns {Object} Validation result
    */
   validateFile(file) {
-    const errors = [];
+    const result = validateUploadFile(file);
+    const errors = [...result.errors];
 
-    if (!file) {
-      errors.push('No file selected');
-      return { valid: false, errors };
-    }
-
-    if (file.type !== 'application/pdf') {
+    if (result.kind !== 'pdf') {
       errors.push('Please select a PDF file');
-    }
-
-    const maxSize = 50 * 1024 * 1024; // 50MB
-    if (file.size > maxSize) {
-      errors.push(`File too large (${formatFileSize(file.size)}). Maximum size is ${formatFileSize(maxSize)}`);
-    }
-
-    if (file.size === 0) {
-      errors.push('File appears to be empty');
     }
 
     return {
@@ -271,6 +258,74 @@ export class PDFProcessor {
     } catch (error) {
       throw new Error(`Failed to render preview page ${pageNum}`, { cause: error });
     }
+  }
+
+  async renderImageFile(file) {
+    const validation = validateUploadFile(file);
+    if (!validation.valid || validation.kind !== 'image') {
+      throw new Error(validation.errors[0] || 'Image processing failed.');
+    }
+
+    let objectUrl = null;
+    let imageSource = null;
+
+    try {
+      if (typeof createImageBitmap === 'function') {
+        imageSource = await createImageBitmap(file);
+      } else {
+        objectUrl = URL.createObjectURL(file);
+        imageSource = await this.loadImageElement(objectUrl);
+      }
+
+      const sourceWidth = imageSource.width || imageSource.naturalWidth;
+      const sourceHeight = imageSource.height || imageSource.naturalHeight;
+
+      if (!sourceWidth || !sourceHeight) {
+        throw new Error('Image dimensions could not be read.');
+      }
+
+      const maxDimension = 4096;
+      const maxPixels = 4096 * 4096;
+      const dimensionScale = Math.min(1, maxDimension / Math.max(sourceWidth, sourceHeight));
+      const pixelScale = Math.min(1, Math.sqrt(maxPixels / (sourceWidth * sourceHeight)));
+      const scale = Math.max(0.1, Math.min(dimensionScale, pixelScale));
+      const width = Math.max(1, Math.floor(sourceWidth * scale));
+      const height = Math.max(1, Math.floor(sourceHeight * scale));
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const context = canvas.getContext('2d', { alpha: false });
+      if (!context) {
+        throw new Error('Failed to acquire canvas context for image rendering');
+      }
+
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, width, height);
+      context.drawImage(imageSource, 0, 0, width, height);
+
+      return canvas;
+    } catch (error) {
+      throw new Error(`Image processing failed: ${error.message || 'Unknown error'}`, { cause: error });
+    } finally {
+      if (imageSource && typeof imageSource.close === 'function') {
+        imageSource.close();
+      }
+
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    }
+  }
+
+  loadImageElement(src) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error('Image could not be decoded.'));
+      image.src = src;
+    });
   }
 
   /**

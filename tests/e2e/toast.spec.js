@@ -24,7 +24,7 @@ test('Toast notification for invalid file upload', async ({ page }) => {
     // We expect "Error" as title.
     await expect(toast).toContainText('Error');
     // We expect the specific error message
-    await expect(toast).toContainText('PDF processing failed: Please select a PDF file');
+    await expect(toast).toContainText('Please select a PDF or image file.');
   } finally {
     // No cleanup needed
   }

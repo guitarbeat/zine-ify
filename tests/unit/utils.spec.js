@@ -1,5 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { formatFileSize, isNumber, debounce } from '../../src/utils/helpers.js';
+import {
+  classifyFileKind,
+  getFileTypeLabel,
+  validateUploadFile
+} from '../../src/utils/fileValidation.js';
 
 test.describe('Utils', () => {
   test('formatFileSize', () => {
@@ -33,5 +38,37 @@ test.describe('Utils', () => {
 
     await new Promise(resolve => setTimeout(resolve, 150));
     expect(count).toBe(1);
+  });
+
+  test('classifyFileKind', () => {
+    expect(classifyFileKind({ type: 'application/pdf' })).toBe('pdf');
+    expect(classifyFileKind({ type: 'image/png' })).toBe('image');
+    expect(classifyFileKind({ type: 'image/jpeg' })).toBe('image');
+    expect(classifyFileKind({ type: 'text/plain' })).toBeNull();
+  });
+
+  test('getFileTypeLabel', () => {
+    expect(getFileTypeLabel('pdf')).toBe('PDF');
+    expect(getFileTypeLabel('image')).toBe('Image');
+    expect(getFileTypeLabel('unknown')).toBe('File');
+  });
+
+  test('validateUploadFile', () => {
+    expect(validateUploadFile({ type: 'application/pdf', size: 1024 })).toEqual({
+      valid: true,
+      errors: [],
+      kind: 'pdf'
+    });
+
+    expect(validateUploadFile({ type: 'image/png', size: 2048 })).toEqual({
+      valid: true,
+      errors: [],
+      kind: 'image'
+    });
+
+    const invalid = validateUploadFile({ type: 'text/plain', size: 12 });
+    expect(invalid.valid).toBe(false);
+    expect(invalid.kind).toBeNull();
+    expect(invalid.errors).toContain('Please select a PDF or image file.');
   });
 });
