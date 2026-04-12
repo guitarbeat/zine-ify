@@ -128,3 +128,11 @@ dist
 playwright-report/
 test-results/
 invalid.txt
+
+# Local verification scratch files
+verification/
+create_verify_pdf.js
+test-verify.pdf
+test_clamping.js
+test_pool*.js
+verify_export_pdf*.py

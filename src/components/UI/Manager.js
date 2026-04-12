@@ -35,63 +35,32 @@ PAGE_CELL_TEMPLATE.innerHTML = `
   <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-200 ease-in-out relative z-[5]" draggable="false" />
 `;
 
-// Global template for page cells to optimize DOM creation in loops
-const pageCellTemplate = document.createElement('template');
-pageCellTemplate.innerHTML = `
-  <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
-
-  <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-     <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Quick Preview">
-          <span class="material-symbols-outlined text-lg font-bold">zoom_in</span>
-     </button>
-     <button class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Toggle Crop/Zoom">
-          <span class="material-symbols-outlined text-lg font-bold">crop_free</span>
-     </button>
-     <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Remove Page">
-          <span class="material-symbols-outlined text-lg font-bold">close</span>
-     </button>
-     <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip 180°">
-          <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
-     </button>
-  </div>
-
-  <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
-  <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
-`;
-
-const PAGE_TOOLBAR_HTML = `
-        <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-           <button aria-label="Zoom preview" class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Quick Preview">
-                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">zoom_in</span>
-           </button>
-           <button aria-label="Toggle crop" class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Toggle Crop/Zoom">
-                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">crop_free</span>
-           </button>
-           <button aria-label="Remove page" class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Remove Page">
-                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">close</span>
-           </button>
-           <button aria-label="Flip page" class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Flip 180°">
-                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">rotate_right</span>
-           </button>
-        </div>
-`;
-
-const PAGE_TOOLBAR_HTML = `
-        <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
-           <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Quick Preview" aria-label="Quick Preview">
-                <span class="material-symbols-outlined text-lg font-bold" aria-hidden="true">zoom_in</span>
-           </button>
-           <button class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Toggle Crop/Zoom" aria-label="Toggle Crop/Zoom">
-                <span class="material-symbols-outlined text-lg font-bold" aria-hidden="true">crop_free</span>
-           </button>
-           <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Remove Page" aria-label="Remove Page">
-                <span class="material-symbols-outlined text-lg font-bold" aria-hidden="true">close</span>
-           </button>
-           <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip 180°" aria-label="Flip 180°">
-                <span class="material-symbols-outlined text-lg font-bold" aria-hidden="true">rotate_right</span>
-           </button>
-        </div>
-`;
+const TOOLBAR_BUTTON_CONFIG = [
+  {
+    selector: '.flip-btn',
+    title: (labelText) => `Flip ${labelText}`,
+    ariaLabel: (labelText) => `Rotate ${labelText} 180 degrees`,
+    event: 'pageFlipped'
+  },
+  {
+    selector: '.zoom-btn',
+    title: (labelText) => `Quick Preview ${labelText}`,
+    ariaLabel: (labelText) => `Quick Preview ${labelText}`,
+    event: 'pageZoomed'
+  },
+  {
+    selector: '.crop-btn',
+    title: (labelText) => `Toggle Crop/Zoom ${labelText}`,
+    ariaLabel: (labelText) => `Toggle Crop/Zoom ${labelText}`,
+    event: 'pageCropToggled'
+  },
+  {
+    selector: '.remove-btn',
+    title: (labelText) => `Remove ${labelText}`,
+    ariaLabel: (labelText) => `Remove ${labelText}`,
+    event: 'pageRemoved'
+  }
+];
 
 export class UIManager {
   constructor() {
@@ -405,10 +374,41 @@ export class UIManager {
   /**
    * Generate a custom grid layout with specified rows and columns
    */
-  generateCustomGrid(rows, cols, totalPDFPages = 0) {
-    // Invalidate cell cache when layout changes
-    this._pageCellsCache = null;
+  createSheetGrid({ sheetNumber, template, gridClass = 'zine-grid', columns, rows, id }) {
+    const sheetWrapper = document.createElement('div');
+    sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
+    sheetWrapper.setAttribute('data-sheet', sheetNumber);
+    sheetWrapper.setAttribute('data-template', template);
 
+    const grid = document.createElement('div');
+    grid.className = gridClass;
+    grid.id = id;
+    grid.style.display = 'grid';
+    grid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+    return { sheetWrapper, grid };
+  }
+
+  createPageCell({ pageIndex, pageNumber, labelText, altText }) {
+    const cell = document.createElement('div');
+    cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
+    cell.setAttribute('data-page-index', pageIndex);
+    cell.setAttribute('data-page', pageNumber);
+    cell.setAttribute('draggable', 'true');
+
+    cell.replaceChildren(PAGE_CELL_TEMPLATE.content.cloneNode(true));
+    cell.querySelector('.page-label').textContent = labelText;
+    cell.querySelector('.page-content-img').alt = altText;
+
+    this.setupDragAndDrop(cell);
+    this.setupToolbar(cell, labelText);
+    this.setupSelection(cell, pageIndex);
+
+    return cell;
+  }
+
+  generateCustomGrid(rows, cols, totalPDFPages = 0) {
     this.elements.zineSheetsContainer.innerHTML = '';
     this._pageCellsCache = null;
     this.currentTemplate = `custom-${rows}x${cols}`;
@@ -417,47 +417,27 @@ export class UIManager {
     const sheetCount = Math.max(1, Math.ceil(actualPages / totalSlots));
 
     for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
-      const sheetWrapper = document.createElement('div');
-      sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
-      sheetWrapper.setAttribute('data-sheet', sheetIndex + 1);
-      sheetWrapper.setAttribute('data-template', `custom-${rows}x${cols}`);
-
-      const grid = document.createElement('div');
-      grid.className = 'zine-grid';
-      grid.id = `zine-grid-sheet-${sheetIndex + 1}`;
-      grid.style.display = 'grid';
-      grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-      grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+      const { sheetWrapper, grid } = this.createSheetGrid({
+        sheetNumber: sheetIndex + 1,
+        template: `custom-${rows}x${cols}`,
+        columns: cols,
+        rows,
+        id: `zine-grid-sheet-${sheetIndex + 1}`
+      });
       grid.style.gridTemplateAreas = 'none';
 
       for (let slotIndex = 0; slotIndex < totalSlots; slotIndex++) {
         const pageIndex = (sheetIndex * totalSlots) + slotIndex;
         const pageNum = pageIndex + 1;
-        const cell = document.createElement('div');
-        cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
-        cell.setAttribute('data-page-index', pageIndex);
-        cell.setAttribute('data-page', slotIndex + 1);
-        cell.setAttribute('draggable', 'true');
-
         const labelText = pageNum === 1 ? 'Cover' : `Page ${pageNum}`;
-
-        cell.replaceChildren(PAGE_CELL_TEMPLATE.content.cloneNode(true));
-
-        cell.querySelector('.page-label').textContent = labelText;
-        cell.querySelector('.page-content-img').alt = `Page ${pageNum}`;
-
-        const flipBtn = cell.querySelector('.flip-btn');
-        if (flipBtn) {
-          flipBtn.setAttribute('title', `Flip ${labelText}`);
-          flipBtn.setAttribute('aria-label', `Rotate ${labelText} 180 degrees`);
-        }
-
-        this.setupDragAndDrop(cell);
-        this.setupToolbar(cell, labelText);
-        this.setupSelection(cell, pageIndex);
+        const cell = this.createPageCell({
+          pageIndex,
+          pageNumber: slotIndex + 1,
+          labelText,
+          altText: `Page ${pageNum}`
+        });
         grid.appendChild(cell);
       }
-      this.setButtonAriaLabels(cell, labelText);
 
       sheetWrapper.appendChild(grid);
       this.elements.zineSheetsContainer.appendChild(sheetWrapper);
@@ -521,70 +501,24 @@ export class UIManager {
    */
   generateAccordionLayout(template) {
     this._pageCellsCache = null;
-    const sheetWrapper = document.createElement('div');
-    sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
-    sheetWrapper.setAttribute('data-sheet', 1);
-    sheetWrapper.setAttribute('data-template', 'accordion-16');
-
-    const grid = document.createElement('div');
-    grid.className = 'zine-grid accordion-16';
-    grid.id = 'zine-grid-sheet-1';
-    grid.style.display = 'grid';
-    grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
-    grid.style.gridTemplateRows = 'repeat(4, 1fr)';
+    const { sheetWrapper, grid } = this.createSheetGrid({
+      sheetNumber: 1,
+      template: 'accordion-16',
+      gridClass: 'zine-grid accordion-16',
+      columns: 4,
+      rows: 4,
+      id: 'zine-grid-sheet-1'
+    });
 
     // Generate cells based on template layout
     template.layout.forEach((item) => {
-      const cell = document.createElement('div');
-      cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
-      cell.setAttribute('data-page-index', item.page - 1);
-      cell.setAttribute('data-page', item.page);
-      cell.setAttribute('draggable', 'true');
-
       const labelText = item.page === 1 ? 'Cover' : (item.page === 16 ? 'Back' : `Page ${item.page}`);
-
-      // ⚡ Bolt: Use replaceChildren with cloned template instead of innerHTML to safely overwrite and avoid re-parsing
-      cell.replaceChildren(PAGE_CELL_TEMPLATE.content.cloneNode(true));
-
-      cell.querySelector('.page-label').textContent = labelText;
-      cell.querySelector('.page-content-img').alt = `Page ${item.page}`;
-
-      const flipBtn = cell.querySelector('.flip-btn');
-      if (flipBtn) {
-        flipBtn.setAttribute('title', `Flip ${labelText}`);
-      }
-      this.setButtonAriaLabels(cell, labelText);
-
-      const zoomBtn = cell.querySelector('.zoom-btn');
-      if (zoomBtn) {
-        zoomBtn.setAttribute('title', `Quick Preview ${labelText}`);
-        zoomBtn.setAttribute('aria-label', `Quick Preview ${labelText}`);
-      }
-
-      const cropBtn = cell.querySelector('.crop-btn');
-      if (cropBtn) {
-        cropBtn.setAttribute('title', `Toggle Crop/Zoom ${labelText}`);
-        cropBtn.setAttribute('aria-label', `Toggle Crop/Zoom ${labelText}`);
-      }
-
-      const removeBtn = cell.querySelector('.remove-btn');
-      if (removeBtn) {
-        removeBtn.setAttribute('title', `Remove ${labelText}`);
-        removeBtn.setAttribute('aria-label', `Remove ${labelText}`);
-      }
-
-      const zoomBtn = cell.querySelector('.zoom-btn');
-      if (zoomBtn) { zoomBtn.setAttribute('aria-label', `Quick Preview ${labelText}`); }
-
-      const cropBtn = cell.querySelector('.crop-btn');
-      if (cropBtn) { cropBtn.setAttribute('aria-label', `Toggle Crop/Zoom for ${labelText}`); }
-
-      const removeBtn = cell.querySelector('.remove-btn');
-      if (removeBtn) { removeBtn.setAttribute('aria-label', `Remove ${labelText}`); }
-
-      this.setupDragAndDrop(cell);
-      this.setupToolbar(cell, labelText);
-      this.setupSelection(cell, item.page - 1);
+      const cell = this.createPageCell({
+        pageIndex: item.page - 1,
+        pageNumber: item.page,
+        labelText,
+        altText: `Page ${item.page}`
+      });
       grid.appendChild(cell);
     });
 
@@ -610,77 +544,30 @@ export class UIManager {
    * Generate mini-zine layout (8-page single or dual sheets)
    */
   generateMiniZineLayout(numPages, _template) {
+    this._pageCellsCache = null;
     const numSheets = Math.max(1, Math.ceil(numPages / 8));
     const miniLayout = ZINE_TEMPLATES['mini-8'].layout;
 
     for (let s = 1; s <= numSheets; s++) {
-      const sheetWrapper = document.createElement('div');
-      sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
-      sheetWrapper.setAttribute('data-sheet', s);
-
-      const grid = document.createElement('div');
-      grid.className = 'zine-grid mini-zine';
-      grid.id = `zine-grid-sheet-${s}`;
-      grid.style.display = 'grid';
-      grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
-      grid.style.gridTemplateRows = 'repeat(2, 1fr)';
+      const { sheetWrapper, grid } = this.createSheetGrid({
+        sheetNumber: s,
+        template: 'mini-8',
+        gridClass: 'zine-grid mini-zine',
+        columns: 4,
+        rows: 2,
+        id: `zine-grid-sheet-${s}`
+      });
 
       for (const item of miniLayout) {
         const pageNumberOnSheet = item.page;
         const pageIdx = ((s - 1) * 8) + pageNumberOnSheet;
-        const cell = document.createElement('div');
-        cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
-        cell.setAttribute('data-page-index', pageIdx - 1);
-        cell.setAttribute('data-page', pageNumberOnSheet);
-        cell.setAttribute('draggable', 'true');
-
         const labelText = pageIdx === 1 ? 'Cover' : (pageNumberOnSheet === 8 ? 'Back' : `Page ${pageIdx}`);
-
-        // ⚡ Bolt: Use replaceChildren with cloned template instead of innerHTML to safely overwrite and avoid re-parsing
-        cell.replaceChildren(PAGE_CELL_TEMPLATE.content.cloneNode(true));
-
-        <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
-        <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
-      `;
-
-        cell.querySelector('.page-content-img').alt = `Page ${pageIdx}`;
-
-        const flipBtn = cell.querySelector('.flip-btn');
-        if (flipBtn) {
-          flipBtn.setAttribute('title', `Flip ${labelText}`);
-        }
-        this.setButtonAriaLabels(cell, labelText);
-
-        const zoomBtn = cell.querySelector('.zoom-btn');
-        if (zoomBtn) {
-          zoomBtn.setAttribute('title', `Quick Preview ${labelText}`);
-          zoomBtn.setAttribute('aria-label', `Quick Preview ${labelText}`);
-        }
-
-        const cropBtn = cell.querySelector('.crop-btn');
-        if (cropBtn) {
-          cropBtn.setAttribute('title', `Toggle Crop/Zoom ${labelText}`);
-          cropBtn.setAttribute('aria-label', `Toggle Crop/Zoom ${labelText}`);
-        }
-
-        const removeBtn = cell.querySelector('.remove-btn');
-        if (removeBtn) {
-          removeBtn.setAttribute('title', `Remove ${labelText}`);
-          removeBtn.setAttribute('aria-label', `Remove ${labelText}`);
-        }
-
-        const zoomBtn = cell.querySelector('.zoom-btn');
-        if (zoomBtn) { zoomBtn.setAttribute('aria-label', `Quick Preview ${labelText}`); }
-
-        const cropBtn = cell.querySelector('.crop-btn');
-        if (cropBtn) { cropBtn.setAttribute('aria-label', `Toggle Crop/Zoom for ${labelText}`); }
-
-        const removeBtn = cell.querySelector('.remove-btn');
-        if (removeBtn) { removeBtn.setAttribute('aria-label', `Remove ${labelText}`); }
-
-        this.setupDragAndDrop(cell);
-        this.setupToolbar(cell, labelText);
-        this.setupSelection(cell, pageIdx - 1);
+        const cell = this.createPageCell({
+          pageIndex: pageIdx - 1,
+          pageNumber: pageNumberOnSheet,
+          labelText,
+          altText: `Page ${pageIdx}`
+        });
         grid.appendChild(cell);
       }
 
@@ -696,30 +583,6 @@ export class UIManager {
       sheetWrapper.insertAdjacentHTML('beforeend', guidelines);
       this.elements.zineSheetsContainer.appendChild(sheetWrapper);
     }
-  }
-
-  /**
-   * Dynamically set context-specific ARIA labels for icon buttons in a cell
-   * and ensure ligature icons are hidden from screen readers.
-   */
-  setButtonAriaLabels(cell, labelText) {
-    const btnMap = [
-      { sel: '.zoom-btn', text: `Quick preview ${labelText}` },
-      { sel: '.crop-btn', text: `Toggle crop for ${labelText}` },
-      { sel: '.remove-btn', text: `Remove ${labelText}` },
-      { sel: '.flip-btn', text: `Rotate ${labelText} 180 degrees` }
-    ];
-
-    btnMap.forEach(({ sel, text }) => {
-      const btn = cell.querySelector(sel);
-      if (btn) {
-        btn.setAttribute('aria-label', text);
-        const icon = btn.querySelector('.material-symbols-outlined');
-        if (icon) {
-          icon.setAttribute('aria-hidden', 'true');
-        }
-      }
-    });
   }
 
   setupDragAndDrop(cell) {
@@ -829,55 +692,28 @@ export class UIManager {
    * Setup toolbar button click handlers for a cell
    */
   setupToolbar(cell, labelText) {
-    const flipBtn = cell.querySelector('.flip-btn');
-    const zoomBtn = cell.querySelector('.zoom-btn');
-    const cropBtn = cell.querySelector('.crop-btn');
-    const removeBtn = cell.querySelector('.remove-btn');
-
     const pageIndex = parseInt(cell.getAttribute('data-page-index'));
 
-    if (labelText) {
-      if (zoomBtn) {
-        zoomBtn.setAttribute('title', `Quick Preview ${labelText}`);
-        zoomBtn.setAttribute('aria-label', `Quick Preview ${labelText}`);
+    cell.querySelectorAll('.material-symbols-outlined').forEach((icon) => {
+      icon.setAttribute('aria-hidden', 'true');
+    });
+
+    TOOLBAR_BUTTON_CONFIG.forEach(({ selector, title, ariaLabel, event }) => {
+      const button = cell.querySelector(selector);
+      if (!button) {
+        return;
       }
-      if (cropBtn) {
-        cropBtn.setAttribute('title', `Toggle Crop/Zoom ${labelText}`);
-        cropBtn.setAttribute('aria-label', `Toggle Crop/Zoom ${labelText}`);
+
+      if (labelText) {
+        button.setAttribute('title', title(labelText));
+        button.setAttribute('aria-label', ariaLabel(labelText));
       }
-      if (removeBtn) {
-        removeBtn.setAttribute('title', `Remove ${labelText}`);
-        removeBtn.setAttribute('aria-label', `Remove ${labelText}`);
-      }
-    }
 
-    if (flipBtn) {
-      flipBtn.addEventListener('click', (e) => {
+      button.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent drag
-        this.emitter.emit('pageFlipped', pageIndex);
+        this.emitter.emit(event, pageIndex);
       });
-    }
-
-    if (zoomBtn) {
-      zoomBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent drag
-        this.emitter.emit('pageZoomed', pageIndex);
-      });
-    }
-
-    if (cropBtn) {
-      cropBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent drag
-        this.emitter.emit('pageCropToggled', pageIndex);
-      });
-    }
-
-    if (removeBtn) {
-      removeBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent drag
-        this.emitter.emit('pageRemoved', pageIndex);
-      });
-    }
+    });
   }
 
   _getPageCells(pageIndex) {
@@ -964,7 +800,7 @@ export class UIManager {
     }
 
     const files = Array.from(e.dataTransfer.files);
-    let pdfFiles = files.filter(file => file.type === 'application/pdf');
+    const pdfFiles = files.filter(file => file.type === 'application/pdf');
 
     if (pdfFiles.length > 0) {
       if (pdfFiles.length > 10) {
@@ -1166,6 +1002,50 @@ export class UIManager {
       this.elements.zineSheetsContainer.querySelector('.page-content-img:not(.hidden)') !== null;
   }
 
+  createUploadedFileListItem(fileInfo, index) {
+    const itemWrapper = document.createElement('div');
+    itemWrapper.className = 'uploaded-file-item flex items-center justify-between p-2 bg-white border border-black rounded mb-2';
+
+    const contentWrapper = document.createElement('div');
+    contentWrapper.className = 'flex items-center gap-2';
+
+    const icon = document.createElement('span');
+    icon.className = 'material-symbols-outlined text-sm';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = 'description';
+
+    const textWrapper = document.createElement('div');
+
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'text-xs font-bold font-typewriter';
+    nameDiv.textContent = fileInfo.name;
+
+    const sizeDiv = document.createElement('div');
+    sizeDiv.className = 'text-[10px] text-gray-500';
+    sizeDiv.textContent = formatFileSize(fileInfo.size);
+
+    textWrapper.appendChild(nameDiv);
+    textWrapper.appendChild(sizeDiv);
+    contentWrapper.appendChild(icon);
+    contentWrapper.appendChild(textWrapper);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black';
+    removeBtn.title = `Remove ${fileInfo.name}`;
+    removeBtn.setAttribute('aria-label', `Remove ${fileInfo.name}`);
+    removeBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">close</span>';
+    removeBtn.addEventListener('click', () => {
+      if (window.zineMaker && typeof window.zineMaker.removeUploadedFile === 'function') {
+        window.zineMaker.removeUploadedFile(index);
+      }
+    });
+
+    itemWrapper.appendChild(contentWrapper);
+    itemWrapper.appendChild(removeBtn);
+
+    return itemWrapper;
+  }
+
   /**
    * Update the uploaded files list display
    */
@@ -1190,41 +1070,7 @@ export class UIManager {
     wrapper.appendChild(header);
 
     uploadedFiles.forEach((fileInfo, index) => {
-      const itemWrapper = document.createElement('div');
-      itemWrapper.className = 'uploaded-file-item flex items-center justify-between p-2 bg-white border border-black rounded mb-2';
-
-      const contentWrapper = document.createElement('div');
-      contentWrapper.className = 'flex items-center gap-2';
-      contentWrapper.innerHTML = '<span class="material-symbols-outlined text-sm" aria-hidden="true">description</span>';
-
-      const textWrapper = document.createElement('div');
-
-      const nameDiv = document.createElement('div');
-      nameDiv.className = 'text-xs font-bold font-typewriter';
-      nameDiv.textContent = fileInfo.name;
-
-      const sizeDiv = document.createElement('div');
-      sizeDiv.className = 'text-[10px] text-gray-500';
-      sizeDiv.textContent = formatFileSize(fileInfo.size);
-
-      textWrapper.appendChild(nameDiv);
-      textWrapper.appendChild(sizeDiv);
-      contentWrapper.appendChild(textWrapper);
-
-      const removeBtn = document.createElement('button');
-      removeBtn.className = 'remove-file-btn w-6 h-6 bg-red-500 hover:bg-red-600 text-white border border-black flex items-center justify-center text-xs focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black';
-      removeBtn.title = `Remove ${fileInfo.name}`;
-      removeBtn.setAttribute('aria-label', `Remove ${fileInfo.name}`);
-      removeBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">close</span>';
-      removeBtn.addEventListener('click', () => {
-        if (window.zineMaker && typeof window.zineMaker.removeUploadedFile === 'function') {
-          window.zineMaker.removeUploadedFile(index);
-        }
-      });
-
-      itemWrapper.appendChild(contentWrapper);
-      itemWrapper.appendChild(removeBtn);
-      wrapper.appendChild(itemWrapper);
+      wrapper.appendChild(this.createUploadedFileListItem(fileInfo, index));
     });
 
     this.elements.uploadedFilesList.appendChild(wrapper);

@@ -47,3 +47,48 @@ export function formatFileSize(bytes) {
 
   return `${size.toFixed(1)} ${units[unitIndex]}`;
 }
+
+/**
+ * Sanitize a limited subset of inline HTML and return it as a fragment.
+ * @param {string} html - Potentially unsafe HTML string
+ * @returns {DocumentFragment} Sanitized fragment safe to append into the DOM
+ */
+export function sanitizeHTML(html) {
+  const fragment = document.createDocumentFragment();
+
+  if (typeof html !== 'string' || html.length === 0) {
+    return fragment;
+  }
+
+  const template = document.createElement('template');
+  template.innerHTML = html;
+
+  const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'BR', 'CODE', 'SPAN']);
+
+  const sanitizeNode = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return document.createTextNode(node.textContent || '');
+    }
+
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return document.createTextNode('');
+    }
+
+    if (!allowedTags.has(node.tagName)) {
+      return document.createTextNode(node.textContent || '');
+    }
+
+    const cleanElement = document.createElement(node.tagName.toLowerCase());
+    Array.from(node.childNodes).forEach((child) => {
+      cleanElement.appendChild(sanitizeNode(child));
+    });
+
+    return cleanElement;
+  };
+
+  Array.from(template.content.childNodes).forEach((child) => {
+    fragment.appendChild(sanitizeNode(child));
+  });
+
+  return fragment;
+}

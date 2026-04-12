@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('File Name DOM XSS', () => {
   test('should execute script if vulnerable via innerHTML directly', async ({ page }) => {
-    await page.goto('http://localhost:8000');
+    await page.goto('/');
 
     // Just inject the vulnerability directly to see if the element is actually created!
     await page.evaluate(() => {

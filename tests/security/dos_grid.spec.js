@@ -1,26 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { spawn } from 'child_process';
-
-let server;
-
-test.beforeAll(async () => {
-  console.log('Starting dev server for dos grid test...');
-  server = spawn('pnpm', ['dev', '--port', '3003'], {
-    stdio: 'ignore',
-    shell: true,
-    detached: true
-  });
-  await new Promise(resolve => setTimeout(resolve, 3000));
-});
-
-test.afterAll(() => {
-  if (server) {
-    try { process.kill(-server.pid); } catch (e) {}
-  }
-});
 
 test('Should clamp extreme grid layout dimensions to prevent DoS', async ({ page }) => {
-  await page.goto('http://localhost:3003');
+  await page.goto('/');
 
   // Input extreme values into grid rows and cols
   const rowsInput = page.locator('#grid-rows');

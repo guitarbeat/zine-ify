@@ -290,7 +290,6 @@ class PDFZineMaker {
       };
 
       const activePromises = new Set();
-      let poolError = null;
 
       for (let i = 1; i <= maxPages; i++) {
         if (poolError) { throw poolError; }
@@ -304,7 +303,7 @@ class PDFZineMaker {
           activePromises.delete(promise);
         });
 
-        if (activePromises.size >= batchSize) {
+        if (activePromises.size >= concurrencyLimit) {
           await Promise.race(activePromises);
         }
       }

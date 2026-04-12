@@ -1,28 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { exec } from 'child_process';
-
-const PORT = 3004;
-
-test.describe.configure({ mode: 'serial' });
 
 test.describe('Grid DoS Protection', () => {
-  let serverProcess;
-
-  test.beforeAll(async () => {
-    // Start the local dev server on the specific port for this test
-    serverProcess = exec(`pnpm run dev --port ${PORT}`);
-    // Wait for the server to spin up
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-  });
-
-  test.afterAll(() => {
-    if (serverProcess) {
-      serverProcess.kill();
-    }
-  });
-
   test('should clamp large grid inputs to prevent massive DOM node generation (client-side DoS)', async ({ page }) => {
-    await page.goto(`http://localhost:${PORT}/`);
+    await page.goto('/');
 
     // Verify UI is loaded
     await expect(page.locator('#grid-rows')).toBeVisible();
