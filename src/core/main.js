@@ -261,26 +261,32 @@ class PDFZineMaker {
       const description = `PDF arranged into a ${rows}×${cols} grid`;
       this.ui.setReady(true, description);
 
-      const batchSize = 4;
+      const concurrencyLimit = 4;
       let completedPages = 0;
+      let poolError = null;
 
       const processPage = async (pageNum) => {
-        const targetIndex = currentFilledPages + pageNum - 1;
-        const canvas = await this.pdfProcessor.renderPage(pageNum);
-        const url = await this.pdfProcessor.canvasToBlob(canvas);
+        try {
+          const targetIndex = currentFilledPages + pageNum - 1;
+          const canvas = await this.pdfProcessor.renderPage(pageNum);
+          const url = await this.pdfProcessor.canvasToBlob(canvas);
 
-        const oldUrl = this.allPageImages[targetIndex];
-        if (oldUrl && oldUrl !== this._blankPageUrl) {
-          this.pdfProcessor.revokeBlobUrl(oldUrl);
+          const oldUrl = this.allPageImages[targetIndex];
+          if (oldUrl && oldUrl !== this._blankPageUrl) {
+            this.pdfProcessor.revokeBlobUrl(oldUrl);
+          }
+
+          this.allPageImages[targetIndex] = url;
+          this.ui.updatePagePreview(targetIndex, url);
+
+          completedPages++;
+          const percent = Math.round((completedPages / maxPages) * 100);
+          this.ui.showProgress(true, 'Processing Pages...', `${percent}%`);
+          this.ui.updateProgress(percent);
+        } catch (error) {
+          poolError = error;
+          throw error;
         }
-
-        this.allPageImages[targetIndex] = url;
-        this.ui.updatePagePreview(targetIndex, url);
-
-        completedPages++;
-        const percent = Math.round((completedPages / maxPages) * 100);
-        this.ui.showProgress(true, 'Processing Pages...', `${percent}%`);
-        this.ui.updateProgress(percent);
       };
 
       const activePromises = new Set();
