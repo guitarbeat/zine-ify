@@ -229,6 +229,51 @@ export class PDFProcessor {
   }
 
   /**
+   * Render a lower-resolution page preview for selection UIs
+   * @param {number} pageNum - Page number to render
+   * @returns {Promise<HTMLCanvasElement>} Rendered preview canvas
+   */
+  async renderPageThumbnail(pageNum) {
+    if (!this.pdf) {
+      throw new Error('No PDF loaded');
+    }
+
+    try {
+      const page = await this.pdf.getPage(pageNum);
+      const baseViewport = page.getViewport({ scale: 1 });
+      const maxEdge = 420;
+      const scale = Math.max(
+        0.2,
+        Math.min(maxEdge / Math.max(baseViewport.width, baseViewport.height), 0.6)
+      );
+      const viewport = page.getViewport({ scale });
+
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.floor(viewport.width));
+      canvas.height = Math.max(1, Math.floor(viewport.height));
+
+      const context = canvas.getContext('2d', { alpha: false });
+      if (!context) {
+        throw new Error(`Failed to acquire canvas context for preview page ${pageNum}`);
+      }
+
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      await page.render({
+        canvasContext: context,
+        viewport,
+        background: 'white'
+      }).promise;
+
+      page.cleanup();
+      return canvas;
+    } catch (error) {
+      throw new Error(`Failed to render preview page ${pageNum}`, { cause: error });
+    }
+  }
+
+  /**
    * Convert canvas to Blob URL for performance
    * @param {HTMLCanvasElement|OffscreenCanvas} canvas - Canvas to convert
    * @returns {Promise<string>} Blob URL

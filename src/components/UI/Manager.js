@@ -70,6 +70,7 @@ export class UIManager {
     this.orientation = 'landscape';
     this._pageCellsCache = null;
     this.activePageIndex = null;
+    this.pagePickerState = null;
     this.init();
   }
 
@@ -144,7 +145,23 @@ export class UIManager {
       close3dBtn: $('#close-3d-btn'),
       zine3dContainer: $('#zine-3d-container'),
       foldSlider: $('#fold-slider'),
-      foldStatus: $('#fold-status')
+      foldStatus: $('#fold-status'),
+
+      // Page Picker Modal
+      pagePickerModal: $('#page-picker-modal'),
+      pagePickerBackdrop: $('#page-picker-backdrop'),
+      pagePickerClose: $('#page-picker-close'),
+      pagePickerCancel: $('#page-picker-cancel'),
+      pagePickerConfirm: $('#page-picker-confirm'),
+      pagePickerGrid: $('#page-picker-grid'),
+      pagePickerCount: $('#page-picker-count'),
+      pagePickerSubtitle: $('#page-picker-subtitle'),
+      pagePickerHelper: $('#page-picker-helper'),
+      pagePickerSelectFirst: $('#page-picker-select-first'),
+      pagePickerSelectLast: $('#page-picker-select-last'),
+      pagePickerSelectEven: $('#page-picker-select-even'),
+      pagePickerSelectOdd: $('#page-picker-select-odd'),
+      pagePickerClear: $('#page-picker-clear')
     };
 
   }
@@ -187,6 +204,17 @@ export class UIManager {
         }
         this.emitter.emit('foldProgress', val);
     });
+
+    // Page picker modal
+    this.elements.pagePickerClose?.addEventListener('click', () => this.closePagePicker(null));
+    this.elements.pagePickerCancel?.addEventListener('click', () => this.closePagePicker(null));
+    this.elements.pagePickerBackdrop?.addEventListener('click', () => this.closePagePicker(null));
+    this.elements.pagePickerConfirm?.addEventListener('click', () => this.confirmPagePickerSelection());
+    this.elements.pagePickerSelectFirst?.addEventListener('click', () => this.applyPagePickerPreset('first'));
+    this.elements.pagePickerSelectLast?.addEventListener('click', () => this.applyPagePickerPreset('last'));
+    this.elements.pagePickerSelectEven?.addEventListener('click', () => this.applyPagePickerPreset('even'));
+    this.elements.pagePickerSelectOdd?.addEventListener('click', () => this.applyPagePickerPreset('odd'));
+    this.elements.pagePickerClear?.addEventListener('click', () => this.applyPagePickerPreset('clear'));
 
     // Upload interactions
     this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
@@ -771,6 +799,188 @@ export class UIManager {
     });
   }
 
+  isPagePickerOpen() {
+    return !!this.pagePickerState;
+  }
+
+  async showPagePicker({ fileName, totalPages, selectionLimit, thumbnails }) {
+    if (!this.elements.pagePickerModal || !this.elements.pagePickerGrid) {
+      return Array.from({ length: Math.min(selectionLimit, totalPages) }, (_, index) => index + 1);
+    }
+
+    if (this.pagePickerState?.resolve) {
+      this.pagePickerState.resolve(null);
+    }
+
+    const initialSelection = thumbnails
+      .slice(0, Math.min(selectionLimit, thumbnails.length))
+      .map(item => item.pageNumber);
+
+    this.pagePickerState = {
+      resolve: null,
+      thumbnails,
+      selectionLimit,
+      selected: new Set(initialSelection)
+    };
+
+    if (this.elements.pagePickerSubtitle) {
+      this.elements.pagePickerSubtitle.textContent = `${fileName} has ${totalPages} pages. Pick up to ${selectionLimit}.`;
+    }
+
+    if (this.elements.pagePickerSelectFirst) {
+      this.elements.pagePickerSelectFirst.textContent = `First ${selectionLimit}`;
+    }
+    if (this.elements.pagePickerSelectLast) {
+      this.elements.pagePickerSelectLast.textContent = `Last ${selectionLimit}`;
+    }
+
+    this.elements.pagePickerGrid.innerHTML = '';
+
+    thumbnails.forEach(({ pageNumber, thumbnailUrl }) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'page-picker-thumb';
+      button.setAttribute('data-page-number', pageNumber);
+      button.setAttribute('aria-pressed', initialSelection.includes(pageNumber) ? 'true' : 'false');
+
+      button.innerHTML = `
+        <div class="page-picker-thumb-media">
+          <img src="${thumbnailUrl}" alt="PDF page ${pageNumber}">
+        </div>
+        <div class="page-picker-thumb-page">
+          <span>Page ${pageNumber}</span>
+          <span class="page-picker-thumb-order" aria-hidden="true"></span>
+        </div>
+      `;
+
+      button.addEventListener('click', () => this.togglePagePickerSelection(pageNumber));
+      this.elements.pagePickerGrid.appendChild(button);
+    });
+
+    this.elements.pagePickerModal.classList.remove('hidden');
+    this.elements.pagePickerModal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+    this.updatePagePickerSelectionUI();
+
+    return new Promise((resolve) => {
+      if (this.pagePickerState) {
+        this.pagePickerState.resolve = resolve;
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  togglePagePickerSelection(pageNumber) {
+    if (!this.pagePickerState) { return; }
+
+    const { selected, selectionLimit } = this.pagePickerState;
+
+    if (selected.has(pageNumber)) {
+      selected.delete(pageNumber);
+    } else {
+      if (selected.size >= selectionLimit) {
+        toast.warning('Selection Full', `Pick up to ${selectionLimit} pages for this upload.`);
+        return;
+      }
+      selected.add(pageNumber);
+    }
+
+    this.updatePagePickerSelectionUI();
+  }
+
+  applyPagePickerPreset(preset) {
+    if (!this.pagePickerState) { return; }
+
+    const { thumbnails, selectionLimit, selected } = this.pagePickerState;
+    selected.clear();
+
+    let nextSelection = [];
+    if (preset === 'first') {
+      nextSelection = thumbnails.slice(0, selectionLimit);
+    } else if (preset === 'last') {
+      nextSelection = thumbnails.slice(-selectionLimit);
+    } else if (preset === 'even') {
+      nextSelection = thumbnails.filter(item => item.pageNumber % 2 === 0).slice(0, selectionLimit);
+    } else if (preset === 'odd') {
+      nextSelection = thumbnails.filter(item => item.pageNumber % 2 === 1).slice(0, selectionLimit);
+    } else if (preset === 'clear') {
+      nextSelection = [];
+    }
+
+    nextSelection.forEach(item => selected.add(item.pageNumber));
+    this.updatePagePickerSelectionUI();
+  }
+
+  updatePagePickerSelectionUI() {
+    if (!this.pagePickerState || !this.elements.pagePickerGrid) { return; }
+
+    const selectedPages = Array.from(this.pagePickerState.selected).sort((a, b) => a - b);
+    const orderMap = new Map(selectedPages.map((pageNumber, index) => [pageNumber, index + 1]));
+    const hasCapacity = selectedPages.length < this.pagePickerState.selectionLimit;
+
+    Array.from(this.elements.pagePickerGrid.children).forEach((node) => {
+      const button = /** @type {HTMLButtonElement} */ (node);
+      const pageNumber = parseInt(button.getAttribute('data-page-number') || '', 10);
+      const isSelected = orderMap.has(pageNumber);
+      const orderNode = button.querySelector('.page-picker-thumb-order');
+
+      button.classList.toggle('is-selected', isSelected);
+      button.classList.toggle('is-disabled', !isSelected && !hasCapacity);
+      button.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+
+      if (orderNode) {
+        orderNode.textContent = isSelected ? String(orderMap.get(pageNumber)) : '';
+      }
+    });
+
+    if (this.elements.pagePickerCount) {
+      this.elements.pagePickerCount.textContent = `${selectedPages.length} of ${this.pagePickerState.selectionLimit} selected`;
+    }
+
+    if (this.elements.pagePickerHelper) {
+      this.elements.pagePickerHelper.textContent = selectedPages.length === 0
+        ? `Choose up to ${this.pagePickerState.selectionLimit} pages to import.`
+        : `Selected pages: ${selectedPages.join(', ')}`;
+    }
+
+    if (this.elements.pagePickerConfirm) {
+      this.elements.pagePickerConfirm.disabled = selectedPages.length === 0;
+      this.elements.pagePickerConfirm.setAttribute('aria-disabled', selectedPages.length === 0 ? 'true' : 'false');
+    }
+  }
+
+  confirmPagePickerSelection() {
+    if (!this.pagePickerState) { return; }
+
+    const selectedPages = Array.from(this.pagePickerState.selected).sort((a, b) => a - b);
+    if (selectedPages.length === 0) {
+      toast.warning('No Pages Selected', 'Choose at least one page to import.');
+      return;
+    }
+
+    this.closePagePicker(selectedPages);
+  }
+
+  closePagePicker(result) {
+    if (!this.pagePickerState) { return; }
+
+    const { resolve } = this.pagePickerState;
+    this.pagePickerState = null;
+
+    if (this.elements.pagePickerModal) {
+      this.elements.pagePickerModal.classList.add('hidden');
+      this.elements.pagePickerModal.classList.remove('flex');
+    }
+
+    if (this.elements.pagePickerGrid) {
+      this.elements.pagePickerGrid.innerHTML = '';
+    }
+
+    document.body.style.overflow = '';
+    resolve?.(result);
+  }
+
 
   triggerFileUpload() {
     this.elements.pdfUpload?.click();
@@ -817,6 +1027,17 @@ export class UIManager {
   }
 
   handleKeyboard(e) {
+    if (this.isPagePickerOpen()) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.closePagePicker(null);
+      } else if (e.key === 'Enter' && document.activeElement?.tagName !== 'BUTTON') {
+        e.preventDefault();
+        this.confirmPagePickerSelection();
+      }
+      return;
+    }
+
     // Global keyboard shortcuts
     if (e.key.toLowerCase() === 'p' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();

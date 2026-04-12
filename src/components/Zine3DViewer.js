@@ -7,6 +7,7 @@ export class Zine3DViewer {
     this.pages = [];
     this.w = 1.0;
     this.h = 1.414; // A-series proportion
+    this.panelThickness = 0.002;
     
     // Page configuration mapped to a 4x2 grid
     this.pagesConfig = {
@@ -68,7 +69,14 @@ export class Zine3DViewer {
    */
   loadPages(imageUrls) {
     // Clear existing planes
-    this.pages.forEach(p => this.scene.remove(p.mesh));
+    this.pages.forEach((page) => {
+      this.scene.remove(page.group);
+      page.frontMaterial?.map?.dispose?.();
+      page.frontMaterial?.dispose?.();
+      page.backMaterial?.dispose?.();
+      page.frontGeometry?.dispose?.();
+      page.backGeometry?.dispose?.();
+    });
     this.pages = [];
 
     const textureLoader = new THREE.TextureLoader();
@@ -76,37 +84,56 @@ export class Zine3DViewer {
     for (let i = 1; i <= 8; i++) {
       const config = this.pagesConfig[i];
       const url = imageUrls[i - 1]; // Array is 0-indexed
-      
-      const geometry = new THREE.PlaneGeometry(this.w, this.h, 4, 4);
-      
-      let material;
+
+      const group = new THREE.Group();
+      const frontGeometry = new THREE.PlaneGeometry(this.w, this.h, 4, 4);
+      const backGeometry = new THREE.PlaneGeometry(this.w, this.h, 1, 1);
+
+      let frontMaterial;
       if (url) {
         const texture = textureLoader.load(url);
-        // Fix rotation for top row pages directly in UVs or material
         if (config.isTop) {
           texture.center.set(0.5, 0.5);
           texture.rotation = Math.PI;
         }
-        material = new THREE.MeshStandardMaterial({ 
-          map: texture, 
-          side: THREE.DoubleSide,
-          roughness: 0.8
+        frontMaterial = new THREE.MeshStandardMaterial({
+          map: texture,
+          side: THREE.FrontSide,
+          roughness: 0.85
         });
       } else {
-        material = new THREE.MeshStandardMaterial({ 
-          color: 0xffffff, 
-          side: THREE.DoubleSide,
-          roughness: 0.8
+        frontMaterial = new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          side: THREE.FrontSide,
+          roughness: 0.85
         });
       }
 
-      const mesh = new THREE.Mesh(geometry, material);
-      this.scene.add(mesh);
+      const backMaterial = new THREE.MeshStandardMaterial({
+        color: 0xf4f1ea,
+        side: THREE.FrontSide,
+        roughness: 0.95
+      });
+
+      const frontMesh = new THREE.Mesh(frontGeometry, frontMaterial);
+      frontMesh.position.z = this.panelThickness;
+
+      const backMesh = new THREE.Mesh(backGeometry, backMaterial);
+      backMesh.rotation.y = Math.PI;
+      backMesh.position.z = -this.panelThickness;
+
+      group.add(frontMesh);
+      group.add(backMesh);
+      this.scene.add(group);
       
       this.pages.push({
         id: i,
-        mesh,
-        config
+        group,
+        config,
+        frontMaterial,
+        backMaterial,
+        frontGeometry,
+        backGeometry
       });
     }
 
@@ -123,20 +150,36 @@ export class Zine3DViewer {
    * @param {number} progress  0=flat, 1=hotdog, 2=cross, 3=closed
    */
   setFoldProgress(progress) {
-    const hotdog = Math.max(0, Math.min(1, progress));
-    const cross = Math.max(0, Math.min(1, progress - 1));
-    const close = Math.max(0, Math.min(1, progress - 2));
-
-    const theta = cross * Math.PI / 2;
-    const closeAngle = close * Math.PI;
+    const centerAndQuarter = Math.max(0, Math.min(1, progress));
+    const horizontalFold = Math.max(0, Math.min(1, progress - 1));
+    const bookletClose = Math.max(0, Math.min(1, progress - 2));
     const w = this.w;
     const h = this.h;
-    
-    // Used to gently push planes apart when closed to avoid z-fighting
-    const gap = 0.005;
+
+    const rotateAroundY = (x, z, hingeX, angle) => {
+      const dx = x - hingeX;
+      const cosA = Math.cos(angle);
+      const sinA = Math.sin(angle);
+
+      return {
+        x: hingeX + (dx * cosA),
+        z: z - (dx * sinA)
+      };
+    };
+
+    const rotateAroundX = (y, z, hingeY, angle) => {
+      const dy = y - hingeY;
+      const cosA = Math.cos(angle);
+      const sinA = Math.sin(angle);
+
+      return {
+        y: hingeY + (dy * cosA),
+        z: z + (dy * sinA)
+      };
+    };
 
     this.pages.forEach(page => {
-      const { mesh, config } = page;
+      const { group, config } = page;
       
       // Initial flat coordinate centers
       let x = (config.col - 1.5) * w;
@@ -147,63 +190,46 @@ export class Zine3DViewer {
       let ry = 0;
       const rz = 0;
 
-      // 1. Hotdog Fold (rotates top row around X axis at y=0)
+      // 1. Vertical folds first: center/quarter folds collapse columns into two booklet panels.
+      let verticalAngle = 0;
+      let hingeX = 0;
+      if (config.col === 0) {
+        verticalAngle = centerAndQuarter * Math.PI;
+        hingeX = -w;
+      } else if (config.col === 1) {
+        verticalAngle = centerAndQuarter * Math.PI;
+        hingeX = 0;
+      } else if (config.col === 2) {
+        verticalAngle = -centerAndQuarter * Math.PI;
+        hingeX = 0;
+      } else if (config.col === 3) {
+        verticalAngle = -centerAndQuarter * Math.PI;
+        hingeX = w;
+      }
+
+      ({ x, z } = rotateAroundY(x, z, hingeX, verticalAngle));
+      ry += verticalAngle;
+
+      // 2. Fold the top strip down over the bottom strip along the center slit/fold axis.
       if (config.isTop) {
-        const currentY = y;
-        const angle = hotdog * Math.PI;
-        y = currentY * Math.cos(angle);
-        z = currentY * Math.sin(angle);
-        rx += angle;
+        const horizontalAngle = -horizontalFold * Math.PI;
+        ({ y, z } = rotateAroundX(y, z, 0, horizontalAngle));
+        rx += horizontalAngle;
       }
 
-      // 2. Cross Fold (pop out)
-      if (config.col === 0) { // Left wings
-        const hingeX = -w * Math.cos(theta); 
-        x = hingeX - 0.5 * w;
-      } else if (config.col === 3) { // Right wings
-        const hingeX = w * Math.cos(theta);
-        x = hingeX + 0.5 * w;
-      } else if (config.col === 1) { // Center Left
-        const hingeX = -w * Math.cos(theta);
-        const dir = config.isTop ? -1 : 1; 
-        const popZ = dir * w * Math.sin(theta);
-        
-        x = hingeX / 2; 
-        z += popZ / 2;
-        ry += dir * -theta; 
-      } else if (config.col === 2) { // Center Right
-        const hingeX = w * Math.cos(theta);
-        const dir = config.isTop ? -1 : 1;
-        const popZ = dir * w * Math.sin(theta);
-        
-        x = hingeX / 2;
-        z += popZ / 2;
-        ry += dir * theta;
+      // 3. Close the booklet around the spine so both halves participate.
+      if (bookletClose > 0) {
+        const closeDirection = x < 0 ? 1 : -1;
+        const closeAngle = closeDirection * bookletClose * (Math.PI / 2);
+        ({ x, z } = rotateAroundY(x, z, 0, closeAngle));
+        ry += closeAngle;
+
+        const depthShift = (config.zOrder - 3.5) * 0.004;
+        z += depthShift * (1 + bookletClose);
       }
 
-      // 3. Close Fold
-      if (close > 0) {
-        let pivotAngle = 0;
-        if (config.col === 0) {pivotAngle = closeAngle;} else if (config.col === 1 && !config.isTop) {pivotAngle = closeAngle / 2;} else if (config.col === 1 && config.isTop) {pivotAngle = -closeAngle / 2;} else if (config.col === 2 && !config.isTop) {pivotAngle = closeAngle / 2;} else if (config.col === 2 && config.isTop) {pivotAngle = -closeAngle / 2;} 
-        
-        const cosA = Math.cos(pivotAngle);
-        const sinA = Math.sin(pivotAngle);
-        const nx = x * cosA + z * sinA;
-        const nz = -x * sinA + z * cosA;
-        x = nx;
-        z = nz;
-        ry += pivotAngle;
-        
-        // Z-fight prevention 
-        // Shift planes slightly along their normal based on depth sorting
-        // config.zOrder is 0 for back cover, 7 for front cover
-        // shift goes from -gap*3.5 to +gap*3.5
-        const depthShift = (config.zOrder - 3.5) * gap * close;
-        z += depthShift;
-      }
-
-      mesh.position.set(x, y, z);
-      mesh.rotation.set(rx, ry, rz, 'YXZ');
+      group.position.set(x, y, z);
+      group.rotation.set(rx, ry, rz, 'YXZ');
     });
   }
 
@@ -217,6 +243,13 @@ export class Zine3DViewer {
     cancelAnimationFrame(this.animationId);
     window.removeEventListener('resize', this.onWindowResize);
     this.container.removeChild(this.renderer.domElement);
+    this.pages.forEach((page) => {
+      page.frontMaterial?.map?.dispose?.();
+      page.frontMaterial?.dispose?.();
+      page.backMaterial?.dispose?.();
+      page.frontGeometry?.dispose?.();
+      page.backGeometry?.dispose?.();
+    });
     this.renderer.dispose();
   }
 }

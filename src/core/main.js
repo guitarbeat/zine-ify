@@ -191,6 +191,48 @@ class PDFZineMaker {
     this.renderCurrentLayout();
   }
 
+  async getSelectedPagesForImport(fileName, numPages) {
+    const selectionLimit = Math.max(1, this.gridSize.rows * this.gridSize.cols);
+
+    if (numPages <= selectionLimit) {
+      return Array.from({ length: numPages }, (_, index) => index + 1);
+    }
+
+    toast.info('Choose Pages', `Pick up to ${selectionLimit} pages from ${fileName}.`);
+    this.ui.showProgress(true, 'Preparing Page Picker...', 'Rendering thumbnails');
+
+    const thumbnails = [];
+
+    try {
+      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        const canvas = await this.pdfProcessor.renderPageThumbnail(pageNum);
+        const thumbnailUrl = await this.pdfProcessor.canvasToBlob(canvas);
+        thumbnails.push({ pageNumber: pageNum, thumbnailUrl });
+
+        const percent = Math.round((pageNum / numPages) * 100);
+        this.ui.updateProgress(percent);
+        this.ui.showProgress(true, 'Preparing Page Picker...', `${percent}%`);
+      }
+    } finally {
+      this.ui.showProgress(false);
+    }
+
+    try {
+      const selectedPages = await this.ui.showPagePicker({
+        fileName,
+        totalPages: numPages,
+        selectionLimit,
+        thumbnails
+      });
+
+      return selectedPages;
+    } finally {
+      thumbnails.forEach(({ thumbnailUrl }) => {
+        this.pdfProcessor.revokeBlobUrl(thumbnailUrl);
+      });
+    }
+  }
+
 
 
   handleFileSelected(file) {
@@ -232,6 +274,13 @@ class PDFZineMaker {
       });
 
       const { numPages } = result;
+      const selectedPages = await this.getSelectedPagesForImport(file.name, numPages);
+
+      if (!selectedPages || selectedPages.length === 0) {
+        this.ui.setStatus(`Skipped: ${file.name}`, 'info');
+        toast.info('Import Cancelled', 'No pages were added from that PDF.');
+        return;
+      }
 
       // Find the current filled pages
       let currentFilledPages = 0;
@@ -241,9 +290,9 @@ class PDFZineMaker {
         }
       }
 
-      this.totalPages = currentFilledPages + numPages;
+      this.totalPages = currentFilledPages + selectedPages.length;
       this.selectedLayout = this.totalPages;
-      const maxPages = numPages;
+      const maxPages = selectedPages.length;
       const { rows, cols } = this.gridSize;
       const requiredLength = this.getRequiredPageCapacity(this.totalPages);
 
@@ -265,9 +314,9 @@ class PDFZineMaker {
       let completedPages = 0;
       let poolError = null;
 
-      const processPage = async (pageNum) => {
+      const processPage = async (pageNum, selectedIndex) => {
         try {
-          const targetIndex = currentFilledPages + pageNum - 1;
+          const targetIndex = currentFilledPages + selectedIndex;
           const canvas = await this.pdfProcessor.renderPage(pageNum);
           const url = await this.pdfProcessor.canvasToBlob(canvas);
 
@@ -291,10 +340,10 @@ class PDFZineMaker {
 
       const activePromises = new Set();
 
-      for (let i = 1; i <= maxPages; i++) {
+      for (const [selectedIndex, pageNum] of selectedPages.entries()) {
         if (poolError) { throw poolError; }
 
-        const promise = processPage(i).catch(err => {
+        const promise = processPage(pageNum, selectedIndex).catch(err => {
           poolError = err;
         });
         activePromises.add(promise);
@@ -308,8 +357,8 @@ class PDFZineMaker {
         }
       }
 
-      // Wait for any remaining promises to complete
       await Promise.all(activePromises);
+
       if (poolError) { throw poolError; }
 
       // Fill blanks
@@ -318,7 +367,7 @@ class PDFZineMaker {
       }
 
       this.ui.showProgress(false);
-      this.ui.setStatus(`Successfully processed ${numPages} pages`, 'success');
+      this.ui.setStatus(`Imported ${selectedPages.length} of ${numPages} pages`, 'success');
       toast.success('Done!', 'Your zine is ready to print.');
 
     } catch (error) {

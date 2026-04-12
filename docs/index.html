@@ -10,10 +10,10 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
-  <script type="module" crossorigin src="./assets/index-DgM_2Jvu.js"></script>
+  <script type="module" crossorigin src="./assets/index-B2fl7gF-.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/jspdf-D9g9k289.js">
   <link rel="modulepreload" crossorigin href="./assets/pdfjs-6LAvbAPc.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-Dc2NyMij.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-DM_5HJRJ.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
@@ -205,9 +205,67 @@
         </div>
     </div>
 
+    <!-- Page Picker Modal -->
+    <div id="page-picker-modal" class="fixed inset-0 z-[220] hidden items-center justify-center p-4 sm:p-6">
+        <div id="page-picker-backdrop" class="absolute inset-0 bg-black/60"></div>
+        <div class="relative w-full max-w-6xl max-h-[92dvh] bg-[var(--bg-neutral)] border-4 border-black flex flex-col overflow-hidden"
+            style="box-shadow: 8px 8px 0px 0px black;">
+            <div class="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 border-b-4 border-black bg-white">
+                <div>
+                    <h3 class="font-marker text-lg sm:text-2xl tracking-wide">PICK YOUR PAGES</h3>
+                    <p id="page-picker-subtitle" class="text-[11px] sm:text-xs font-bold uppercase tracking-wider mt-1">
+                        Select the pages you want to import
+                    </p>
+                </div>
+                <button id="page-picker-close" type="button"
+                    class="action-button w-10 h-10 flex items-center justify-center bg-white text-black font-bold">
+                    <span class="material-symbols-outlined" aria-hidden="true">close</span>
+                </button>
+            </div>
+
+            <div class="px-4 py-3 sm:px-6 border-b-2 border-black bg-white flex flex-col gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button id="page-picker-select-first" type="button" class="page-picker-chip">First 8</button>
+                    <button id="page-picker-select-last" type="button" class="page-picker-chip">Last 8</button>
+                    <button id="page-picker-select-even" type="button" class="page-picker-chip">Even Pages</button>
+                    <button id="page-picker-select-odd" type="button" class="page-picker-chip">Odd Pages</button>
+                    <button id="page-picker-clear" type="button" class="page-picker-chip">Clear</button>
+                </div>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <p id="page-picker-count" class="text-xs sm:text-sm font-bold uppercase tracking-wide">
+                        0 selected
+                    </p>
+                    <p class="text-[11px] uppercase font-bold tracking-wider text-gray-600">
+                        Click thumbnails to toggle. The import order follows the page numbers you select.
+                    </p>
+                </div>
+            </div>
+
+            <div id="page-picker-grid" class="page-picker-grid flex-1 overflow-y-auto p-4 sm:p-6 bg-[var(--bg-neutral)]">
+            </div>
+
+            <div class="flex items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 border-t-4 border-black bg-white">
+                <p id="page-picker-helper" class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-600">
+                    Choose the pages you want in this zine.
+                </p>
+                <div class="flex items-center gap-3">
+                    <button id="page-picker-cancel" type="button"
+                        class="action-button py-2 px-4 bg-white text-black font-bold">
+                        Cancel
+                    </button>
+                    <button id="page-picker-confirm" type="button"
+                        class="action-button py-2 px-4 text-white font-bold"
+                        style="background-color: var(--primary-vibrant);">
+                        Import Selected
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
   <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-BGl66PUP.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-DO-LAoUe.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-BieW-IYJ.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>
