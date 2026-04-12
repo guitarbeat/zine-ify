@@ -629,14 +629,9 @@ export class UIManager {
         // ⚡ Bolt: Use replaceChildren with cloned template instead of innerHTML to safely overwrite and avoid re-parsing
         cell.replaceChildren(PAGE_CELL_TEMPLATE.content.cloneNode(true));
 
-        const pageLabel = cell.querySelector('.page-label');
-        pageLabel.textContent = labelText;
-        if (numSheets > 1) {
-          const sheetSpan = document.createElement('span');
-          sheetSpan.className = 'opacity-50 text-[8px] ml-1';
-          sheetSpan.textContent = `(Sheet ${s})`;
-          pageLabel.appendChild(sheetSpan);
-        }
+        <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
+        <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
+      `;
 
         cell.querySelector('.page-content-img').alt = `Page ${pageIdx}`;
 
