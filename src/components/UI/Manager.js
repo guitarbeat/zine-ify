@@ -554,6 +554,24 @@ export class UIManager {
       }
       this.setButtonAriaLabels(cell, labelText);
 
+      const zoomBtn = cell.querySelector('.zoom-btn');
+      if (zoomBtn) {
+        zoomBtn.setAttribute('title', `Quick Preview ${labelText}`);
+        zoomBtn.setAttribute('aria-label', `Quick Preview ${labelText}`);
+      }
+
+      const cropBtn = cell.querySelector('.crop-btn');
+      if (cropBtn) {
+        cropBtn.setAttribute('title', `Toggle Crop/Zoom ${labelText}`);
+        cropBtn.setAttribute('aria-label', `Toggle Crop/Zoom ${labelText}`);
+      }
+
+      const removeBtn = cell.querySelector('.remove-btn');
+      if (removeBtn) {
+        removeBtn.setAttribute('title', `Remove ${labelText}`);
+        removeBtn.setAttribute('aria-label', `Remove ${labelText}`);
+      }
+
       this.setupDragAndDrop(cell);
       this.setupToolbar(cell, labelText);
       this.setupSelection(cell, item.page - 1);
@@ -627,6 +645,24 @@ export class UIManager {
           flipBtn.setAttribute('title', `Flip ${labelText}`);
         }
         this.setButtonAriaLabels(cell, labelText);
+
+        const zoomBtn = cell.querySelector('.zoom-btn');
+        if (zoomBtn) {
+          zoomBtn.setAttribute('title', `Quick Preview ${labelText}`);
+          zoomBtn.setAttribute('aria-label', `Quick Preview ${labelText}`);
+        }
+
+        const cropBtn = cell.querySelector('.crop-btn');
+        if (cropBtn) {
+          cropBtn.setAttribute('title', `Toggle Crop/Zoom ${labelText}`);
+          cropBtn.setAttribute('aria-label', `Toggle Crop/Zoom ${labelText}`);
+        }
+
+        const removeBtn = cell.querySelector('.remove-btn');
+        if (removeBtn) {
+          removeBtn.setAttribute('title', `Remove ${labelText}`);
+          removeBtn.setAttribute('aria-label', `Remove ${labelText}`);
+        }
 
         this.setupDragAndDrop(cell);
         this.setupToolbar(cell, labelText);
