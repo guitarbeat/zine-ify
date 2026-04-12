@@ -964,7 +964,7 @@ export class UIManager {
     }
 
     const files = Array.from(e.dataTransfer.files);
-    const pdfFiles = files.filter(file => file.type === 'application/pdf');
+    let pdfFiles = files.filter(file => file.type === 'application/pdf');
 
     if (pdfFiles.length > 0) {
       if (pdfFiles.length > 10) {
