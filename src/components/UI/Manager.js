@@ -59,6 +59,23 @@ pageCellTemplate.innerHTML = `
   <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
 `;
 
+const PAGE_TOOLBAR_HTML = `
+        <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+           <button aria-label="Zoom preview" class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Quick Preview">
+                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">zoom_in</span>
+           </button>
+           <button aria-label="Toggle crop" class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Toggle Crop/Zoom">
+                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">crop_free</span>
+           </button>
+           <button aria-label="Remove page" class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Remove Page">
+                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">close</span>
+           </button>
+           <button aria-label="Flip page" class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black" title="Flip 180°">
+                <span aria-hidden="true" class="material-symbols-outlined text-lg font-bold">rotate_right</span>
+           </button>
+        </div>
+`;
+
 export class UIManager {
   constructor() {
     this.emitter = mitt();
