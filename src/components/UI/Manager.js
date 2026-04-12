@@ -35,6 +35,30 @@ PAGE_CELL_TEMPLATE.innerHTML = `
   <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-200 ease-in-out relative z-[5]" draggable="false" />
 `;
 
+// Global template for page cells to optimize DOM creation in loops
+const pageCellTemplate = document.createElement('template');
+pageCellTemplate.innerHTML = `
+  <span class="page-label centered absolute px-2 py-1 bg-black text-white text-[10px] font-black rounded uppercase z-10 shadow-[2px_2px_0_black]"></span>
+
+  <div class="absolute top-2 right-2 flex gap-1 z-10 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+     <button class="zoom-btn w-8 h-8 bg-white hover:bg-blue-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Quick Preview">
+          <span class="material-symbols-outlined text-lg font-bold">zoom_in</span>
+     </button>
+     <button class="crop-btn w-8 h-8 bg-white hover:bg-green-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Toggle Crop/Zoom">
+          <span class="material-symbols-outlined text-lg font-bold">crop_free</span>
+     </button>
+     <button class="remove-btn w-8 h-8 bg-white hover:bg-red-400 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Remove Page">
+          <span class="material-symbols-outlined text-lg font-bold">close</span>
+     </button>
+     <button class="flip-btn w-8 h-8 bg-white hover:bg-yellow-300 border-2 border-black flex items-center justify-center text-sm shadow-[2px_2px_0_black] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all focus-visible:ring-2 focus-visible:ring-black focus-visible:outline-none" title="Flip 180°">
+          <span class="material-symbols-outlined text-lg font-bold">rotate_right</span>
+     </button>
+  </div>
+
+  <div class="page-placeholder text-gray-200 text-xs font-black uppercase tracking-widest">Empty</div>
+  <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-300 ease-in-out" draggable="false" />
+`;
+
 export class UIManager {
   constructor() {
     this.emitter = mitt();
