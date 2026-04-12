@@ -439,6 +439,7 @@ export class UIManager {
         this.setupSelection(cell, pageIndex);
         grid.appendChild(cell);
       }
+      this.setButtonAriaLabels(cell, labelText);
 
       sheetWrapper.appendChild(grid);
       this.elements.zineSheetsContainer.appendChild(sheetWrapper);
@@ -533,8 +534,8 @@ export class UIManager {
       const flipBtn = cell.querySelector('.flip-btn');
       if (flipBtn) {
         flipBtn.setAttribute('title', `Flip ${labelText}`);
-        flipBtn.setAttribute('aria-label', `Rotate ${labelText} 180 degrees`);
       }
+      this.setButtonAriaLabels(cell, labelText);
 
       this.setupDragAndDrop(cell);
       this.setupToolbar(cell, labelText);
@@ -607,8 +608,8 @@ export class UIManager {
         const flipBtn = cell.querySelector('.flip-btn');
         if (flipBtn) {
           flipBtn.setAttribute('title', `Flip ${labelText}`);
-          flipBtn.setAttribute('aria-label', `Rotate ${labelText} 180 degrees`);
         }
+        this.setButtonAriaLabels(cell, labelText);
 
         this.setupDragAndDrop(cell);
         this.setupToolbar(cell, labelText);
@@ -628,6 +629,30 @@ export class UIManager {
       sheetWrapper.insertAdjacentHTML('beforeend', guidelines);
       this.elements.zineSheetsContainer.appendChild(sheetWrapper);
     }
+  }
+
+  /**
+   * Dynamically set context-specific ARIA labels for icon buttons in a cell
+   * and ensure ligature icons are hidden from screen readers.
+   */
+  setButtonAriaLabels(cell, labelText) {
+    const btnMap = [
+      { sel: '.zoom-btn', text: `Quick preview ${labelText}` },
+      { sel: '.crop-btn', text: `Toggle crop for ${labelText}` },
+      { sel: '.remove-btn', text: `Remove ${labelText}` },
+      { sel: '.flip-btn', text: `Rotate ${labelText} 180 degrees` }
+    ];
+
+    btnMap.forEach(({ sel, text }) => {
+      const btn = cell.querySelector(sel);
+      if (btn) {
+        btn.setAttribute('aria-label', text);
+        const icon = btn.querySelector('.material-symbols-outlined');
+        if (icon) {
+          icon.setAttribute('aria-hidden', 'true');
+        }
+      }
+    });
   }
 
   setupDragAndDrop(cell) {
