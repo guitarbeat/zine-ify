@@ -5,12 +5,23 @@ export class Zine3DViewer {
   constructor(containerElement) {
     this.container = containerElement;
     this.pages = [];
+    this.seams = [];
+    this.guides = [];
     this.w = 1.0;
     this.h = 1.414; // A-series proportion
     this.panelThickness = 0.002;
+    this.seamWidth = 0.035;
+    this.guideWidth = 0.015;
+    this.tmpVecA = new THREE.Vector3();
+    this.tmpVecB = new THREE.Vector3();
+    this.tmpVecC = new THREE.Vector3();
+    this.tmpVecD = new THREE.Vector3();
+    this.tmpMat = new THREE.Matrix4();
+    this.sheetMaterialColor = 0xf4f1ea;
+    this.foldGuideColor = 0xb8b8b8;
+    this.slitGuideColor = 0x8f8f8f;
     
-    // Page configuration mapped to a 4x2 grid
-    this.pagesConfig = {
+    this.panelDefinitions = {
       1: { col: 3, isTop: false, zOrder: 7 }, // Cover
       2: { col: 3, isTop: true,  zOrder: 6 }, // Inside cover
       3: { col: 2, isTop: true,  zOrder: 5 },
@@ -20,6 +31,25 @@ export class Zine3DViewer {
       7: { col: 1, isTop: false, zOrder: 1 },
       8: { col: 2, isTop: false, zOrder: 0 }  // Back cover
     };
+    this.connectionDefinitions = [
+      { from: 5, to: 4, orientation: 'horizontal' },
+      { from: 4, to: 3, orientation: 'horizontal' },
+      { from: 3, to: 2, orientation: 'horizontal' },
+      { from: 6, to: 7, orientation: 'horizontal' },
+      { from: 7, to: 8, orientation: 'horizontal' },
+      { from: 8, to: 1, orientation: 'horizontal' },
+      { from: 5, to: 6, orientation: 'vertical' },
+      { from: 2, to: 1, orientation: 'vertical' }
+    ];
+    this.guideDefinitions = [
+      { type: 'fold', orientation: 'vertical', x: -this.w, y: 0, length: this.h * 2 },
+      { type: 'fold', orientation: 'vertical', x: 0, y: 0, length: this.h * 2 },
+      { type: 'fold', orientation: 'vertical', x: this.w, y: 0, length: this.h * 2 },
+      { type: 'fold', orientation: 'horizontal', x: -1.5 * this.w, y: 0, length: this.w },
+      { type: 'fold', orientation: 'horizontal', x: 1.5 * this.w, y: 0, length: this.w },
+      { type: 'slit', orientation: 'horizontal', x: -0.5 * this.w, y: 0, length: this.w },
+      { type: 'slit', orientation: 'horizontal', x: 0.5 * this.w, y: 0, length: this.w }
+    ];
     
     this.initScene();
   }
@@ -77,12 +107,24 @@ export class Zine3DViewer {
       page.frontGeometry?.dispose?.();
       page.backGeometry?.dispose?.();
     });
+    this.seams.forEach((seam) => {
+      this.scene.remove(seam.mesh);
+      seam.material?.dispose?.();
+      seam.geometry?.dispose?.();
+    });
+    this.guides.forEach((guide) => {
+      this.scene.remove(guide.mesh);
+      guide.material?.dispose?.();
+      guide.geometry?.dispose?.();
+    });
     this.pages = [];
+    this.seams = [];
+    this.guides = [];
 
     const textureLoader = new THREE.TextureLoader();
     
     for (let i = 1; i <= 8; i++) {
-      const config = this.pagesConfig[i];
+      const config = this.panelDefinitions[i];
       const url = imageUrls[i - 1]; // Array is 0-indexed
 
       const group = new THREE.Group();
@@ -110,7 +152,7 @@ export class Zine3DViewer {
       }
 
       const backMaterial = new THREE.MeshStandardMaterial({
-        color: 0xf4f1ea,
+        color: this.sheetMaterialColor,
         side: THREE.FrontSide,
         roughness: 0.95
       });
@@ -136,6 +178,9 @@ export class Zine3DViewer {
         backGeometry
       });
     }
+
+    this.createSeams();
+    this.createGuides();
 
     // Initialize layout flat
     this.setFoldProgress(0);
@@ -233,6 +278,107 @@ export class Zine3DViewer {
       group.position.set(x, y, z);
       group.rotation.set(rx, ry, rz, 'YXZ');
     });
+
+    this.pages.forEach((page) => page.group.updateMatrixWorld(true));
+    this.updateSeams();
+    this.updateGuides(horizontalFold, slitCollapse, bookletClose);
+  }
+
+  createSeams() {
+    this.connectionDefinitions.forEach(({ from, to, orientation }) => {
+      const geometry = new THREE.PlaneGeometry(1, 1);
+      const material = new THREE.MeshStandardMaterial({
+        color: this.sheetMaterialColor,
+        side: THREE.DoubleSide,
+        roughness: 0.95
+      });
+      const mesh = new THREE.Mesh(geometry, material);
+      this.scene.add(mesh);
+      this.seams.push({ from, to, orientation, mesh, geometry, material });
+    });
+  }
+
+  createGuides() {
+    this.guideDefinitions.forEach((guide) => {
+      const isHorizontal = guide.orientation === 'horizontal';
+      const geometry = new THREE.PlaneGeometry(
+        isHorizontal ? guide.length : this.guideWidth,
+        isHorizontal ? this.guideWidth : guide.length
+      );
+      const material = new THREE.MeshBasicMaterial({
+        color: guide.type === 'slit' ? this.slitGuideColor : this.foldGuideColor,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: guide.type === 'slit' ? 0.8 : 0.45
+      });
+
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(guide.x, guide.y, this.panelThickness * 2);
+      this.scene.add(mesh);
+      this.guides.push({ ...guide, mesh, geometry, material });
+    });
+  }
+
+  updateSeams() {
+    const getPage = (id) => this.pages.find((page) => page.id === id);
+
+    const getAverageNormal = (pageA, pageB) => {
+      const normalA = this.tmpVecC.set(0, 0, 1).applyQuaternion(pageA.group.quaternion);
+      const normalB = this.tmpVecD.set(0, 0, 1).applyQuaternion(pageB.group.quaternion);
+      return normalA.add(normalB).normalize();
+    };
+
+    this.seams.forEach((seam) => {
+      const pageA = getPage(seam.from);
+      const pageB = getPage(seam.to);
+      if (!pageA || !pageB) { return; }
+
+      const startLocal = seam.orientation === 'horizontal'
+        ? new THREE.Vector3(this.w / 2, 0, 0)
+        : new THREE.Vector3(0, -this.h / 2, 0);
+      const endLocal = seam.orientation === 'horizontal'
+        ? new THREE.Vector3(-this.w / 2, 0, 0)
+        : new THREE.Vector3(0, this.h / 2, 0);
+
+      const startWorld = pageA.group.localToWorld(startLocal);
+      const endWorld = pageB.group.localToWorld(endLocal);
+      const midpoint = startWorld.clone().add(endWorld).multiplyScalar(0.5);
+      const tangent = endWorld.clone().sub(startWorld);
+      const length = tangent.length();
+
+      if (length < 1e-4) {
+        seam.mesh.visible = false;
+        return;
+      }
+
+      seam.mesh.visible = true;
+      tangent.normalize();
+
+      const normal = getAverageNormal(pageA, pageB);
+      const bitangent = new THREE.Vector3().crossVectors(normal, tangent).normalize();
+      const correctedNormal = new THREE.Vector3().crossVectors(tangent, bitangent).normalize();
+
+      this.tmpMat.makeBasis(tangent, bitangent, correctedNormal);
+      seam.mesh.setRotationFromMatrix(this.tmpMat);
+      seam.mesh.position.copy(midpoint);
+      seam.mesh.scale.set(length, this.seamWidth, 1);
+    });
+  }
+
+  updateGuides(horizontalFold, slitCollapse, bookletClose) {
+    const fade = Math.max(0, 1 - Math.max(horizontalFold * 0.7, slitCollapse, bookletClose));
+
+    this.guides.forEach((guide) => {
+      guide.mesh.visible = fade > 0.02;
+      guide.material.opacity = (guide.type === 'slit' ? 0.8 : 0.45) * fade;
+
+      if (guide.type === 'slit') {
+        const slitSpread = 1 + (slitCollapse * 0.18);
+        guide.mesh.scale.set(slitSpread, 1, 1);
+      } else {
+        guide.mesh.scale.set(1, 1, 1);
+      }
+    });
   }
 
   animate() {
@@ -251,6 +397,14 @@ export class Zine3DViewer {
       page.backMaterial?.dispose?.();
       page.frontGeometry?.dispose?.();
       page.backGeometry?.dispose?.();
+    });
+    this.seams.forEach((seam) => {
+      seam.material?.dispose?.();
+      seam.geometry?.dispose?.();
+    });
+    this.guides.forEach((guide) => {
+      guide.material?.dispose?.();
+      guide.geometry?.dispose?.();
     });
     this.renderer.dispose();
   }
