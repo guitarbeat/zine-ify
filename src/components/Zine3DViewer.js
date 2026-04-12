@@ -1,19 +1,20 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { MINI_ZINE_STACKS, computeMiniZineFoldState } from '../utils/miniZineFold.js';
 
 export class Zine3DViewer {
   constructor(containerElement) {
     this.container = containerElement;
     this.pages = [];
+    this.stacks = [];
     this.seams = [];
     this.guides = [];
     this.w = 1.0;
     this.h = 1.414; // A-series proportion
     this.panelThickness = 0.002;
+    this.stackDepthStep = 0.008;
     this.seamWidth = 0.035;
     this.guideWidth = 0.015;
-    this.tmpVecA = new THREE.Vector3();
-    this.tmpVecB = new THREE.Vector3();
     this.tmpVecC = new THREE.Vector3();
     this.tmpVecD = new THREE.Vector3();
     this.tmpMat = new THREE.Matrix4();
@@ -22,14 +23,14 @@ export class Zine3DViewer {
     this.slitGuideColor = 0x8f8f8f;
     
     this.panelDefinitions = {
-      1: { col: 3, isTop: false, zOrder: 7 }, // Cover
-      2: { col: 3, isTop: true,  zOrder: 6 }, // Inside cover
-      3: { col: 2, isTop: true,  zOrder: 5 },
-      4: { col: 1, isTop: true,  zOrder: 4 },
-      5: { col: 0, isTop: true,  zOrder: 3 },
-      6: { col: 0, isTop: false, zOrder: 2 },
-      7: { col: 1, isTop: false, zOrder: 1 },
-      8: { col: 2, isTop: false, zOrder: 0 }  // Back cover
+      1: { stackIndex: 3, isTop: false }, // Cover
+      2: { stackIndex: 3, isTop: true }, // Inside cover
+      3: { stackIndex: 2, isTop: true },
+      4: { stackIndex: 1, isTop: true },
+      5: { stackIndex: 0, isTop: true },
+      6: { stackIndex: 0, isTop: false },
+      7: { stackIndex: 1, isTop: false },
+      8: { stackIndex: 2, isTop: false } // Back cover
     };
     this.connectionDefinitions = [
       { from: 5, to: 4, orientation: 'horizontal' },
@@ -47,9 +48,9 @@ export class Zine3DViewer {
       { type: 'fold', orientation: 'vertical', x: this.w, y: 0, length: this.h * 2 },
       { type: 'fold', orientation: 'horizontal', x: -1.5 * this.w, y: 0, length: this.w },
       { type: 'fold', orientation: 'horizontal', x: 1.5 * this.w, y: 0, length: this.w },
-      { type: 'slit', orientation: 'horizontal', x: -0.5 * this.w, y: 0, length: this.w },
-      { type: 'slit', orientation: 'horizontal', x: 0.5 * this.w, y: 0, length: this.w }
+      { type: 'slit', orientation: 'horizontal', x: 0, y: 0, length: this.w * 2 }
     ];
+    this.debugFoldState = null;
     
     this.initScene();
   }
@@ -98,12 +99,14 @@ export class Zine3DViewer {
   loadPages(imageUrls) {
     // Clear existing planes
     this.pages.forEach((page) => {
-      this.scene.remove(page.group);
       page.frontMaterial?.map?.dispose?.();
       page.frontMaterial?.dispose?.();
       page.backMaterial?.dispose?.();
       page.frontGeometry?.dispose?.();
       page.backGeometry?.dispose?.();
+    });
+    this.stacks.forEach((stack) => {
+      this.scene.remove(stack.group);
     });
     this.seams.forEach((seam) => {
       this.scene.remove(seam.mesh);
@@ -116,15 +119,26 @@ export class Zine3DViewer {
       guide.geometry?.dispose?.();
     });
     this.pages = [];
+    this.stacks = [];
     this.seams = [];
     this.guides = [];
 
     const textureLoader = new THREE.TextureLoader();
+
+    MINI_ZINE_STACKS.forEach((stackDefinition) => {
+      const group = new THREE.Group();
+      this.scene.add(group);
+      this.stacks.push({
+        index: stackDefinition.index,
+        group
+      });
+    });
     
     for (let i = 1; i <= 8; i++) {
       const config = this.panelDefinitions[i];
       const url = imageUrls[i - 1]; // Array is 0-indexed
 
+      const stack = this.stacks.find((entry) => entry.index === config.stackIndex);
       const group = new THREE.Group();
       const frontGeometry = new THREE.PlaneGeometry(this.w, this.h, 4, 4);
       const backGeometry = new THREE.PlaneGeometry(this.w, this.h, 1, 1);
@@ -151,24 +165,27 @@ export class Zine3DViewer {
 
       const backMaterial = new THREE.MeshStandardMaterial({
         color: this.sheetMaterialColor,
-        side: THREE.FrontSide,
+        side: THREE.DoubleSide,
         roughness: 0.95
       });
 
       const frontMesh = new THREE.Mesh(frontGeometry, frontMaterial);
       frontMesh.position.z = this.panelThickness;
+      frontMesh.position.y = config.isTop ? this.h / 2 : -this.h / 2;
 
       const backMesh = new THREE.Mesh(backGeometry, backMaterial);
       backMesh.rotation.y = Math.PI;
       backMesh.position.z = -this.panelThickness;
+      backMesh.position.y = config.isTop ? this.h / 2 : -this.h / 2;
 
       group.add(frontMesh);
       group.add(backMesh);
-      this.scene.add(group);
+      stack?.group.add(group);
       
       this.pages.push({
         id: i,
         group,
+        stackGroup: stack?.group ?? null,
         config,
         frontMaterial,
         backMaterial,
@@ -207,91 +224,42 @@ export class Zine3DViewer {
    * @param {number} progress  0=flat, 1=lengthwise fold, 2=slit collapse, 3=closed booklet
    */
   setFoldProgress(progress) {
-    const horizontalFold = Math.max(0, Math.min(1, progress));
-    const slitCollapse = Math.max(0, Math.min(1, progress - 1));
-    const bookletClose = Math.max(0, Math.min(1, progress - 2));
-    const w = this.w;
-    const h = this.h;
+    const state = computeMiniZineFoldState(progress, {
+      w: this.w,
+      h: this.h,
+      panelThickness: this.panelThickness,
+      stackDepthStep: this.stackDepthStep
+    });
+    this.debugFoldState = state;
 
-    const rotateAroundY = (x, z, hingeX, angle) => {
-      const dx = x - hingeX;
-      const cosA = Math.cos(angle);
-      const sinA = Math.sin(angle);
-
-      return {
-        x: hingeX + (dx * cosA),
-        z: z - (dx * sinA)
-      };
-    };
-
-    const rotateAroundX = (y, z, hingeY, angle) => {
-      const dy = y - hingeY;
-      const cosA = Math.cos(angle);
-      const sinA = Math.sin(angle);
-
-      return {
-        y: hingeY + (dy * cosA),
-        z: z + (dy * sinA)
-      };
-    };
-
-    this.pages.forEach(page => {
-      const { group, config } = page;
-      
-      // Initial flat coordinate centers
-      let x = (config.col - 1.5) * w;
-      let y = config.isTop ? 0.5 * h : -0.5 * h;
-      let z = 0;
-      
-      let rx = 0;
-      let ry = 0;
-      const rz = 0;
-
-      // 1. Fold lengthwise first so the slit can open.
-      if (config.isTop) {
-        const horizontalAngle = -horizontalFold * Math.PI;
-        ({ y, z } = rotateAroundX(y, z, 0, horizontalAngle));
-        rx += horizontalAngle;
+    this.stacks.forEach((stack) => {
+      const stackState = state.stacks.find((entry) => entry.index === stack.index);
+      if (!stackState) {
+        return;
       }
 
-      // 2. Pinch the sheet inward so the slit opens and the pages collapse into spreads.
-      let verticalAngle = 0;
-      let hingeX = 0;
-      if (config.col === 0) {
-        verticalAngle = slitCollapse * Math.PI;
-        hingeX = -w;
-      } else if (config.col === 1) {
-        verticalAngle = slitCollapse * Math.PI;
-        hingeX = 0;
-      } else if (config.col === 2) {
-        verticalAngle = -slitCollapse * Math.PI;
-        hingeX = 0;
-      } else if (config.col === 3) {
-        verticalAngle = -slitCollapse * Math.PI;
-        hingeX = w;
-      }
-
-      ({ x, z } = rotateAroundY(x, z, hingeX, verticalAngle));
-      ry += verticalAngle;
-
-      // 3. Close the booklet around the spine so both halves participate.
-      if (bookletClose > 0) {
-        const closeDirection = x < 0 ? 1 : -1;
-        const closeAngle = closeDirection * bookletClose * (Math.PI / 2);
-        ({ x, z } = rotateAroundY(x, z, 0, closeAngle));
-        ry += closeAngle;
-
-        const depthShift = (config.zOrder - 3.5) * 0.004;
-        z += depthShift * (1 + bookletClose);
-      }
-
-      group.position.set(x, y, z);
-      group.rotation.set(rx, ry, rz, 'YXZ');
+      stack.group.position.set(
+        stackState.pose.position.x,
+        stackState.pose.position.y,
+        stackState.pose.position.z
+      );
+      stack.group.rotation.set(
+        stackState.pose.rotation.x,
+        stackState.pose.rotation.y,
+        stackState.pose.rotation.z,
+        'XYZ'
+      );
     });
 
-    this.pages.forEach((page) => page.group.updateMatrixWorld(true));
+    this.pages.forEach((page) => {
+      page.group.rotation.set(page.config.isTop ? state.topFoldAngle : 0, 0, 0, 'XYZ');
+    });
+    this.stacks.forEach((stack) => {
+      stack.group.updateMatrixWorld(true);
+    });
+
     this.updateSeams();
-    this.updateGuides(horizontalFold, slitCollapse, bookletClose);
+    this.updateGuides(state.stages.horizontalFold, state.stages.crossCollapse, state.stages.bookletClose);
   }
 
   createSeams() {
@@ -355,8 +323,11 @@ export class Zine3DViewer {
       const midpoint = startWorld.clone().add(endWorld).multiplyScalar(0.5);
       const tangent = endWorld.clone().sub(startWorld);
       const length = tangent.length();
+      const maxGap = seam.orientation === 'horizontal'
+        ? this.w * 0.9
+        : this.h * 0.25;
 
-      if (length < 1e-4) {
+      if (length < 1e-4 || length > maxGap) {
         seam.mesh.visible = false;
         return;
       }
@@ -383,7 +354,7 @@ export class Zine3DViewer {
       guide.material.opacity = (guide.type === 'slit' ? 0.8 : 0.45) * fade;
 
       if (guide.type === 'slit') {
-        const slitSpread = 1 + (slitCollapse * 0.18);
+        const slitSpread = 1 - (slitCollapse * 0.15);
         guide.mesh.scale.set(slitSpread, 1, 1);
       } else {
         guide.mesh.scale.set(1, 1, 1);
@@ -410,6 +381,7 @@ export class Zine3DViewer {
       page.frontGeometry?.dispose?.();
       page.backGeometry?.dispose?.();
     });
+    this.stacks = [];
     this.seams.forEach((seam) => {
       seam.material?.dispose?.();
       seam.geometry?.dispose?.();

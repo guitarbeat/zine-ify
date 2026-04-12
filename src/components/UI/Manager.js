@@ -205,12 +205,12 @@ export class UIManager {
     this.elements.foldSlider?.addEventListener('input', (e) => {
         const val = parseFloat(e.target.value);
         let status = 'Flat';
-        if (val >= 3) {
+        if (val >= 2.99) {
             status = 'Booklet';
         } else if (val >= 2) {
-            status = 'Closing';
+            status = 'Cross Collapse';
         } else if (val >= 1) {
-            status = 'Slit Open';
+            status = 'Cross Collapse';
         } else if (val > 0) {
             status = 'Lengthwise Fold';
         }

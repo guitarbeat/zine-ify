@@ -35,4 +35,10 @@ test('opens the 3D preview modal with a sized canvas', async ({ page }) => {
   const canvasBox = await page.locator('#zine-3d-container canvas').boundingBox();
   expect(canvasBox?.width || 0).toBeGreaterThan(0);
   expect(canvasBox?.height || 0).toBeGreaterThan(0);
+
+  await page.locator('#fold-slider').fill('2');
+  await expect(page.locator('#fold-status')).toHaveText('Cross Collapse');
+
+  await page.locator('#fold-slider').fill('3');
+  await expect(page.locator('#fold-status')).toHaveText('Booklet');
 });
