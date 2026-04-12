@@ -148,6 +148,7 @@ export class UIManager {
       progressBar: $('#progress-bar'),
       progressText: $('#progress-text'),
       progressSubtext: $('#progress-subtext'),
+      progressBarContainer: $('.progress-bar-container'),
 
       // Settings
       paperSizeSelect: $('#paper-size-select'),
