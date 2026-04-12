@@ -315,6 +315,7 @@ export class UIManager {
   toggle3DModal(show) {
       if (!this.elements.zine3dModal) {return;}
       if (show) {
+          this.elements.zine3dModal.style.display = 'flex';
           this.elements.zine3dModal.classList.remove('hidden');
           // small delay for transition
           setTimeout(() => {
@@ -326,6 +327,7 @@ export class UIManager {
           this.elements.zine3dModal.classList.remove('opacity-100');
           setTimeout(() => {
               this.elements.zine3dModal.classList.add('hidden');
+              this.elements.zine3dModal.style.display = 'none';
           }, 300);
       }
   }

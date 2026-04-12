@@ -102,8 +102,11 @@ class PDFZineMaker {
                   this.allPageImages[7] || this._blankPageUrl
               ];
 
-              this.viewer3d.loadPages(imageUrls);
               this.ui.toggle3DModal(true);
+              requestAnimationFrame(() => {
+                this.viewer3d.refreshLayout();
+                this.viewer3d.loadPages(imageUrls);
+              });
           }
       } catch {
           toast.error('3D Preview Failed', 'Unable to load the 3D preview right now.');

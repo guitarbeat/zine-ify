@@ -58,12 +58,14 @@ export class Zine3DViewer {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color('#1a1a1a');
 
-    this.camera = new THREE.PerspectiveCamera(45, this.container.clientWidth / this.container.clientHeight, 0.1, 100);
+    const initialWidth = this.container.clientWidth || 1;
+    const initialHeight = this.container.clientHeight || 1;
+    this.camera = new THREE.PerspectiveCamera(45, initialWidth / initialHeight, 0.1, 100);
     this.camera.position.set(0, 0, 5);
 
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(initialWidth, initialHeight);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.container.appendChild(this.renderer.domElement);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -83,11 +85,7 @@ export class Zine3DViewer {
     this.scene.add(backLight);
 
     // Resize handler
-    this.onWindowResize = () => {
-      this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
-      this.camera.updateProjectionMatrix();
-      this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-    };
+    this.onWindowResize = () => this.refreshLayout();
     window.addEventListener('resize', this.onWindowResize);
 
     this.animate();
@@ -188,6 +186,18 @@ export class Zine3DViewer {
     // Automatically adjust camera slightly so the flat sheet fits
     this.camera.position.set(0, 0, 6);
     this.controls.target.set(0, 0, 0);
+    this.controls.update();
+    this.refreshLayout();
+  }
+
+  refreshLayout() {
+    const width = this.container.clientWidth || 1;
+    const height = this.container.clientHeight || 1;
+
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(width, height);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   }
 
   /**
@@ -390,7 +400,9 @@ export class Zine3DViewer {
   destroy() {
     cancelAnimationFrame(this.animationId);
     window.removeEventListener('resize', this.onWindowResize);
-    this.container.removeChild(this.renderer.domElement);
+    if (this.renderer?.domElement?.parentNode === this.container) {
+      this.container.removeChild(this.renderer.domElement);
+    }
     this.pages.forEach((page) => {
       page.frontMaterial?.map?.dispose?.();
       page.frontMaterial?.dispose?.();
