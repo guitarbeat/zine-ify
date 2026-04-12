@@ -537,6 +537,7 @@ class PDFZineMaker {
       <!DOCTYPE html>
       <html>
       <head>
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data: blob:; object-src 'none'; base-uri 'none'; form-action 'none';">
         <title>Print Zine</title>
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
