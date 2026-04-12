@@ -674,6 +674,8 @@ class PDFZineMaker {
 
       const dimensions = this.ui.getPaperDimensions(this.paperSize || 'letter', this.orientation || 'landscape');
 
+      let cachedBackSideUrl = null;
+
       const captureZine = async (sheetNum) => {
         const grid = document.querySelector(`#zine-grid-sheet-${sheetNum}`);
         if (!grid) { return; }
@@ -692,21 +694,28 @@ class PDFZineMaker {
 
         // Add back side
         doc.addPage();
-        const backCanvas = document.createElement('canvas');
-        backCanvas.width = canvas.width;
-        backCanvas.height = canvas.height;
-        const bctx = backCanvas.getContext('2d');
-        const refImg = new Image();
-        await new Promise((resolve, reject) => {
-          refImg.onload = resolve;
-          refImg.onerror = reject;
-          refImg.src = this.referenceImageUrl;
-        });
 
-        bctx.translate(backCanvas.width / 2, backCanvas.height / 2);
-        bctx.rotate(Math.PI);
-        bctx.drawImage(refImg, -backCanvas.width / 2, -backCanvas.height / 2, backCanvas.width, backCanvas.height);
-        doc.addImage(backCanvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, dimensions.width, dimensions.height);
+        // ⚡ Bolt: Cache the expensive back cover DataURL to avoid redundant canvas rendering
+        // and string encoding when capturing multiple sheets.
+        if (!cachedBackSideUrl) {
+          const backCanvas = document.createElement('canvas');
+          backCanvas.width = canvas.width;
+          backCanvas.height = canvas.height;
+          const bctx = backCanvas.getContext('2d');
+          const refImg = new Image();
+          await new Promise((resolve, reject) => {
+            refImg.onload = resolve;
+            refImg.onerror = reject;
+            refImg.src = this.referenceImageUrl;
+          });
+
+          bctx.translate(backCanvas.width / 2, backCanvas.height / 2);
+          bctx.rotate(Math.PI);
+          bctx.drawImage(refImg, -backCanvas.width / 2, -backCanvas.height / 2, backCanvas.width, backCanvas.height);
+          cachedBackSideUrl = backCanvas.toDataURL('image/jpeg', 0.9);
+        }
+
+        doc.addImage(cachedBackSideUrl, 'JPEG', 0, 0, dimensions.width, dimensions.height);
       };
 
       const grids = Array.from(document.querySelectorAll('.zine-grid'));

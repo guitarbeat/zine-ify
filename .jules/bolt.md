@@ -16,3 +16,7 @@
 ## 2025-02-18 - OffscreenCanvas for PDF Processing
 **Learning:** Using `document.createElement('canvas')` in background PDF processing tasks interacts with the DOM and blocks the main thread unnecessarily.
 **Action:** Use `OffscreenCanvas` when available to render PDF pages and extract blobs asynchronously (via `convertToBlob`), reducing main thread blocking and improving performance, while keeping a fallback for unsupported browsers.
+
+## 2025-02-18 - Caching Redundant Canvas Encoding During PDF Export
+**Learning:** During PDF export via `jspdf`, generating the back cover involved repeatedly drawing a reference image to a canvas and calling `toDataURL` for each sheet captured. `toDataURL` is an expensive, synchronous operation that blocks the main thread.
+**Action:** Cache the resulting Data URL from the canvas the first time it is generated, and reuse the base64 string directly for subsequent pages/sheets to avoid redundant 2D context drawing and encoding overhead.
