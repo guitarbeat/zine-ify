@@ -432,6 +432,7 @@ export class UIManager {
   }
 
   generateUnusedBucket(startIndex, totalPages) {
+    this._pageCellsCache = null;
     const { unusedSection, unusedGrid } = this.elements;
     if (!unusedSection || !unusedGrid) { return; }
 
@@ -482,6 +483,7 @@ export class UIManager {
    * Generate the accordion-16 layout (single sheet, 4x4 grid)
    */
   generateAccordionLayout(template) {
+    this._pageCellsCache = null;
     const sheetWrapper = document.createElement('div');
     sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
     sheetWrapper.setAttribute('data-sheet', 1);
