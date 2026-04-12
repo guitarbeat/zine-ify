@@ -128,6 +128,7 @@ export class UIManager {
       progressContainer: $('#progress-container'),
       progressBarWrap: $('#progress-bar-wrap'),
       progressFill: $('#progress-fill'),
+      progressBar: $('#progress-bar'),
       progressText: $('#progress-text'),
       progressSubtext: $('#progress-subtext'),
 
