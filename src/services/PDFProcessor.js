@@ -360,7 +360,7 @@ export class PDFProcessor {
    */
   async canvasToBlob(canvas) {
     if (canvas.convertToBlob) {
-      // ⚡ Bolt: Use native async convertToBlob for OffscreenCanvas
+      // Use native async convertToBlob for OffscreenCanvas
       const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.8 });
       return URL.createObjectURL(blob);
     }

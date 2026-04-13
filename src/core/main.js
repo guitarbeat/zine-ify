@@ -658,7 +658,7 @@ class PDFZineMaker {
     let url = this._blankPageUrl;
 
     if (!url) {
-      // ⚡ Bolt: Use OffscreenCanvas if available for background blank page generation
+      // Use OffscreenCanvas if available for background blank page generation
       let canvas, ctx;
       if (typeof OffscreenCanvas !== 'undefined') {
         canvas = new OffscreenCanvas(1000, 1400);
@@ -1001,7 +1001,7 @@ class PDFZineMaker {
         // Add back side
         doc.addPage();
 
-        // ⚡ Bolt: Cache the expensive back cover DataURL to avoid redundant canvas rendering
+        // Cache the expensive back cover DataURL to avoid redundant canvas rendering
         // and string encoding when capturing multiple sheets.
         if (!cachedBackSideUrl) {
           const backCanvas = document.createElement('canvas');

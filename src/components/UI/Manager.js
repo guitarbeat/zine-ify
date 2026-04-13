@@ -27,7 +27,7 @@ const PAGE_TOOLBAR_HTML = `
            </button>
         </div>`;
 
-// ⚡ Bolt: Performance Optimization
+// Performance Optimization
 // Using a <template> and .cloneNode(true) is ~50-60% faster than setting innerHTML in a loop,
 // as it avoids repeated HTML parsing by the browser. This is especially noticeable
 // when generating large custom grids.
