@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@source "../../index.html";
+@source "../**/*.{js,ts,jsx,tsx}";
+
+
 @import "./base.css";
 @import "./layout.css";
 @import "./components.css";
