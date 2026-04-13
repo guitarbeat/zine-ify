@@ -362,28 +362,28 @@ export class UIManager {
 
   updateFoldUI(value) {
     let status = 'Flat';
-    let helper = 'Keep the sheet fully open with the slit centered and the two rows fully visible.';
+    let helper = 'Keep the sheet open with the slit centered and both rows visible.';
     let activeStep = 0;
 
     if (value >= 2.99) {
       status = 'Booklet';
-      helper = 'Press the collapsed stack flat so page 1 is the front cover and page 8 is the back.';
+      helper = 'Press the stack flat so page 1 becomes the cover and page 8 becomes the back.';
       activeStep = 5;
     } else if (value > 2) {
       status = 'Folding Shut';
-      helper = 'Keep pushing the short ends inward and let the four stacks swing together until the covers meet.';
+      helper = 'Keep pushing inward until the four sections swing together and the covers meet.';
       activeStep = 5;
     } else if (value >= 2) {
       status = 'Diamond Open';
-      helper = 'The slit is fully open now. The sheet should read like a plus or diamond before you flatten it.';
+      helper = 'The slit is fully open. The sheet should read like a plus or diamond before flattening.';
       activeStep = 4;
     } else if (value > 1) {
       status = 'Opening Slit';
-      helper = 'Hold the folded strip by both short ends and push inward until the center slit opens into a diamond.';
+      helper = 'Hold the folded strip by both short ends and push inward until the center opens into a diamond.';
       activeStep = 3;
     } else if (value >= 1) {
       status = 'Folded Strip';
-      helper = 'The top row should now sit directly on the bottom row, forming one long folded strip.';
+      helper = 'The top row should now sit directly on the bottom row as one folded strip.';
       activeStep = 2;
     } else if (value > 0) {
       status = 'Folding Down';
@@ -449,46 +449,46 @@ export class UIManager {
     const previewReady = hasContent && isMiniZineLayout;
     const exportReady = hasContent;
     const filledSummary = `${filledPages}/${totalSlots}`;
-    const placedSummary = `${filledPages} page${filledPages === 1 ? '' : 's'} placed`;
+    const placedSummary = `${filledPages} placed`;
 
-    let nextLabel = 'Add Pages';
-    let title = 'Start Here';
-    let body = 'Drop in PDFs or phone photos. The app will queue them, place them on the sheet, and guide you to the next useful step.';
-    let modeChip = 'Fold + Read appears on the standard 2×4 mini-zine layout.';
-    let emptyTitle = 'Your working sheet builds itself here.';
-    let emptyBody = 'Add a PDF or phone photo on the left. When pages arrive, drag them into order and use the corner tools to zoom, crop, flip, or clear each slot.';
+    let nextLabel = 'Import';
+    let title = 'Next step';
+    let body = 'Import files to populate the sheet. Then arrange the layout, preview the fold, and export.';
+    let modeChip = 'Preview is available in the standard 2×4 mini-zine layout.';
+    let emptyTitle = 'The sheet stays here while you build the layout.';
+    let emptyBody = 'Import a PDF or image set from the rail. Then drag pages into place, adjust each slot, and export when the sheet looks right.';
 
     if (hasContent && !isMiniZineLayout) {
-      nextLabel = exportCompleted ? 'Adjust Layout' : 'Export PDF';
-      title = 'Custom Layout Active';
-      body = `You are working in a ${layoutLabel}. Arrange pages on the sheet, then export or print. Fold + Read is only available for the 2×4 mini-zine.`;
-      modeChip = 'Custom grid mode: export or print the sheet after you finish arranging it.';
+      nextLabel = exportCompleted ? 'Refine' : 'Export';
+      title = 'Custom layout';
+      body = `You are working in ${layoutLabel}. Arrange the sheet, then export or print when it is ready.`;
+      modeChip = 'Preview is limited to the standard 2×4 mini-zine layout.';
     } else if (hasContent && previewOpened && exportCompleted) {
-      nextLabel = 'Adjust Layout';
-      title = 'Ready For Another Pass';
-      body = `Your ${layoutLabel} is already previewed and exported. Swap pages, crop, or flip anything that still feels off, then export again.`;
-      modeChip = 'Fold + Read has already been checked. Export again after any new layout changes.';
+      nextLabel = 'Refine';
+      title = 'Previewed and exported';
+      body = `Your ${layoutLabel} has already been previewed and exported. Adjust the sheet and export again if you need another pass.`;
+      modeChip = 'Preview has already been checked. Export again after new layout changes.';
     } else if (hasContent && previewOpened) {
-      nextLabel = 'Export PDF';
-      title = 'Preview Looks Good';
-      body = 'The fold and booklet preview are openable now. Export the sheet as a PDF or print it directly when the order feels right.';
-      modeChip = 'Fold + Read is openable now. Use it to verify the booklet order before export.';
+      nextLabel = 'Export';
+      title = 'Preview ready';
+      body = 'The fold and booklet preview are available now. Export the sheet when the order looks right.';
+      modeChip = 'Use Preview to verify the booklet order before export.';
     } else if (hasContent) {
-      nextLabel = isMiniZineLayout ? 'Arrange Pages' : 'Export PDF';
-      title = 'Arrange Before Export';
+      nextLabel = isMiniZineLayout ? 'Preview' : 'Export';
+      title = 'Layout in progress';
       body = isMiniZineLayout
-        ? 'Drag pages into place on the sheet, then open Fold + Read to confirm the folding sequence and booklet order.'
-        : `Drag pages into place on the ${layoutLabel}, then export or print when the sheet looks right.`;
+        ? 'Arrange pages on the sheet, then open Preview to confirm the fold and booklet order.'
+        : `Arrange pages on the ${layoutLabel}, then export or print when the sheet looks right.`;
       modeChip = isMiniZineLayout
-        ? 'Standard mini-zine mode: Fold + Read unlocks once pages are on the sheet.'
-        : 'Custom grid mode: use the canvas as your print-ready layout.';
+        ? 'Preview unlocks once pages are on the sheet.'
+        : 'Use the sheet as the print-ready layout.';
     } else if (hasQueuedFiles) {
-      nextLabel = 'Arrange Pages';
-      title = 'Files Queued';
-      body = 'Your files are being placed on the sheet. As soon as pages land in the canvas, drag, flip, crop, or remove them before you preview or export.';
-      modeChip = 'Import in progress: pages will appear on the sheet as soon as decoding finishes.';
+      nextLabel = 'Arrange';
+      title = 'Import in progress';
+      body = 'Your files are being placed on the sheet. As soon as pages land, arrange the layout before preview or export.';
+      modeChip = 'Pages will appear on the sheet as soon as decoding finishes.';
       emptyTitle = 'Importing pages into the sheet.';
-      emptyBody = 'Stay on this view. As files finish processing, the sheet will update automatically and the action buttons will unlock.';
+      emptyBody = 'Stay on this view. The sheet will update automatically as files finish processing.';
     }
 
     this.elements.previewArea?.classList.toggle('has-content', hasContent);
@@ -508,7 +508,7 @@ export class UIManager {
       this.elements.previewLayoutChip.textContent = layoutLabel;
     }
     if (this.elements.previewCountChip) {
-      this.elements.previewCountChip.textContent = hasContent ? placedSummary : (isLoading ? 'Import in progress' : 'No pages placed');
+      this.elements.previewCountChip.textContent = hasContent ? placedSummary : (isLoading ? 'Importing' : '0 placed');
     }
     if (this.elements.previewModeChip) {
       this.elements.previewModeChip.textContent = modeChip;
@@ -521,10 +521,10 @@ export class UIManager {
     }
 
     const previewDescription = hasContent
-      ? `${layoutLabel} • ${placedSummary} • drag pages to reorder`
+      ? `${layoutLabel} • ${placedSummary}`
       : hasQueuedFiles
         ? 'Importing pages into the sheet...'
-        : 'Upload pages to start laying out the sheet.';
+        : 'Add files to start.';
     this.setPreviewDescription(previewDescription);
 
     this.updateActionButtonState(this.elements.view3dBtn, {
@@ -545,31 +545,31 @@ export class UIManager {
     });
 
     if (this.elements.view3dBtnLabel) {
-      this.elements.view3dBtnLabel.textContent = 'FOLD + READ';
+      this.elements.view3dBtnLabel.textContent = 'Preview';
     }
     if (this.elements.exportPdfBtnLabel) {
-      this.elements.exportPdfBtnLabel.textContent = 'EXPORT PDF';
+      this.elements.exportPdfBtnLabel.textContent = 'Export PDF';
     }
     if (this.elements.printBtnLabel) {
-      this.elements.printBtnLabel.textContent = 'PRINT SHEET';
+      this.elements.printBtnLabel.textContent = 'Print';
     }
 
     const workflowStates = {
       upload: {
         state: hasStarted ? 'done' : 'ready',
-        text: hasQueuedFiles ? `${uploadedFiles} file${uploadedFiles === 1 ? '' : 's'}` : (hasContent ? 'Loaded' : 'Add Files'),
+        text: hasQueuedFiles ? `${uploadedFiles} file${uploadedFiles === 1 ? '' : 's'}` : (hasContent ? 'Loaded' : 'Ready'),
         disabled: false,
         current: !hasStarted
       },
       arrange: {
         state: hasContent ? (previewOpened || exportCompleted ? 'done' : 'ready') : 'locked',
-        text: hasContent ? `${filledSummary} placed` : 'Waiting',
+        text: hasContent ? filledSummary : 'Waiting',
         disabled: !hasStarted,
         current: hasContent && !previewOpened
       },
       preview: {
         state: previewOpened ? 'done' : (previewReady ? 'ready' : 'locked'),
-        text: previewOpened ? 'Viewed' : (previewReady ? 'Open' : (hasContent ? 'Mini-8 Only' : 'Waiting')),
+        text: previewOpened ? 'Viewed' : (previewReady ? 'Open' : (hasContent ? 'Mini-zine' : 'Waiting')),
         disabled: !previewReady,
         current: previewReady && !previewOpened
       },

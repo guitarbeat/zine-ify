@@ -4,41 +4,35 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <meta name="description" content="Convert PDFs into printable 8-page or 16-page zine layouts with ease" />
+    <meta name="description" content="Import pages, arrange a printable zine sheet, preview the fold, and export." />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self' ws: http://localhost:8001 http://127.0.0.1:8001 blob:;">
-    <title>Zine-ify — DIY Zine Maker</title>
+    <title>Zine-ify — Single-Sheet Zine Layout</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
 </head>
 
-<body class="min-h-screen font-typewriter mobile-zine-app" style="background-color: var(--bg-neutral);">
+<body class="min-h-screen mobile-zine-app">
 
     <div class="app-shell max-w-[1500px] mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6">
         <header class="app-header pt-2 sm:pt-8 pb-4 sm:pb-6">
             <div class="app-header-main">
                 <div class="space-y-3">
-                    <p class="app-kicker">DIY fold-ready zines</p>
-                    <div class="space-y-1">
-                        <h1 class="font-marker text-[2.4rem] leading-none sm:text-6xl tracking-tight" style="color: var(--primary-vibrant); text-shadow: 3px 3px 0px black;">
-                            ZINE-IFY
+                    <p class="app-kicker">Single-sheet zines</p>
+                    <div class="space-y-2">
+                        <h1 class="font-marker app-title">
+                            Zine-ify
                         </h1>
-                        <p class="text-[11px] sm:text-sm font-bold uppercase tracking-[0.18em] max-w-[32rem]">
-                            Turn PDFs and phone photos into a printable mini-zine sheet you can rearrange, preview, and export.
+                        <p class="app-subtitle">
+                            Import pages, arrange the sheet, preview the fold, then export or print.
                         </p>
                     </div>
                 </div>
 
-                <div class="app-overview" aria-label="How it works">
-                    <p class="app-overview-title">How It Works</p>
-                    <div class="app-overview-steps">
-                        <span>Add files</span>
-                        <span>Arrange the sheet</span>
-                        <span>Fold + read</span>
-                        <span>Export or print</span>
-                    </div>
+                <div class="app-overview" aria-label="Workspace summary">
+                    <p class="app-overview-title">Workflow</p>
                     <p class="app-overview-note">
-                        Setup stays on the left. The live sheet and final actions stay on the right so the next move is always visible.
+                        Import, arrange, preview, export. The rail holds setup and the sheet stays live beside it.
                     </p>
                 </div>
             </div>
@@ -53,7 +47,7 @@
                         <div class="rail-section-header">
                             <div>
                                 <p class="rail-section-kicker">Step 1</p>
-                                <h2 class="rail-section-title">Add Source Files</h2>
+                                <h2 class="rail-section-title">Files</h2>
                             </div>
                             <span class="rail-section-chip">Ctrl+O</span>
                         </div>
@@ -62,29 +56,16 @@
                             class="upload-box relative overflow-hidden px-4 py-5 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer min-h-[128px] sm:min-h-[140px] group focus:outline-none"
                             role="button" tabindex="0" aria-label="Upload PDF or image files" title="Upload PDFs or images (Ctrl+O)" aria-keyshortcuts="Control+O">
                             <span class="material-symbols-outlined text-4xl mb-3" style="color: var(--primary-vibrant);" aria-hidden="true">cloud_upload</span>
-                            <h2 class="font-marker text-base sm:text-lg leading-tight mb-1">DROP PDFS OR IMAGES</h2>
+                            <h2 class="font-marker text-base sm:text-lg leading-tight mb-1">Add PDFs or images</h2>
                             <p id="upload-status" class="text-xs font-bold uppercase tracking-wider mt-1 px-2 py-1 bg-black text-white" aria-live="polite">
-                                Click or drag to add files</p>
+                                Choose files or drop them here</p>
                             <p class="mt-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.16em] text-black/65">
-                                Queue multiple files, then rearrange the sheet after import.
+                                Pages land on the sheet in import order.
                             </p>
                             <input type="file" id="pdf-upload" class="hidden" accept="application/pdf,image/*" multiple>
                         </div>
 
-                        <div class="ingest-hints" aria-label="Upload hints">
-                            <div class="ingest-hint">
-                                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">picture_as_pdf</span>
-                                PDF or image files
-                            </div>
-                            <div class="ingest-hint">
-                                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">layers</span>
-                                Up to 10 files queued
-                            </div>
-                            <div class="ingest-hint">
-                                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">swap_horiz</span>
-                                Drag pages into order
-                            </div>
-                        </div>
+                        <p class="ingest-summary">PDFs and images, up to 10 files. Reorder pages on the sheet after import.</p>
                     </section>
 
                     <div id="workflow-panel" class="settings-panel workflow-panel bg-white p-3 sm:p-4 space-y-4">
@@ -92,51 +73,51 @@
                             <div class="space-y-1">
                                 <p class="rail-section-kicker">Step 2</p>
                                 <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-[16px]">route</span> What Happens Next
+                                    <span class="material-symbols-outlined text-[16px]">route</span> Workflow
                                 </h3>
                             </div>
-                            <span id="workflow-chip" class="text-[10px] font-bold uppercase px-2 py-1 bg-black text-white">Next: Add Pages</span>
+                            <span id="workflow-chip" class="text-[10px] font-bold uppercase px-2 py-1 bg-black text-white">Next: Import</span>
                         </div>
 
                         <div class="workflow-steps" aria-label="Zine workflow">
                             <button type="button" class="workflow-step" data-workflow-step="upload">
                                 <span class="workflow-step-index">1</span>
                                 <span class="workflow-step-copy">
-                                    <span class="workflow-step-label">Add Pages</span>
-                                    <span class="workflow-step-meta">Queue PDFs or photos</span>
+                                    <span class="workflow-step-label">Import</span>
+                                    <span class="workflow-step-meta">Add source pages</span>
                                 </span>
-                                <span class="workflow-step-state">Add Files</span>
+                                <span class="workflow-step-state">Ready</span>
                             </button>
                             <button type="button" class="workflow-step" data-workflow-step="arrange">
                                 <span class="workflow-step-index">2</span>
                                 <span class="workflow-step-copy">
                                     <span class="workflow-step-label">Arrange</span>
-                                    <span class="workflow-step-meta">Drag, flip, crop, remove</span>
+                                    <span class="workflow-step-meta">Order and adjust</span>
                                 </span>
                                 <span class="workflow-step-state">Waiting</span>
                             </button>
                             <button type="button" class="workflow-step" data-workflow-step="preview">
                                 <span class="workflow-step-index">3</span>
                                 <span class="workflow-step-copy">
-                                    <span class="workflow-step-label">Fold + Read</span>
-                                    <span class="workflow-step-meta">See the fold and booklet</span>
+                                    <span class="workflow-step-label">Preview</span>
+                                    <span class="workflow-step-meta">Check fold and booklet</span>
                                 </span>
-                                <span class="workflow-step-state">Mini-8 Only</span>
+                                <span class="workflow-step-state">Mini-zine</span>
                             </button>
                             <button type="button" class="workflow-step" data-workflow-step="export">
                                 <span class="workflow-step-index">4</span>
                                 <span class="workflow-step-copy">
-                                    <span class="workflow-step-label">Export</span>
-                                    <span class="workflow-step-meta">Download PDF or print</span>
+                                    <span class="workflow-step-label">Output</span>
+                                    <span class="workflow-step-meta">Export or print</span>
                                 </span>
                                 <span class="workflow-step-state">Waiting</span>
                             </button>
                         </div>
 
                         <div class="workflow-note">
-                            <p id="workflow-title" class="workflow-note-title">Start Here</p>
+                            <p id="workflow-title" class="workflow-note-title">Next step</p>
                             <p id="workflow-body" class="workflow-note-body">
-                                Drop in PDFs or phone photos. The app will queue them, place them on the sheet, and guide you to the next useful step.
+                                Import files to populate the sheet. Once pages land, arrange them, preview the fold, then export.
                             </p>
                         </div>
                     </div>
@@ -150,10 +131,10 @@
                         <div class="space-y-1 border-b-2 border-black pb-2 mb-2">
                             <p class="rail-section-kicker">Step 3</p>
                             <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
-                                <span class="material-symbols-outlined text-[16px]">tune</span> Sheet Setup
+                                <span class="material-symbols-outlined text-[16px]">tune</span> Sheet
                             </h3>
                             <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-black/60">
-                                Set the paper, grid, and labels before you export or print.
+                                Paper, grid, and page labels.
                             </p>
                         </div>
 
@@ -202,7 +183,7 @@
                     <div id="unused-pages-section" class="settings-panel bg-white p-3 sm:p-4 hidden">
                         <div class="flex items-center justify-between gap-4 mb-3">
                             <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
-                                <span class="material-symbols-outlined text-[16px]">inventory_2</span> Unplaced Pages
+                                <span class="material-symbols-outlined text-[16px]">inventory_2</span> Overflow
                             </h3>
                             <span class="text-[10px] font-bold uppercase px-2 py-1 bg-black text-white">Drag to swap</span>
                         </div>
@@ -222,13 +203,13 @@
                 <div class="workspace-header">
                     <div class="workspace-title-block">
                         <div class="space-y-1">
-                            <p class="rail-section-kicker">Working Sheet</p>
+                            <p class="rail-section-kicker">Sheet</p>
                             <h2 class="font-marker text-lg sm:text-xl tracking-wide flex items-center gap-2">
-                                <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">preview</span> Canvas
+                                <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">preview</span> Layout
                             </h2>
                         </div>
                         <p class="workspace-description text-[11px] sm:text-xs font-bold uppercase px-2 py-1 bg-black text-white self-start" id="preview-description">
-                            Upload pages to start laying out the sheet.
+                            Add files to start.
                         </p>
                     </div>
 
@@ -237,73 +218,46 @@
                             class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-black text-white font-bold"
                             title="Open fold and booklet preview">
                             <span class="material-symbols-outlined" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span>
-                            <span id="view3dBtnLabel">FOLD + READ</span>
+                            <span id="view3dBtnLabel">Preview</span>
                         </button>
                         <div class="grid grid-cols-2 gap-3">
                             <button id="exportPdfBtn"
                                 class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black"
                                 title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
                                 <span class="material-symbols-outlined text-lg" aria-hidden="true">file_download</span>
-                                <span id="exportPdfBtnLabel">EXPORT PDF</span>
+                                <span id="exportPdfBtnLabel">Export PDF</span>
                             </button>
                             <button id="printBtn"
                                 class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 text-white font-bold border-4 border-black"
                                 style="background-color: var(--primary-vibrant);"
                                 title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
                                 <span class="material-symbols-outlined text-lg" aria-hidden="true">print</span>
-                                <span id="printBtnLabel">PRINT SHEET</span>
+                                <span id="printBtnLabel">Print</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <div class="workspace-meta" aria-label="Canvas status">
-                    <span id="preview-layout-chip" class="workspace-chip">8-page mini-zine</span>
-                    <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0 of 8 placed</span>
-                    <span id="preview-mode-chip" class="workspace-chip">Fold + Read appears on the standard 2×4 mini-zine layout.</span>
+                    <span id="preview-layout-chip" class="workspace-chip">Mini-zine</span>
+                    <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0 placed</span>
+                    <span id="preview-mode-chip" class="workspace-chip">Preview is available in the standard 2×4 layout.</span>
                 </div>
 
                 <div id="preview-empty-state" class="preview-empty-state">
                     <div class="preview-empty-copy">
-                        <p class="preview-empty-kicker">Start with the first file</p>
-                        <h3 id="preview-empty-title" class="preview-empty-title">Your working sheet builds itself here.</h3>
+                        <p class="preview-empty-kicker">No pages loaded</p>
+                        <h3 id="preview-empty-title" class="preview-empty-title">The sheet stays here while you build the layout.</h3>
                         <p id="preview-empty-body" class="preview-empty-body">
-                            Add a PDF or phone photo on the left. When pages arrive, drag them into order and use the corner tools to zoom, crop, flip, or clear each slot.
+                            Import a PDF or image set from the rail. Then drag pages into place, adjust each slot, and export when the sheet looks right.
                         </p>
                     </div>
 
-                    <div class="preview-empty-steps" aria-label="Canvas guide">
-                        <article class="preview-empty-step">
-                            <span class="preview-empty-step-index">1</span>
-                            <strong>Add files</strong>
-                            <p>Queue PDFs or images from the upload panel.</p>
-                        </article>
-                        <article class="preview-empty-step">
-                            <span class="preview-empty-step-index">2</span>
-                            <strong>Arrange pages</strong>
-                            <p>Drag pages into order and fine-tune each slot.</p>
-                        </article>
-                        <article class="preview-empty-step">
-                            <span class="preview-empty-step-index">3</span>
-                            <strong>Export or print</strong>
-                            <p>Use Fold + Read for mini-zines, then download the sheet.</p>
-                        </article>
+                    <div class="preview-empty-actions" aria-label="Canvas guide">
+                        <span>Import from the rail</span>
+                        <span>Drag to reorder</span>
+                        <span>Preview before export</span>
                     </div>
-                </div>
-
-                <div class="workspace-legend" aria-label="Canvas controls">
-                    <span class="workspace-legend-item">
-                        <span class="material-symbols-outlined text-[16px]" aria-hidden="true">open_with</span>
-                        Drag to reorder
-                    </span>
-                    <span class="workspace-legend-item">
-                        <span class="material-symbols-outlined text-[16px]" aria-hidden="true">crop_free</span>
-                        Use the page tools in each corner
-                    </span>
-                    <span class="workspace-legend-item">
-                        <span class="material-symbols-outlined text-[16px]" aria-hidden="true">inventory_2</span>
-                        Extra pages stay in Unplaced Pages
-                    </span>
                 </div>
 
                 <!-- Unified Zine View -->
@@ -314,7 +268,7 @@
         </main>
 
         <footer class="mt-12 pt-6 border-t-4 border-black text-center text-sm font-bold uppercase">
-            <p>Made with &hearts; by Aaron</p>
+            <p>Zine-ify</p>
         </footer>
     </div>
 
@@ -343,19 +297,19 @@
         <div class="simulation-modal-shell">
             <div class="simulation-modal-header">
                 <div class="simulation-modal-intro">
-                    <p class="simulation-modal-kicker">Interactive Fold Studio</p>
+                    <p class="simulation-modal-kicker">Fold preview</p>
                     <div class="space-y-1">
                         <h3 class="font-marker text-xl sm:text-2xl tracking-wide flex items-center gap-2">
-                            <span class="material-symbols-outlined" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span> MAKE AND READ THE ZINE
+                            <span class="material-symbols-outlined" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span> Preview the fold
                         </h3>
                         <p class="simulation-modal-summary">
-                            The fold animation stays primary. The sidebar keeps the cut rule, step sequence, and booklet result in one place.
+                            Check the cut, the fold sequence, and the finished booklet in one view.
                         </p>
                     </div>
                     <div class="simulation-modal-meta" aria-label="Simulation legend">
-                        <span class="simulation-meta-chip">Red = cut slit</span>
-                        <span class="simulation-meta-chip">Gray = fold guides</span>
-                        <span class="simulation-meta-chip">Keys 1-6 = checkpoints</span>
+                        <span class="simulation-meta-chip">Red = cut</span>
+                        <span class="simulation-meta-chip">Gray = fold</span>
+                        <span class="simulation-meta-chip">Keys 1-6 = steps</span>
                     </div>
                 </div>
                 <button id="close-3d-btn" class="action-button simulation-close-btn bg-white text-black font-bold focus:outline-none" type="button">
@@ -368,9 +322,9 @@
                     <div class="simulation-panel-top">
                         <div>
                             <p class="simulation-panel-kicker">Simulation</p>
-                            <p class="simulation-panel-title">Fold the printed sheet until it becomes the booklet.</p>
+                            <p class="simulation-panel-title">Move from the open sheet to the finished booklet.</p>
                         </div>
-                        <p class="simulation-panel-note">Drag to orbit. Use the slider or checkpoint buttons to jump to a physical step.</p>
+                        <p class="simulation-panel-note">Drag to orbit. Use the slider or step buttons to jump to a stage.</p>
                     </div>
                     <div id="zine-3d-container" class="simulation-canvas-stage">
                         <!-- 3D Canvas goes here -->
@@ -381,41 +335,41 @@
                     <section class="simulation-panel simulation-fold-panel" aria-label="Fold checkpoints">
                         <div class="simulation-panel-top">
                             <div>
-                                <p class="simulation-panel-kicker">Checkpoint Guide</p>
-                                <p class="simulation-panel-title">Move through the real folding sequence, not just the final shape.</p>
+                                <p class="simulation-panel-kicker">Steps</p>
+                                <p class="simulation-panel-title">Follow the actual fold sequence.</p>
                             </div>
                             <span id="fold-status" class="simulation-status-chip">Flat</span>
                         </div>
 
                         <div class="simulation-slider-row">
                             <label for="fold-slider" class="font-bold text-xs sm:text-sm uppercase whitespace-nowrap flex items-center gap-2">
-                                <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);" aria-hidden="true">animation</span> Fold the Sheet
+                                <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);" aria-hidden="true">animation</span> Fold position
                             </label>
                             <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-2 cursor-pointer" style="accent-color: var(--primary-vibrant);">
                         </div>
 
                         <p id="fold-helper" class="simulation-helper">
-                            Follow the checkpoints: keep the sheet open, fold top to bottom, form a folded strip, push the short ends inward, open the diamond, then press the stack flat.
+                            Keep the sheet open, fold it in half, push the short ends inward, open the diamond, then flatten the stack.
                         </p>
 
                         <div class="simulation-step-grid">
                             <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="0">
-                                1. SHEET OPEN
+                                1. Sheet open
                             </button>
                             <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="0.5">
-                                2. FOLD DOWN
+                                2. Fold down
                             </button>
                             <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="1">
-                                3. STRIP FORMED
+                                3. Strip formed
                             </button>
                             <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="1.5">
-                                4. PUSH ENDS IN
+                                4. Push ends in
                             </button>
                             <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="2">
-                                5. DIAMOND OPEN
+                                5. Diamond open
                             </button>
                             <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="3">
-                                6. PRESS FLAT
+                                6. Press flat
                             </button>
                         </div>
                     </section>
@@ -423,8 +377,8 @@
                     <section class="simulation-panel simulation-booklet-panel" aria-label="Booklet preview">
                         <div class="simulation-panel-top">
                             <div>
-                                <p class="simulation-panel-kicker">Reading Order</p>
-                                <p class="simulation-panel-title">Check the booklet outcome while the fold stays visible beside it.</p>
+                                <p class="simulation-panel-kicker">Booklet</p>
+                                <p class="simulation-panel-title">Check the reading order beside the fold.</p>
                             </div>
                             <span id="booklet-status" class="simulation-status-chip">Cover</span>
                         </div>
@@ -432,16 +386,16 @@
                         <div id="booklet-preview-container" class="booklet-preview-container" aria-label="Small booklet preview"></div>
 
                         <p class="simulation-helper simulation-helper-compact">
-                            Click the left or right page to turn it, or use the buttons below.
+                            Click a page or use the buttons below.
                         </p>
 
                         <div class="grid grid-cols-2 gap-3">
                             <button id="booklet-prev-btn" class="action-button w-full py-2.5 px-3 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black" type="button">
                                 <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>
-                                PREV
+                                Prev
                             </button>
                             <button id="booklet-next-btn" class="action-button w-full py-2.5 px-3 flex items-center justify-center gap-2 bg-black text-white font-bold border-4 border-black" type="button">
-                                NEXT
+                                Next
                                 <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
                             </button>
                         </div>
