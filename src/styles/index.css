@@ -624,6 +624,10 @@ select:focus, input:focus {
     background: black;
 }
 
+:root {
+    --mobile-action-dock-reserve: calc(11.5rem + env(safe-area-inset-bottom, 0px));
+}
+
 .workspace-meta {
     display: flex;
     flex-wrap: wrap;
@@ -1047,7 +1051,7 @@ select:focus, input:focus {
         position: fixed;
         left: 0.75rem;
         right: 0.75rem;
-        bottom: calc(7.6rem + env(safe-area-inset-bottom, 0px));
+        bottom: calc(var(--mobile-action-dock-reserve) + 0.6rem);
         z-index: 80;
         height: min(70vh, 36rem);
         max-height: min(70vh, 36rem);
@@ -1095,6 +1099,14 @@ select:focus, input:focus {
         gap: 0.65rem;
     }
 
+    .workspace-panel {
+        padding-bottom: var(--mobile-action-dock-reserve);
+    }
+
+    .workspace-sheet-stack {
+        padding-bottom: calc(var(--mobile-action-dock-reserve) + 0.75rem);
+    }
+
     .page-toolbar {
         opacity: 1 !important;
         top: auto;
@@ -1140,7 +1152,7 @@ select:focus, input:focus {
     .toast-container {
         left: 0.75rem;
         right: 0.75rem;
-        bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
+        bottom: calc(var(--mobile-action-dock-reserve) + 0.25rem);
     }
 
     .toast {
@@ -1151,10 +1163,6 @@ select:focus, input:focus {
 
     .toast-visible {
         transform: translateY(0);
-    }
-
-    .workspace-panel {
-        padding-bottom: calc(9.75rem + env(safe-area-inset-bottom, 0px));
     }
 
     .workspace-config-stack {
@@ -1245,7 +1253,7 @@ select:focus, input:focus {
     .control-rail {
         left: 0.5rem;
         right: 0.5rem;
-        bottom: calc(7.35rem + env(safe-area-inset-bottom, 0px));
+        bottom: calc(var(--mobile-action-dock-reserve) + 0.45rem);
         height: min(74vh, 34rem);
     }
 
