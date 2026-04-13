@@ -1,0 +1,185 @@
+@layer components {
+  .upload-box {
+    border: 1px dashed var(--border-strong);
+    border-radius: 1.25rem;
+    background-color: rgba(255, 255, 255, 0.74);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+  }
+  .upload-box:active, .upload-box.dragover {
+    transform: translateY(-1px);
+    border-color: rgba(49, 83, 107, 0.45);
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 16px 32px rgba(49, 83, 107, 0.12);
+  }
+
+  .upload-status,
+  .workflow-chip,
+  .grid-total-chip,
+  .workspace-description {
+    @apply base-chip;
+    background: var(--glass-bg-alt);
+    color: var(--primary-vibrant);
+  }
+
+  .upload-status {
+    margin-top: 0.1rem;
+  }
+
+  .upload-status--success {
+    background: rgba(35, 110, 71, 0.1);
+    color: #236e47;
+  }
+
+  .upload-status--error {
+    background: rgba(157, 38, 38, 0.1);
+    color: #9d2626;
+  }
+
+  select, input {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 0.9rem !important;
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.92);
+  }
+  select:focus, input:focus {
+    outline: none;
+    border-color: rgba(49, 83, 107, 0.42) !important;
+    box-shadow: 0 0 0 4px rgba(49, 83, 107, 0.12);
+    transform: none;
+  }
+
+  .action-button {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 999px !important;
+    box-shadow: none;
+    transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    text-transform: none;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .action-button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(49, 83, 107, 0.32) !important;
+    box-shadow: 0 12px 24px rgba(49, 83, 107, 0.12);
+  }
+  .action-button:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+  .action-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .workflow-panel {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.82)),
+        var(--surface-strong);
+  }
+
+  .workflow-steps {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .workflow-step {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.7rem;
+    align-items: center;
+    padding: 0.72rem 0.85rem;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.58);
+    border: 1px solid var(--border-color);
+    border-radius: 0.95rem;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease, opacity 0.12s ease, border-color 0.12s ease;
+  }
+
+  .workflow-step:not(:disabled):hover,
+  .workflow-step:not(:disabled):focus-visible {
+    transform: translateY(-1px);
+    border-color: rgba(49, 83, 107, 0.28);
+    box-shadow: 0 14px 28px rgba(49, 83, 107, 0.12);
+    outline: none;
+  }
+
+  .workflow-step-index {
+    min-width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: rgba(49, 83, 107, 0.08);
+    color: var(--primary-vibrant);
+    border-radius: 999px;
+  }
+
+  .workflow-step-state {
+    justify-self: end;
+    padding: 0.28rem 0.54rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .progress-bar-container {
+    width: 100%;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.76);
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  #progress-fill {
+    height: 100%;
+    background: var(--primary-vibrant);
+    width: 0%;
+    background-image: linear-gradient(
+        45deg, 
+        rgba(0,0,0,0.15) 25%, 
+        transparent 25%, 
+        transparent 50%, 
+        rgba(0,0,0,0.15) 50%, 
+        rgba(0,0,0,0.15) 75%, 
+        transparent 75%, 
+        transparent
+    );
+    background-size: 20px 20px;
+  }
+
+  .toast-container {
+    pointer-events: none;
+  }
+  .toast {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--surface-shadow-strong);
+    border-radius: 1rem;
+    padding: 1rem;
+    width: 320px;
+    pointer-events: none;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transform: translateX(120%);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    opacity: 0;
+  }
+  .toast-visible {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

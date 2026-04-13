@@ -1,0 +1,106 @@
+@layer components {
+  .simulation-modal {
+    background:
+        linear-gradient(180deg, rgba(244, 239, 230, 0.94), rgba(236, 229, 219, 0.94)),
+        rgba(244, 239, 230, 0.96);
+  }
+
+  .simulation-modal-shell {
+    width: min(100%, 86rem);
+    height: 100%;
+    padding: 1rem;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 1rem;
+    overflow: hidden;
+  }
+
+  .simulation-canvas-stage {
+    min-height: 24rem;
+    height: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 1.15rem;
+    background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.94), rgba(246, 243, 236, 0.98) 62%, rgba(232, 226, 214, 1)),
+        white;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .simulation-sidebar {
+    min-height: 0;
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    overflow-y: auto;
+    padding-right: 0.2rem;
+  }
+
+  .booklet-preview-container {
+    min-height: 13rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.9), rgba(244, 241, 234, 0.95) 55%, rgba(231, 225, 213, 0.98)),
+        linear-gradient(135deg, rgba(0, 0, 0, 0.04), transparent);
+    border: 1px solid var(--border-color);
+    border-radius: 1.05rem;
+    padding: 1rem;
+    overflow: hidden;
+  }
+
+  .booklet-shell {
+    width: min(100%, 18rem);
+    perspective: 1200px;
+  }
+
+  .booklet-stage {
+    aspect-ratio: 2 / 1.414;
+    transform: rotateX(12deg) rotateY(-14deg);
+    transform-style: preserve-3d;
+  }
+
+  .booklet-spread {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+  }
+
+  .booklet-page,
+  .booklet-face {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    background: #fbf7ef;
+    border: 1px solid rgba(23, 23, 23, 0.16);
+    border-radius: 0.8rem;
+    overflow: hidden;
+    box-shadow: 0 18px 28px rgba(23, 23, 23, 0.12);
+    backface-visibility: hidden;
+  }
+
+  .booklet-page-left,
+  .booklet-face-front {
+    left: 0;
+  }
+
+  .booklet-page-right,
+  .booklet-face-back {
+    right: 0;
+  }
+
+  .booklet-spine {
+    position: absolute;
+    left: 50%;
+    top: 2%;
+    bottom: 2%;
+    width: 0.5rem;
+    transform: translateX(-50%) translateZ(8px);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(255, 255, 255, 0.1) 35%, rgba(0, 0, 0, 0.32));
+    border-radius: 999px;
+    opacity: 0.3;
+  }
+}
