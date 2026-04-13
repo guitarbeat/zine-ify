@@ -142,6 +142,7 @@
                             <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
                                 <span class="material-symbols-outlined text-[16px]">tune</span> Configuration
                             </h3>
+                            <p class="workspace-config-summary">Fine-tune paper and layout before export.</p>
                         </div>
 
                         <div class="workspace-config-grid">
@@ -160,7 +161,7 @@
                                 </select>
                             </div>
 
-                            <div class="workspace-config-field" role="group" aria-labelledby="grid-layout-label">
+                            <div class="workspace-config-field workspace-config-field-wide" role="group" aria-labelledby="grid-layout-label">
                                 <div class="workspace-config-label-row">
                                     <label id="grid-layout-label" class="workspace-config-label">Grid Layout</label>
                                     <span id="grid-total" class="grid-total-chip">(8 pages)</span>
@@ -172,11 +173,18 @@
                                     <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Grid Columns"
                                         class="workspace-config-input workspace-config-number">
                                 </div>
+                                <p class="workspace-config-hint">Rows and columns control placement capacity.</p>
                             </div>
 
-                            <label class="workspace-config-toggle" for="show-page-numbers">
-                                <input type="checkbox" id="show-page-numbers" checked class="w-5 h-5 accent-[var(--primary-vibrant)]" style="border: 2px solid black;">
-                                <span class="workspace-config-toggle-copy">Show Page Numbers</span>
+                            <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
+                                <span class="workspace-config-toggle-copy-wrap">
+                                    <span class="workspace-config-toggle-copy">Show Page Numbers</span>
+                                    <span class="workspace-config-hint">Display slot numbers on the sheet preview.</span>
+                                </span>
+                                <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
+                                <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                    <span class="workspace-config-toggle-knob"></span>
+                                </span>
                             </label>
                         </div>
                     </div>

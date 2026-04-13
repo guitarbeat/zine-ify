@@ -28,6 +28,160 @@
   margin-top: 0.1rem;
 }
 
+.workspace-config-stack {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.workspace-config-bar {
+  background:
+      linear-gradient(165deg, rgba(255, 255, 255, 0.9), rgba(255, 250, 243, 0.8)),
+      var(--surface-strong);
+  border-color: rgba(49, 83, 107, 0.2);
+}
+
+.workspace-config-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+  padding-bottom: 0.7rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(23, 23, 23, 0.1);
+}
+
+.workspace-config-summary {
+  font-size: 0.73rem;
+  letter-spacing: 0.04em;
+  color: var(--muted-ink);
+}
+
+.workspace-config-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+}
+
+.workspace-config-field {
+  display: grid;
+  gap: 0.42rem;
+  border: 1px solid rgba(23, 23, 23, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 0.95rem;
+  padding: 0.68rem 0.72rem;
+}
+
+.workspace-config-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.workspace-config-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(23, 23, 23, 0.72);
+}
+
+.workspace-config-input {
+  width: 100%;
+  min-height: 2.4rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.93rem;
+  font-weight: 600;
+  color: var(--accent-dark);
+}
+
+.workspace-config-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.workspace-config-times {
+  font-weight: 700;
+  color: var(--muted-ink);
+  letter-spacing: 0.05em;
+}
+
+.workspace-config-number {
+  text-align: center;
+}
+
+.workspace-config-hint {
+  font-size: 0.72rem;
+  color: var(--muted-ink);
+  line-height: 1.35;
+}
+
+.workspace-config-toggle {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.85rem;
+  cursor: pointer;
+}
+
+.workspace-config-toggle-copy-wrap {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.workspace-config-toggle-copy {
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.workspace-config-toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.workspace-config-toggle-switch {
+  width: 2.55rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(23, 23, 23, 0.2);
+  background: rgba(23, 23, 23, 0.14);
+  display: inline-flex;
+  align-items: center;
+  padding: 0.14rem;
+  transition: background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.workspace-config-toggle-knob {
+  width: 1.08rem;
+  height: 1.08rem;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(23, 23, 23, 0.18);
+  box-shadow: 0 3px 8px rgba(23, 23, 23, 0.16);
+  transform: translateX(0);
+  transition: transform 0.16s ease;
+}
+
+.workspace-config-toggle-input:checked + .workspace-config-toggle-switch {
+  background: rgba(49, 83, 107, 0.9);
+  border-color: rgba(49, 83, 107, 0.96);
+}
+
+.workspace-config-toggle-input:checked + .workspace-config-toggle-switch .workspace-config-toggle-knob {
+  transform: translateX(1.04rem);
+}
+
+.workspace-config-toggle:focus-within {
+  border-color: rgba(49, 83, 107, 0.46);
+  box-shadow: 0 0 0 4px rgba(49, 83, 107, 0.1);
+}
+
 .upload-status--success {
   background: rgba(35, 110, 71, 0.1);
   color: #236e47;
