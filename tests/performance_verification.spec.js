@@ -31,7 +31,7 @@ test('Verify basic PDF processing and page visibility', async ({ page }) => {
   await fileInput.setInputFiles(pdfPath);
 
   // Wait for processing to complete
-  await expect(page.locator('#upload-status')).toContainText('Successfully processed 1 pages', { timeout: 15000 });
+  await expect(page.locator('#upload-status')).toContainText('Imported 1 of 1 pages from test-1-page.pdf', { timeout: 15000 });
 
   // Check that page 1 is attached
   const page1Img = page.locator('.page-cell[data-page-index="0"] .page-content-img');
