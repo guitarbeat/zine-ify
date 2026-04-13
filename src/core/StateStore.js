@@ -54,7 +54,11 @@ export class StateStore {
   }
 
   updatePaperSettings({ paperSize, orientation }) {
-    if (paperSize) this.paperSize = paperSize;
-    if (orientation) this.orientation = orientation;
+    if (paperSize) {
+      this.paperSize = paperSize;
+    }
+    if (orientation) {
+      this.orientation = orientation;
+    }
   }
 }

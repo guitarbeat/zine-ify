@@ -103,9 +103,13 @@ export class ExportService {
 
     const waitForImagesToLoad = () => {
       const images = printWindow.document.querySelectorAll('img');
-      if (images.length === 0) return Promise.resolve();
+      if (images.length === 0) {
+        return Promise.resolve();
+      }
       const loadingPromises = Array.from(images).map((img) => {
-        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+        if (img.complete && img.naturalWidth > 0) {
+          return Promise.resolve();
+        }
         return new Promise((resolve) => {
           img.onload = img.onerror = resolve;
         });
@@ -135,10 +139,14 @@ export class ExportService {
 
     const captureZine = async (sheetNum) => {
       const grid = document.querySelector(`#zine-grid-sheet-${sheetNum}`);
-      if (!grid) return;
+      if (!grid) {
+        return;
+      }
 
       const canvas = await html2canvas(grid, { scale: 2, allowTaint: true, backgroundColor: '#ffffff', logging: false });
-      if (sheetNum > 1) doc.addPage();
+      if (sheetNum > 1) {
+        doc.addPage();
+      }
       doc.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, dimensions.width, dimensions.height);
 
       doc.addPage();

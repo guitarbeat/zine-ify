@@ -91,7 +91,9 @@ export class LayoutRenderer {
     cell.replaceChildren(this.cellTemplate.content.cloneNode(true));
     const label = cell.querySelector('.page-label');
     label.textContent = labelText;
-    if (!options.pageNumbersVisible) label.classList.add('hidden');
+    if (!options.pageNumbersVisible) {
+      label.classList.add('hidden');
+    }
 
     const img = cell.querySelector('.page-content-img');
     img.alt = altText;

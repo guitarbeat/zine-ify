@@ -9,7 +9,9 @@ export class ModalManager {
   }
 
   toggle3DModal(show) {
-    if (!this.elements.zine3dModal) return;
+    if (!this.elements.zine3dModal) {
+      return;
+    }
     if (show) {
       this.elements.zine3dModal.style.display = 'flex';
       this.elements.zine3dModal.classList.remove('hidden');
@@ -27,7 +29,7 @@ export class ModalManager {
     }
   }
 
-  showPagePicker({ fileName, totalPages, selectionLimit, thumbnails }) {
+  showPagePicker({ fileName, selectionLimit, thumbnails }) {
     return new Promise((resolve) => {
       this.pagePickerState = { resolve, selectedPages: [], selectionLimit };
       if (this.elements.pagePickerSubtitle) {
@@ -50,7 +52,9 @@ export class ModalManager {
   }
 
   renderPagePickerGrid(thumbnails) {
-    if (!this.elements.pagePickerGrid) return;
+    if (!this.elements.pagePickerGrid) {
+      return;
+    }
     this.elements.pagePickerGrid.innerHTML = '';
     thumbnails.forEach(({ pageNumber, thumbnailUrl }) => {
       const button = document.createElement('button');
@@ -72,7 +76,9 @@ export class ModalManager {
   }
 
   togglePageSelection(pageNumber) {
-    if (!this.pagePickerState) return;
+    if (!this.pagePickerState) {
+      return;
+    }
     const index = this.pagePickerState.selectedPages.indexOf(pageNumber);
     if (index >= 0) {
       this.pagePickerState.selectedPages.splice(index, 1);
@@ -94,7 +100,9 @@ export class ModalManager {
       const isSelected = selIndex >= 0;
       button.classList.toggle('is-selected', isSelected);
       const orderLabel = button.querySelector('.page-picker-thumb-order');
-      if (orderLabel) orderLabel.textContent = isSelected ? (selIndex + 1) : '';
+      if (orderLabel) {
+        orderLabel.textContent = isSelected ? (selIndex + 1) : '';
+      }
     });
   }
 
@@ -127,7 +135,9 @@ export class ModalManager {
       modal.querySelector('.close-modal').addEventListener('click', hideModal);
       modal.querySelector('.absolute').addEventListener('click', hideModal);
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal.classList.contains('opacity-100')) hideModal();
+        if (e.key === 'Escape' && modal.classList.contains('opacity-100')) {
+          hideModal();
+        }
       });
     }
     const img = modal.querySelector('.zoom-img');
@@ -141,10 +151,16 @@ export class ModalManager {
   }
 
   showProgress(show, title = 'Processing...', subtext = '') {
-    if (!this.elements.progressContainer) return;
+    if (!this.elements.progressContainer) {
+      return;
+    }
     if (show) {
-      if (this.elements.progressText) this.elements.progressText.textContent = title;
-      if (this.elements.progressSubtext) this.elements.progressSubtext.textContent = subtext;
+      if (this.elements.progressText) {
+        this.elements.progressText.textContent = title;
+      }
+      if (this.elements.progressSubtext) {
+        this.elements.progressSubtext.textContent = subtext;
+      }
       this.elements.progressContainer.style.display = 'flex';
       this.elements.progressContainer.classList.remove('hidden');
       this.updateProgress(0);

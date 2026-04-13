@@ -42,7 +42,11 @@ export function normalizePreviewPage(page, slotIndex = null) {
  * @returns {string} The formatted label
  */
 export function getPageLabel(pageNumber, totalPages, isShort = false) {
-  if (pageNumber === 1) return 'Cover';
-  if (pageNumber === totalPages && totalPages > 1) return 'Back';
+  if (pageNumber === 1) {
+    return 'Cover';
+  }
+  if (pageNumber === totalPages && totalPages > 1) {
+    return 'Back';
+  }
   return isShort ? `P${pageNumber}` : `Page ${pageNumber}`;
 }

@@ -35,8 +35,12 @@ export class DragAndDropHandler {
   }
 
   handleDragOver(e, cell) {
-    if (e.preventDefault) e.preventDefault();
-    if (this._draggedItem === cell) return;
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+    if (this._draggedItem === cell) {
+      return;
+    }
     cell.classList.add('drag-over');
     return false;
   }
@@ -46,7 +50,9 @@ export class DragAndDropHandler {
   }
 
   handleDrop(e, cell) {
-    if (e.stopPropagation) e.stopPropagation();
+    if (e.stopPropagation) {
+      e.stopPropagation();
+    }
     cell.classList.remove('drag-over');
     if (this._draggedItem && this._draggedItem !== cell) {
       const fromIndex = parseInt(this._draggedItem.getAttribute('data-page-index'));

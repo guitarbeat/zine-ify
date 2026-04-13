@@ -1,8 +1,7 @@
 import mitt from 'mitt';
 import { PAPER_SIZES, ZINE_TEMPLATES } from '../../utils/config.js';
-import { toast } from '../Toast.js';
-import { debounce, formatFileSize } from '../../utils/helpers.js';
-import { getFileTypeLabel } from '../../utils/fileValidation.js';
+import { debounce } from '../../utils/helpers.js';
+
 import { ModalManager } from './ModalManager.js';
 import { DragAndDropHandler } from './DragAndDropHandler.js';
 import { LayoutRenderer } from './LayoutRenderer.js';
@@ -85,7 +84,9 @@ export class UIManager {
 
     this.elements.pdfUpload?.addEventListener('change', (e) => {
       const files = Array.from(e.target.files);
-      if (files.length > 0) this.emitter.emit('fileSelected', files[0]);
+      if (files.length > 0) {
+        this.emitter.emit('fileSelected', files[0]);
+      }
       e.target.value = '';
     });
 
@@ -102,11 +103,21 @@ export class UIManager {
   }
 
   handleKeyboard(e) {
-    if (this.activePageIndex === null) return;
-    if (e.key === 'r' || e.key === 'R') this.emitter.emit('pageFlipped', this.activePageIndex);
-    if (e.key === 'z' || e.key === 'Z') this.emitter.emit('pageZoomed', this.activePageIndex);
-    if (e.key === 'c' || e.key === 'C') this.emitter.emit('pageCropToggled', this.activePageIndex);
-    if (e.key === 'Backspace' || e.key === 'Delete') this.emitter.emit('pageRemoved', this.activePageIndex);
+    if (this.activePageIndex === null) {
+      return;
+    }
+    if (e.key === 'r' || e.key === 'R') {
+      this.emitter.emit('pageFlipped', this.activePageIndex);
+    }
+    if (e.key === 'z' || e.key === 'Z') {
+      this.emitter.emit('pageZoomed', this.activePageIndex);
+    }
+    if (e.key === 'c' || e.key === 'C') {
+      this.emitter.emit('pageCropToggled', this.activePageIndex);
+    }
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      this.emitter.emit('pageRemoved', this.activePageIndex);
+    }
   }
 
   on(event, handler) { this.emitter.on(event, handler); }
@@ -135,7 +146,9 @@ export class UIManager {
 
   updatePagePreview(index, url) {
     const cell = document.querySelector(`.page-cell[data-page-index="${index}"]`);
-    if (!cell) return;
+    if (!cell) {
+      return;
+    }
     const img = cell.querySelector('.page-content-img');
     const placeholder = cell.querySelector('.page-placeholder');
     if (url) {
