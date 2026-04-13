@@ -22,6 +22,7 @@ export class AppController {
       this.ui.generateLayout(8, 'mini-8');
     } catch (error) {
       toast.error('Initialization Failed', 'Check console for details.');
+      // eslint-disable-next-line no-console
       console.error(error);
     }
   }
