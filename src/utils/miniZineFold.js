@@ -79,13 +79,12 @@ function computeStackOrigins(stackAngles, w, stackDepthStep, bookletClose) {
   }));
 }
 
-function buildPageState({
-  pageId,
-  stackIndex,
-  stackPose,
-  localCenter,
-  localRotationX
-}) {
+function buildPageState(args) {
+  const pageId = args.pageId;
+  const stackIndex = args.stackIndex;
+  const stackPose = args.stackPose;
+  const localCenter = args.localCenter;
+  const localRotationX = args.localRotationX;
   const stackQuaternion = poseToQuaternion(stackPose.rotation);
   const localQuaternion = TMP_QUAT_B.setFromAxisAngle(new THREE.Vector3(1, 0, 0), localRotationX).clone();
   const worldQuaternion = stackQuaternion.clone().multiply(localQuaternion);
@@ -119,7 +118,8 @@ function buildPageState({
 }
 
 function getEdgePoint(pageState, edge, dimensions) {
-  const { w, h } = dimensions;
+  const w = dimensions.w;
+  const h = dimensions.h;
   const localPoint = new THREE.Vector3(
     edge === 'left' ? -w / 2 : edge === 'right' ? w / 2 : 0,
     edge === 'top' ? h / 2 : edge === 'bottom' ? -h / 2 : 0,
@@ -139,7 +139,9 @@ function getEdgePoint(pageState, edge, dimensions) {
   ));
 }
 
-function computeBounds(pageStates, { w, h }) {
+function computeBounds(pageStates, dimensions) {
+  const w = dimensions.w;
+  const h = dimensions.h;
   const min = { x: Infinity, y: Infinity, z: Infinity };
   const max = { x: -Infinity, y: -Infinity, z: -Infinity };
 

@@ -284,7 +284,10 @@ export class Zine3DViewer {
   }
 
   createSeams() {
-    this.connectionDefinitions.forEach(({ from, to, orientation }) => {
+    this.connectionDefinitions.forEach((connection) => {
+      const from = connection.from;
+      const to = connection.to;
+      const orientation = connection.orientation;
       const geometry = new THREE.PlaneGeometry(1, 1);
       const material = new THREE.MeshStandardMaterial({
         color: this.sheetMaterialColor,
