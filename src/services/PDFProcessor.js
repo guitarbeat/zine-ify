@@ -152,10 +152,36 @@ export class PDFProcessor {
   }
 
   /**
+   * Create a render target that can stay off the main thread when supported.
+   * @param {number} width
+   * @param {number} height
+   * @returns {{ canvas: HTMLCanvasElement | OffscreenCanvas, context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D }}
+   */
+  createRenderCanvas(width, height) {
+    /** @type {HTMLCanvasElement | OffscreenCanvas} */
+    let canvas;
+
+    if (typeof OffscreenCanvas !== 'undefined') {
+      canvas = new OffscreenCanvas(width, height);
+    } else {
+      canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+    }
+
+    const context = canvas.getContext('2d', { alpha: false });
+    if (!context) {
+      throw new Error('Failed to acquire canvas context');
+    }
+
+    return { canvas, context };
+  }
+
+  /**
    * Render PDF page to canvas
    * @param {number} pageNum - Page number to render
    * @param {Function} onProgress - Progress callback
-   * @returns {Promise<HTMLCanvasElement>} Rendered canvas
+   * @returns {Promise<HTMLCanvasElement | OffscreenCanvas>} Rendered canvas
    */
   async renderPage(pageNum, onProgress = null) {
     if (!this.pdf) {
@@ -183,14 +209,7 @@ export class PDFProcessor {
       const width = Math.floor(viewport.width);
       const height = Math.floor(viewport.height);
 
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const context = canvas.getContext('2d', { alpha: false });
-
-      if (!context) {
-        throw new Error(`Failed to acquire canvas context for page ${pageNum}`);
-      }
+      const { canvas, context } = this.createRenderCanvas(width, height);
 
       // Fill background white
       context.fillStyle = '#ffffff';
@@ -218,7 +237,7 @@ export class PDFProcessor {
   /**
    * Render a lower-resolution page preview for selection UIs
    * @param {number} pageNum - Page number to render
-   * @returns {Promise<HTMLCanvasElement>} Rendered preview canvas
+   * @returns {Promise<HTMLCanvasElement | OffscreenCanvas>} Rendered preview canvas
    */
   async renderPageThumbnail(pageNum) {
     if (!this.pdf) {
@@ -235,14 +254,9 @@ export class PDFProcessor {
       );
       const viewport = page.getViewport({ scale });
 
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.max(1, Math.floor(viewport.width));
-      canvas.height = Math.max(1, Math.floor(viewport.height));
-
-      const context = canvas.getContext('2d', { alpha: false });
-      if (!context) {
-        throw new Error(`Failed to acquire canvas context for preview page ${pageNum}`);
-      }
+      const canvasWidth = Math.max(1, Math.floor(viewport.width));
+      const canvasHeight = Math.max(1, Math.floor(viewport.height));
+      const { canvas, context } = this.createRenderCanvas(canvasWidth, canvasHeight);
 
       context.fillStyle = '#ffffff';
       context.fillRect(0, 0, canvas.width, canvas.height);
@@ -292,14 +306,7 @@ export class PDFProcessor {
       const width = Math.max(1, Math.floor(sourceWidth * scale));
       const height = Math.max(1, Math.floor(sourceHeight * scale));
 
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-
-      const context = canvas.getContext('2d', { alpha: false });
-      if (!context) {
-        throw new Error('Failed to acquire canvas context for image rendering');
-      }
+      const { canvas, context } = this.createRenderCanvas(width, height);
 
       context.fillStyle = '#ffffff';
       context.fillRect(0, 0, width, height);
