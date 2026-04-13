@@ -24,7 +24,7 @@
     "three": "^0.183.2"
   },
   "devDependencies": {
-    "@eslint/js": "10.2.0",
+    "@eslint/js": "10.0.1",
     "@playwright/test": "^1.57.0",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.11",
@@ -40,9 +40,11 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "packageManager": "pnpm@10.27.0",
   "pnpm": {
     "overrides": {
       "ajv": "6.14.0",
+      "brace-expansion": "5.0.5",
       "dompurify": "3.3.2",
       "flatted": "3.4.2",
       "minimatch": "10.2.3",
