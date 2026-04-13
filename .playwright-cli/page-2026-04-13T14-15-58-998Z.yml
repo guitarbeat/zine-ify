@@ -1,0 +1,215 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e5]:
+        - paragraph [ref=e6]: Single-sheet zines
+        - heading "Zine-ify" [level=1] [ref=e8]
+    - main [ref=e9]:
+      - complementary [ref=e10]:
+        - generic [ref=e11]:
+          - generic [ref=e12]:
+            - generic [ref=e13]:
+              - generic [ref=e14]:
+                - paragraph [ref=e15]: Step 1
+                - heading "Files" [level=2] [ref=e16]
+              - generic [ref=e17]: Ctrl+O
+            - button "Upload PDF or image files" [ref=e18] [cursor=pointer]:
+              - generic [ref=e19]: cloud_upload
+              - heading "Add a PDF or image set" [level=2] [ref=e20]
+              - paragraph [ref=e21]: Upload PDF or image files to get started
+          - generic [ref=e22]:
+            - generic [ref=e23]:
+              - generic [ref=e24]:
+                - paragraph [ref=e25]: Step 2
+                - heading "route Flow" [level=3] [ref=e26]:
+                  - generic [ref=e27]: route
+                  - text: Flow
+              - generic [ref=e28]: "Next: Import"
+            - generic "Zine workflow" [ref=e29]:
+              - button "1 Import Add source pages Ready" [ref=e30]:
+                - generic [ref=e31]: "1"
+                - generic [ref=e32]:
+                  - generic [ref=e33]: Import
+                  - generic [ref=e34]: Add source pages
+                - generic [ref=e35]: Ready
+              - button "2 Arrange Order and adjust Waiting" [disabled] [ref=e36]:
+                - generic [ref=e37]: "2"
+                - generic [ref=e38]:
+                  - generic [ref=e39]: Arrange
+                  - generic [ref=e40]: Order and adjust
+                - generic [ref=e41]: Waiting
+              - button "3 Preview Check fold and booklet Waiting" [disabled] [ref=e42]:
+                - generic [ref=e43]: "3"
+                - generic [ref=e44]:
+                  - generic [ref=e45]: Preview
+                  - generic [ref=e46]: Check fold and booklet
+                - generic [ref=e47]: Waiting
+              - button "4 Output Export or print Waiting" [disabled] [ref=e48]:
+                - generic [ref=e49]: "4"
+                - generic [ref=e50]:
+                  - generic [ref=e51]: Output
+                  - generic [ref=e52]: Export or print
+                - generic [ref=e53]: Waiting
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - paragraph [ref=e56]: Step 3
+              - heading "tune Sheet options" [level=3] [ref=e57]:
+                - generic [ref=e58]: tune
+                - text: Sheet options
+            - generic [ref=e59]:
+              - generic [ref=e60]:
+                - generic [ref=e61]: Paper Size
+                - combobox "Paper Size" [ref=e62]:
+                  - option "A4 (210 × 297 mm)"
+                  - option "A3 (297 × 420 mm)"
+                  - option "Letter (8.5 × 11 in)" [selected]
+                  - option "Legal (8.5 × 14 in)"
+                  - option "A5 (148 × 210 mm)"
+              - generic [ref=e63]:
+                - generic [ref=e64]: Orientation
+                - combobox "Orientation" [ref=e65]:
+                  - option "Landscape" [selected]
+                  - option "Portrait"
+            - group "grid_view Grid Layout" [ref=e66]:
+              - generic [ref=e67]:
+                - generic [ref=e68]:
+                  - generic [ref=e69]: grid_view
+                  - text: Grid Layout
+                - generic [ref=e70]: (8 pages)
+              - generic [ref=e71]:
+                - spinbutton "Grid Rows" [ref=e72]: "2"
+                - generic [ref=e73]: ×
+                - spinbutton "Grid Columns" [ref=e74]: "4"
+            - generic [ref=e76] [cursor=pointer]:
+              - checkbox "Show Page Numbers" [checked] [ref=e77]
+              - generic [ref=e78]: Show Page Numbers
+      - generic [ref=e79]:
+        - generic [ref=e81]:
+          - generic [ref=e82]:
+            - paragraph [ref=e83]: Sheet
+            - heading "preview Layout" [level=2] [ref=e84]:
+              - generic [ref=e85]: preview
+              - text: Layout
+          - paragraph [ref=e86]: Add files to start.
+        - generic "Canvas status" [ref=e87]:
+          - generic [ref=e88]: 8-page mini-zine
+          - generic [ref=e89]: 0 placed
+        - generic [ref=e91]:
+          - heading "The sheet is ready when you are." [level=3] [ref=e92]
+          - paragraph [ref=e93]: Add files from the rail.
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - generic [ref=e98]: Page 5
+            - generic:
+              - button "Quick Preview Page 5":
+                - generic: zoom_in
+              - button "Toggle Crop/Zoom Page 5":
+                - generic: crop_free
+              - button "Rotate Page 5 180 degrees":
+                - generic: rotate_right
+              - button "Remove Page 5":
+                - generic: close
+            - generic [ref=e99]:
+              - generic [ref=e100]: note_stack
+              - generic [ref=e101]: Empty
+          - generic [ref=e102]:
+            - generic [ref=e103]: Page 4
+            - generic:
+              - button "Quick Preview Page 4":
+                - generic: zoom_in
+              - button "Toggle Crop/Zoom Page 4":
+                - generic: crop_free
+              - button "Rotate Page 4 180 degrees":
+                - generic: rotate_right
+              - button "Remove Page 4":
+                - generic: close
+            - generic [ref=e104]:
+              - generic [ref=e105]: note_stack
+              - generic [ref=e106]: Empty
+          - generic [ref=e107]:
+            - generic [ref=e108]: Page 3
+            - generic:
+              - button "Quick Preview Page 3":
+                - generic: zoom_in
+              - button "Toggle Crop/Zoom Page 3":
+                - generic: crop_free
+              - button "Rotate Page 3 180 degrees":
+                - generic: rotate_right
+              - button "Remove Page 3":
+                - generic: close
+            - generic [ref=e109]:
+              - generic [ref=e110]: note_stack
+              - generic [ref=e111]: Empty
+          - generic [ref=e112]:
+            - generic [ref=e113]: Page 2
+            - generic:
+              - button "Quick Preview Page 2":
+                - generic: zoom_in
+              - button "Toggle Crop/Zoom Page 2":
+                - generic: crop_free
+              - button "Rotate Page 2 180 degrees":
+                - generic: rotate_right
+              - button "Remove Page 2":
+                - generic: close
+            - generic [ref=e114]:
+              - generic [ref=e115]: note_stack
+              - generic [ref=e116]: Empty
+          - generic [ref=e117]:
+            - generic [ref=e118]: Page 6
+            - generic:
+              - button "Quick Preview Page 6":
+                - generic: zoom_in
+              - button "Toggle Crop/Zoom Page 6":
+                - generic: crop_free
+              - button "Rotate Page 6 180 degrees":
+                - generic: rotate_right
+              - button "Remove Page 6":
+                - generic: close
+            - generic [ref=e119]:
+              - generic [ref=e120]: note_stack
+              - generic [ref=e121]: Empty
+          - generic [ref=e122]:
+            - generic [ref=e123]: Page 7
+            - generic:
+              - button "Quick Preview Page 7":
+                - generic: zoom_in
+              - button "Toggle Crop/Zoom Page 7":
+                - generic: crop_free
+              - button "Rotate Page 7 180 degrees":
+                - generic: rotate_right
+              - button "Remove Page 7":
+                - generic: close
+            - generic [ref=e124]:
+              - generic [ref=e125]: note_stack
+              - generic [ref=e126]: Empty
+          - generic [ref=e127]:
+            - generic [ref=e128]: Back
+            - generic:
+              - button "Quick Preview Back":
+                - generic: zoom_in
+              - button "Toggle Crop/Zoom Back":
+                - generic: crop_free
+              - button "Rotate Back 180 degrees":
+                - generic: rotate_right
+              - button "Remove Back":
+                - generic: close
+            - generic [ref=e129]:
+              - generic [ref=e130]: note_stack
+              - generic [ref=e131]: Empty
+          - generic [ref=e132]:
+            - generic [ref=e133]: Cover
+            - generic:
+              - button "Quick Preview Cover":
+                - generic: zoom_in
+              - button "Toggle Crop/Zoom Cover":
+                - generic: crop_free
+              - button "Rotate Cover 180 degrees":
+                - generic: rotate_right
+              - button "Remove Cover":
+                - generic: close
+            - generic [ref=e134]:
+              - generic [ref=e135]: note_stack
+              - generic [ref=e136]: Empty
+    - contentinfo [ref=e137]:
+      - paragraph [ref=e138]: Zine-ify
+  - region "Notifications"

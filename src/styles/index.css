@@ -60,24 +60,12 @@ body {
     color: var(--accent-dark);
 }
 
-.app-subtitle {
-    max-width: 36rem;
-    font-size: 1rem;
-    line-height: 1.55;
-    color: var(--muted-ink);
-}
-
 .app-overview-title,
 .rail-section-title {
     font-size: 0.76rem;
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-}
-
-.app-overview-inline {
-    max-width: 34rem;
-    padding-bottom: 0.15rem;
 }
 
 .rail-section-chip {
@@ -117,12 +105,6 @@ body {
     align-items: start;
     justify-content: space-between;
     gap: 0.75rem;
-}
-
-.ingest-summary {
-    font-size: 0.76rem;
-    line-height: 1.55;
-    color: var(--muted-ink);
 }
 
 /* Typography utilities */
@@ -477,27 +459,6 @@ select:focus, input:focus {
     box-shadow: 0 16px 30px rgba(49, 83, 107, 0.12);
 }
 
-.workflow-note {
-    display: grid;
-    gap: 0.15rem;
-    padding-top: 0.1rem;
-    border-top: 1px solid rgba(23, 23, 23, 0.08);
-}
-
-.workflow-note-title {
-    font-size: 0.66rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--muted-ink);
-}
-
-.workflow-note-body {
-    font-size: 0.76rem;
-    line-height: 1.5;
-    color: var(--muted-ink);
-}
-
 .workspace-panel {
     min-width: 0;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
@@ -557,24 +518,10 @@ select:focus, input:focus {
     color: var(--primary-vibrant);
 }
 
-.workspace-mode-note {
-    flex-basis: 100%;
-    min-height: 0;
-    padding: 0;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    font-size: 0.76rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    text-transform: none;
-    color: var(--muted-ink);
-}
-
 .preview-empty-state {
     display: grid;
-    gap: 0.6rem;
-    padding: 1rem 1.1rem;
+    gap: 0.3rem;
+    padding: 0.9rem 1rem;
     margin-bottom: 0.9rem;
     border: 1px solid var(--border-color);
     border-radius: 1.1rem;
@@ -586,45 +533,21 @@ select:focus, input:focus {
 .preview-empty-copy {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-}
-
-.preview-empty-kicker {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--muted-ink);
+    gap: 0.2rem;
 }
 
 .preview-empty-title {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
-    font-size: 1.3rem;
+    font-size: 1.15rem;
     line-height: 1.12;
     letter-spacing: -0.04em;
 }
 
 .preview-empty-body {
     max-width: 46rem;
-    font-size: 0.82rem;
-    line-height: 1.55;
-    color: var(--muted-ink);
-}
-
-.preview-empty-actions {
-    display: block;
-}
-
-.preview-empty-actions span {
-    display: inline;
-    padding: 0;
-    background: transparent;
-    border: none;
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: none;
-    letter-spacing: 0.01em;
+    font-size: 0.76rem;
+    line-height: 1.45;
     color: var(--muted-ink);
 }
 
@@ -1034,9 +957,7 @@ select:focus, input:focus {
         font-size: 1.15rem;
     }
 
-    .preview-empty-body,
-    .preview-empty-actions span,
-    .workspace-mode-note {
+    .preview-empty-body {
         font-size: 0.68rem;
     }
 }

@@ -23,14 +23,8 @@
                         <h1 class="font-marker app-title">
                             Zine-ify
                         </h1>
-                        <p class="app-subtitle">
-                            Import pages, arrange the sheet, preview the fold, then export or print.
-                        </p>
                     </div>
                 </div>
-                <p class="app-overview-note app-overview-inline" aria-label="Workspace summary">
-                    Keep the rail for setup and let the sheet stay visible while you arrange, preview, and export.
-                </p>
             </div>
         </header>
 
@@ -55,13 +49,8 @@
                             <h2 class="font-marker text-base sm:text-lg leading-tight mb-1">Add a PDF or image set</h2>
                             <p id="upload-status" class="upload-status" aria-live="polite">
                                 Choose files or drop them here</p>
-                            <p class="mt-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.16em] text-black/65">
-                                Pages land on the sheet in import order.
-                            </p>
                             <input type="file" id="pdf-upload" class="hidden" accept="application/pdf,image/*" multiple>
                         </div>
-
-                        <p class="ingest-summary">PDFs and images, up to 10 files. Reorder them directly on the sheet after import.</p>
                     </section>
 
                     <div id="workflow-panel" class="settings-panel workflow-panel bg-white p-3 sm:p-4 space-y-4">
@@ -109,13 +98,6 @@
                                 <span class="workflow-step-state">Waiting</span>
                             </button>
                         </div>
-
-                        <div class="workflow-note">
-                            <p id="workflow-title" class="workflow-note-title">Next step</p>
-                            <p id="workflow-body" class="workflow-note-body">
-                                Add files first. After they land on the sheet, arrange them, preview if needed, then export.
-                            </p>
-                        </div>
                     </div>
 
                     <!-- Uploaded Files List -->
@@ -129,9 +111,6 @@
                             <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
                                 <span class="material-symbols-outlined text-[16px]">tune</span> Sheet options
                             </h3>
-                            <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-black/60">
-                                Paper, grid, and page labels.
-                            </p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
@@ -237,20 +216,12 @@
                 <div class="workspace-meta" aria-label="Canvas status">
                     <span id="preview-layout-chip" class="workspace-chip">Mini-zine</span>
                     <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0 placed</span>
-                    <span id="preview-mode-chip" class="workspace-chip workspace-mode-note">Fold preview works in the standard 2×4 mini-zine layout.</span>
                 </div>
 
                 <div id="preview-empty-state" class="preview-empty-state">
                     <div class="preview-empty-copy">
-                        <p class="preview-empty-kicker">No pages loaded</p>
                         <h3 id="preview-empty-title" class="preview-empty-title">The sheet is ready when you are.</h3>
-                        <p id="preview-empty-body" class="preview-empty-body">
-                            Add a PDF or image set from the rail, then arrange pages directly on the sheet before previewing or exporting.
-                        </p>
-                    </div>
-
-                    <div class="preview-empty-actions" aria-label="Canvas guide">
-                        <span>The sheet below stays live while files import and while you rearrange pages.</span>
+                        <p id="preview-empty-body" class="preview-empty-body">Add files from the rail.</p>
                     </div>
                 </div>
 

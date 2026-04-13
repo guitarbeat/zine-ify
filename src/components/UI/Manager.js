@@ -107,13 +107,10 @@ export class UIManager {
       previewDescription: $('#preview-description'),
       previewLayoutChip: $('#preview-layout-chip'),
       previewCountChip: $('#preview-count-chip'),
-      previewModeChip: $('#preview-mode-chip'),
       previewEmptyTitle: $('#preview-empty-title'),
       previewEmptyBody: $('#preview-empty-body'),
       zineSheetsContainer: $('#zine-sheets-container'),
       workflowChip: $('#workflow-chip'),
-      workflowTitle: $('#workflow-title'),
-      workflowBody: $('#workflow-body'),
       workflowButtons: Array.from(document.querySelectorAll('.workflow-step')),
 
       printBtn: $('#printBtn'),
@@ -452,43 +449,21 @@ export class UIManager {
     const placedSummary = `${filledPages} placed`;
 
     let nextLabel = 'Import';
-    let title = 'Next step';
-    let body = 'Add files first. Once they land on the sheet, arrange them, preview if needed, then export.';
-    let modeChip = 'Fold preview works in the standard 2×4 mini-zine layout.';
     let emptyTitle = 'The sheet is ready when you are.';
-    let emptyBody = 'Add a PDF or image set from the rail, then arrange pages directly on the sheet before previewing or exporting.';
+    let emptyBody = 'Add files from the rail.';
 
     if (hasContent && !isMiniZineLayout) {
       nextLabel = exportCompleted ? 'Refine' : 'Export';
-      title = 'Custom layout';
-      body = `You are working in ${layoutLabel}. Arrange the sheet, then export or print when it is ready.`;
-      modeChip = 'Fold preview is only available in the standard 2×4 mini-zine layout.';
     } else if (hasContent && previewOpened && exportCompleted) {
       nextLabel = 'Refine';
-      title = 'Previewed and exported';
-      body = `Your ${layoutLabel} has been previewed and exported. Make changes on the sheet, then export again if you need another pass.`;
-      modeChip = 'Preview has been checked. Export again after new layout changes.';
     } else if (hasContent && previewOpened) {
       nextLabel = 'Export';
-      title = 'Preview ready';
-      body = 'The fold and booklet preview are available now. Export the sheet when the order looks right.';
-      modeChip = 'Use Preview to verify the booklet order before export.';
     } else if (hasContent) {
       nextLabel = isMiniZineLayout ? 'Preview' : 'Export';
-      title = 'Layout in progress';
-      body = isMiniZineLayout
-        ? 'Arrange pages on the sheet, then open Preview to confirm the fold and booklet order.'
-        : `Arrange pages on the ${layoutLabel}, then export or print when the sheet looks right.`;
-      modeChip = isMiniZineLayout
-        ? 'Preview unlocks once pages are on the sheet.'
-        : 'Use the sheet itself as the print-ready layout.';
     } else if (hasQueuedFiles) {
       nextLabel = 'Arrange';
-      title = 'Import in progress';
-      body = 'Your files are being placed on the sheet. As soon as pages land, arrange the layout before preview or export.';
-      modeChip = 'Pages will appear on the sheet as soon as decoding finishes.';
       emptyTitle = 'Importing pages into the sheet.';
-      emptyBody = 'Stay on this view. The sheet will update automatically as files finish processing.';
+      emptyBody = 'Please wait.';
     }
 
     this.elements.previewArea?.classList.toggle('has-content', hasContent);
@@ -498,20 +473,11 @@ export class UIManager {
     if (this.elements.workflowChip) {
       this.elements.workflowChip.textContent = `Next: ${nextLabel}`;
     }
-    if (this.elements.workflowTitle) {
-      this.elements.workflowTitle.textContent = title;
-    }
-    if (this.elements.workflowBody) {
-      this.elements.workflowBody.textContent = body;
-    }
     if (this.elements.previewLayoutChip) {
       this.elements.previewLayoutChip.textContent = layoutLabel;
     }
     if (this.elements.previewCountChip) {
       this.elements.previewCountChip.textContent = hasContent ? placedSummary : (isLoading ? 'Importing' : '0 placed');
-    }
-    if (this.elements.previewModeChip) {
-      this.elements.previewModeChip.textContent = modeChip;
     }
     if (this.elements.previewEmptyTitle) {
       this.elements.previewEmptyTitle.textContent = emptyTitle;
