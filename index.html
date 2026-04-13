@@ -35,7 +35,7 @@
             <aside id="control-rail" class="control-rail space-y-3 sm:space-y-4 lg:sticky lg:top-4 relative z-20 flex flex-col h-full lg:max-h-[calc(100vh-4.5rem)]" aria-label="Files and workflow">
 
                 <div class="control-scroll overflow-y-visible lg:overflow-y-auto space-y-3 sm:space-y-4 lg:pr-2 flex-1 pb-28 lg:pb-10">
-                    <section id="workflow-panel" class="settings-panel rail-section rail-section-priority workflow-panel combined-rail-panel bg-white p-3 sm:p-4 space-y-4">
+                    <section id="workflow-panel" class="base-panel rail-section rail-section-priority workflow-panel combined-rail-panel space-y-4">
                         <div class="rail-section-header">
                             <div>
                                 <h2 class="rail-section-title">Files + Flow</h2>
@@ -111,7 +111,7 @@
 
             <!-- Right Column: Preview Area -->
             <section id="preview-area"
-                class="workspace-panel is-empty transition-all duration-300 flex flex-col pt-1 sm:pt-4 lg:pt-0">
+                class="workspace-panel is-empty transition-all duration-300 flex flex-col pt-1 sm:pt-4 lg:pt-0 gap-4">
                 <div class="workspace-header">
                     <div class="workspace-title-block">
                         <div class="space-y-1">
@@ -137,7 +137,7 @@
                 </div>
 
                 <div class="workspace-config-stack">
-                    <div id="settings-group" class="settings-panel workspace-config-bar bg-white p-3 sm:p-4">
+                    <div id="settings-group" class="base-panel workspace-config-bar">
                         <div class="workspace-config-header">
                             <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
                                 <span class="material-symbols-outlined text-[16px]">tune</span> Configuration
@@ -181,7 +181,7 @@
                         </div>
                     </div>
 
-                    <div id="unused-pages-section" class="settings-panel workspace-overflow-panel bg-white p-3 sm:p-4 hidden">
+                    <div id="unused-pages-section" class="base-panel workspace-overflow-panel hidden">
                         <div class="workspace-config-header">
                             <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
                                 <span class="material-symbols-outlined text-[16px]">inventory_2</span> Overflow
