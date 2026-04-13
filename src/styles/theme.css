@@ -22,7 +22,7 @@
 }
 
 /* Base utility for small status chips used across the app */
-.base-chip {
+@utility base-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -39,7 +39,7 @@
 }
 
 /* Base utility for panels */
-.base-panel {
+@utility base-panel {
   background: var(--glass-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-panel);
