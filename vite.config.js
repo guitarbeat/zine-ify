@@ -3,9 +3,7 @@ import legacy from '@vitejs/plugin-legacy';
 
 export default defineConfig({
   root: '.',
-  base: './', // Use relative paths for GitHub Pages
   build: {
-    outDir: 'docs', // Build to docs folder for GitHub Pages support
     assetsDir: 'assets',
     sourcemap: true,
     chunkSizeWarningLimit: 550,
