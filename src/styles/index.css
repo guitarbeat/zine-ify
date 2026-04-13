@@ -1,11 +1,10 @@
 @import "tailwindcss";
-
-@source "../../index.html";
-@source "../**/*.{js,ts,jsx,tsx}";
-
-
 @import "./base.css";
 @import "./layout.css";
 @import "./components.css";
 @import "./zine-editor.css";
 @import "./simulation.css";
+
+/* Tailwind v4 scanning sources must come after all @imports to satisfy CSS rules */
+@source "../../index.html";
+@source "../**/*.{js,ts,jsx,tsx}";
