@@ -1134,6 +1134,32 @@ select:focus, input:focus {
     box-shadow: 0.55rem 0.55rem 0 0 rgba(0, 0, 0, 0.28);
 }
 
+.booklet-spread.is-single-page .booklet-spine {
+    opacity: 0;
+}
+
+.booklet-spread.is-single-right .booklet-page-left,
+.booklet-spread.is-single-left .booklet-page-right {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.booklet-spread.is-single-right .booklet-page-right,
+.booklet-spread.is-single-left .booklet-page-left {
+    width: 100%;
+    left: 0;
+    right: auto;
+    border-width: 2px;
+}
+
+.booklet-spread.is-single-right .booklet-page-right {
+    transform: rotateY(-4deg) translateZ(1px);
+}
+
+.booklet-spread.is-single-left .booklet-page-left {
+    transform: rotateY(4deg) translateZ(1px);
+}
+
 .booklet-page.is-empty,
 .booklet-face.is-empty {
     background:

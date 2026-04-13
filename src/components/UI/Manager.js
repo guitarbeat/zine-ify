@@ -373,7 +373,7 @@ export class UIManager {
       status = 'Folding Shut';
       helper = 'The diamond has collapsed and the covers are swinging shut into booklet form.';
       activeStep = 3;
-    } else if (value >= 1) {
+    } else if (value > 1) {
       status = 'Diamond Open';
       helper = 'Push the two outer ends together so the center slit opens into the diamond shape.';
       activeStep = 2;

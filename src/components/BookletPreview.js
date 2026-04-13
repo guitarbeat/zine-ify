@@ -1,33 +1,31 @@
-const BOOKLET_STATES = [
-  { label: 'Cover', left: null, right: 1 },
-  { label: 'Pages 2-3', left: 2, right: 3 },
-  { label: 'Pages 4-5', left: 4, right: 5 },
-  { label: 'Pages 6-7', left: 6, right: 7 },
-  { label: 'Back', left: 8, right: null }
-];
+import { buildMiniZineBookletStates } from '../utils/miniZineLayout.js';
 
-function normalizePreviewPage(page) {
+function normalizePreviewPage(page, slotIndex) {
   if (!page || typeof page === 'string') {
     const src = page || null;
     return {
       sourceUrl: src,
-      previewUrl: src
+      previewUrl: src,
+      pageNumber: slotIndex + 1,
+      slotIndex
     };
   }
 
   return {
     ...page,
     sourceUrl: page.sourceUrl ?? page.previewUrl ?? page.src ?? null,
-    previewUrl: page.previewUrl ?? page.sourceUrl ?? page.src ?? null
+    previewUrl: page.previewUrl ?? page.sourceUrl ?? page.src ?? null,
+    pageNumber: page.pageNumber ?? (Number.isInteger(page.pageIndex) ? page.pageIndex + 1 : slotIndex + 1),
+    slotIndex: page.slotIndex ?? slotIndex
   };
 }
 
-function getPageLabel(pageNumber) {
-  if (pageNumber === null) {
+function getPageLabel(page) {
+  if (!page) {
     return 'Blank';
   }
 
-  return pageNumber === 1 ? 'Cover' : pageNumber === 8 ? 'Back' : `Page ${pageNumber}`;
+  return page.pageNumber === 1 ? 'Cover' : page.pageNumber === 8 ? 'Back' : `Page ${page.pageNumber}`;
 }
 
 export class BookletPreview {
@@ -81,6 +79,7 @@ export class BookletPreview {
       </div>
     `;
 
+    this.spread = this.container.querySelector('.booklet-spread');
     this.leftPage = this.container.querySelector('.booklet-page-left');
     this.rightPage = this.container.querySelector('.booklet-page-right');
     this.turnLayer = this.container.querySelector('.booklet-turn-layer');
@@ -98,7 +97,8 @@ export class BookletPreview {
   }
 
   loadPages(imageUrls = []) {
-    this.pages = (imageUrls || []).map((page) => normalizePreviewPage(page));
+    this.slotPages = (imageUrls || []).map((page, slotIndex) => normalizePreviewPage(page, slotIndex));
+    this.states = buildMiniZineBookletStates(this.slotPages);
     this.spreadIndex = 0;
     this.isAnimating = false;
     this.turnLayer?.classList.remove('is-visible', 'is-active', 'is-next', 'is-prev');
@@ -107,30 +107,43 @@ export class BookletPreview {
   }
 
   getCurrentState() {
-    return BOOKLET_STATES[this.spreadIndex];
+    return this.states?.[this.spreadIndex];
   }
 
   getNextState(direction) {
-    return BOOKLET_STATES[this.spreadIndex + direction];
+    return this.states?.[this.spreadIndex + direction];
   }
 
-  getPageSource(pageNumber) {
-    if (pageNumber === null) {
-      return null;
+  updateSpreadMode(state) {
+    if (!this.spread) {
+      return;
     }
 
-    const page = this.pages[pageNumber - 1];
-    return page?.previewUrl || page?.sourceUrl || null;
+    this.spread.classList.remove('is-single-page', 'is-single-left', 'is-single-right');
+
+    if (!state) {
+      return;
+    }
+
+    const hasLeft = !!state.left;
+    const hasRight = !!state.right;
+
+    if (hasLeft === hasRight) {
+      return;
+    }
+
+    this.spread.classList.add('is-single-page', hasRight ? 'is-single-right' : 'is-single-left');
   }
 
-  setPageFace(element, pageNumber) {
+  setPageFace(element, page) {
     if (!element) {
       return;
     }
 
     const media = element.querySelector('.booklet-page-media');
     const placeholder = element.querySelector('.booklet-page-placeholder');
-    const src = this.getPageSource(pageNumber);
+    const src = page?.previewUrl || page?.sourceUrl || null;
+    const pageLabel = getPageLabel(page);
 
     if (src) {
       media.src = src;
@@ -140,15 +153,21 @@ export class BookletPreview {
     } else {
       media.removeAttribute('src');
       media.classList.remove('is-visible');
-      placeholder.textContent = getPageLabel(pageNumber);
+      placeholder.textContent = pageLabel;
       element.classList.add('is-empty');
     }
 
-    media.alt = `${getPageLabel(pageNumber)} preview`;
+    element.dataset.pageNumber = page?.pageNumber ? String(page.pageNumber) : '';
+    media.alt = `${pageLabel} preview`;
   }
 
   updateStaticSpread() {
     const state = this.getCurrentState();
+    if (!state) {
+      return;
+    }
+
+    this.updateSpreadMode(state);
     this.setPageFace(this.leftPage, state.left);
     this.setPageFace(this.rightPage, state.right);
     if (this.statusElement) {
@@ -157,8 +176,9 @@ export class BookletPreview {
   }
 
   updateControls() {
+    const stateCount = this.states?.length ?? 0;
     const disablePrev = this.isAnimating || this.spreadIndex === 0;
-    const disableNext = this.isAnimating || this.spreadIndex === (BOOKLET_STATES.length - 1);
+    const disableNext = this.isAnimating || this.spreadIndex === (stateCount - 1);
 
     if (this.prevButton) {
       this.prevButton.disabled = disablePrev;
@@ -194,6 +214,7 @@ export class BookletPreview {
     const currentState = this.getCurrentState();
     this.isAnimating = true;
     this.pendingSpreadIndex = this.spreadIndex + direction;
+    this.updateSpreadMode(null);
     if (this.statusElement) {
       this.statusElement.textContent = nextState.label;
     }

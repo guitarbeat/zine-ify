@@ -30,6 +30,9 @@ test.describe('Mini Zine Fold State', () => {
   test('progress 1 folds top pages onto the bottom strip', () => {
     const state = computeMiniZineFoldState(1, DIMENSIONS);
 
+    expect(state.stages.horizontalFold).toBe(1);
+    expect(state.stages.diamondOpen).toBe(0);
+    expect(state.stages.bookletClose).toBe(0);
     expect(state.pages[5].position.y).toBeCloseTo(state.pages[6].position.y, 5);
     expect(state.pages[4].position.y).toBeCloseTo(state.pages[7].position.y, 5);
     expect(state.pages[3].position.y).toBeCloseTo(state.pages[8].position.y, 5);

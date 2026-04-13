@@ -5,6 +5,7 @@ import { BookletPreview } from '../components/BookletPreview.js';
 import { toast } from '../components/Toast.js';
 import { formatFileSize } from '../utils/helpers.js';
 import { classifyFileKind, getFileTypeLabel } from '../utils/fileValidation.js';
+import { buildMiniZineSlotPages } from '../utils/miniZineLayout.js';
 
 // Import assets
 import referenceImageUrl from '../assets/reference-back-side.jpg';
@@ -172,6 +173,24 @@ class PDFZineMaker {
     );
   }
 
+  buildMiniZineSlotPreviewPages(previewPages) {
+    const cellPageIndexes = Array.from(
+      document.querySelectorAll('#zine-grid-sheet-1 .page-cell'),
+      (cell) => Number.parseInt(cell.getAttribute('data-page-index'), 10)
+    ).filter((pageIndex) => !Number.isNaN(pageIndex));
+
+    if (cellPageIndexes.length !== 8) {
+      return previewPages.map((page, slotIndex) => ({
+        ...page,
+        pageIndex: slotIndex,
+        pageNumber: slotIndex + 1,
+        slotIndex
+      }));
+    }
+
+    return buildMiniZineSlotPages(previewPages, cellPageIndexes);
+  }
+
   /**
    * Handle View 3D request
    */
@@ -207,6 +226,7 @@ class PDFZineMaker {
               this.ui.updateFoldUI(0);
 
               const previewPages = await this.buildPreviewPages();
+              const slotPreviewPages = this.buildMiniZineSlotPreviewPages(previewPages);
 
               this.ui.toggle3DModal(true);
               this.workflowPreviewed = true;
@@ -215,7 +235,7 @@ class PDFZineMaker {
               requestAnimationFrame(() => {
                 this.viewer3d.refreshLayout();
                 this.viewer3d.loadPages(previewPages);
-                this.bookletPreview?.loadPages(previewPages);
+                this.bookletPreview?.loadPages(slotPreviewPages);
               });
               toast.success('Fold + Read Ready', this.getNextWorkflowHint({ afterPreview: true }));
           }

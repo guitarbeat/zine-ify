@@ -105,6 +105,10 @@ test('opens the 3D preview modal with a sized canvas', async ({ page }) => {
   expect(canvasBox?.height || 0).toBeGreaterThan(0);
 
   await expect(page.locator('#booklet-status')).toHaveText('Cover');
+  await expect(page.locator('.booklet-spread')).toHaveClass(/is-single-right/);
+
+  await page.locator('#fold-slider').fill('1');
+  await expect(page.locator('#fold-status')).toHaveText('Lengthwise Fold');
 
   await page.locator('#fold-slider').fill('2');
   await expect(page.locator('#fold-status')).toHaveText('Diamond Open');

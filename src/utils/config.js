@@ -1,3 +1,5 @@
+import { MINI_ZINE_LAYOUT, MINI_ZINE_UPSIDE_DOWN_PAGES } from './miniZineLayout.js';
+
 export const PAPER_SIZES = {
     a4: { label: 'A4 (210 × 297 mm)', width: 210, height: 297 },
     a3: { label: 'A3 (297 × 420 mm)', width: 297, height: 420 },
@@ -16,17 +18,12 @@ export const ZINE_TEMPLATES = {
         pages: 8,
         grid: { rows: 2, cols: 4 },
         // Grid order: row by row, left to right
-        layout: [
-            { page: 5, upsideDown: false }, { page: 4, upsideDown: true },
-            { page: 3, upsideDown: true }, { page: 2, upsideDown: true },
-            { page: 6, upsideDown: false }, { page: 7, upsideDown: false },
-            { page: 8, upsideDown: false }, { page: 1, upsideDown: false }
-        ],
+        layout: MINI_ZINE_LAYOUT,
         gridAreas: `
             "page5 page4 page3 page2"
             "page6 page7 page8 page1"
         `,
-        upsideDownPages: [2, 3, 4, 5],
+        upsideDownPages: MINI_ZINE_UPSIDE_DOWN_PAGES,
         cutLines: {
             horizontal: { afterRow: 1 } // Cut between row 1 and 2
         }
