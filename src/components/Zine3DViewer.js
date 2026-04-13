@@ -33,6 +33,11 @@ export class Zine3DViewer {
     this.guideWidth = 0.015;
     this.cutGuideWidth = 0.028;
     this.cutGuideCapHeight = 0.14;
+    this.isFallbackMode = false;
+    this.fallbackCanvas = null;
+    this.fallbackContext = null;
+    this.fallbackPages = [];
+    this.fallbackFoldProgress = 0;
     this.tmpVecC = new THREE.Vector3();
     this.tmpVecD = new THREE.Vector3();
     this.tmpMat = new THREE.Matrix4();
@@ -82,10 +87,15 @@ export class Zine3DViewer {
     this.camera = new THREE.PerspectiveCamera(45, initialWidth / initialHeight, 0.1, 100);
     this.camera.position.set(0, 0, 5);
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setSize(initialWidth, initialHeight);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    this.container.appendChild(this.renderer.domElement);
+    try {
+      this.renderer = new THREE.WebGLRenderer({ antialias: true });
+      this.renderer.setSize(initialWidth, initialHeight);
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      this.container.appendChild(this.renderer.domElement);
+    } catch {
+      this.initFallbackScene(initialWidth, initialHeight);
+      return;
+    }
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
@@ -110,11 +120,60 @@ export class Zine3DViewer {
     this.animate();
   }
 
+  initFallbackScene(initialWidth, initialHeight) {
+    this.isFallbackMode = true;
+    this.fallbackCanvas = document.createElement('canvas');
+    this.fallbackCanvas.className = 'zine-3d-fallback-canvas';
+    this.fallbackContext = this.fallbackCanvas.getContext('2d', { alpha: false });
+    this.container.appendChild(this.fallbackCanvas);
+
+    this.onWindowResize = () => this.refreshLayout();
+    window.addEventListener('resize', this.onWindowResize);
+    this.refreshLayout(initialWidth, initialHeight);
+  }
+
+  renderFallback() {
+    if (!this.isFallbackMode || !this.fallbackCanvas || !this.fallbackContext) {
+      return;
+    }
+
+    const width = this.fallbackCanvas.width || 1;
+    const height = this.fallbackCanvas.height || 1;
+    const context = this.fallbackContext;
+
+    context.fillStyle = '#111111';
+    context.fillRect(0, 0, width, height);
+
+    context.strokeStyle = 'rgba(255,255,255,0.18)';
+    context.lineWidth = Math.max(2, width * 0.006);
+    const inset = Math.max(16, width * 0.05);
+    context.strokeRect(inset, inset, width - (inset * 2), height - (inset * 2));
+
+    context.fillStyle = '#f4f1ea';
+    context.fillRect(inset * 1.4, inset * 1.4, width - (inset * 2.8), height - (inset * 2.8));
+
+    context.fillStyle = '#ff00d4';
+    context.font = `700 ${Math.max(18, width * 0.06)}px "Bangers", sans-serif`;
+    context.textAlign = 'left';
+    context.fillText('Preview WIP', inset * 1.8, inset * 2.4);
+
+    context.fillStyle = '#111111';
+    context.font = `${Math.max(12, width * 0.026)}px "Space Grotesk", sans-serif`;
+    context.fillText(`Fold step ${this.fallbackFoldProgress.toFixed(1)}`, inset * 1.8, inset * 3.25);
+    context.fillText(`${this.fallbackPages.filter((page) => page?.previewUrl || page?.sourceUrl).length} pages loaded`, inset * 1.8, inset * 3.85);
+  }
+
   /**
    * Initializes or updates the page textures.
    * @param {Array} imageUrls - Array of 8 image URLs (blob URLs or data URIs)
    */
   loadPages(imageUrls) {
+    if (this.isFallbackMode) {
+      this.fallbackPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
+      this.renderFallback();
+      return;
+    }
+
     const previewPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
 
     // Clear existing planes
@@ -232,6 +291,17 @@ export class Zine3DViewer {
     const width = this.container.clientWidth || 1;
     const height = this.container.clientHeight || 1;
 
+    if (this.isFallbackMode) {
+      if (this.fallbackCanvas) {
+        this.fallbackCanvas.width = Math.max(1, Math.floor(width));
+        this.fallbackCanvas.height = Math.max(1, Math.floor(height));
+        this.fallbackCanvas.style.width = `${width}px`;
+        this.fallbackCanvas.style.height = `${height}px`;
+      }
+      this.renderFallback();
+      return;
+    }
+
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
@@ -245,6 +315,12 @@ export class Zine3DViewer {
    * @param {number} progress  0=flat, 1=lengthwise fold, 2=diamond open, 3=closed booklet
    */
   setFoldProgress(progress) {
+    if (this.isFallbackMode) {
+      this.fallbackFoldProgress = progress;
+      this.renderFallback();
+      return;
+    }
+
     const state = computeMiniZineFoldState(progress, {
       w: this.w,
       h: this.h,
@@ -447,6 +523,10 @@ export class Zine3DViewer {
   }
 
   animate() {
+    if (this.isFallbackMode) {
+      return;
+    }
+
     this.animationId = requestAnimationFrame(() => this.animate());
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
@@ -455,6 +535,15 @@ export class Zine3DViewer {
   destroy() {
     cancelAnimationFrame(this.animationId);
     window.removeEventListener('resize', this.onWindowResize);
+    if (this.fallbackCanvas?.parentNode === this.container) {
+      this.container.removeChild(this.fallbackCanvas);
+    }
+    if (this.isFallbackMode) {
+      this.fallbackCanvas = null;
+      this.fallbackContext = null;
+      this.fallbackPages = [];
+      return;
+    }
     if (this.renderer?.domElement?.parentNode === this.container) {
       this.container.removeChild(this.renderer.domElement);
     }

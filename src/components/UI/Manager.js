@@ -89,6 +89,7 @@ export class UIManager {
     this.cacheElements();
     this.renderPaperSizeOptions();
     this.loadSettings();
+    this.elements.openRailSheetBtn?.setAttribute('aria-expanded', 'false');
     this.updatePreviewLayout();
     this.setupEventListeners();
   }
@@ -104,6 +105,10 @@ export class UIManager {
       // Main Containers
       uploadZone: $('#upload-zone'),
       previewArea: $('#preview-area'),
+      controlRail: $('#control-rail'),
+      openRailSheetBtn: $('#open-rail-sheet-btn'),
+      closeRailSheetBtn: $('#close-rail-sheet-btn'),
+      mobileRailOverlay: $('#mobile-rail-overlay'),
       actionButtons: $('#action-buttons'),
       previewDescription: $('#preview-description'),
       previewLayoutChip: $('#preview-layout-chip'),
@@ -205,11 +210,23 @@ export class UIManager {
     this.elements.paperSizeSelect?.addEventListener('change', (e) => this.updatePaperSize(e.target.value));
     this.elements.orientationSelect?.addEventListener('change', (e) => this.updateOrientation(e.target.value));
     this.elements.pageNumbersCheckbox?.addEventListener('change', (e) => this.togglePageNumbers(e.target.checked));
+    this.elements.openRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(true));
+    this.elements.closeRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(false));
+    this.elements.mobileRailOverlay?.addEventListener('click', () => this.toggleMobileRail(false));
 
     // Action Buttons
-    this.elements.printBtn?.addEventListener('click', () => this.emitter.emit('print'));
-    this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
-    this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
+    this.elements.printBtn?.addEventListener('click', () => {
+      this.toggleMobileRail(false);
+      this.emitter.emit('print');
+    });
+    this.elements.exportPdfBtn?.addEventListener('click', () => {
+      this.toggleMobileRail(false);
+      this.emitter.emit('export');
+    });
+    this.elements.view3dBtn?.addEventListener('click', () => {
+      this.toggleMobileRail(false);
+      this.emitter.emit('view3d');
+    });
     this.elements.workflowButtons?.forEach((button) => {
       button.addEventListener('click', () => this.handleWorkflowAction(button.dataset.workflowStep));
     });
@@ -298,7 +315,12 @@ export class UIManager {
 
     // Keyboard
     document.addEventListener('keydown', (e) => this.handleKeyboard(e));
-    window.addEventListener('resize', debounce(() => this.updatePreviewLayout(), 120));
+    window.addEventListener('resize', debounce(() => {
+      this.updatePreviewLayout();
+      if (window.innerWidth >= 1024) {
+        this.toggleMobileRail(false, { force: true });
+      }
+    }, 120));
   }
 
 
@@ -334,6 +356,25 @@ export class UIManager {
     window.setTimeout(() => {
       this.elements.previewArea?.classList.remove('workflow-focus');
     }, 1200);
+  }
+
+  toggleMobileRail(open, { force = false } = {}) {
+    if (!this.elements.controlRail || !this.elements.mobileRailOverlay) {
+      return;
+    }
+
+    if (window.innerWidth >= 1024 && !force) {
+      return;
+    }
+
+    this.elements.controlRail.classList.toggle('is-open', open);
+    this.elements.mobileRailOverlay.classList.toggle('hidden', !open);
+    this.elements.mobileRailOverlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+    document.body.classList.toggle('mobile-rail-open', open);
+
+    if (this.elements.openRailSheetBtn) {
+      this.elements.openRailSheetBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
   }
 
   /**
@@ -409,16 +450,19 @@ export class UIManager {
 
   handleWorkflowAction(step) {
     if (step === 'upload') {
+      this.toggleMobileRail(false);
       this.triggerFileUpload();
       return;
     }
 
     if (step === 'arrange') {
+      this.toggleMobileRail(false);
       this.focusPreviewArea();
       return;
     }
 
     if (step === 'preview') {
+      this.toggleMobileRail(false);
       if (!this.elements.view3dBtn?.disabled) {
         this.emitter.emit('view3d');
       }
@@ -426,6 +470,7 @@ export class UIManager {
     }
 
     if (step === 'export') {
+      this.toggleMobileRail(false);
       if (!this.elements.exportPdfBtn?.disabled) {
         this.emitter.emit('export');
       }
@@ -1275,7 +1320,7 @@ export class UIManager {
     const limitedFiles = files.slice(0, MAX_UPLOAD_FILES);
 
     if (files.length > MAX_UPLOAD_FILES) {
-      toast.warning('Upload Limit Reached', `You added ${files.length} files. Only the first ${MAX_UPLOAD_FILES} will be queued.`);
+      toast.warning('Upload Limit Reached', `Maximum ${MAX_UPLOAD_FILES} files allowed at once. Only the first ${MAX_UPLOAD_FILES} will be queued.`);
     }
 
     const { acceptedFiles, rejectedFiles } = partitionSupportedFiles(limitedFiles);
@@ -1302,6 +1347,12 @@ export class UIManager {
         e.preventDefault();
         this.confirmPagePickerSelection();
       }
+      return;
+    }
+
+    if (e.key === 'Escape' && this.elements.controlRail?.classList.contains('is-open')) {
+      e.preventDefault();
+      this.toggleMobileRail(false);
       return;
     }
 

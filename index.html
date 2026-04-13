@@ -31,7 +31,8 @@
 
         <main class="app-layout grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)] gap-4 sm:gap-5 items-start">
             <!-- Left Column: Controls & Upload -->
-            <aside class="control-rail space-y-3 sm:space-y-4 lg:sticky lg:top-4 relative z-20 flex flex-col h-full lg:max-h-[calc(100vh-4.5rem)]">
+            <div id="mobile-rail-overlay" class="mobile-rail-overlay hidden lg:hidden" aria-hidden="true"></div>
+            <aside id="control-rail" class="control-rail space-y-3 sm:space-y-4 lg:sticky lg:top-4 relative z-20 flex flex-col h-full lg:max-h-[calc(100vh-4.5rem)]" aria-label="Files and workflow">
 
                 <div class="control-scroll overflow-y-visible lg:overflow-y-auto space-y-3 sm:space-y-4 lg:pr-2 flex-1 pb-28 lg:pb-10">
                     <section id="workflow-panel" class="settings-panel rail-section rail-section-priority workflow-panel combined-rail-panel bg-white p-3 sm:p-4 space-y-4">
@@ -39,7 +40,12 @@
                             <div>
                                 <h2 class="rail-section-title">Files + Flow</h2>
                             </div>
-                            <span class="rail-section-chip">Ctrl+O</span>
+                            <div class="flex items-center gap-2">
+                                <span class="rail-section-chip">Ctrl+O</span>
+                                <button id="close-rail-sheet-btn" type="button" class="rail-sheet-close lg:hidden" aria-label="Close files and flow panel">
+                                    <span class="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
+                                </button>
+                            </div>
                         </div>
 
                         <div id="upload-zone"
@@ -118,6 +124,11 @@
                         </p>
                     </div>
 
+                    <button id="open-rail-sheet-btn" type="button" class="workspace-mobile-rail-trigger lg:hidden">
+                        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">folder_open</span>
+                        <span>Files + Flow</span>
+                    </button>
+
                 </div>
 
                 <div class="workspace-meta" aria-label="Canvas status">
@@ -131,28 +142,6 @@
                             <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
                                 <span class="material-symbols-outlined text-[16px]">tune</span> Configuration
                             </h3>
-                        </div>
-
-                        <div id="action-buttons" class="mobile-action-dock workspace-actions workspace-action-tray hidden">
-                            <button id="view3dBtn"
-                                class="action-button workspace-action-button workspace-action-button-preview w-full py-3 px-4 flex items-center justify-center gap-2 bg-black text-white font-bold"
-                                title="Open optional preview (work in progress)">
-                                <span class="material-symbols-outlined" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span>
-                                <span id="view3dBtnLabel">Preview (WIP)</span>
-                            </button>
-                            <button id="exportPdfBtn"
-                                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black"
-                                title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
-                                <span class="material-symbols-outlined text-lg" aria-hidden="true">file_download</span>
-                                <span id="exportPdfBtnLabel">Export PDF</span>
-                            </button>
-                            <button id="printBtn"
-                                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 text-white font-bold border-4 border-black"
-                                style="background-color: var(--primary-vibrant);"
-                                title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
-                                <span class="material-symbols-outlined text-lg" aria-hidden="true">print</span>
-                                <span id="printBtnLabel">Print</span>
-                            </button>
                         </div>
 
                         <div class="workspace-config-grid">
@@ -220,6 +209,28 @@
                 </div>
             </section>
         </main>
+
+        <div id="action-buttons" class="global-action-dock mobile-action-dock workspace-actions workspace-action-tray hidden" aria-label="Primary actions">
+            <button id="view3dBtn"
+                class="action-button workspace-action-button workspace-action-button-preview w-full py-3 px-4 flex items-center justify-center gap-2 bg-black text-white font-bold"
+                title="Open optional preview (work in progress)">
+                <span class="material-symbols-outlined" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span>
+                <span id="view3dBtnLabel">Preview (WIP)</span>
+            </button>
+            <button id="exportPdfBtn"
+                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black"
+                title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
+                <span class="material-symbols-outlined text-lg" aria-hidden="true">file_download</span>
+                <span id="exportPdfBtnLabel">Export PDF</span>
+            </button>
+            <button id="printBtn"
+                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 text-white font-bold border-4 border-black"
+                style="background-color: var(--primary-vibrant);"
+                title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
+                <span class="material-symbols-outlined text-lg" aria-hidden="true">print</span>
+                <span id="printBtnLabel">Print</span>
+            </button>
+        </div>
 
     </div>
 
