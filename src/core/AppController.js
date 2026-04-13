@@ -4,6 +4,7 @@ import { StateStore } from './StateStore.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
 import referenceImageUrl from '../assets/reference-back-side.jpg';
+import { classifyFileKind } from '../utils/fileValidation.js';
 
 export class AppController {
   constructor() {
@@ -43,6 +44,13 @@ export class AppController {
   async handleFileSelected(file) {
     this.ui.modal.showProgress(true, `Reading ${file.name}...`);
     try {
+      const fileKind = classifyFileKind(file);
+
+      if (fileKind === 'image') {
+        await this.importImage(file);
+        return;
+      }
+
       const result = await this.pdfProcessor.loadPDF(file, (progress) => {
         this.ui.modal.updateProgress(progress);
       });
@@ -69,6 +77,34 @@ export class AppController {
     } finally {
       this.ui.modal.showProgress(false);
     }
+  }
+
+  getNextInsertionIndex() {
+    const emptyIndex = this.state.allPageImages.findIndex((url) => !url);
+    if (emptyIndex !== -1) {
+      return emptyIndex;
+    }
+
+    return this.state.allPageImages.length - 1;
+  }
+
+  async importImage(file) {
+    this.ui.modal.updateProgress('Rendering image...');
+
+    const insertIndex = this.getNextInsertionIndex();
+    const existingUrl = this.state.allPageImages[insertIndex];
+
+    const canvas = await this.pdfProcessor.renderImageFile(file);
+    const imageUrl = await this.pdfProcessor.canvasToBlob(canvas);
+
+    if (existingUrl) {
+      this.pdfProcessor.revokeBlobUrl(existingUrl);
+    }
+
+    this.state.allPageImages[insertIndex] = imageUrl;
+    this.ui.updatePagePreview(insertIndex, imageUrl);
+
+    toast.success('Import Complete', `Imported image into slot ${insertIndex + 1}.`);
   }
 
   async importPages(pageNumbers) {
