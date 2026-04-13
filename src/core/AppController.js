@@ -48,11 +48,35 @@ export class AppController {
       });
       
       const selectionLimit = this.state.gridSize.rows * this.state.gridSize.cols;
+
+      // Sliding window concurrency for thumbnail processing
+      const CONCURRENCY_LIMIT = 4;
+      const activePromises = new Set();
       const thumbnails = [];
+
       for (let i = 1; i <= result.numPages; i++) {
-        const canvas = await this.pdfProcessor.renderPageThumbnail(i);
-        thumbnails.push({ pageNumber: i, thumbnailUrl: await this.pdfProcessor.canvasToBlob(canvas) });
+        const promise = (async () => {
+          const canvas = await this.pdfProcessor.renderPageThumbnail(i);
+          const url = await this.pdfProcessor.canvasToBlob(canvas);
+          return { pageNumber: i, thumbnailUrl: url };
+        })();
+
+        activePromises.add(promise);
+
+        promise.then((thumb) => {
+          activePromises.delete(promise);
+          thumbnails.push(thumb);
+        });
+
+        if (activePromises.size >= CONCURRENCY_LIMIT) {
+          await Promise.race(activePromises);
+        }
       }
+
+      await Promise.all(activePromises);
+
+      // Sort thumbnails to maintain correct page order
+      thumbnails.sort((a, b) => a.pageNumber - b.pageNumber);
 
       const selectedPages = await this.ui.modal.showPagePicker({
         fileName: file.name,
@@ -73,12 +97,29 @@ export class AppController {
 
   async importPages(pageNumbers) {
     this.ui.modal.showProgress(true, 'Rendering pages...');
+
+    // Sliding window concurrency for page import processing
+    const CONCURRENCY_LIMIT = 4;
+    const activePromises = new Set();
+
     for (const [idx, pageNum] of pageNumbers.entries()) {
-      const canvas = await this.pdfProcessor.renderPage(pageNum);
-      const url = await this.pdfProcessor.canvasToBlob(canvas);
-      this.state.allPageImages[idx] = url;
-      this.ui.updatePagePreview(idx, url);
+      const promise = (async () => {
+        const canvas = await this.pdfProcessor.renderPage(pageNum);
+        const url = await this.pdfProcessor.canvasToBlob(canvas);
+        this.state.allPageImages[idx] = url;
+        this.ui.updatePagePreview(idx, url);
+      })();
+
+      activePromises.add(promise);
+      promise.finally(() => activePromises.delete(promise));
+
+      if (activePromises.size >= CONCURRENCY_LIMIT) {
+        await Promise.race(activePromises);
+      }
     }
+
+    await Promise.all(activePromises);
+
     this.ui.modal.showProgress(false);
     toast.success('Import Complete', `${pageNumbers.length} pages added.`);
   }
