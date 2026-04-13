@@ -31,12 +31,14 @@ export class Zine3DViewer {
     this.stackDepthStep = 0.008;
     this.seamWidth = 0.035;
     this.guideWidth = 0.015;
+    this.cutGuideWidth = 0.028;
+    this.cutGuideCapHeight = 0.14;
     this.tmpVecC = new THREE.Vector3();
     this.tmpVecD = new THREE.Vector3();
     this.tmpMat = new THREE.Matrix4();
     this.sheetMaterialColor = 0xf4f1ea;
     this.foldGuideColor = 0xb8b8b8;
-    this.slitGuideColor = 0x8f8f8f;
+    this.slitGuideColor = 0xd32f2f;
     
     this.panelDefinitions = {
       1: { stackIndex: 3, isTop: false }, // Cover
@@ -133,8 +135,8 @@ export class Zine3DViewer {
     });
     this.guides.forEach((guide) => {
       this.scene.remove(guide.mesh);
-      guide.material?.dispose?.();
-      guide.geometry?.dispose?.();
+      (guide.materials ?? [guide.material]).forEach((material) => material?.dispose?.());
+      (guide.geometries ?? [guide.geometry]).forEach((geometry) => geometry?.dispose?.());
     });
     this.pages = [];
     this.stacks = [];
@@ -297,6 +299,13 @@ export class Zine3DViewer {
 
   createGuides() {
     this.guideDefinitions.forEach((guide) => {
+      if (guide.type === 'slit') {
+        const slitGuide = this.createSlitGuide(guide);
+        this.scene.add(slitGuide.mesh);
+        this.guides.push(slitGuide);
+        return;
+      }
+
       const isHorizontal = guide.orientation === 'horizontal';
       const geometry = new THREE.PlaneGeometry(
         isHorizontal ? guide.length : this.guideWidth,
@@ -312,8 +321,53 @@ export class Zine3DViewer {
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(guide.x, guide.y, this.panelThickness * 2);
       this.scene.add(mesh);
-      this.guides.push({ ...guide, mesh, geometry, material });
+      this.guides.push({
+        ...guide,
+        mesh,
+        geometry,
+        material,
+        geometries: [geometry],
+        materials: [material]
+      });
     });
+  }
+
+  createSlitGuide(guide) {
+    const group = new THREE.Group();
+    const lineGeometry = new THREE.PlaneGeometry(guide.length, this.cutGuideWidth);
+    const capGeometry = new THREE.PlaneGeometry(this.cutGuideWidth * 1.15, this.cutGuideCapHeight);
+    const lineMaterial = new THREE.MeshBasicMaterial({
+      color: this.slitGuideColor,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.95
+    });
+    const capMaterial = new THREE.MeshBasicMaterial({
+      color: this.slitGuideColor,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.95
+    });
+
+    const lineMesh = new THREE.Mesh(lineGeometry, lineMaterial);
+    const leftCap = new THREE.Mesh(capGeometry, capMaterial);
+    const rightCap = new THREE.Mesh(capGeometry, capMaterial);
+    leftCap.position.x = -guide.length / 2;
+    rightCap.position.x = guide.length / 2;
+
+    group.add(lineMesh);
+    group.add(leftCap);
+    group.add(rightCap);
+    group.position.set(guide.x, guide.y, this.panelThickness * 2.5);
+
+    return {
+      ...guide,
+      mesh: group,
+      lineMesh,
+      endCaps: [leftCap, rightCap],
+      geometries: [lineGeometry, capGeometry],
+      materials: [lineMaterial, capMaterial]
+    };
   }
 
   updateSeams() {
@@ -366,16 +420,24 @@ export class Zine3DViewer {
   }
 
   updateGuides(horizontalFold, diamondOpen, bookletClose) {
-    const fade = Math.max(0, 1 - Math.max(horizontalFold * 0.7, diamondOpen * 0.8, bookletClose));
+    const foldFade = Math.max(0, 1 - Math.max(horizontalFold * 0.7, diamondOpen * 0.8, bookletClose));
+    const slitFade = Math.max(0.12, 1 - (bookletClose * 0.88));
 
     this.guides.forEach((guide) => {
-      guide.mesh.visible = fade > 0.02;
-      guide.material.opacity = (guide.type === 'slit' ? 0.8 : 0.45) * fade;
-
       if (guide.type === 'slit') {
+        guide.mesh.visible = slitFade > 0.02;
+        guide.materials?.forEach((material) => {
+          material.opacity = 0.95 * slitFade;
+        });
+
         const slitSpread = 1 + (diamondOpen * 0.12);
-        guide.mesh.scale.set(slitSpread, 1, 1);
+        guide.lineMesh.scale.set(slitSpread, 1 + (horizontalFold * 0.08), 1);
+        const endOffset = (guide.length * slitSpread) / 2;
+        guide.endCaps?.[0]?.position.setX(-endOffset);
+        guide.endCaps?.[1]?.position.setX(endOffset);
       } else {
+        guide.mesh.visible = foldFade > 0.02;
+        guide.material.opacity = 0.45 * foldFade;
         guide.mesh.scale.set(1, 1, 1);
       }
     });
@@ -406,8 +468,8 @@ export class Zine3DViewer {
       seam.geometry?.dispose?.();
     });
     this.guides.forEach((guide) => {
-      guide.material?.dispose?.();
-      guide.geometry?.dispose?.();
+      (guide.materials ?? [guide.material]).forEach((material) => material?.dispose?.());
+      (guide.geometries ?? [guide.geometry]).forEach((geometry) => geometry?.dispose?.());
     });
     this.renderer.dispose();
   }

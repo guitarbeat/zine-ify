@@ -367,25 +367,42 @@
                             <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);">animation</span> Fold the Sheet
                         </label>
                         <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-2 cursor-pointer" style="accent-color: var(--primary-vibrant);">
-                        <span id="fold-status" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1.5 min-w-[108px] text-center bg-black text-white">Flat</span>
+                        <span id="fold-status" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1.5 min-w-[132px] text-center bg-black text-white">Flat</span>
                     </div>
 
                     <p id="fold-helper" class="text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-black/70">
-                        Start flat, fold it longways, open the slit, then close the covers.
+                        Follow the checkpoints: keep the sheet open, fold top to bottom, form a folded strip, push the short ends inward, open the diamond, then press the stack flat.
                     </p>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <p class="text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-black/60 flex flex-wrap items-center gap-x-3 gap-y-2">
+                        <span class="inline-flex items-center gap-2">
+                            <span class="inline-block w-6 h-1.5 bg-[#d32f2f]" aria-hidden="true"></span>
+                            Red center line = cut slit
+                        </span>
+                        <span class="inline-flex items-center gap-2">
+                            <span class="inline-block w-6 h-1.5 bg-[#b8b8b8]" aria-hidden="true"></span>
+                            Gray lines = fold guides
+                        </span>
+                    </p>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
                         <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="0">
-                            1. FLAT
+                            1. SHEET OPEN
+                        </button>
+                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="0.5">
+                            2. FOLD DOWN
                         </button>
                         <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="1">
-                            2. FOLD
+                            3. STRIP FORMED
+                        </button>
+                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="1.5">
+                            4. PUSH ENDS IN
                         </button>
                         <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="2">
-                            3. OPEN SLIT
+                            5. DIAMOND OPEN
                         </button>
                         <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="3">
-                            4. BOOKLET
+                            6. PRESS FLAT
                         </button>
                     </div>
                 </div>

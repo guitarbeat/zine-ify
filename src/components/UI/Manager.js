@@ -362,24 +362,32 @@ export class UIManager {
 
   updateFoldUI(value) {
     let status = 'Flat';
-    let helper = 'Start flat, fold it longways, open the slit, then close the covers.';
+    let helper = 'Keep the sheet fully open with the slit centered and the two rows fully visible.';
     let activeStep = 0;
 
     if (value >= 2.99) {
       status = 'Booklet';
-      helper = 'The covers are together. Use the booklet preview to flip through the pages.';
-      activeStep = 3;
+      helper = 'Press the collapsed stack flat so page 1 is the front cover and page 8 is the back.';
+      activeStep = 5;
     } else if (value > 2) {
       status = 'Folding Shut';
-      helper = 'The diamond has collapsed and the covers are swinging shut into booklet form.';
-      activeStep = 3;
-    } else if (value > 1) {
+      helper = 'Keep pushing the short ends inward and let the four stacks swing together until the covers meet.';
+      activeStep = 5;
+    } else if (value >= 2) {
       status = 'Diamond Open';
-      helper = 'Push the two outer ends together so the center slit opens into the diamond shape.';
+      helper = 'The slit is fully open now. The sheet should read like a plus or diamond before you flatten it.';
+      activeStep = 4;
+    } else if (value > 1) {
+      status = 'Opening Slit';
+      helper = 'Hold the folded strip by both short ends and push inward until the center slit opens into a diamond.';
+      activeStep = 3;
+    } else if (value >= 1) {
+      status = 'Folded Strip';
+      helper = 'The top row should now sit directly on the bottom row, forming one long folded strip.';
       activeStep = 2;
     } else if (value > 0) {
-      status = 'Lengthwise Fold';
-      helper = 'Fold the sheet in half the long way so the top row lands on the bottom row.';
+      status = 'Folding Down';
+      helper = 'Bring the top row down onto the bottom row along the long center crease.';
       activeStep = 1;
     }
 
@@ -1337,7 +1345,7 @@ export class UIManager {
         this.elements.bookletNextBtn?.click();
         return;
       }
-      if (['1', '2', '3', '4'].includes(e.key)) {
+      if (['1', '2', '3', '4', '5', '6'].includes(e.key)) {
         e.preventDefault();
         this.elements.foldStepButtons?.[parseInt(e.key, 10) - 1]?.click();
         return;
