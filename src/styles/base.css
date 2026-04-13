@@ -1,64 +1,63 @@
-@layer components {
-  :root {
-    --bg-neutral: #f4efe6;
-    --surface-bg: rgba(255, 252, 247, 0.78);
-    --surface-strong: #fffdf8;
-    --surface-muted: #ebe3d6;
-    --accent-dark: #171717;
-    --primary-vibrant: #31536b;
-    --border-color: rgba(23, 23, 23, 0.14);
-    --border-strong: rgba(23, 23, 23, 0.22);
-    --muted-ink: rgba(23, 23, 23, 0.62);
-    --paper-bg: #fffdf8;
-    --surface-shadow: 0 12px 32px rgba(24, 27, 32, 0.06);
-    --surface-shadow-strong: 0 18px 46px rgba(24, 27, 32, 0.1);
-    
-    /* Shared values */
-    --radius-pill: 999px;
-    --radius-panel: 1.25rem;
-    --glass-bg: rgba(255, 255, 255, 0.76);
-    --glass-bg-alt: rgba(49, 83, 107, 0.06);
-  }
-
-  /* Base utility for small status chips used across the app */
-  .base-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.35rem 0.7rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-pill);
-    background: var(--glass-bg);
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    white-space: nowrap;
-    line-height: 1.35;
-  }
-
-  /* Base utility for panels */
-  .base-panel {
-    background: var(--glass-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-panel);
-    box-shadow: var(--surface-shadow);
-    padding: 1rem;
-  }
-
-  body {
-    background:
-        radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 32%),
-        linear-gradient(180deg, #fbf7f1 0%, #f3ecdf 100%);
-    font-family: 'Space Grotesk', sans-serif;
-    color: var(--accent-dark);
-  }
-
-  .mobile-zine-app {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Typography utilities */
-  .font-marker { font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
-  .font-typewriter { font-family: 'IBM Plex Mono', monospace; }
+:root {
+  --bg-neutral: #f4efe6;
+  --surface-bg: rgba(255, 252, 247, 0.78);
+  --surface-strong: #fffdf8;
+  --surface-muted: #ebe3d6;
+  --accent-dark: #171717;
+  --primary-vibrant: #31536b;
+  --border-color: rgba(23, 23, 23, 0.14);
+  --border-strong: rgba(23, 23, 23, 0.22);
+  --muted-ink: rgba(23, 23, 23, 0.62);
+  --paper-bg: #fffdf8;
+  --surface-shadow: 0 12px 32px rgba(24, 27, 32, 0.06);
+  --surface-shadow-strong: 0 18px 46px rgba(24, 27, 32, 0.1);
+  
+  /* Shared values */
+  --radius-pill: 999px;
+  --radius-panel: 1.25rem;
+  --glass-bg: rgba(255, 255, 255, 0.76);
+  --glass-bg-alt: rgba(49, 83, 107, 0.06);
 }
+
+/* Base utility for small status chips used across the app */
+.base-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  background: var(--glass-bg);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  line-height: 1.35;
+}
+
+/* Base utility for panels */
+.base-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--surface-shadow);
+  padding: 1rem;
+}
+
+body {
+  background:
+      radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 32%),
+      linear-gradient(180deg, #fbf7f1 0%, #f3ecdf 100%);
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--accent-dark);
+}
+
+.mobile-zine-app {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Typography utilities */
+.font-marker { font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+.font-typewriter { font-family: 'IBM Plex Mono', monospace; }
+
