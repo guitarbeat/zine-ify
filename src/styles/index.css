@@ -17,6 +17,38 @@
     --paper-bg: #fffdf8;
     --surface-shadow: 0 12px 32px rgba(24, 27, 32, 0.06);
     --surface-shadow-strong: 0 18px 46px rgba(24, 27, 32, 0.1);
+    
+    /* Shared values */
+    --radius-pill: 999px;
+    --radius-panel: 1.25rem;
+    --glass-bg: rgba(255, 255, 255, 0.76);
+    --glass-bg-alt: rgba(49, 83, 107, 0.06);
+}
+
+/* Base utility for small status chips used across the app */
+.base-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-pill);
+    background: var(--glass-bg);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    line-height: 1.35;
+}
+
+/* Base utility for panels */
+.base-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--surface-shadow);
+    padding: 1rem;
 }
 body {
     background:
@@ -125,18 +157,9 @@ body.mobile-rail-open {
 }
 
 .rail-section-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.34rem 0.58rem;
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
-    background: rgba(49, 83, 107, 0.06);
+    @apply base-chip;
+    background: var(--glass-bg-alt);
     font-size: 0.62rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    white-space: nowrap;
     color: var(--primary-vibrant);
 }
 
@@ -215,20 +238,9 @@ body.mobile-rail-open {
 .workflow-chip,
 .grid-total-chip,
 .workspace-description {
-    display: inline-flex;
-    align-items: center;
-    width: fit-content;
-    min-height: 2rem;
-    padding: 0.35rem 0.72rem;
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
-    background: rgba(49, 83, 107, 0.06);
+    @apply base-chip;
+    background: var(--glass-bg-alt);
     color: var(--primary-vibrant);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    line-height: 1.35;
 }
 
 .upload-status {
@@ -390,52 +402,15 @@ select:focus, input:focus {
     pointer-events: none;
 }
 
-/* Rotations for the standard mini-zine layout only */
-.zine-grid.mini-zine .page-cell[data-page="2"], .zine-grid.mini-zine .page-cell[data-page="3"], 
-.zine-grid.mini-zine .page-cell[data-page="4"], .zine-grid.mini-zine .page-cell[data-page="5"] {
+/* Template-driven rotations handled by LayoutRenderer */
+.is-template-upside-down {
     transform: rotate(180deg);
 }
 
-.zine-grid.mini-zine .page-cell[data-page="2"] .page-label,
-.zine-grid.mini-zine .page-cell[data-page="3"] .page-label,
-.zine-grid.mini-zine .page-cell[data-page="4"] .page-label,
-.zine-grid.mini-zine .page-cell[data-page="5"] .page-label {
+.is-template-upside-down .page-label {
     transform: rotate(180deg);
 }
 
-/* Accordion-16 specific upside-down pages */
-.zine-grid.accordion-16 .page-cell[data-page="1"],
-.zine-grid.accordion-16 .page-cell[data-page="2"],
-.zine-grid.accordion-16 .page-cell[data-page="3"],
-.zine-grid.accordion-16 .page-cell[data-page="4"],
-.zine-grid.accordion-16 .page-cell[data-page="9"],
-.zine-grid.accordion-16 .page-cell[data-page="10"],
-.zine-grid.accordion-16 .page-cell[data-page="11"],
-.zine-grid.accordion-16 .page-cell[data-page="12"] {
-    transform: rotate(180deg);
-}
-
-.zine-grid.accordion-16 .page-cell[data-page="1"] .page-label,
-.zine-grid.accordion-16 .page-cell[data-page="2"] .page-label,
-.zine-grid.accordion-16 .page-cell[data-page="3"] .page-label,
-.zine-grid.accordion-16 .page-cell[data-page="4"] .page-label,
-.zine-grid.accordion-16 .page-cell[data-page="9"] .page-label,
-.zine-grid.accordion-16 .page-cell[data-page="10"] .page-label,
-.zine-grid.accordion-16 .page-cell[data-page="11"] .page-label,
-.zine-grid.accordion-16 .page-cell[data-page="12"] .page-label {
-    transform: rotate(180deg);
-}
-/* Override default rotations for accordion template */
-.zine-grid.accordion-16 .page-cell[data-page="5"],
-.zine-grid.accordion-16 .page-cell[data-page="6"],
-.zine-grid.accordion-16 .page-cell[data-page="7"],
-.zine-grid.accordion-16 .page-cell[data-page="8"],
-.zine-grid.accordion-16 .page-cell[data-page="13"],
-.zine-grid.accordion-16 .page-cell[data-page="14"],
-.zine-grid.accordion-16 .page-cell[data-page="15"],
-.zine-grid.accordion-16 .page-cell[data-page="16"] {
-    transform: rotate(0deg);
-}
 
 .action-button {
     border: 1px solid var(--border-color) !important;
@@ -657,7 +632,7 @@ select:focus, input:focus {
 
 .workspace-config-bar,
 .workspace-overflow-panel {
-    background: rgba(255, 255, 255, 0.82);
+    @apply base-panel;
 }
 
 .workspace-config-header {
@@ -748,22 +723,13 @@ select:focus, input:focus {
 }
 
 .workspace-chip {
-    display: inline-flex;
-    align-items: center;
+    @apply base-chip;
     min-height: 2rem;
     padding: 0.38rem 0.72rem;
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.76);
-    font-size: 0.66rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    line-height: 1.3;
 }
 
 .workspace-chip-strong {
-    background: rgba(49, 83, 107, 0.12);
+    background: var(--glass-bg-alt);
     color: var(--primary-vibrant);
 }
 
@@ -874,10 +840,7 @@ select:focus, input:focus {
 
 /* Layout toggle style override (if used later) */
 .settings-panel {
-    border: 1px solid var(--border-color);
-    box-shadow: var(--surface-shadow);
-    border-radius: 1.2rem;
-    background: rgba(255, 255, 255, 0.76);
+    @apply base-panel;
 }
 
 /* Punk Toast Notifications */
@@ -1483,23 +1446,12 @@ select:focus, input:focus {
 
 .simulation-meta-chip,
 .simulation-status-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 2rem;
-    padding: 0.45rem 0.7rem;
-    border: 1px solid var(--border-color);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.78);
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    @apply base-chip;
 }
 
 .simulation-status-chip {
     min-width: 8.5rem;
-    background: rgba(49, 83, 107, 0.12);
+    background: var(--glass-bg-alt);
     color: var(--primary-vibrant);
 }
 
@@ -1518,10 +1470,7 @@ select:focus, input:focus {
 
 .simulation-canvas-panel,
 .simulation-panel {
-    background: rgba(255, 255, 255, 0.82);
-    border: 1px solid var(--border-color);
-    border-radius: 1.35rem;
-    box-shadow: var(--surface-shadow);
+    @apply base-panel;
     min-height: 0;
 }
 

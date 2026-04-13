@@ -1,32 +1,5 @@
 import { buildMiniZineBookletStates } from '../utils/miniZineLayout.js';
-
-function normalizePreviewPage(page, slotIndex) {
-  if (!page || typeof page === 'string') {
-    const src = page || null;
-    return {
-      sourceUrl: src,
-      previewUrl: src,
-      pageNumber: slotIndex + 1,
-      slotIndex
-    };
-  }
-
-  return {
-    ...page,
-    sourceUrl: page.sourceUrl ?? page.previewUrl ?? page.src ?? null,
-    previewUrl: page.previewUrl ?? page.sourceUrl ?? page.src ?? null,
-    pageNumber: page.pageNumber ?? (Number.isInteger(page.pageIndex) ? page.pageIndex + 1 : slotIndex + 1),
-    slotIndex: page.slotIndex ?? slotIndex
-  };
-}
-
-function getPageLabel(page) {
-  if (!page) {
-    return 'Blank';
-  }
-
-  return page.pageNumber === 1 ? 'Cover' : page.pageNumber === 8 ? 'Back' : `Page ${page.pageNumber}`;
-}
+import { normalizePreviewPage, getPageLabel } from '../utils/previewHelpers.js';
 
 export class BookletPreview {
   constructor({ container, prevButton, nextButton, statusElement }) {
@@ -143,7 +116,7 @@ export class BookletPreview {
     const media = element.querySelector('.booklet-page-media');
     const placeholder = element.querySelector('.booklet-page-placeholder');
     const src = page?.previewUrl || page?.sourceUrl || null;
-    const pageLabel = getPageLabel(page);
+    const pageLabel = page ? getPageLabel(page.pageNumber, 8) : 'Blank';
 
     if (src) {
       media.src = src;

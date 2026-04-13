@@ -2,21 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { MINI_ZINE_STACKS, computeMiniZineFoldState } from '../utils/miniZineFold.js';
 
-function normalizePreviewPage(page) {
-  if (!page || typeof page === 'string') {
-    const src = page || null;
-    return {
-      sourceUrl: src,
-      previewUrl: src
-    };
-  }
-
-  return {
-    ...page,
-    sourceUrl: page.sourceUrl ?? page.previewUrl ?? page.src ?? null,
-    previewUrl: page.previewUrl ?? page.sourceUrl ?? page.src ?? null
-  };
-}
+import { normalizePreviewPage } from '../utils/previewHelpers.js';
 
 export class Zine3DViewer {
   constructor(containerElement) {

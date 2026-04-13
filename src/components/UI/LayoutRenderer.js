@@ -1,3 +1,5 @@
+import { getPageLabel } from '../../utils/previewHelpers.js';
+
 /**
  * LayoutRenderer.js
  * Handles the rendering of zine sheets and grids
@@ -11,103 +13,46 @@ export class LayoutRenderer {
   render(numPages, template, options, handlers) {
     this.container.innerHTML = '';
     
-    if (template.pages === 16 && template.grid.rows === 4) {
-      this.generateAccordionLayout(template, options, handlers);
-    } else {
-      this.generateMiniZineLayout(numPages, template, options, handlers);
-    }
-  }
+    // Determine number of sheets needed based on template and pages
+    const slotsPerSheet = template.grid.rows * template.grid.cols;
+    const sheetCount = Math.max(1, Math.ceil(numPages / slotsPerSheet));
 
-  generateAccordionLayout(template, options, handlers) {
-    const { sheetWrapper, grid } = this.createSheetGrid({
-      sheetNumber: 1,
-      template: 'accordion-16',
-      columns: 4,
-      rows: 4,
-      id: 'zine-grid-sheet-1'
-    });
-
-    grid.classList.add('accordion-16');
-    grid.style.gridTemplateAreas = template.gridAreas;
-
-    for (let i = 0; i < 16; i++) {
-      const pageIndex = i;
-      const pageNum = i + 1;
-      const labelText = pageNum === 1 ? 'Cover' : pageNum === 16 ? 'Back' : `P${pageNum}`;
-      const cell = this.createPageCell({
-        pageIndex,
-        pageNumber: pageNum,
-        labelText,
-        altText: `Page ${pageNum}`,
-        options,
-        handlers
-      });
-      grid.appendChild(cell);
-    }
-
-    sheetWrapper.appendChild(grid);
-    this.container.appendChild(sheetWrapper);
-  }
-
-  generateMiniZineLayout(numPages, template, options, handlers) {
-    const sheetCount = Math.max(1, Math.ceil(numPages / 8));
     for (let s = 0; s < sheetCount; s++) {
       const { sheetWrapper, grid } = this.createSheetGrid({
         sheetNumber: s + 1,
-        template: 'mini-8',
-        columns: 4,
-        rows: 2,
+        template: template.label,
+        columns: template.grid.cols,
+        rows: template.grid.rows,
         id: `zine-grid-sheet-${s + 1}`
       });
 
-      grid.classList.add('mini-zine');
-      grid.style.gridTemplateAreas = template.gridAreas;
-
-      for (let i = 0; i < 8; i++) {
-        const pageIndex = (s * 8) + i;
-        const pageNum = pageIndex + 1;
-        const labelText = pageNum === 1 ? 'Cover' : pageNum === 8 ? 'Back' : `P${pageNum}`;
-        const cell = this.createPageCell({
-          pageIndex,
-          pageNumber: i + 1,
-          labelText,
-          altText: `Page ${pageNum}`,
-          options,
-          handlers
-        });
-        grid.appendChild(cell);
+      if (template.gridAreas) {
+        grid.style.gridTemplateAreas = template.gridAreas;
       }
 
-      sheetWrapper.appendChild(grid);
-      this.container.appendChild(sheetWrapper);
-    }
-  }
+      // Fill grid based on template layout or sequential order
+      for (let i = 0; i < slotsPerSheet; i++) {
+        const slotConfig = template.layout ? template.layout[i] : { page: i + 1, upsideDown: false };
+        const pageNumberInSheet = slotConfig.page;
+        const pageIndex = (s * slotsPerSheet) + (pageNumberInSheet - 1);
+        const overallPageNumber = pageIndex + 1;
 
-  generateCustomGrid(rows, cols, totalPages, options, handlers) {
-    this.container.innerHTML = '';
-    const totalSlots = rows * cols;
-    const sheetCount = Math.max(1, Math.ceil(totalPages / totalSlots));
+        const labelText = getPageLabel(overallPageNumber, numPages, true);
 
-    for (let s = 0; s < sheetCount; s++) {
-      const { sheetWrapper, grid } = this.createSheetGrid({
-        sheetNumber: s + 1,
-        template: `custom-${rows}x${cols}`,
-        columns: cols,
-        rows,
-        id: `zine-grid-sheet-${s + 1}`
-      });
-
-      for (let i = 0; i < totalSlots; i++) {
-        const pageIndex = (s * totalSlots) + i;
-        const pageNum = pageIndex + 1;
         const cell = this.createPageCell({
           pageIndex,
-          pageNumber: i + 1,
-          labelText: `P${pageNum}`,
-          altText: `Page ${pageNum}`,
+          pageNumber: pageNumberInSheet,
+          labelText,
+          altText: `Page ${overallPageNumber}`,
+          upsideDown: slotConfig.upsideDown,
           options,
           handlers
         });
+
+        if (template.gridAreas) {
+          cell.style.gridArea = `page${pageNumberInSheet}`;
+        }
+        
         grid.appendChild(cell);
       }
 
@@ -132,12 +77,16 @@ export class LayoutRenderer {
     return { sheetWrapper, grid };
   }
 
-  createPageCell({ pageIndex, pageNumber, labelText, altText, options, handlers }) {
+  createPageCell({ pageIndex, pageNumber, labelText, altText, upsideDown, options, handlers }) {
     const cell = document.createElement('div');
     cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
     cell.setAttribute('data-page-index', pageIndex);
     cell.setAttribute('data-page', pageNumber);
     cell.setAttribute('draggable', 'true');
+
+    if (upsideDown) {
+      cell.classList.add('is-template-upside-down');
+    }
 
     cell.replaceChildren(this.cellTemplate.content.cloneNode(true));
     const label = cell.querySelector('.page-label');

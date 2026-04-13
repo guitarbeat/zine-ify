@@ -194,34 +194,20 @@ export class PDFProcessor {
   }
 
   /**
-   * Render PDF page to canvas
-   * @param {number} pageNum - Page number to render
-   * @param {Function} onProgress - Progress callback
-   * @returns {Promise<HTMLCanvasElement | OffscreenCanvas>} Rendered canvas
+   * Internal common rendering logic
+   * @private
    */
-  async renderPage(pageNum, onProgress = null) {
+  async _internalRender(pageNum, scaleCalculator) {
     if (!this.pdf) {
       throw new Error('No PDF loaded');
     }
 
     try {
       await this.ensurePdfJs();
-      onProgress?.(`Rendering page ${pageNum}...`);
-
       const page = await this.pdf.getPage(pageNum);
       const baseViewport = page.getViewport({ scale: 1 });
-      const maxDimension = 4096;
-      const maxPixels = 4096 * 4096;
-      const preferredScale = 1.5;
-      const dimensionScale = Math.min(
-        1,
-        maxDimension / Math.max(baseViewport.width, baseViewport.height)
-      );
-      const pixelScale = Math.min(
-        1,
-        Math.sqrt(maxPixels / (baseViewport.width * baseViewport.height))
-      );
-      const scale = Math.max(0.1, preferredScale * Math.min(dimensionScale, pixelScale));
+      
+      const scale = scaleCalculator(baseViewport);
       const viewport = page.getViewport({ scale });
       const width = Math.floor(viewport.width);
       const height = Math.floor(viewport.height);
@@ -241,14 +227,37 @@ export class PDFProcessor {
 
       await page.render(renderContext).promise;
 
-      // Clean up the page proxy to prevent memory leaks during multi-page processing
+      // Clean up the page proxy
       page.cleanup();
 
       return canvas;
-
     } catch (error) {
       throw new Error(`Failed to render page ${pageNum}`, { cause: error });
     }
+  }
+
+  /**
+   * Render PDF page to canvas
+   * @param {number} pageNum - Page number to render
+   * @param {Function} onProgress - Progress callback
+   * @returns {Promise<HTMLCanvasElement | OffscreenCanvas>} Rendered canvas
+   */
+  async renderPage(pageNum, onProgress = null) {
+    onProgress?.(`Rendering page ${pageNum}...`);
+    return this._internalRender(pageNum, (baseViewport) => {
+      const maxDimension = 4096;
+      const maxPixels = 4096 * 4096;
+      const preferredScale = 1.5;
+      const dimensionScale = Math.min(
+        1,
+        maxDimension / Math.max(baseViewport.width, baseViewport.height)
+      );
+      const pixelScale = Math.min(
+        1,
+        Math.sqrt(maxPixels / (baseViewport.width * baseViewport.height))
+      );
+      return Math.max(0.1, preferredScale * Math.min(dimensionScale, pixelScale));
+    });
   }
 
   /**
@@ -257,39 +266,13 @@ export class PDFProcessor {
    * @returns {Promise<HTMLCanvasElement | OffscreenCanvas>} Rendered preview canvas
    */
   async renderPageThumbnail(pageNum) {
-    if (!this.pdf) {
-      throw new Error('No PDF loaded');
-    }
-
-    try {
-      await this.ensurePdfJs();
-      const page = await this.pdf.getPage(pageNum);
-      const baseViewport = page.getViewport({ scale: 1 });
+    return this._internalRender(pageNum, (baseViewport) => {
       const maxEdge = 420;
-      const scale = Math.max(
+      return Math.max(
         0.2,
         Math.min(maxEdge / Math.max(baseViewport.width, baseViewport.height), 0.6)
       );
-      const viewport = page.getViewport({ scale });
-
-      const canvasWidth = Math.max(1, Math.floor(viewport.width));
-      const canvasHeight = Math.max(1, Math.floor(viewport.height));
-      const { canvas, context } = this.createRenderCanvas(canvasWidth, canvasHeight);
-
-      context.fillStyle = '#ffffff';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-
-      await page.render({
-        canvasContext: context,
-        viewport,
-        background: 'white'
-      }).promise;
-
-      page.cleanup();
-      return canvas;
-    } catch (error) {
-      throw new Error(`Failed to render preview page ${pageNum}`, { cause: error });
-    }
+    });
   }
 
   async renderImageFile(file) {
