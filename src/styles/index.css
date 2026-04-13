@@ -6,7 +6,7 @@
 
 :root {
     --bg-neutral: #f4efe6;
-    --surface-bg: rgba(255, 252, 247, 0.88);
+    --surface-bg: rgba(255, 252, 247, 0.78);
     --surface-strong: #fffdf8;
     --surface-muted: #ebe3d6;
     --accent-dark: #171717;
@@ -15,13 +15,13 @@
     --border-strong: rgba(23, 23, 23, 0.22);
     --muted-ink: rgba(23, 23, 23, 0.62);
     --paper-bg: #fffdf8;
-    --surface-shadow: 0 20px 45px rgba(24, 27, 32, 0.08);
-    --surface-shadow-strong: 0 26px 60px rgba(24, 27, 32, 0.12);
+    --surface-shadow: 0 12px 32px rgba(24, 27, 32, 0.06);
+    --surface-shadow-strong: 0 18px 46px rgba(24, 27, 32, 0.1);
 }
 body {
     background:
-        radial-gradient(circle at top left, rgba(255, 255, 255, 0.82), transparent 35%),
-        linear-gradient(180deg, #faf6ef 0%, #f2ebdf 100%);
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 32%),
+        linear-gradient(180deg, #fbf7f1 0%, #f3ecdf 100%);
     font-family: 'Space Grotesk', sans-serif;
     color: var(--accent-dark);
 }
@@ -40,8 +40,8 @@ body {
 
 .app-header-main {
     display: grid;
-    gap: 1.25rem;
-    align-items: center;
+    gap: 0.85rem;
+    align-items: end;
 }
 
 .app-kicker,
@@ -54,28 +54,17 @@ body {
 }
 
 .app-title {
-    font-size: clamp(2.6rem, 6vw, 4.6rem);
-    line-height: 0.94;
+    font-size: clamp(2.8rem, 6vw, 4.8rem);
+    line-height: 0.92;
     letter-spacing: -0.06em;
     color: var(--accent-dark);
 }
 
 .app-subtitle {
-    max-width: 32rem;
-    font-size: 0.95rem;
-    line-height: 1.6;
+    max-width: 36rem;
+    font-size: 1rem;
+    line-height: 1.55;
     color: var(--muted-ink);
-}
-
-.app-overview {
-    background: var(--surface-bg);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--surface-shadow);
-    border-radius: 1.25rem;
-    padding: 1.1rem 1.2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
 }
 
 .app-overview-title,
@@ -86,15 +75,20 @@ body {
     text-transform: uppercase;
 }
 
+.app-overview-inline {
+    max-width: 34rem;
+    padding-bottom: 0.15rem;
+}
+
 .rail-section-chip {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.38rem 0.62rem;
+    padding: 0.34rem 0.58rem;
     border: 1px solid var(--border-color);
     border-radius: 999px;
-    background: rgba(49, 83, 107, 0.08);
-    font-size: 0.66rem;
+    background: rgba(49, 83, 107, 0.06);
+    font-size: 0.62rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -103,7 +97,7 @@ body {
 }
 
 .app-overview-note {
-    font-size: 0.82rem;
+    font-size: 0.84rem;
     line-height: 1.55;
     color: var(--muted-ink);
 }
@@ -138,15 +132,49 @@ body {
 .upload-box {
     border: 1px dashed var(--border-strong);
     border-radius: 1.25rem;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.74);
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
 }
 .upload-box:active, .upload-box.dragover {
     transform: translateY(-1px);
     border-color: rgba(49, 83, 107, 0.45);
-    background-color: rgba(255, 255, 255, 0.98);
+    background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 0 16px 32px rgba(49, 83, 107, 0.12);
+}
+
+.upload-status,
+.workflow-chip,
+.grid-total-chip,
+.workspace-description {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    min-height: 2rem;
+    padding: 0.35rem 0.72rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: rgba(49, 83, 107, 0.06);
+    color: var(--primary-vibrant);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.35;
+}
+
+.upload-status {
+    margin-top: 0.1rem;
+}
+
+.upload-status--success {
+    background: rgba(35, 110, 71, 0.1);
+    color: #236e47;
+}
+
+.upload-status--error {
+    background: rgba(157, 38, 38, 0.1);
+    color: #9d2626;
 }
 
 select, input {
@@ -239,8 +267,17 @@ select:focus, input:focus {
     z-index: 30;
     transform: scale(1.005);
 }
+.page-toolbar {
+    opacity: 0;
+    pointer-events: none;
+}
+.page-cell.has-page:hover .page-toolbar,
 .page-cell.active .page-toolbar {
     opacity: 1 !important;
+    pointer-events: auto;
+}
+.page-cell:not(.has-page) .page-toolbar {
+    display: none;
 }
 .page-content-img {
     width: 100%;
@@ -333,26 +370,26 @@ select:focus, input:focus {
 
 .workflow-panel {
     background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.88)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.82)),
         var(--surface-strong);
 }
 
 .workflow-steps {
     display: grid;
-    gap: 0.7rem;
+    gap: 0.55rem;
 }
 
 .workflow-step {
     width: 100%;
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 0.8rem;
+    gap: 0.7rem;
     align-items: center;
-    padding: 0.8rem 0.9rem;
+    padding: 0.72rem 0.85rem;
     text-align: left;
-    background: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.58);
     border: 1px solid var(--border-color);
-    border-radius: 1rem;
+    border-radius: 0.95rem;
     transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease, opacity 0.12s ease, border-color 0.12s ease;
 }
 
@@ -376,7 +413,7 @@ select:focus, input:focus {
     justify-content: center;
     font-size: 0.78rem;
     font-weight: 700;
-    background: rgba(49, 83, 107, 0.12);
+    background: rgba(49, 83, 107, 0.08);
     color: var(--primary-vibrant);
     border-radius: 999px;
 }
@@ -394,20 +431,20 @@ select:focus, input:focus {
 }
 
 .workflow-step-meta {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     line-height: 1.4;
     color: var(--muted-ink);
 }
 
 .workflow-step-state {
     justify-self: end;
-    padding: 0.32rem 0.6rem;
-    font-size: 0.62rem;
+    padding: 0.28rem 0.54rem;
+    font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     border: 1px solid var(--border-color);
-    background: rgba(255, 255, 255, 0.84);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 999px;
     white-space: nowrap;
 }
@@ -441,25 +478,23 @@ select:focus, input:focus {
 }
 
 .workflow-note {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    padding: 0.85rem 0.95rem;
-    border: 1px solid var(--border-color);
-    border-radius: 1rem;
-    background: rgba(255, 255, 255, 0.76);
+    display: grid;
+    gap: 0.15rem;
+    padding-top: 0.1rem;
+    border-top: 1px solid rgba(23, 23, 23, 0.08);
 }
 
 .workflow-note-title {
-    font-size: 0.74rem;
+    font-size: 0.66rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.14em;
+    color: var(--muted-ink);
 }
 
 .workflow-note-body {
-    font-size: 0.8rem;
-    line-height: 1.55;
+    font-size: 0.76rem;
+    line-height: 1.5;
     color: var(--muted-ink);
 }
 
@@ -470,21 +505,25 @@ select:focus, input:focus {
 
 .workspace-header {
     display: grid;
-    gap: 1rem;
+    gap: 0.85rem;
     align-items: start;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.85rem;
     border-bottom: 1px solid var(--border-color);
 }
 
 .workspace-title-block {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.55rem;
 }
 
 .workspace-description {
-    width: fit-content;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    font-size: 0.74rem;
+    background: rgba(255, 255, 255, 0.76);
+    color: var(--accent-dark);
 }
 
 .workspace-actions {
@@ -494,19 +533,19 @@ select:focus, input:focus {
 .workspace-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.65rem;
-    margin-bottom: 1rem;
+    gap: 0.55rem;
+    margin-bottom: 0.8rem;
 }
 
 .workspace-chip {
     display: inline-flex;
     align-items: center;
-    min-height: 2.2rem;
-    padding: 0.45rem 0.75rem;
+    min-height: 2rem;
+    padding: 0.38rem 0.72rem;
     border: 1px solid var(--border-color);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.82);
-    font-size: 0.7rem;
+    background: rgba(255, 255, 255, 0.76);
+    font-size: 0.66rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -518,15 +557,30 @@ select:focus, input:focus {
     color: var(--primary-vibrant);
 }
 
+.workspace-mode-note {
+    flex-basis: 100%;
+    min-height: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    font-size: 0.76rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: var(--muted-ink);
+}
+
 .preview-empty-state {
     display: grid;
-    gap: 1rem;
-    padding: 1.2rem;
-    margin-bottom: 1rem;
+    gap: 0.6rem;
+    padding: 1rem 1.1rem;
+    margin-bottom: 0.9rem;
     border: 1px solid var(--border-color);
-    border-radius: 1.35rem;
-    box-shadow: var(--surface-shadow);
-    background: rgba(255, 255, 255, 0.78);
+    border-radius: 1.1rem;
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.58);
+    max-width: 52rem;
 }
 
 .preview-empty-copy {
@@ -546,37 +600,32 @@ select:focus, input:focus {
 .preview-empty-title {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
-    font-size: 1.5rem;
-    line-height: 1.15;
+    font-size: 1.3rem;
+    line-height: 1.12;
     letter-spacing: -0.04em;
 }
 
 .preview-empty-body {
-    max-width: 58rem;
-    font-size: 0.86rem;
-    line-height: 1.6;
+    max-width: 46rem;
+    font-size: 0.82rem;
+    line-height: 1.55;
     color: var(--muted-ink);
 }
 
 .preview-empty-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem;
+    display: block;
 }
 
 .preview-empty-actions span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2rem;
-    padding: 0.4rem 0.72rem;
-    background: rgba(49, 83, 107, 0.08);
-    border: 1px solid rgba(49, 83, 107, 0.12);
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--primary-vibrant);
+    display: inline;
+    padding: 0;
+    background: transparent;
+    border: none;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    color: var(--muted-ink);
 }
 
 .workspace-sheet-stack {
@@ -655,8 +704,8 @@ select:focus, input:focus {
 .settings-panel {
     border: 1px solid var(--border-color);
     box-shadow: var(--surface-shadow);
-    border-radius: 1.35rem;
-    background: rgba(255, 255, 255, 0.82);
+    border-radius: 1.2rem;
+    background: rgba(255, 255, 255, 0.76);
 }
 
 /* Punk Toast Notifications */
@@ -823,8 +872,7 @@ select:focus, input:focus {
         gap: 0.85rem;
     }
 
-    .workspace-meta,
-    .preview-empty-actions {
+    .workspace-meta {
         gap: 0.55rem;
     }
 
@@ -987,16 +1035,13 @@ select:focus, input:focus {
     }
 
     .preview-empty-body,
-    .preview-empty-actions span {
+    .preview-empty-actions span,
+    .workspace-mode-note {
         font-size: 0.68rem;
     }
 }
 
 @media (min-width: 1024px) {
-    .app-header-main {
-        grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
-    }
-
     .workspace-header {
         grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
     }
@@ -1004,6 +1049,18 @@ select:focus, input:focus {
     .workspace-actions .action-button {
         min-height: 3.35rem;
     }
+}
+
+.app-footer {
+    margin-top: 3rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-ink);
 }
 
 .simulation-modal {

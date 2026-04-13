@@ -453,21 +453,21 @@ export class UIManager {
 
     let nextLabel = 'Import';
     let title = 'Next step';
-    let body = 'Import files to populate the sheet. Then arrange the layout, preview the fold, and export.';
-    let modeChip = 'Preview is available in the standard 2×4 mini-zine layout.';
-    let emptyTitle = 'The sheet stays here while you build the layout.';
-    let emptyBody = 'Import a PDF or image set from the rail. Then drag pages into place, adjust each slot, and export when the sheet looks right.';
+    let body = 'Add files first. Once they land on the sheet, arrange them, preview if needed, then export.';
+    let modeChip = 'Fold preview works in the standard 2×4 mini-zine layout.';
+    let emptyTitle = 'The sheet is ready when you are.';
+    let emptyBody = 'Add a PDF or image set from the rail, then arrange pages directly on the sheet before previewing or exporting.';
 
     if (hasContent && !isMiniZineLayout) {
       nextLabel = exportCompleted ? 'Refine' : 'Export';
       title = 'Custom layout';
       body = `You are working in ${layoutLabel}. Arrange the sheet, then export or print when it is ready.`;
-      modeChip = 'Preview is limited to the standard 2×4 mini-zine layout.';
+      modeChip = 'Fold preview is only available in the standard 2×4 mini-zine layout.';
     } else if (hasContent && previewOpened && exportCompleted) {
       nextLabel = 'Refine';
       title = 'Previewed and exported';
-      body = `Your ${layoutLabel} has already been previewed and exported. Adjust the sheet and export again if you need another pass.`;
-      modeChip = 'Preview has already been checked. Export again after new layout changes.';
+      body = `Your ${layoutLabel} has been previewed and exported. Make changes on the sheet, then export again if you need another pass.`;
+      modeChip = 'Preview has been checked. Export again after new layout changes.';
     } else if (hasContent && previewOpened) {
       nextLabel = 'Export';
       title = 'Preview ready';
@@ -481,7 +481,7 @@ export class UIManager {
         : `Arrange pages on the ${layoutLabel}, then export or print when the sheet looks right.`;
       modeChip = isMiniZineLayout
         ? 'Preview unlocks once pages are on the sheet.'
-        : 'Use the sheet as the print-ready layout.';
+        : 'Use the sheet itself as the print-ready layout.';
     } else if (hasQueuedFiles) {
       nextLabel = 'Arrange';
       title = 'Import in progress';
@@ -634,8 +634,7 @@ export class UIManager {
   setStatus(message, type = 'info') {
     if (this.elements.uploadStatus) {
       this.elements.uploadStatus.textContent = message;
-      this.elements.uploadStatus.className = `text-[11px] uppercase font-bold tracking-wider mt-1 px-2 py-1 ${type === 'error' ? 'bg-red-600 text-white' : type === 'success' ? 'bg-green-600 text-white' : 'bg-black text-white'
-        }`;
+      this.elements.uploadStatus.className = `upload-status${type === 'error' ? ' upload-status--error' : type === 'success' ? ' upload-status--success' : ''}`;
     }
   }
 
@@ -971,6 +970,7 @@ export class UIManager {
       const unusedPlaceholder = cell.querySelector('.unused-placeholder-text'); // The 'Unused' text div
 
       if (dataUrl) {
+        cell.classList.add('has-page');
         if (img) {
           img.src = dataUrl;
           img.classList.remove('hidden');
@@ -981,6 +981,7 @@ export class UIManager {
           unusedPlaceholder.classList.add('hidden');
         }
       } else {
+        cell.classList.remove('has-page');
         if (img) {
           img.src = '';
           img.classList.add('hidden');

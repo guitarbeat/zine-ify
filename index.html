@@ -14,7 +14,7 @@
 
 <body class="min-h-screen mobile-zine-app">
 
-    <div class="app-shell max-w-[1500px] mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6">
+    <div class="app-shell max-w-[1440px] mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6">
         <header class="app-header pt-2 sm:pt-8 pb-4 sm:pb-6">
             <div class="app-header-main">
                 <div class="space-y-3">
@@ -28,17 +28,13 @@
                         </p>
                     </div>
                 </div>
-
-                <div class="app-overview" aria-label="Workspace summary">
-                    <p class="app-overview-title">Workflow</p>
-                    <p class="app-overview-note">
-                        Import, arrange, preview, export. The rail holds setup and the sheet stays live beside it.
-                    </p>
-                </div>
+                <p class="app-overview-note app-overview-inline" aria-label="Workspace summary">
+                    Keep the rail for setup and let the sheet stay visible while you arrange, preview, and export.
+                </p>
             </div>
         </header>
 
-        <main class="app-layout grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-4 sm:gap-6 items-start">
+        <main class="app-layout grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4 sm:gap-6 items-start">
             <!-- Left Column: Controls & Upload -->
             <aside class="control-rail space-y-3 sm:space-y-4 lg:sticky lg:top-6 relative z-20 flex flex-col h-full lg:max-h-[calc(100vh-6rem)]">
 
@@ -56,8 +52,8 @@
                             class="upload-box relative overflow-hidden px-4 py-5 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer min-h-[128px] sm:min-h-[140px] group focus:outline-none"
                             role="button" tabindex="0" aria-label="Upload PDF or image files" title="Upload PDFs or images (Ctrl+O)" aria-keyshortcuts="Control+O">
                             <span class="material-symbols-outlined text-4xl mb-3" style="color: var(--primary-vibrant);" aria-hidden="true">cloud_upload</span>
-                            <h2 class="font-marker text-base sm:text-lg leading-tight mb-1">Add PDFs or images</h2>
-                            <p id="upload-status" class="text-xs font-bold uppercase tracking-wider mt-1 px-2 py-1 bg-black text-white" aria-live="polite">
+                            <h2 class="font-marker text-base sm:text-lg leading-tight mb-1">Add a PDF or image set</h2>
+                            <p id="upload-status" class="upload-status" aria-live="polite">
                                 Choose files or drop them here</p>
                             <p class="mt-3 text-[11px] sm:text-xs font-bold uppercase tracking-[0.16em] text-black/65">
                                 Pages land on the sheet in import order.
@@ -65,7 +61,7 @@
                             <input type="file" id="pdf-upload" class="hidden" accept="application/pdf,image/*" multiple>
                         </div>
 
-                        <p class="ingest-summary">PDFs and images, up to 10 files. Reorder pages on the sheet after import.</p>
+                        <p class="ingest-summary">PDFs and images, up to 10 files. Reorder them directly on the sheet after import.</p>
                     </section>
 
                     <div id="workflow-panel" class="settings-panel workflow-panel bg-white p-3 sm:p-4 space-y-4">
@@ -73,10 +69,10 @@
                             <div class="space-y-1">
                                 <p class="rail-section-kicker">Step 2</p>
                                 <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-[16px]">route</span> Workflow
+                                    <span class="material-symbols-outlined text-[16px]">route</span> Flow
                                 </h3>
                             </div>
-                            <span id="workflow-chip" class="text-[10px] font-bold uppercase px-2 py-1 bg-black text-white">Next: Import</span>
+                            <span id="workflow-chip" class="workflow-chip">Next: import</span>
                         </div>
 
                         <div class="workflow-steps" aria-label="Zine workflow">
@@ -117,7 +113,7 @@
                         <div class="workflow-note">
                             <p id="workflow-title" class="workflow-note-title">Next step</p>
                             <p id="workflow-body" class="workflow-note-body">
-                                Import files to populate the sheet. Once pages land, arrange them, preview the fold, then export.
+                                Add files first. After they land on the sheet, arrange them, preview if needed, then export.
                             </p>
                         </div>
                     </div>
@@ -128,10 +124,10 @@
                     </div>
 
                     <div id="settings-group" class="settings-panel bg-white p-3 sm:p-4 space-y-4">
-                        <div class="space-y-1 border-b-2 border-black pb-2 mb-2">
+                        <div class="space-y-1 border-b border-black/8 pb-2 mb-2">
                             <p class="rail-section-kicker">Step 3</p>
                             <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
-                                <span class="material-symbols-outlined text-[16px]">tune</span> Sheet
+                                <span class="material-symbols-outlined text-[16px]">tune</span> Sheet options
                             </h3>
                             <p class="text-[11px] font-bold uppercase tracking-[0.14em] text-black/60">
                                 Paper, grid, and page labels.
@@ -159,7 +155,7 @@
                         <div class="pt-3 border-t-2 border-black" role="group" aria-labelledby="grid-layout-label">
                             <div class="flex justify-between items-center mb-2">
                                 <label id="grid-layout-label" class="text-xs font-bold uppercase flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">grid_view</span> Grid Layout</label>
-                                <span id="grid-total" class="text-xs font-bold px-2 py-0.5 bg-black text-white">(8 Pages)</span>
+                                <span id="grid-total" class="grid-total-chip">(8 pages)</span>
                             </div>
                             <div class="flex gap-3 items-center">
                                 <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Grid Rows"
@@ -208,8 +204,8 @@
                                 <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">preview</span> Layout
                             </h2>
                         </div>
-                        <p class="workspace-description text-[11px] sm:text-xs font-bold uppercase px-2 py-1 bg-black text-white self-start" id="preview-description">
-                            Add files to start.
+                        <p class="workspace-description" id="preview-description">
+                            Waiting for files.
                         </p>
                     </div>
 
@@ -241,22 +237,20 @@
                 <div class="workspace-meta" aria-label="Canvas status">
                     <span id="preview-layout-chip" class="workspace-chip">Mini-zine</span>
                     <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0 placed</span>
-                    <span id="preview-mode-chip" class="workspace-chip">Preview is available in the standard 2×4 layout.</span>
+                    <span id="preview-mode-chip" class="workspace-chip workspace-mode-note">Fold preview works in the standard 2×4 mini-zine layout.</span>
                 </div>
 
                 <div id="preview-empty-state" class="preview-empty-state">
                     <div class="preview-empty-copy">
                         <p class="preview-empty-kicker">No pages loaded</p>
-                        <h3 id="preview-empty-title" class="preview-empty-title">The sheet stays here while you build the layout.</h3>
+                        <h3 id="preview-empty-title" class="preview-empty-title">The sheet is ready when you are.</h3>
                         <p id="preview-empty-body" class="preview-empty-body">
-                            Import a PDF or image set from the rail. Then drag pages into place, adjust each slot, and export when the sheet looks right.
+                            Add a PDF or image set from the rail, then arrange pages directly on the sheet before previewing or exporting.
                         </p>
                     </div>
 
                     <div class="preview-empty-actions" aria-label="Canvas guide">
-                        <span>Import from the rail</span>
-                        <span>Drag to reorder</span>
-                        <span>Preview before export</span>
+                        <span>The sheet below stays live while files import and while you rearrange pages.</span>
                     </div>
                 </div>
 
@@ -267,7 +261,7 @@
             </section>
         </main>
 
-        <footer class="mt-12 pt-6 border-t-4 border-black text-center text-sm font-bold uppercase">
+        <footer class="app-footer">
             <p>Zine-ify</p>
         </footer>
     </div>
