@@ -1064,6 +1064,183 @@ select:focus, input:focus {
     }
 }
 
+.simulation-modal {
+    background:
+        linear-gradient(180deg, rgba(240, 240, 240, 0.96), rgba(227, 223, 214, 0.94)),
+        rgba(240, 240, 240, 0.97);
+}
+
+.simulation-modal-shell {
+    width: min(100%, 86rem);
+    height: 100%;
+    padding: 1rem;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 1rem;
+    overflow: hidden;
+}
+
+.simulation-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.simulation-modal-intro {
+    display: grid;
+    gap: 0.7rem;
+    max-width: 54rem;
+}
+
+.simulation-modal-kicker,
+.simulation-panel-kicker {
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(0, 0, 0, 0.56);
+}
+
+.simulation-modal-summary,
+.simulation-panel-title,
+.simulation-panel-note {
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.45;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.simulation-modal-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.simulation-meta-chip,
+.simulation-status-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2rem;
+    padding: 0.45rem 0.7rem;
+    border: 2px solid black;
+    background: #fffef9;
+    font-size: 0.68rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.simulation-status-chip {
+    min-width: 8.5rem;
+    background: black;
+    color: white;
+}
+
+.simulation-close-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    box-shadow: 3px 3px 0px 0px black;
+}
+
+.simulation-modal-body {
+    min-height: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.simulation-canvas-panel,
+.simulation-panel {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 242, 122, 0.09)),
+        white;
+    border: 3px solid black;
+    box-shadow: 6px 6px 0px 0px black;
+    min-height: 0;
+}
+
+.simulation-canvas-panel {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+}
+
+.simulation-panel,
+.simulation-canvas-panel {
+    padding: 1rem;
+}
+
+.simulation-panel-top {
+    display: grid;
+    gap: 0.35rem;
+    margin-bottom: 0.9rem;
+}
+
+.simulation-panel-note {
+    color: rgba(0, 0, 0, 0.62);
+}
+
+.simulation-canvas-stage {
+    min-height: 24rem;
+    height: 100%;
+    border: 3px solid black;
+    background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.94), rgba(244, 241, 234, 0.98) 62%, rgba(229, 222, 210, 1)),
+        white;
+    overflow: hidden;
+    position: relative;
+}
+
+.simulation-sidebar {
+    min-height: 0;
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    overflow-y: auto;
+    padding-right: 0.2rem;
+}
+
+.simulation-slider-row {
+    display: grid;
+    gap: 0.8rem;
+    align-items: center;
+    margin-bottom: 0.9rem;
+}
+
+.simulation-helper {
+    font-size: 0.7rem;
+    font-weight: 800;
+    line-height: 1.5;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(0, 0, 0, 0.68);
+}
+
+.simulation-helper-compact {
+    margin-bottom: 0.1rem;
+}
+
+.simulation-step-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.7rem;
+}
+
+.simulation-step-grid .action-button {
+    min-height: 3.1rem;
+    line-height: 1.2;
+    font-size: 0.74rem;
+}
+
+.simulation-booklet-panel {
+    display: grid;
+    align-content: start;
+    gap: 0.9rem;
+}
+
 .booklet-preview-container {
     min-height: 13rem;
     display: flex;
@@ -1075,6 +1252,42 @@ select:focus, input:focus {
     border: 2px solid black;
     padding: 1rem;
     overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .simulation-modal-shell {
+        padding: 1.25rem;
+        gap: 1.25rem;
+    }
+
+    .simulation-slider-row {
+        grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .simulation-panel-top {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 0.8rem;
+    }
+
+    .simulation-step-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1280px) {
+    .simulation-modal-body {
+        grid-template-columns: minmax(0, 1fr) 24rem;
+        align-items: stretch;
+    }
+
+    .simulation-sidebar {
+        grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .simulation-canvas-stage {
+        min-height: 0;
+    }
 }
 
 .booklet-shell {

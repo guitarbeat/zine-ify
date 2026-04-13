@@ -338,101 +338,115 @@
     <div id="toast-container" class="toast-container fixed bottom-6 right-6 z-[300] space-y-3" aria-live="polite" aria-atomic="true" role="region" aria-label="Notifications"></div>
 
     <!-- 3D Modal Container -->
-    <div id="zine-3d-modal" class="fixed inset-0 z-[200] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300"
-        style="background-color: rgba(240, 240, 240, 0.97); display: none;">
-        <div class="w-full max-w-7xl p-4 sm:p-6 flex flex-col h-[100dvh]">
-            <div class="flex justify-between items-center mb-4 sm:mb-6">
-                <div class="space-y-1">
-                    <h3 class="font-marker text-xl sm:text-2xl tracking-wide flex items-center gap-2">
-                        <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">view_in_ar</span> MAKE AND READ THE ZINE
-                    </h3>
-                    <p class="text-[11px] sm:text-xs font-bold uppercase tracking-[0.14em] text-black/70">
-                        Fold the sheet on the left. Flip through the finished booklet on the right.
-                    </p>
+    <div id="zine-3d-modal" class="fixed inset-0 z-[200] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 simulation-modal"
+        style="display: none;">
+        <div class="simulation-modal-shell">
+            <div class="simulation-modal-header">
+                <div class="simulation-modal-intro">
+                    <p class="simulation-modal-kicker">Interactive Fold Studio</p>
+                    <div class="space-y-1">
+                        <h3 class="font-marker text-xl sm:text-2xl tracking-wide flex items-center gap-2">
+                            <span class="material-symbols-outlined" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span> MAKE AND READ THE ZINE
+                        </h3>
+                        <p class="simulation-modal-summary">
+                            The fold animation stays primary. The sidebar keeps the cut rule, step sequence, and booklet result in one place.
+                        </p>
+                    </div>
+                    <div class="simulation-modal-meta" aria-label="Simulation legend">
+                        <span class="simulation-meta-chip">Red = cut slit</span>
+                        <span class="simulation-meta-chip">Gray = fold guides</span>
+                        <span class="simulation-meta-chip">Keys 1-6 = checkpoints</span>
+                    </div>
                 </div>
-                <button id="close-3d-btn" class="action-button w-10 h-10 flex items-center justify-center bg-white text-black font-bold focus:outline-none"
-                    style="box-shadow: 3px 3px 0px 0px black;">
-                    <span class="material-symbols-outlined text-xl">close</span>
+                <button id="close-3d-btn" class="action-button simulation-close-btn bg-white text-black font-bold focus:outline-none" type="button">
+                    <span class="material-symbols-outlined text-xl" aria-hidden="true">close</span>
                 </button>
             </div>
 
-            <div id="zine-3d-container" class="flex-1 w-full bg-white overflow-hidden relative" style="border: 3px solid black; box-shadow: 6px 6px 0px 0px black;">
-                <!-- 3D Canvas goes here -->
-            </div>
-
-            <div class="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
-                <div class="bg-white p-4 sm:p-5 flex flex-col gap-4" style="border: 3px solid black; box-shadow: 4px 4px 0px 0px black;">
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
-                        <label for="fold-slider" class="font-bold text-xs sm:text-sm uppercase whitespace-nowrap flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);">animation</span> Fold the Sheet
-                        </label>
-                        <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-2 cursor-pointer" style="accent-color: var(--primary-vibrant);">
-                        <span id="fold-status" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1.5 min-w-[132px] text-center bg-black text-white">Flat</span>
-                    </div>
-
-                    <p id="fold-helper" class="text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-black/70">
-                        Follow the checkpoints: keep the sheet open, fold top to bottom, form a folded strip, push the short ends inward, open the diamond, then press the stack flat.
-                    </p>
-
-                    <p class="text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-black/60 flex flex-wrap items-center gap-x-3 gap-y-2">
-                        <span class="inline-flex items-center gap-2">
-                            <span class="inline-block w-6 h-1.5 bg-[#d32f2f]" aria-hidden="true"></span>
-                            Red center line = cut slit
-                        </span>
-                        <span class="inline-flex items-center gap-2">
-                            <span class="inline-block w-6 h-1.5 bg-[#b8b8b8]" aria-hidden="true"></span>
-                            Gray lines = fold guides
-                        </span>
-                    </p>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
-                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="0">
-                            1. SHEET OPEN
-                        </button>
-                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="0.5">
-                            2. FOLD DOWN
-                        </button>
-                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="1">
-                            3. STRIP FORMED
-                        </button>
-                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="1.5">
-                            4. PUSH ENDS IN
-                        </button>
-                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="2">
-                            5. DIAMOND OPEN
-                        </button>
-                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="3">
-                            6. PRESS FLAT
-                        </button>
-                    </div>
-                </div>
-
-                <div class="bg-white p-4 sm:p-5 flex flex-col gap-4" style="border: 3px solid black; box-shadow: 4px 4px 0px 0px black;">
-                    <div class="flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);" aria-hidden="true">menu_book</span>
-                            <span class="font-bold text-xs sm:text-sm uppercase tracking-wider">Booklet Preview</span>
+            <div class="simulation-modal-body">
+                <section class="simulation-canvas-panel" aria-label="Fold simulation">
+                    <div class="simulation-panel-top">
+                        <div>
+                            <p class="simulation-panel-kicker">Simulation</p>
+                            <p class="simulation-panel-title">Fold the printed sheet until it becomes the booklet.</p>
                         </div>
-                        <span id="booklet-status" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1.5 min-w-[90px] text-center bg-black text-white">Cover</span>
+                        <p class="simulation-panel-note">Drag to orbit. Use the slider or checkpoint buttons to jump to a physical step.</p>
                     </div>
-
-                    <div id="booklet-preview-container" class="booklet-preview-container" aria-label="Small booklet preview"></div>
-
-                    <p class="text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-black/70">
-                        Click the left or right page to turn it, or use the buttons below.
-                    </p>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <button id="booklet-prev-btn" class="action-button w-full py-2.5 px-3 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black" type="button">
-                            <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>
-                            PREV
-                        </button>
-                        <button id="booklet-next-btn" class="action-button w-full py-2.5 px-3 flex items-center justify-center gap-2 bg-black text-white font-bold border-4 border-black" type="button">
-                            NEXT
-                            <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
-                        </button>
+                    <div id="zine-3d-container" class="simulation-canvas-stage">
+                        <!-- 3D Canvas goes here -->
                     </div>
-                </div>
+                </section>
+
+                <aside class="simulation-sidebar">
+                    <section class="simulation-panel simulation-fold-panel" aria-label="Fold checkpoints">
+                        <div class="simulation-panel-top">
+                            <div>
+                                <p class="simulation-panel-kicker">Checkpoint Guide</p>
+                                <p class="simulation-panel-title">Move through the real folding sequence, not just the final shape.</p>
+                            </div>
+                            <span id="fold-status" class="simulation-status-chip">Flat</span>
+                        </div>
+
+                        <div class="simulation-slider-row">
+                            <label for="fold-slider" class="font-bold text-xs sm:text-sm uppercase whitespace-nowrap flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);" aria-hidden="true">animation</span> Fold the Sheet
+                            </label>
+                            <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-2 cursor-pointer" style="accent-color: var(--primary-vibrant);">
+                        </div>
+
+                        <p id="fold-helper" class="simulation-helper">
+                            Follow the checkpoints: keep the sheet open, fold top to bottom, form a folded strip, push the short ends inward, open the diamond, then press the stack flat.
+                        </p>
+
+                        <div class="simulation-step-grid">
+                            <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="0">
+                                1. SHEET OPEN
+                            </button>
+                            <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="0.5">
+                                2. FOLD DOWN
+                            </button>
+                            <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="1">
+                                3. STRIP FORMED
+                            </button>
+                            <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="1.5">
+                                4. PUSH ENDS IN
+                            </button>
+                            <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="2">
+                                5. DIAMOND OPEN
+                            </button>
+                            <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="3">
+                                6. PRESS FLAT
+                            </button>
+                        </div>
+                    </section>
+
+                    <section class="simulation-panel simulation-booklet-panel" aria-label="Booklet preview">
+                        <div class="simulation-panel-top">
+                            <div>
+                                <p class="simulation-panel-kicker">Reading Order</p>
+                                <p class="simulation-panel-title">Check the booklet outcome while the fold stays visible beside it.</p>
+                            </div>
+                            <span id="booklet-status" class="simulation-status-chip">Cover</span>
+                        </div>
+
+                        <div id="booklet-preview-container" class="booklet-preview-container" aria-label="Small booklet preview"></div>
+
+                        <p class="simulation-helper simulation-helper-compact">
+                            Click the left or right page to turn it, or use the buttons below.
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <button id="booklet-prev-btn" class="action-button w-full py-2.5 px-3 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black" type="button">
+                                <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>
+                                PREV
+                            </button>
+                            <button id="booklet-next-btn" class="action-button w-full py-2.5 px-3 flex items-center justify-center gap-2 bg-black text-white font-bold border-4 border-black" type="button">
+                                NEXT
+                                <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
+                            </button>
+                        </div>
+                    </section>
+                </aside>
             </div>
         </div>
     </div>
