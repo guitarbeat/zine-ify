@@ -1,5 +1,4 @@
-@import "tailwindcss";
-@import "./base.css";
+@import "./theme.css";
 @import "./layout.css";
 @import "./components.css";
 @import "./zine-editor.css";
