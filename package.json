@@ -1,5 +1,5 @@
 {
-  "name": "octovo-zine-maker",
+  "name": "zine-ify",
   "version": "2.0.0",
   "description": "A modern web application to convert PDFs into printable 8-page zine layouts",
   "type": "module",

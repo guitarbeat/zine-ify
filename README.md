@@ -1,4 +1,4 @@
-# Octovo Zine Maker
+# Zine-ify
 
 A modern, progressive web application that converts PDF files into printable 8-page mini zines with proper folding and cutting instructions. Built with modern JavaScript, ES6 modules, and optimized for performance.
 
