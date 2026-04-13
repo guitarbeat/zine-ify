@@ -50,6 +50,57 @@
                         <input type="file" id="pdf-upload" class="hidden" accept="application/pdf,image/*" multiple>
                     </div>
 
+                    <div id="workflow-panel" class="settings-panel workflow-panel bg-white p-3 sm:p-4 space-y-4">
+                        <div class="flex items-center justify-between gap-4">
+                            <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]">route</span> Workflow
+                            </h3>
+                            <span id="workflow-chip" class="text-[10px] font-bold uppercase px-2 py-1 bg-black text-white">Next: Add Pages</span>
+                        </div>
+
+                        <div class="workflow-steps" aria-label="Zine workflow">
+                            <button type="button" class="workflow-step" data-workflow-step="upload">
+                                <span class="workflow-step-index">1</span>
+                                <span class="workflow-step-copy">
+                                    <span class="workflow-step-label">Add Pages</span>
+                                    <span class="workflow-step-meta">Queue PDFs or photos</span>
+                                </span>
+                                <span class="workflow-step-state">Add Files</span>
+                            </button>
+                            <button type="button" class="workflow-step" data-workflow-step="arrange">
+                                <span class="workflow-step-index">2</span>
+                                <span class="workflow-step-copy">
+                                    <span class="workflow-step-label">Arrange</span>
+                                    <span class="workflow-step-meta">Drag, flip, crop, remove</span>
+                                </span>
+                                <span class="workflow-step-state">Waiting</span>
+                            </button>
+                            <button type="button" class="workflow-step" data-workflow-step="preview">
+                                <span class="workflow-step-index">3</span>
+                                <span class="workflow-step-copy">
+                                    <span class="workflow-step-label">Fold + Read</span>
+                                    <span class="workflow-step-meta">See the fold and booklet</span>
+                                </span>
+                                <span class="workflow-step-state">Mini-8 Only</span>
+                            </button>
+                            <button type="button" class="workflow-step" data-workflow-step="export">
+                                <span class="workflow-step-index">4</span>
+                                <span class="workflow-step-copy">
+                                    <span class="workflow-step-label">Export</span>
+                                    <span class="workflow-step-meta">Download PDF or print</span>
+                                </span>
+                                <span class="workflow-step-state">Waiting</span>
+                            </button>
+                        </div>
+
+                        <div class="workflow-note">
+                            <p id="workflow-title" class="workflow-note-title">Start Here</p>
+                            <p id="workflow-body" class="workflow-note-body">
+                                Drop in PDFs or phone photos. The app will queue them, place them on the sheet, and guide you to the next useful step.
+                            </p>
+                        </div>
+                    </div>
+
                     <!-- Uploaded Files List -->
                     <div id="uploaded-files-list" class="hidden">
                         <!-- Populated by JS -->
@@ -120,23 +171,23 @@
                 <div id="action-buttons" class="mobile-action-dock space-y-3 hidden flex-col pt-3 border-t-4 border-black mt-auto">
                     <button id="view3dBtn"
                         class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-black text-white font-bold"
-                        title="View 3D Folding Preview">
+                        title="Open fold and booklet preview">
                         <span class="material-symbols-outlined" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span>
-                        3D PREVIEW
+                        <span id="view3dBtnLabel">FOLD + READ</span>
                     </button>
                     <div class="grid grid-cols-2 gap-3">
                         <button id="exportPdfBtn"
                             class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black"
                             title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
                             <span class="material-symbols-outlined text-lg" aria-hidden="true">file_download</span>
-                            EXPORT
+                            <span id="exportPdfBtnLabel">EXPORT PDF</span>
                         </button>
                         <button id="printBtn"
                             class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 text-white font-bold border-4 border-black"
                             style="background-color: var(--primary-vibrant);"
                             title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
                             <span class="material-symbols-outlined text-lg" aria-hidden="true">print</span>
-                            PRINT
+                            <span id="printBtnLabel">PRINT SHEET</span>
                         </button>
                     </div>
                 </div>
@@ -190,9 +241,14 @@
         style="background-color: rgba(240, 240, 240, 0.97); display: none;">
         <div class="w-full max-w-7xl p-4 sm:p-6 flex flex-col h-[100dvh]">
             <div class="flex justify-between items-center mb-4 sm:mb-6">
-                <h3 class="font-marker text-xl sm:text-2xl tracking-wide flex items-center gap-2">
-                    <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">view_in_ar</span> ZINE FOLD + BOOKLET PREVIEW
-                </h3>
+                <div class="space-y-1">
+                    <h3 class="font-marker text-xl sm:text-2xl tracking-wide flex items-center gap-2">
+                        <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">view_in_ar</span> MAKE AND READ THE ZINE
+                    </h3>
+                    <p class="text-[11px] sm:text-xs font-bold uppercase tracking-[0.14em] text-black/70">
+                        Fold the sheet on the left. Flip through the finished booklet on the right.
+                    </p>
+                </div>
                 <button id="close-3d-btn" class="action-button w-10 h-10 flex items-center justify-center bg-white text-black font-bold focus:outline-none"
                     style="box-shadow: 3px 3px 0px 0px black;">
                     <span class="material-symbols-outlined text-xl">close</span>
@@ -204,12 +260,33 @@
             </div>
 
             <div class="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
-                <div class="bg-white p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-6" style="border: 3px solid black; box-shadow: 4px 4px 0px 0px black;">
-                    <label for="fold-slider" class="font-bold text-xs sm:text-sm uppercase whitespace-nowrap flex items-center gap-2">
-                        <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);">animation</span> Fold Progress:
-                    </label>
-                    <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-2 cursor-pointer" style="accent-color: var(--primary-vibrant);">
-                    <span id="fold-status" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1.5 min-w-[100px] text-center bg-black text-white">Flat</span>
+                <div class="bg-white p-4 sm:p-5 flex flex-col gap-4" style="border: 3px solid black; box-shadow: 4px 4px 0px 0px black;">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+                        <label for="fold-slider" class="font-bold text-xs sm:text-sm uppercase whitespace-nowrap flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);">animation</span> Fold the Sheet
+                        </label>
+                        <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-2 cursor-pointer" style="accent-color: var(--primary-vibrant);">
+                        <span id="fold-status" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1.5 min-w-[108px] text-center bg-black text-white">Flat</span>
+                    </div>
+
+                    <p id="fold-helper" class="text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-black/70">
+                        Start flat, fold it longways, open the slit, then close the covers.
+                    </p>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="0">
+                            1. FLAT
+                        </button>
+                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="1">
+                            2. FOLD
+                        </button>
+                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="2">
+                            3. OPEN SLIT
+                        </button>
+                        <button type="button" class="fold-step-btn action-button w-full py-2.5 px-3 bg-white text-black font-bold border-4 border-black" data-fold-value="3">
+                            4. BOOKLET
+                        </button>
+                    </div>
                 </div>
 
                 <div class="bg-white p-4 sm:p-5 flex flex-col gap-4" style="border: 3px solid black; box-shadow: 4px 4px 0px 0px black;">
@@ -222,6 +299,10 @@
                     </div>
 
                     <div id="booklet-preview-container" class="booklet-preview-container" aria-label="Small booklet preview"></div>
+
+                    <p class="text-[11px] sm:text-xs font-bold uppercase tracking-[0.12em] text-black/70">
+                        Click the left or right page to turn it, or use the buttons below.
+                    </p>
 
                     <div class="grid grid-cols-2 gap-3">
                         <button id="booklet-prev-btn" class="action-button w-full py-2.5 px-3 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black" type="button">

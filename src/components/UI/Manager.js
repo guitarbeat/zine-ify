@@ -111,10 +111,17 @@ export class UIManager {
       actionButtons: $('#action-buttons'),
       previewDescription: $('#preview-description'),
       zineSheetsContainer: $('#zine-sheets-container'),
+      workflowChip: $('#workflow-chip'),
+      workflowTitle: $('#workflow-title'),
+      workflowBody: $('#workflow-body'),
+      workflowButtons: Array.from(document.querySelectorAll('.workflow-step')),
 
       printBtn: $('#printBtn'),
+      printBtnLabel: $('#printBtnLabel'),
       exportPdfBtn: $('#exportPdfBtn'),
+      exportPdfBtnLabel: $('#exportPdfBtnLabel'),
       view3dBtn: $('#view3dBtn'),
+      view3dBtnLabel: $('#view3dBtnLabel'),
       pdfUpload: $('#pdf-upload'),
       uploadStatus: $('#upload-status'),
 
@@ -153,6 +160,8 @@ export class UIManager {
       zine3dContainer: $('#zine-3d-container'),
       foldSlider: $('#fold-slider'),
       foldStatus: $('#fold-status'),
+      foldHelper: $('#fold-helper'),
+      foldStepButtons: Array.from(document.querySelectorAll('.fold-step-btn')),
       bookletPreviewContainer: $('#booklet-preview-container'),
       bookletPrevBtn: $('#booklet-prev-btn'),
       bookletNextBtn: $('#booklet-next-btn'),
@@ -203,25 +212,26 @@ export class UIManager {
     this.elements.printBtn?.addEventListener('click', () => this.emitter.emit('print'));
     this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
     this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
+    this.elements.workflowButtons?.forEach((button) => {
+      button.addEventListener('click', () => this.handleWorkflowAction(button.dataset.workflowStep));
+    });
 
     // 3D Modal
     this.elements.close3dBtn?.addEventListener('click', () => this.toggle3DModal(false));
     this.elements.foldSlider?.addEventListener('input', (e) => {
         const val = parseFloat(e.target.value);
-        let status = 'Flat';
-        if (val >= 2.99) {
-            status = 'Booklet';
-        } else if (val > 2) {
-            status = 'Folding Shut';
-        } else if (val >= 1) {
-            status = 'Diamond Open';
-        } else if (val > 0) {
-            status = 'Lengthwise Fold';
-        }
-        if (this.elements.foldStatus) {
-            this.elements.foldStatus.textContent = status;
-        }
+        this.updateFoldUI(val);
         this.emitter.emit('foldProgress', val);
+    });
+    this.elements.foldStepButtons?.forEach((button) => {
+      button.addEventListener('click', () => {
+        const value = parseFloat(button.dataset.foldValue || '0');
+        if (this.elements.foldSlider) {
+          this.elements.foldSlider.value = String(value);
+        }
+        this.updateFoldUI(value);
+        this.emitter.emit('foldProgress', value);
+      });
     });
 
     // Page picker modal
@@ -308,9 +318,25 @@ export class UIManager {
       this.elements.actionButtons?.classList.add('hidden');
     }
 
+    this.setPreviewDescription(description);
+  }
+
+  setPreviewDescription(description = null) {
     if (description && this.elements.previewDescription) {
       this.elements.previewDescription.textContent = description;
     }
+  }
+
+  focusPreviewArea() {
+    if (!this.elements.previewArea) {
+      return;
+    }
+
+    this.elements.previewArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    this.elements.previewArea.classList.add('workflow-focus');
+    window.setTimeout(() => {
+      this.elements.previewArea?.classList.remove('workflow-focus');
+    }, 1200);
   }
 
   /**
@@ -334,6 +360,218 @@ export class UIManager {
               this.elements.zine3dModal.style.display = 'none';
           }, 300);
       }
+  }
+
+  updateFoldUI(value) {
+    let status = 'Flat';
+    let helper = 'Start flat, fold it longways, open the slit, then close the covers.';
+    let activeStep = 0;
+
+    if (value >= 2.99) {
+      status = 'Booklet';
+      helper = 'The covers are together. Use the booklet preview to flip through the pages.';
+      activeStep = 3;
+    } else if (value > 2) {
+      status = 'Folding Shut';
+      helper = 'The diamond has collapsed and the covers are swinging shut into booklet form.';
+      activeStep = 3;
+    } else if (value >= 1) {
+      status = 'Diamond Open';
+      helper = 'Push the two outer ends together so the center slit opens into the diamond shape.';
+      activeStep = 2;
+    } else if (value > 0) {
+      status = 'Lengthwise Fold';
+      helper = 'Fold the sheet in half the long way so the top row lands on the bottom row.';
+      activeStep = 1;
+    }
+
+    if (this.elements.foldStatus) {
+      this.elements.foldStatus.textContent = status;
+    }
+    if (this.elements.foldHelper) {
+      this.elements.foldHelper.textContent = helper;
+    }
+    this.elements.foldStepButtons?.forEach((button, index) => {
+      const isActive = index === activeStep;
+      button.classList.toggle('bg-black', isActive);
+      button.classList.toggle('text-white', isActive);
+      button.classList.toggle('text-black', !isActive);
+      button.classList.toggle('border-black', !isActive);
+      button.classList.toggle('bg-white', !isActive);
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+  }
+
+  handleWorkflowAction(step) {
+    if (step === 'upload') {
+      this.triggerFileUpload();
+      return;
+    }
+
+    if (step === 'arrange') {
+      this.focusPreviewArea();
+      return;
+    }
+
+    if (step === 'preview') {
+      if (!this.elements.view3dBtn?.disabled) {
+        this.emitter.emit('view3d');
+      }
+      return;
+    }
+
+    if (step === 'export') {
+      if (!this.elements.exportPdfBtn?.disabled) {
+        this.emitter.emit('export');
+      }
+    }
+  }
+
+  updateWorkflow({
+    uploadedFiles = 0,
+    filledPages = 0,
+    totalSlots = 8,
+    layoutLabel = '8-page mini-zine',
+    isMiniZineLayout = true,
+    previewOpened = false,
+    exportCompleted = false
+  } = {}) {
+    const hasUploads = uploadedFiles > 0;
+    const hasContent = filledPages > 0;
+    const previewReady = hasContent && isMiniZineLayout;
+    const exportReady = hasContent;
+    const filledSummary = `${filledPages}/${totalSlots}`;
+
+    let nextLabel = 'Add Pages';
+    let title = 'Start Here';
+    let body = 'Drop in PDFs or phone photos. The app will queue them, place them on the sheet, and guide you to the next useful step.';
+
+    if (hasContent && !isMiniZineLayout) {
+      nextLabel = exportCompleted ? 'Adjust Layout' : 'Export PDF';
+      title = 'Custom Layout Active';
+      body = `You are working in a ${layoutLabel}. Arrange pages on the sheet, then export or print. Fold + Read is only available for the 2×4 mini-zine.`;
+    } else if (hasContent && previewOpened && exportCompleted) {
+      nextLabel = 'Adjust Layout';
+      title = 'Ready For Another Pass';
+      body = `Your ${layoutLabel} is already previewed and exported. Swap pages, crop, or flip anything that still feels off, then export again.`;
+    } else if (hasContent && previewOpened) {
+      nextLabel = 'Export PDF';
+      title = 'Preview Looks Good';
+      body = `The fold and booklet preview are openable now. Export the sheet as a PDF or print it directly when the order feels right.`;
+    } else if (hasContent) {
+      nextLabel = isMiniZineLayout ? 'Arrange Pages' : 'Export PDF';
+      title = 'Arrange Before Export';
+      body = isMiniZineLayout
+        ? 'Drag pages into place on the sheet, then open Fold + Read to confirm the folding sequence and booklet order.'
+        : `Drag pages into place on the ${layoutLabel}, then export or print when the sheet looks right.`;
+    } else if (hasUploads) {
+      nextLabel = 'Arrange Pages';
+      title = 'Files Queued';
+      body = 'Your files are being placed on the sheet. As soon as pages land in the canvas, drag, flip, crop, or remove them before you preview or export.';
+    }
+
+    if (this.elements.workflowChip) {
+      this.elements.workflowChip.textContent = `Next: ${nextLabel}`;
+    }
+    if (this.elements.workflowTitle) {
+      this.elements.workflowTitle.textContent = title;
+    }
+    if (this.elements.workflowBody) {
+      this.elements.workflowBody.textContent = body;
+    }
+
+    const previewDescription = hasContent
+      ? `${layoutLabel} • ${filledSummary} slots filled • drag pages to reorder`
+      : 'Upload pages to start laying out the sheet.';
+    this.setPreviewDescription(previewDescription);
+
+    this.updateActionButtonState(this.elements.view3dBtn, {
+      enabled: previewReady,
+      title: !hasContent
+        ? 'Add pages to preview the zine'
+        : isMiniZineLayout
+          ? 'Open fold and booklet preview'
+          : 'Fold preview is only available for the 2×4 mini-zine layout'
+    });
+    this.updateActionButtonState(this.elements.exportPdfBtn, {
+      enabled: exportReady,
+      title: exportReady ? 'Download PDF (Ctrl+S)' : 'Add pages before exporting'
+    });
+    this.updateActionButtonState(this.elements.printBtn, {
+      enabled: exportReady,
+      title: exportReady ? 'Print Zine (Ctrl+P)' : 'Add pages before printing'
+    });
+
+    if (this.elements.view3dBtnLabel) {
+      this.elements.view3dBtnLabel.textContent = 'FOLD + READ';
+    }
+    if (this.elements.exportPdfBtnLabel) {
+      this.elements.exportPdfBtnLabel.textContent = 'EXPORT PDF';
+    }
+    if (this.elements.printBtnLabel) {
+      this.elements.printBtnLabel.textContent = 'PRINT SHEET';
+    }
+
+    const workflowStates = {
+      upload: {
+        state: hasUploads ? 'done' : 'ready',
+        text: hasUploads ? `${uploadedFiles} file${uploadedFiles === 1 ? '' : 's'}` : 'Add Files',
+        disabled: false,
+        current: !hasUploads
+      },
+      arrange: {
+        state: hasContent ? (previewOpened || exportCompleted ? 'done' : 'ready') : 'locked',
+        text: hasContent ? `${filledSummary} placed` : 'Waiting',
+        disabled: !hasUploads,
+        current: hasContent && !previewOpened
+      },
+      preview: {
+        state: previewOpened ? 'done' : (previewReady ? 'ready' : 'locked'),
+        text: previewOpened ? 'Viewed' : (previewReady ? 'Open' : (hasContent ? 'Mini-8 Only' : 'Waiting')),
+        disabled: !previewReady,
+        current: previewReady && !previewOpened
+      },
+      export: {
+        state: exportCompleted ? 'done' : (exportReady ? 'ready' : 'locked'),
+        text: exportCompleted ? 'Saved' : (exportReady ? 'Ready' : 'Waiting'),
+        disabled: !exportReady,
+        current: exportReady && (previewOpened || !isMiniZineLayout) && !exportCompleted
+      }
+    };
+
+    this.elements.workflowButtons?.forEach((button) => {
+      const step = workflowStates[button.dataset.workflowStep];
+      if (!step) {
+        return;
+      }
+
+      button.classList.remove('is-done', 'is-ready', 'is-locked', 'is-current');
+      button.classList.add(`is-${step.state}`);
+      if (step.current) {
+        button.classList.add('is-current');
+        button.setAttribute('aria-current', 'step');
+      } else {
+        button.removeAttribute('aria-current');
+      }
+
+      button.disabled = step.disabled;
+      button.setAttribute('aria-disabled', step.disabled ? 'true' : 'false');
+
+      const stateLabel = button.querySelector('.workflow-step-state');
+      if (stateLabel) {
+        stateLabel.textContent = step.text;
+      }
+    });
+  }
+
+  updateActionButtonState(button, { enabled, title }) {
+    if (!button) {
+      return;
+    }
+
+    button.disabled = !enabled;
+    button.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+    button.title = title;
   }
 
   /**
@@ -1050,6 +1288,29 @@ export class UIManager {
         this.confirmPagePickerSelection();
       }
       return;
+    }
+
+    if (this.elements.zine3dModal && !this.elements.zine3dModal.classList.contains('hidden')) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.toggle3DModal(false);
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        this.elements.bookletPrevBtn?.click();
+        return;
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        this.elements.bookletNextBtn?.click();
+        return;
+      }
+      if (['1', '2', '3', '4'].includes(e.key)) {
+        e.preventDefault();
+        this.elements.foldStepButtons?.[parseInt(e.key, 10) - 1]?.click();
+        return;
+      }
     }
 
     // Global keyboard shortcuts

@@ -77,6 +77,8 @@ export class BookletPreview {
     this.prevButton?.addEventListener('click', () => this.goPrev());
     this.nextButton?.addEventListener('click', () => this.goNext());
     this.turnCard?.addEventListener('transitionend', () => this.finishTurn());
+    this.leftPage?.addEventListener('click', () => this.goPrev());
+    this.rightPage?.addEventListener('click', () => this.goNext());
   }
 
   loadPages(imageUrls = []) {

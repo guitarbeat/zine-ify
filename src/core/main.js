@@ -27,6 +27,8 @@ class PDFZineMaker {
     this.bookletPreview = null;
     this.exportDependenciesPromise = null;
     this.zine3dViewerClassPromise = null;
+    this.workflowPreviewed = false;
+    this.workflowExported = false;
     this.init();
   }
 
@@ -40,6 +42,7 @@ class PDFZineMaker {
       this.setupEventListeners();
       this.ui.generateLayout(8); // Default to 8 pages
       this.ui.setStatus('Upload PDF or image files to get started', 'info');
+      this.syncWorkflow();
     } catch {
       this.ui.setStatus('Failed to initialize. Please refresh the page.', 'error');
       toast.error('Initialization Error', 'Failed to load required libraries.');
@@ -70,8 +73,7 @@ class PDFZineMaker {
    * Handle View 3D request
    */
   async handleView3d() {
-      const isMiniZineLayout = this.ui.currentTemplate === 'mini-8'
-        || (this.gridSize.rows === 2 && this.gridSize.cols === 4);
+      const isMiniZineLayout = this.isMiniZineLayout();
 
       if (!isMiniZineLayout) {
           toast.warning('Not Supported', '3D Preview is currently only matched to the 8-Page Mini-Zine layout.');
@@ -99,8 +101,7 @@ class PDFZineMaker {
           if (this.viewer3d) {
               const slider = document.getElementById('fold-slider');
               if (slider) {slider.value = 0;}
-              const status = document.getElementById('fold-status');
-              if (status) {status.textContent = 'Flat';}
+              this.ui.updateFoldUI(0);
 
               const imageUrls = [
                   this.allPageImages[0] || this._blankPageUrl,
@@ -114,6 +115,9 @@ class PDFZineMaker {
               ];
 
               this.ui.toggle3DModal(true);
+              this.workflowPreviewed = true;
+              this.workflowExported = false;
+              this.syncWorkflow();
               requestAnimationFrame(() => {
                 this.viewer3d.refreshLayout();
                 this.viewer3d.loadPages(imageUrls);
@@ -140,6 +144,7 @@ class PDFZineMaker {
   handlePageFlipped(pageIndex) {
     this.pageFlips[pageIndex] = !this.pageFlips[pageIndex];
     this.ui.setPageFlip(pageIndex, this.pageFlips[pageIndex]);
+    this.markWorkflowDirty();
   }
 
   /**
@@ -166,6 +171,7 @@ class PDFZineMaker {
 
     this.pageZooms[pageIndex] = !this.pageZooms[pageIndex];
     this.ui.setPageZoom(pageIndex, this.pageZooms[pageIndex]);
+    this.markWorkflowDirty();
 
     if (this.pageZooms[pageIndex]) {
       toast.success('Page Cropped', 'Margins removed (Fill mode)');
@@ -196,6 +202,8 @@ class PDFZineMaker {
     this.ui.setPageFlip(pageIndex, false);
     this.ui.setPageZoom(pageIndex, false);
     this.ui.updatePagePreview(pageIndex, this._blankPageUrl);
+    this.ui.setReady(this.getFilledPageCount() > 0);
+    this.markWorkflowDirty();
     toast.success('Page Removed', `Page ${pageIndex + 1} has been cleared.`);
   }
 
@@ -204,6 +212,8 @@ class PDFZineMaker {
    */
   handleGridSizeChanged({ rows, cols }) {
     this.gridSize = { rows, cols };
+    this.workflowPreviewed = false;
+    this.workflowExported = false;
     this.renderCurrentLayout();
   }
 
@@ -266,6 +276,7 @@ class PDFZineMaker {
 
     this.ui.setStatus(`Adding: ${file.name} (${formatFileSize(file.size)})`, 'success');
     this.ui.updateUploadedFilesList(this.uploadedFiles);
+    this.syncWorkflow();
 
     this.fileQueue.push(file);
     this.processFileQueue();
@@ -315,6 +326,8 @@ class PDFZineMaker {
     const currentFilledPages = this.getCurrentFilledPages();
     this.totalPages = currentFilledPages + pageCount;
     this.selectedLayout = this.totalPages;
+    this.workflowPreviewed = false;
+    this.workflowExported = false;
 
     const requiredLength = this.getRequiredPageCapacity(this.totalPages);
     const newArray = new Array(requiredLength).fill(null);
@@ -327,8 +340,8 @@ class PDFZineMaker {
 
     this.renderCurrentLayout();
 
-    const { rows, cols } = this.gridSize;
-    this.ui.setReady(true, `Content arranged into a ${rows}×${cols} grid`);
+    this.ui.setReady(true);
+    this.syncWorkflow();
 
     return { currentFilledPages, requiredLength };
   }
@@ -511,6 +524,8 @@ class PDFZineMaker {
     if (this.ui.elements.gridTotal) {
       this.ui.elements.gridTotal.textContent = `(${rows * cols} pages/sheet)`;
     }
+
+    this.syncWorkflow();
   }
 
   async createBlankPage(pageNum) {
@@ -575,6 +590,7 @@ class PDFZineMaker {
     this.ui.setPageFlip(toIndex, !!this.pageFlips[toIndex]);
     this.ui.setPageZoom(fromIndex, !!this.pageZooms[fromIndex]);
     this.ui.setPageZoom(toIndex, !!this.pageZooms[toIndex]);
+    this.markWorkflowDirty();
 
     toast.info('Pages swapped');
   }
@@ -593,14 +609,18 @@ class PDFZineMaker {
     // Audit check: Are all pages filled?
     // We won't block it, but we could warn if it's empty.
 
-    this.createPrintLayout();
+    const printOpened = this.createPrintLayout();
+    if (printOpened) {
+      this.workflowExported = true;
+      this.syncWorkflow();
+    }
   }
 
   createPrintLayout() {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       toast.error('Blocked', 'Please allow popups.');
-      return;
+      return false;
     }
 
 
@@ -777,6 +797,8 @@ class PDFZineMaker {
       printWindow.print();
       printWindow.close();
     });
+
+    return true;
   }
 
   async getExportDependencies() {
@@ -882,6 +904,8 @@ class PDFZineMaker {
       }
 
       doc.save(`zine-${Date.now()}.pdf`);
+      this.workflowExported = true;
+      this.syncWorkflow();
       toast.success('Downloaded!', 'Your PDF is ready.');
     } catch (error) {
       void error;
@@ -906,9 +930,40 @@ class PDFZineMaker {
     // In a full implementation, we'd need to track which pages belong to which file
     this.uploadedFiles.splice(index, 1);
     this.ui.updateUploadedFilesList(this.uploadedFiles);
+    this.syncWorkflow();
 
     toast.info('File Removed', `${removedFile.name} removed from list. Note: Pages remain in zine.`);
 
+  }
+
+  isMiniZineLayout() {
+    return this.ui.currentTemplate === 'mini-8'
+      || (this.gridSize.rows === 2 && this.gridSize.cols === 4);
+  }
+
+  markWorkflowDirty() {
+    this.workflowPreviewed = false;
+    this.workflowExported = false;
+    this.syncWorkflow();
+  }
+
+  syncWorkflow() {
+    const totalSlots = this.gridSize.rows * this.gridSize.cols;
+    const filledPages = this.getFilledPageCount();
+    const sheetCount = Math.max(1, Math.ceil(Math.max(this.allPageImages.length, 1) / totalSlots));
+    const layoutLabel = this.isMiniZineLayout()
+      ? '8-page mini-zine'
+      : `${this.gridSize.rows}×${this.gridSize.cols} grid${sheetCount > 1 ? ` • ${sheetCount} sheets` : ''}`;
+
+    this.ui.updateWorkflow({
+      uploadedFiles: this.uploadedFiles.length,
+      filledPages,
+      totalSlots,
+      layoutLabel,
+      isMiniZineLayout: this.isMiniZineLayout(),
+      previewOpened: this.workflowPreviewed,
+      exportCompleted: this.workflowExported
+    });
   }
 }
 
