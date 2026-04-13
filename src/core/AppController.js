@@ -23,7 +23,7 @@ export class AppController {
     } catch (error) {
       toast.error('Initialization Failed', 'Check console for details.');
       // eslint-disable-next-line no-console
-      console.error(error);
+      console.error(error.message || 'An error occurred during initialization');
     }
   }
 

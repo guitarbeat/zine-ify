@@ -1,0 +1,4 @@
+## 2024-05-24 - Prevent Error Data Exposure in Logs
+**Vulnerability:** Raw `Error` objects were being logged directly to the console (`console.error(error)`).
+**Learning:** Logging raw `Error` objects in client-side production code can expose sensitive stack traces, internal file paths, or application metadata to any user opening the browser's developer tools.
+**Prevention:** Always sanitize errors before logging them in production-facing client-side code by extracting and logging only safe properties, such as `error.message` or a generic fallback string (`console.error(error.message || 'An error occurred')`).
