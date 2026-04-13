@@ -1,6 +1,7 @@
 import '../styles/index.css';
 import { PDFProcessor } from '../services/PDFProcessor.js';
 import { UIManager } from '../components/UI/Manager.js';
+import { BookletPreview } from '../components/BookletPreview.js';
 import { toast } from '../components/Toast.js';
 import { formatFileSize } from '../utils/helpers.js';
 import { classifyFileKind, getFileTypeLabel } from '../utils/fileValidation.js';
@@ -23,6 +24,7 @@ class PDFZineMaker {
     this.fileQueue = [];
     this.isProcessingQueue = false;
     this.viewer3d = null;
+    this.bookletPreview = null;
     this.exportDependenciesPromise = null;
     this.zine3dViewerClassPromise = null;
     this.init();
@@ -85,6 +87,15 @@ class PDFZineMaker {
               }
           }
 
+          if (!this.bookletPreview && this.ui.elements.bookletPreviewContainer) {
+              this.bookletPreview = new BookletPreview({
+                  container: this.ui.elements.bookletPreviewContainer,
+                  prevButton: this.ui.elements.bookletPrevBtn,
+                  nextButton: this.ui.elements.bookletNextBtn,
+                  statusElement: this.ui.elements.bookletStatus
+              });
+          }
+
           if (this.viewer3d) {
               const slider = document.getElementById('fold-slider');
               if (slider) {slider.value = 0;}
@@ -106,6 +117,7 @@ class PDFZineMaker {
               requestAnimationFrame(() => {
                 this.viewer3d.refreshLayout();
                 this.viewer3d.loadPages(imageUrls);
+                this.bookletPreview?.loadPages(imageUrls);
               });
           }
       } catch {

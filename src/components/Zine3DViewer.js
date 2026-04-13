@@ -219,9 +219,9 @@ export class Zine3DViewer {
 
   /**
    * progressed folded state 0 to 3
-   * The mini-zine is formed by folding lengthwise, opening the center slit,
-   * and then closing the resulting booklet around its spine.
-   * @param {number} progress  0=flat, 1=lengthwise fold, 2=slit collapse, 3=closed booklet
+   * The mini-zine is formed by folding lengthwise, opening the center slit
+   * into the diamond/plus shape, then closing the booklet.
+   * @param {number} progress  0=flat, 1=lengthwise fold, 2=diamond open, 3=closed booklet
    */
   setFoldProgress(progress) {
     const state = computeMiniZineFoldState(progress, {
@@ -259,7 +259,7 @@ export class Zine3DViewer {
     });
 
     this.updateSeams();
-    this.updateGuides(state.stages.horizontalFold, state.stages.crossCollapse, state.stages.bookletClose);
+    this.updateGuides(state.stages.horizontalFold, state.stages.diamondOpen, state.stages.bookletClose);
   }
 
   createSeams() {
@@ -346,15 +346,15 @@ export class Zine3DViewer {
     });
   }
 
-  updateGuides(horizontalFold, slitCollapse, bookletClose) {
-    const fade = Math.max(0, 1 - Math.max(horizontalFold * 0.7, slitCollapse, bookletClose));
+  updateGuides(horizontalFold, diamondOpen, bookletClose) {
+    const fade = Math.max(0, 1 - Math.max(horizontalFold * 0.7, diamondOpen * 0.8, bookletClose));
 
     this.guides.forEach((guide) => {
       guide.mesh.visible = fade > 0.02;
       guide.material.opacity = (guide.type === 'slit' ? 0.8 : 0.45) * fade;
 
       if (guide.type === 'slit') {
-        const slitSpread = 1 - (slitCollapse * 0.15);
+        const slitSpread = 1 + (diamondOpen * 0.12);
         guide.mesh.scale.set(slitSpread, 1, 1);
       } else {
         guide.mesh.scale.set(1, 1, 1);

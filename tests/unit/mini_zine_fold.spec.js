@@ -37,25 +37,26 @@ test.describe('Mini Zine Fold State', () => {
     expect(getHeight(state.bounds)).toBeCloseTo(1.414, 3);
   });
 
-  test('progress 2 collapses into a compact cross instead of an exploded staircase', () => {
+  test('progress 2 opens the slit into a compact diamond while keeping hinges connected', () => {
     const state = computeMiniZineFoldState(2, DIMENSIONS);
 
     expect(state.pages[5].position.x).toBeLessThan(0);
     expect(state.pages[1].position.x).toBeGreaterThan(0);
-    expect(state.pages[4].position.y).toBeGreaterThan(0);
-    expect(state.pages[3].position.y).toBeLessThan(0);
-    expect(getWidth(state.bounds)).toBeLessThan(3.1);
-    expect(getHeight(state.bounds)).toBeLessThan(2.5);
-    expect(Math.max(...state.seamGaps.map((seam) => seam.gap))).toBeLessThan(1.2);
+    expect(Math.abs(state.pages[4].position.x)).toBeLessThan(0.01);
+    expect(Math.abs(state.pages[3].position.x)).toBeLessThan(0.01);
+    expect(state.pages[5].position.z).toBeGreaterThan(state.pages[4].position.z);
+    expect(getWidth(state.bounds)).toBeLessThan(2.1);
+    expect(getDepth(state.bounds)).toBeLessThan(1.05);
+    expect(Math.max(...state.seamGaps.map((seam) => seam.gap))).toBeLessThan(0.001);
   });
 
-  test('progress 3 closes into a narrow booklet stack with bounded depth', () => {
+  test('progress 3 closes into a narrow booklet stack with only a small sheet offset', () => {
     const state = computeMiniZineFoldState(3, DIMENSIONS);
 
     expect(getWidth(state.bounds)).toBeLessThan(0.01);
-    expect(getDepth(state.bounds)).toBeLessThan(1.05);
-    expect(state.pages[5].position.z).toBeLessThan(state.pages[4].position.z);
-    expect(state.pages[4].position.z).toBeLessThan(state.pages[3].position.z);
-    expect(state.pages[3].position.z).toBeLessThan(state.pages[2].position.z);
+    expect(getDepth(state.bounds)).toBeLessThan(2.1);
+    expect(Math.max(...state.seamGaps.map((seam) => seam.gap))).toBeLessThan(0.02);
+    expect(state.pages[5].position.z).toBeLessThan(state.pages[2].position.z);
+    expect(state.pages[4].position.z).toBeLessThan(state.pages[1].position.z);
   });
 });

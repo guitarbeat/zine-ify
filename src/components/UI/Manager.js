@@ -153,6 +153,10 @@ export class UIManager {
       zine3dContainer: $('#zine-3d-container'),
       foldSlider: $('#fold-slider'),
       foldStatus: $('#fold-status'),
+      bookletPreviewContainer: $('#booklet-preview-container'),
+      bookletPrevBtn: $('#booklet-prev-btn'),
+      bookletNextBtn: $('#booklet-next-btn'),
+      bookletStatus: $('#booklet-status'),
 
       // Page Picker Modal
       pagePickerModal: $('#page-picker-modal'),
@@ -207,10 +211,10 @@ export class UIManager {
         let status = 'Flat';
         if (val >= 2.99) {
             status = 'Booklet';
-        } else if (val >= 2) {
-            status = 'Cross Collapse';
+        } else if (val > 2) {
+            status = 'Folding Shut';
         } else if (val >= 1) {
-            status = 'Cross Collapse';
+            status = 'Diamond Open';
         } else if (val > 0) {
             status = 'Lengthwise Fold';
         }

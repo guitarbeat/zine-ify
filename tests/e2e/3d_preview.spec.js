@@ -36,9 +36,14 @@ test('opens the 3D preview modal with a sized canvas', async ({ page }) => {
   expect(canvasBox?.width || 0).toBeGreaterThan(0);
   expect(canvasBox?.height || 0).toBeGreaterThan(0);
 
+  await expect(page.locator('#booklet-status')).toHaveText('Cover');
+
   await page.locator('#fold-slider').fill('2');
-  await expect(page.locator('#fold-status')).toHaveText('Cross Collapse');
+  await expect(page.locator('#fold-status')).toHaveText('Diamond Open');
 
   await page.locator('#fold-slider').fill('3');
   await expect(page.locator('#fold-status')).toHaveText('Booklet');
+
+  await page.locator('#booklet-next-btn').click();
+  await expect(page.locator('#booklet-status')).toHaveText('Pages 2-3');
 });

@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 
 export const MINI_ZINE_STACKS = [
-  { index: 0, x: -1.5, topPage: 5, bottomPage: 6, bookletSide: -1, bookletDepth: -1.5 },
-  { index: 1, x: -0.5, topPage: 4, bottomPage: 7, bookletSide: -1, bookletDepth: -0.5 },
-  { index: 2, x: 0.5, topPage: 3, bottomPage: 8, bookletSide: 1, bookletDepth: 0.5 },
-  { index: 3, x: 1.5, topPage: 2, bottomPage: 1, bookletSide: 1, bookletDepth: 1.5 }
+  { index: 0, x: -1.5, topPage: 5, bottomPage: 6, bookletDepth: -1.5 },
+  { index: 1, x: -0.5, topPage: 4, bottomPage: 7, bookletDepth: -0.5 },
+  { index: 2, x: 0.5, topPage: 3, bottomPage: 8, bookletDepth: 0.5 },
+  { index: 3, x: 1.5, topPage: 2, bottomPage: 1, bookletDepth: 1.5 }
 ];
 
 const CONNECTIONS = [
@@ -22,6 +22,7 @@ const TMP_VEC_A = new THREE.Vector3();
 const TMP_QUAT_A = new THREE.Quaternion();
 const TMP_QUAT_B = new THREE.Quaternion();
 const TMP_EULER = new THREE.Euler(0, 0, 0, 'XYZ');
+const TMP_VEC_B = new THREE.Vector3();
 
 function clamp01(value) {
   return Math.min(1, Math.max(0, value));
@@ -32,28 +33,50 @@ function smoothstep(value) {
   return t * t * (3 - (2 * t));
 }
 
-function lerp(a, b, t) {
-  return a + ((b - a) * t);
-}
-
-function interpolatePose(fromPose, toPose, t) {
-  return {
-    position: {
-      x: lerp(fromPose.position.x, toPose.position.x, t),
-      y: lerp(fromPose.position.y, toPose.position.y, t),
-      z: lerp(fromPose.position.z, toPose.position.z, t)
-    },
-    rotation: {
-      x: lerp(fromPose.rotation.x, toPose.rotation.x, t),
-      y: lerp(fromPose.rotation.y, toPose.rotation.y, t),
-      z: lerp(fromPose.rotation.z, toPose.rotation.z, t)
-    }
-  };
-}
-
 function poseToQuaternion(rotation) {
   TMP_EULER.set(rotation.x, rotation.y, rotation.z, 'XYZ');
   return TMP_QUAT_A.setFromEuler(TMP_EULER).clone();
+}
+
+function getRotatedHorizontalOffset(angle, offsetX) {
+  return TMP_VEC_B.set(offsetX, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), angle).clone();
+}
+
+function computeStackOrigins(stackAngles, w, stackDepthStep, bookletClose) {
+  const origins = [
+    { x: MINI_ZINE_STACKS[0].x * w, z: 0 }
+  ];
+
+  for (let index = 1; index < MINI_ZINE_STACKS.length; index += 1) {
+    const prevOrigin = origins[index - 1];
+    const prevRight = getRotatedHorizontalOffset(stackAngles[index - 1], w / 2);
+    const nextLeft = getRotatedHorizontalOffset(stackAngles[index], -w / 2);
+
+    origins.push({
+      x: prevOrigin.x + prevRight.x - nextLeft.x,
+      z: prevOrigin.z + prevRight.z - nextLeft.z
+    });
+  }
+
+  const bounds = origins.reduce((acc, origin) => ({
+    minX: Math.min(acc.minX, origin.x),
+    maxX: Math.max(acc.maxX, origin.x),
+    minZ: Math.min(acc.minZ, origin.z),
+    maxZ: Math.max(acc.maxZ, origin.z)
+  }), {
+    minX: Infinity,
+    maxX: -Infinity,
+    minZ: Infinity,
+    maxZ: -Infinity
+  });
+
+  const centerX = (bounds.minX + bounds.maxX) / 2;
+  const centerZ = (bounds.minZ + bounds.maxZ) / 2;
+
+  return origins.map((origin, index) => ({
+    x: origin.x - centerX,
+    z: (origin.z - centerZ) + (MINI_ZINE_STACKS[index].bookletDepth * stackDepthStep * bookletClose)
+  }));
 }
 
 function buildPageState({
@@ -159,68 +182,32 @@ export function computeMiniZineFoldState(progress, dimensions = {}) {
   const stackDepthStep = dimensions.stackDepthStep ?? 0.008;
 
   const horizontalFold = smoothstep(clamp01(progress));
-  const crossCollapse = smoothstep(clamp01(progress - 1));
+  const diamondOpen = smoothstep(clamp01(progress - 1));
   const bookletClose = smoothstep(clamp01(progress - 2));
   const topFoldAngle = -Math.PI * horizontalFold;
-  const crossYOffset = w * 0.5;
+  const stackAngles = [
+    (Math.PI / 2) * bookletClose,
+    (Math.PI / 2) * diamondOpen,
+    -(Math.PI / 2) * diamondOpen,
+    -(Math.PI / 2) * bookletClose
+  ];
+  const stackOrigins = computeStackOrigins(stackAngles, w, stackDepthStep, bookletClose);
 
-  const stackStates = MINI_ZINE_STACKS.map((stack) => {
-    const stripPose = {
-      position: { x: stack.x * w, y: 0, z: 0 },
-      rotation: { x: 0, y: 0, z: 0 }
-    };
-
-    const crossPose = (() => {
-      if (stack.index === 0) {
-        return {
-          position: { x: -w, y: 0, z: -stackDepthStep },
-          rotation: { x: 0, y: 0, z: 0 }
-        };
-      }
-      if (stack.index === 1) {
-        return {
-          position: { x: -w / 2, y: crossYOffset, z: -stackDepthStep * 0.5 },
-          rotation: { x: 0, y: 0, z: Math.PI / 2 }
-        };
-      }
-      if (stack.index === 2) {
-        return {
-          position: { x: w / 2, y: -crossYOffset, z: stackDepthStep * 0.5 },
-          rotation: { x: 0, y: 0, z: -Math.PI / 2 }
-        };
-      }
-
-      return {
-        position: { x: w, y: 0, z: stackDepthStep },
-        rotation: { x: 0, y: 0, z: 0 }
-      };
-    })();
-
-    const bookletPose = {
+  const stackStates = MINI_ZINE_STACKS.map((stack, index) => ({
+    ...stack,
+    pose: {
       position: {
-        x: stack.bookletSide * (stackDepthStep * 0.35),
+        x: stackOrigins[index].x,
         y: 0,
-        z: stack.bookletDepth * stackDepthStep
+        z: stackOrigins[index].z
       },
       rotation: {
         x: 0,
-        y: stack.bookletSide * (Math.PI / 2),
+        y: stackAngles[index],
         z: 0
       }
-    };
-
-    let pose = stripPose;
-    if (progress > 1 && progress <= 2) {
-      pose = interpolatePose(stripPose, crossPose, crossCollapse);
-    } else if (progress > 2) {
-      pose = interpolatePose(crossPose, bookletPose, bookletClose);
     }
-
-    return {
-      ...stack,
-      pose
-    };
-  });
+  }));
 
   const pages = {};
   stackStates.forEach((stackState) => {
@@ -262,7 +249,7 @@ export function computeMiniZineFoldState(progress, dimensions = {}) {
     progress,
     stages: {
       horizontalFold,
-      crossCollapse,
+      diamondOpen,
       bookletClose
     },
     topFoldAngle,

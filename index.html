@@ -191,7 +191,7 @@
         <div class="w-full max-w-7xl p-4 sm:p-6 flex flex-col h-[100dvh]">
             <div class="flex justify-between items-center mb-4 sm:mb-6">
                 <h3 class="font-marker text-xl sm:text-2xl tracking-wide flex items-center gap-2">
-                    <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">view_in_ar</span> 3D FOLD SIM
+                    <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">view_in_ar</span> ZINE FOLD + BOOKLET PREVIEW
                 </h3>
                 <button id="close-3d-btn" class="action-button w-10 h-10 flex items-center justify-center bg-white text-black font-bold focus:outline-none"
                     style="box-shadow: 3px 3px 0px 0px black;">
@@ -203,12 +203,37 @@
                 <!-- 3D Canvas goes here -->
             </div>
 
-            <div class="mt-4 bg-white p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-6" style="border: 3px solid black; box-shadow: 4px 4px 0px 0px black;">
-                <label for="fold-slider" class="font-bold text-xs sm:text-sm uppercase whitespace-nowrap flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);">animation</span> Fold Progress:
-                </label>
-                <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-2 cursor-pointer" style="accent-color: var(--primary-vibrant);">
-                <span id="fold-status" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1.5 min-w-[80px] text-center bg-black text-white">Flat</span>
+            <div class="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1fr)_380px]">
+                <div class="bg-white p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-4 sm:gap-6" style="border: 3px solid black; box-shadow: 4px 4px 0px 0px black;">
+                    <label for="fold-slider" class="font-bold text-xs sm:text-sm uppercase whitespace-nowrap flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);">animation</span> Fold Progress:
+                    </label>
+                    <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-2 cursor-pointer" style="accent-color: var(--primary-vibrant);">
+                    <span id="fold-status" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1.5 min-w-[100px] text-center bg-black text-white">Flat</span>
+                </div>
+
+                <div class="bg-white p-4 sm:p-5 flex flex-col gap-4" style="border: 3px solid black; box-shadow: 4px 4px 0px 0px black;">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);" aria-hidden="true">menu_book</span>
+                            <span class="font-bold text-xs sm:text-sm uppercase tracking-wider">Booklet Preview</span>
+                        </div>
+                        <span id="booklet-status" class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-3 py-1.5 min-w-[90px] text-center bg-black text-white">Cover</span>
+                    </div>
+
+                    <div id="booklet-preview-container" class="booklet-preview-container" aria-label="Small booklet preview"></div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="booklet-prev-btn" class="action-button w-full py-2.5 px-3 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black" type="button">
+                            <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>
+                            PREV
+                        </button>
+                        <button id="booklet-next-btn" class="action-button w-full py-2.5 px-3 flex items-center justify-center gap-2 bg-black text-white font-bold border-4 border-black" type="button">
+                            NEXT
+                            <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
