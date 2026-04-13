@@ -9,41 +9,40 @@
     <title>Zine-ify — Single-Sheet Zine Layout</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
-  <script type="module" crossorigin src="./assets/index-COjPJWW0.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Permanent+Marker&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="./assets/index-CSVtSX88.js"></script>
   <link rel="modulepreload" crossorigin href="./assets/jspdf-DJqS0RH2.js">
-  <link rel="modulepreload" crossorigin href="./assets/pdfjs-DSNNY-zF.js">
-  <link rel="stylesheet" crossorigin href="./assets/index-ChzK-69o.css">
+  <link rel="stylesheet" crossorigin href="./assets/index-rLQDhYYY.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();window.__vite_is_modern_browser=true</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 </head>
 
 <body class="min-h-screen mobile-zine-app">
 
-    <div class="app-shell max-w-[1440px] mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6">
-        <header class="app-header pt-2 sm:pt-8 pb-4 sm:pb-6">
+    <div class="app-shell max-w-[1800px] mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6">
+        <header class="app-header pt-2 sm:pt-6 pb-3 sm:pb-4">
             <div class="app-header-main">
                 <div class="space-y-3">
-                    <p class="app-kicker">Single-sheet zines</p>
                     <div class="space-y-2">
-                        <h1 class="font-marker app-title">
-                            Zine-ify
+                        <h1 class="font-marker app-title app-title-ink" aria-label="Zine-ify">
+                            <span class="app-title-cut app-title-cut-1">ZINE</span>
+                            <span class="app-title-cut app-title-cut-dash">-</span>
+                            <span class="app-title-cut app-title-cut-2">IFY</span>
                         </h1>
                     </div>
                 </div>
             </div>
         </header>
 
-        <main class="app-layout grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4 sm:gap-6 items-start">
+        <main class="app-layout grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)] gap-4 sm:gap-5 items-start">
             <!-- Left Column: Controls & Upload -->
-            <aside class="control-rail space-y-3 sm:space-y-4 lg:sticky lg:top-6 relative z-20 flex flex-col h-full lg:max-h-[calc(100vh-6rem)]">
+            <aside class="control-rail space-y-3 sm:space-y-4 lg:sticky lg:top-4 relative z-20 flex flex-col h-full lg:max-h-[calc(100vh-4.5rem)]">
 
                 <div class="control-scroll overflow-y-visible lg:overflow-y-auto space-y-3 sm:space-y-4 lg:pr-2 flex-1 pb-28 lg:pb-10">
-                    <section class="settings-panel rail-section rail-section-priority bg-white p-3 sm:p-4 space-y-4">
+                    <section id="workflow-panel" class="settings-panel rail-section rail-section-priority workflow-panel combined-rail-panel bg-white p-3 sm:p-4 space-y-4">
                         <div class="rail-section-header">
                             <div>
-                                <p class="rail-section-kicker">Step 1</p>
-                                <h2 class="rail-section-title">Files</h2>
+                                <h2 class="rail-section-title">Files + Flow</h2>
                             </div>
                             <span class="rail-section-chip">Ctrl+O</span>
                         </div>
@@ -57,12 +56,10 @@
                                 Choose files or drop them here</p>
                             <input type="file" id="pdf-upload" class="hidden" accept="application/pdf,image/*" multiple>
                         </div>
-                    </section>
+                        <div class="combined-rail-divider" aria-hidden="true"></div>
 
-                    <div id="workflow-panel" class="settings-panel workflow-panel bg-white p-3 sm:p-4 space-y-4">
-                        <div class="flex items-center justify-between gap-4">
+                        <div class="combined-rail-subheader flex items-center justify-between gap-4">
                             <div class="space-y-1">
-                                <p class="rail-section-kicker">Step 2</p>
                                 <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
                                     <span class="material-symbols-outlined text-[16px]">route</span> Flow
                                 </h3>
@@ -74,8 +71,7 @@
                             <button type="button" class="workflow-step" data-workflow-step="upload">
                                 <span class="workflow-step-index">1</span>
                                 <span class="workflow-step-copy">
-                                    <span class="workflow-step-label">Import</span>
-                                    <span class="workflow-step-meta">Add source pages</span>
+                                    <span class="workflow-step-label">Add files</span>
                                 </span>
                                 <span class="workflow-step-state">Ready</span>
                             </button>
@@ -83,97 +79,31 @@
                                 <span class="workflow-step-index">2</span>
                                 <span class="workflow-step-copy">
                                     <span class="workflow-step-label">Arrange</span>
-                                    <span class="workflow-step-meta">Order and adjust</span>
                                 </span>
                                 <span class="workflow-step-state">Waiting</span>
                             </button>
                             <button type="button" class="workflow-step" data-workflow-step="preview">
                                 <span class="workflow-step-index">3</span>
                                 <span class="workflow-step-copy">
-                                    <span class="workflow-step-label">Preview</span>
-                                    <span class="workflow-step-meta">Check fold and booklet</span>
+                                    <span class="workflow-step-label">Preview (WIP)</span>
                                 </span>
-                                <span class="workflow-step-state">Mini-zine</span>
+                                <span class="workflow-step-state">Optional</span>
                             </button>
                             <button type="button" class="workflow-step" data-workflow-step="export">
                                 <span class="workflow-step-index">4</span>
                                 <span class="workflow-step-copy">
-                                    <span class="workflow-step-label">Output</span>
-                                    <span class="workflow-step-meta">Export or print</span>
+                                    <span class="workflow-step-label">Export</span>
                                 </span>
                                 <span class="workflow-step-state">Waiting</span>
                             </button>
                         </div>
-                    </div>
+                    </section>
 
                     <!-- Uploaded Files List -->
                     <div id="uploaded-files-list" class="hidden">
                         <!-- Populated by JS -->
                     </div>
 
-                    <div id="settings-group" class="settings-panel bg-white p-3 sm:p-4 space-y-4">
-                        <div class="space-y-1 border-b border-black/8 pb-2 mb-2">
-                            <p class="rail-section-kicker">Step 3</p>
-                            <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
-                                <span class="material-symbols-outlined text-[16px]">tune</span> Sheet options
-                            </h3>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="flex flex-col justify-end space-y-1">
-                                <label for="paper-size-select" class="text-xs font-bold uppercase min-h-[1rem] flex items-end">Paper Size</label>
-                                <select id="paper-size-select" class="w-full text-sm p-2 bg-white border-2 border-black">
-                                    <!-- Populated by JS -->
-                                </select>
-                            </div>
-
-                            <div class="flex flex-col justify-end space-y-1">
-                                <label for="orientation-select" class="text-xs font-bold uppercase min-h-[1rem] flex items-end">Orientation</label>
-                                <select id="orientation-select" class="w-full text-sm p-2 bg-white border-2 border-black">
-                                    <option value="landscape">Landscape</option>
-                                    <option value="portrait">Portrait</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Grid Size Inputs -->
-                        <div class="pt-3 border-t-2 border-black" role="group" aria-labelledby="grid-layout-label">
-                            <div class="flex justify-between items-center mb-2">
-                                <label id="grid-layout-label" class="text-xs font-bold uppercase flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">grid_view</span> Grid Layout</label>
-                                <span id="grid-total" class="grid-total-chip">(8 pages)</span>
-                            </div>
-                            <div class="flex gap-3 items-center">
-                                <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Grid Rows"
-                                    class="w-full font-bold text-center p-2 bg-white">
-                                <span class="font-bold text-lg" aria-hidden="true">×</span>
-                                <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Grid Columns"
-                                    class="w-full font-bold text-center p-2 bg-white">
-                            </div>
-                        </div>
-
-                        <!-- Page Numbers Toggle -->
-                        <div class="pt-3 border-t-2 border-black">
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" id="show-page-numbers" checked class="w-5 h-5 accent-[var(--primary-vibrant)]" style="border: 2px solid black;">
-                                <span class="text-sm font-bold uppercase">Show Page Numbers</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- "Spare Parts" moved to sidebar -->
-                    <div id="unused-pages-section" class="settings-panel bg-white p-3 sm:p-4 hidden">
-                        <div class="flex items-center justify-between gap-4 mb-3">
-                            <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
-                                <span class="material-symbols-outlined text-[16px]">inventory_2</span> Overflow
-                            </h3>
-                            <span class="text-[10px] font-bold uppercase px-2 py-1 bg-black text-white">Drag to swap</span>
-                        </div>
-
-                        <div id="unused-grid"
-                            class="grid grid-cols-2 gap-3 min-h-[120px] p-3 border-2 border-dashed border-black bg-[var(--bg-neutral)]">
-                            <!-- Unused pages injected here -->
-                        </div>
-                    </div>
                 </div>
 
             </aside>
@@ -184,7 +114,6 @@
                 <div class="workspace-header">
                     <div class="workspace-title-block">
                         <div class="space-y-1">
-                            <p class="rail-section-kicker">Sheet</p>
                             <h2 class="font-marker text-lg sm:text-xl tracking-wide flex items-center gap-2">
                                 <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">preview</span> Layout
                             </h2>
@@ -194,34 +123,93 @@
                         </p>
                     </div>
 
-                    <div id="action-buttons" class="mobile-action-dock workspace-actions space-y-3 hidden flex-col">
-                        <button id="view3dBtn"
-                            class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-black text-white font-bold"
-                            title="Open fold and booklet preview">
-                            <span class="material-symbols-outlined" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span>
-                            <span id="view3dBtnLabel">Preview</span>
-                        </button>
-                        <div class="grid grid-cols-2 gap-3">
+                </div>
+
+                <div class="workspace-meta" aria-label="Canvas status">
+                    <span id="preview-layout-chip" class="workspace-chip">Mini-zine</span>
+                    <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0 placed</span>
+                </div>
+
+                <div class="workspace-config-stack">
+                    <div id="settings-group" class="settings-panel workspace-config-bar bg-white p-3 sm:p-4">
+                        <div class="workspace-config-header">
+                            <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]">tune</span> Configuration
+                            </h3>
+                        </div>
+
+                        <div id="action-buttons" class="mobile-action-dock workspace-actions workspace-action-tray hidden">
+                            <button id="view3dBtn"
+                                class="action-button workspace-action-button workspace-action-button-preview w-full py-3 px-4 flex items-center justify-center gap-2 bg-black text-white font-bold"
+                                title="Open optional preview (work in progress)">
+                                <span class="material-symbols-outlined" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span>
+                                <span id="view3dBtnLabel">Preview (WIP)</span>
+                            </button>
                             <button id="exportPdfBtn"
-                                class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black"
+                                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black"
                                 title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
                                 <span class="material-symbols-outlined text-lg" aria-hidden="true">file_download</span>
                                 <span id="exportPdfBtnLabel">Export PDF</span>
                             </button>
                             <button id="printBtn"
-                                class="action-button w-full py-3 px-4 flex items-center justify-center gap-2 text-white font-bold border-4 border-black"
+                                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 text-white font-bold border-4 border-black"
                                 style="background-color: var(--primary-vibrant);"
                                 title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
                                 <span class="material-symbols-outlined text-lg" aria-hidden="true">print</span>
                                 <span id="printBtnLabel">Print</span>
                             </button>
                         </div>
-                    </div>
-                </div>
 
-                <div class="workspace-meta" aria-label="Canvas status">
-                    <span id="preview-layout-chip" class="workspace-chip">Mini-zine</span>
-                    <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0 placed</span>
+                        <div class="workspace-config-grid">
+                            <div class="workspace-config-field">
+                                <label for="paper-size-select" class="workspace-config-label">Paper Size</label>
+                                <select id="paper-size-select" class="workspace-config-input">
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+
+                            <div class="workspace-config-field">
+                                <label for="orientation-select" class="workspace-config-label">Orientation</label>
+                                <select id="orientation-select" class="workspace-config-input">
+                                    <option value="landscape">Landscape</option>
+                                    <option value="portrait">Portrait</option>
+                                </select>
+                            </div>
+
+                            <div class="workspace-config-field" role="group" aria-labelledby="grid-layout-label">
+                                <div class="workspace-config-label-row">
+                                    <label id="grid-layout-label" class="workspace-config-label">Grid Layout</label>
+                                    <span id="grid-total" class="grid-total-chip">(8 pages)</span>
+                                </div>
+                                <div class="workspace-config-split">
+                                    <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Grid Rows"
+                                        class="workspace-config-input workspace-config-number">
+                                    <span class="workspace-config-times" aria-hidden="true">×</span>
+                                    <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Grid Columns"
+                                        class="workspace-config-input workspace-config-number">
+                                </div>
+                            </div>
+
+                            <label class="workspace-config-toggle" for="show-page-numbers">
+                                <input type="checkbox" id="show-page-numbers" checked class="w-5 h-5 accent-[var(--primary-vibrant)]" style="border: 2px solid black;">
+                                <span class="workspace-config-toggle-copy">Show Page Numbers</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="unused-pages-section" class="settings-panel workspace-overflow-panel bg-white p-3 sm:p-4 hidden">
+                        <div class="workspace-config-header">
+                            <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]">inventory_2</span> Overflow
+                            </h3>
+                            <span class="workspace-overflow-chip">Drag to swap</span>
+                        </div>
+
+                        <div id="unused-grid"
+                            class="grid grid-cols-2 md:grid-cols-4 gap-3 min-h-[120px] p-3 border-2 border-dashed border-black bg-[var(--bg-neutral)]">
+                            <!-- Unused pages injected here -->
+                        </div>
+                    </div>
                 </div>
 
                 <div id="preview-empty-state" class="preview-empty-state">
@@ -238,9 +226,6 @@
             </section>
         </main>
 
-        <footer class="app-footer">
-            <p>Zine-ify</p>
-        </footer>
     </div>
 
     <!-- Progress Overlay -->
@@ -436,7 +421,7 @@
 
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
   <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-B_bHoojG.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-Cr4gIvqm.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-CD9qzZPK.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 
 </html>

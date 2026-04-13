@@ -40,7 +40,7 @@ body {
 
 .app-header-main {
     display: grid;
-    gap: 0.85rem;
+    gap: 0.4rem;
     align-items: end;
 }
 
@@ -55,9 +55,61 @@ body {
 
 .app-title {
     font-size: clamp(2.8rem, 6vw, 4.8rem);
-    line-height: 0.92;
-    letter-spacing: -0.06em;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
     color: var(--accent-dark);
+}
+
+.app-title-ink {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.18em;
+    letter-spacing: 0;
+    transform: rotate(-2deg);
+    transform-origin: left center;
+}
+
+.app-title-cut {
+    display: inline-block;
+    padding: 0.02em 0.14em 0.08em;
+    color: #111;
+    background: #fff8f2;
+    border: 3px solid #111;
+    box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+    line-height: 0.88;
+}
+
+.app-title-cut-1 {
+    font-family: 'Permanent Marker', 'Space Grotesk', sans-serif;
+    background: #ff00e5;
+    color: #fff7fd;
+    transform: rotate(-4deg) skewX(-10deg);
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
+}
+
+.app-title-cut-dash {
+    padding-inline: 0.2em;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.86em;
+    background: #fff;
+    color: #111;
+    transform: rotate(3deg);
+}
+
+.app-title-cut-2 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 700;
+    background:
+        repeating-linear-gradient(
+            -45deg,
+            #fff5fb 0,
+            #fff5fb 10px,
+            #ff00e5 10px,
+            #ff00e5 20px
+        );
+    color: #111;
+    transform: rotate(2deg) skewX(-6deg);
+    letter-spacing: -0.08em;
 }
 
 .app-overview-title,
@@ -282,23 +334,33 @@ select:focus, input:focus {
 
 .page-label {
     position: absolute;
-    background: rgba(255, 255, 255, 0.96);
+    background: rgba(255, 255, 255, 0.9);
     color: var(--accent-dark);
     font-family: 'IBM Plex Mono', monospace;
     font-weight: bold;
-    font-size: 10px;
-    padding: 4px 6px;
+    font-size: 9px;
+    line-height: 1;
+    letter-spacing: 0.03em;
+    padding: 3px 5px;
     z-index: 20;
-    top: 0.45rem;
-    left: 0.45rem;
+    top: 0.35rem;
+    left: 0.35rem;
     border: 1px solid rgba(23, 23, 23, 0.14);
     border-radius: 999px;
-    box-shadow: 0 4px 12px rgba(23, 23, 23, 0.08);
+    box-shadow: 0 3px 10px rgba(23, 23, 23, 0.06);
+    pointer-events: none;
 }
 
 /* Rotations for the standard mini-zine layout only */
 .zine-grid.mini-zine .page-cell[data-page="2"], .zine-grid.mini-zine .page-cell[data-page="3"], 
 .zine-grid.mini-zine .page-cell[data-page="4"], .zine-grid.mini-zine .page-cell[data-page="5"] {
+    transform: rotate(180deg);
+}
+
+.zine-grid.mini-zine .page-cell[data-page="2"] .page-label,
+.zine-grid.mini-zine .page-cell[data-page="3"] .page-label,
+.zine-grid.mini-zine .page-cell[data-page="4"] .page-label,
+.zine-grid.mini-zine .page-cell[data-page="5"] .page-label {
     transform: rotate(180deg);
 }
 
@@ -311,6 +373,17 @@ select:focus, input:focus {
 .zine-grid.accordion-16 .page-cell[data-page="10"],
 .zine-grid.accordion-16 .page-cell[data-page="11"],
 .zine-grid.accordion-16 .page-cell[data-page="12"] {
+    transform: rotate(180deg);
+}
+
+.zine-grid.accordion-16 .page-cell[data-page="1"] .page-label,
+.zine-grid.accordion-16 .page-cell[data-page="2"] .page-label,
+.zine-grid.accordion-16 .page-cell[data-page="3"] .page-label,
+.zine-grid.accordion-16 .page-cell[data-page="4"] .page-label,
+.zine-grid.accordion-16 .page-cell[data-page="9"] .page-label,
+.zine-grid.accordion-16 .page-cell[data-page="10"] .page-label,
+.zine-grid.accordion-16 .page-cell[data-page="11"] .page-label,
+.zine-grid.accordion-16 .page-cell[data-page="12"] .page-label {
     transform: rotate(180deg);
 }
 /* Override default rotations for accordion template */
@@ -354,6 +427,19 @@ select:focus, input:focus {
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.82)),
         var(--surface-strong);
+}
+
+.combined-rail-panel {
+    gap: 0.9rem;
+}
+
+.combined-rail-divider {
+    height: 1px;
+    background: rgba(23, 23, 23, 0.08);
+}
+
+.combined-rail-subheader {
+    margin-top: -0.1rem;
 }
 
 .workflow-steps {
@@ -404,18 +490,12 @@ select:focus, input:focus {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 0;
 }
 
 .workflow-step-label {
     font-size: 0.84rem;
     font-weight: 700;
-}
-
-.workflow-step-meta {
-    font-size: 0.7rem;
-    line-height: 1.4;
-    color: var(--muted-ink);
 }
 
 .workflow-step-state {
@@ -491,11 +571,124 @@ select:focus, input:focus {
     width: 100%;
 }
 
+.workspace-action-tray {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.7rem;
+    margin-bottom: 0.8rem;
+}
+
+.workspace-action-button {
+    min-height: 2.95rem;
+}
+
+.workspace-action-button-preview {
+    background: black;
+}
+
 .workspace-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.55rem;
     margin-bottom: 0.8rem;
+}
+
+.workspace-config-stack {
+    display: grid;
+    gap: 0.85rem;
+    margin-bottom: 0.9rem;
+}
+
+.workspace-config-bar,
+.workspace-overflow-panel {
+    background: rgba(255, 255, 255, 0.82);
+}
+
+.workspace-config-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.8rem;
+}
+
+.workspace-config-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.8rem;
+}
+
+.workspace-config-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.workspace-config-label,
+.workspace-config-toggle-copy {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.workspace-config-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.workspace-config-input {
+    width: 100%;
+    min-height: 2.85rem;
+    padding: 0.7rem 0.8rem;
+    border: 2px solid black;
+    background: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.workspace-config-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.workspace-config-number {
+    text-align: center;
+}
+
+.workspace-config-times {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.workspace-config-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 2.85rem;
+    padding: 0.7rem 0.85rem;
+    border: 2px solid black;
+    background: rgba(255, 255, 255, 0.92);
+    cursor: pointer;
+}
+
+.workspace-overflow-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.8rem;
+    padding: 0.28rem 0.65rem;
+    background: black;
+    color: white;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 999px;
 }
 
 .workspace-chip {
@@ -521,12 +714,12 @@ select:focus, input:focus {
 .preview-empty-state {
     display: grid;
     gap: 0.3rem;
-    padding: 0.9rem 1rem;
-    margin-bottom: 0.9rem;
-    border: 1px solid var(--border-color);
-    border-radius: 1.1rem;
+    padding: 0.5rem 0 0.35rem;
+    margin-bottom: 0.55rem;
+    border: none;
+    border-radius: 0;
     box-shadow: none;
-    background: rgba(255, 255, 255, 0.58);
+    background: transparent;
     max-width: 52rem;
 }
 
@@ -539,14 +732,14 @@ select:focus, input:focus {
 .preview-empty-title {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
-    font-size: 1.15rem;
+    font-size: 1rem;
     line-height: 1.12;
     letter-spacing: -0.04em;
 }
 
 .preview-empty-body {
     max-width: 46rem;
-    font-size: 0.76rem;
+    font-size: 0.72rem;
     line-height: 1.45;
     color: var(--muted-ink);
 }
@@ -573,15 +766,15 @@ select:focus, input:focus {
 }
   /* Centered Page Label (Sticker Style) */
 .page-label.centered {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-5deg);
-    font-size: 24px;
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--surface-shadow);
-    z-index: 100;
-    background-color: rgba(255, 255, 255, 0.96);
+    top: 0.35rem;
+    left: 0.35rem;
+    transform: none;
+    font-size: 9px;
+    padding: 3px 5px;
+    border: 1px solid rgba(23, 23, 23, 0.14);
+    box-shadow: 0 3px 10px rgba(23, 23, 23, 0.06);
+    z-index: 20;
+    background-color: rgba(255, 255, 255, 0.9);
     color: var(--accent-dark);
     border-radius: 999px;
 }
@@ -828,7 +1021,8 @@ select:focus, input:focus {
         box-shadow: 0 12px 24px rgba(49, 83, 107, 0.12);
     }
 
-    .mobile-action-dock .grid {
+    .mobile-action-dock {
+        grid-template-columns: minmax(0, 1fr);
         gap: 0.65rem;
     }
 
@@ -890,6 +1084,14 @@ select:focus, input:focus {
         transform: translateY(0);
     }
 
+    .workspace-panel {
+        padding-bottom: calc(9.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .workspace-config-stack {
+        margin-bottom: 1rem;
+    }
+
     .page-picker-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.75rem;
@@ -903,6 +1105,16 @@ select:focus, input:focus {
 
     .preview-empty-actions {
         flex-direction: column;
+    }
+}
+
+@media (min-width: 768px) {
+    .workspace-config-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .workspace-action-tray {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
@@ -963,25 +1175,160 @@ select:focus, input:focus {
 }
 
 @media (min-width: 1024px) {
+    html,
+    body {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .mobile-zine-app {
+        min-height: 100dvh;
+    }
+
+    .app-shell {
+        height: 100dvh;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 0.9rem;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .app-header {
+        padding-bottom: 0.6rem;
+    }
+
+    .app-title {
+        font-size: clamp(2.7rem, 4vw, 4rem);
+    }
+
+    .app-layout {
+        height: 100%;
+        min-height: 0;
+        grid-template-columns: 200px minmax(0, 1fr) !important;
+        gap: 1rem !important;
+    }
+
+    .control-rail,
+    .workspace-panel {
+        min-height: 0;
+    }
+
+    .control-scroll {
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 0;
+        padding-bottom: 0;
+        gap: 0.75rem;
+    }
+
+    .workspace-panel {
+        overflow: hidden;
+    }
+
+    .settings-panel {
+        padding: 0.8rem !important;
+        border-radius: 1rem;
+    }
+
+    .upload-box {
+        min-height: 100px !important;
+        padding: 1rem !important;
+    }
+
+    .upload-box .material-symbols-outlined.text-4xl {
+        margin-bottom: 0.45rem;
+        font-size: 1.7rem;
+    }
+
+    .workflow-steps {
+        gap: 0.4rem;
+    }
+
+    .workflow-step {
+        padding: 0.58rem 0.7rem;
+    }
+
+    .workflow-step-label {
+        font-size: 0.75rem;
+    }
+
+    .workflow-step-state,
+    .workflow-chip,
+    .grid-total-chip,
+    .upload-status,
+    .workspace-description,
+    .rail-section-chip,
+    .workspace-chip {
+        font-size: 0.58rem;
+        min-height: 1.7rem;
+        padding: 0.28rem 0.56rem;
+    }
+
     .workspace-header {
         grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+        gap: 0.6rem;
+        margin-bottom: 0.55rem;
+        padding-bottom: 0.55rem;
     }
 
     .workspace-actions .action-button {
-        min-height: 3.35rem;
+        min-height: 2.85rem;
     }
-}
 
-.app-footer {
-    margin-top: 3rem;
-    padding-top: 1.2rem;
-    border-top: 1px solid var(--border-color);
-    text-align: center;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted-ink);
+    .workspace-meta {
+        margin-bottom: 0.45rem;
+    }
+
+    .workspace-config-stack {
+        margin-bottom: 0.7rem;
+        gap: 0.7rem;
+    }
+
+    .workspace-config-header {
+        margin-bottom: 0.6rem;
+    }
+
+    .workspace-action-tray {
+        grid-template-columns: 1.1fr 1fr 1fr;
+        gap: 0.65rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .workspace-config-grid {
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 0.65rem;
+        align-items: end;
+    }
+
+    .workspace-config-input,
+    .workspace-config-toggle {
+        min-height: 2.55rem;
+        padding-top: 0.58rem;
+        padding-bottom: 0.58rem;
+    }
+
+    .workspace-config-toggle {
+        white-space: nowrap;
+    }
+
+    .preview-empty-state {
+        margin-bottom: 0.3rem;
+    }
+
+    .workspace-sheet-stack {
+        min-height: 0;
+        flex: 1 1 auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-bottom: 0 !important;
+        padding-right: 0.35rem;
+        gap: 0.75rem !important;
+    }
+
+    .print-sheet {
+        max-height: 50vh !important;
+    }
 }
 
 .simulation-modal {

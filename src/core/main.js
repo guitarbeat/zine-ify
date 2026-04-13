@@ -102,7 +102,7 @@ class PDFZineMaker {
     }
 
     if (this.isMiniZineLayout()) {
-      return 'Next: arrange pages, then open Fold + Read to confirm the booklet order.';
+      return 'Next: arrange pages, then export or print. Preview is optional and still WIP.';
     }
 
     return 'Next: arrange pages, then export the sheet or print it.';
@@ -196,9 +196,15 @@ class PDFZineMaker {
    */
   async handleView3d() {
       const isMiniZineLayout = this.isMiniZineLayout();
+      const totalSheets = Math.max(1, Math.ceil(Math.max(this.allPageImages.length, 1) / 8));
 
       if (!isMiniZineLayout) {
-          toast.warning('Fold + Read Unavailable', 'Switch back to the 8-page mini-zine layout to use the 3D preview.');
+          toast.warning('Preview Unavailable', 'Switch back to the 8-page mini-zine layout to use the optional preview.');
+          return;
+      }
+
+      if (totalSheets > 1) {
+          toast.warning('Preview Unavailable', 'The optional preview currently supports one 8-page sheet at a time.');
           return;
       }
 
@@ -237,10 +243,10 @@ class PDFZineMaker {
                 this.viewer3d.loadPages(previewPages);
                 this.bookletPreview?.loadPages(slotPreviewPages);
               });
-              toast.success('Fold + Read Ready', this.getNextWorkflowHint({ afterPreview: true }));
+              toast.success('Preview Ready', 'This preview is still WIP and does not show the cut reliably.');
           }
       } catch {
-          toast.error('Preview Could Not Open', 'Fold + Read failed to load. Try again in a moment.');
+          toast.error('Preview Could Not Open', 'The optional preview is still WIP. Export and print remain the reliable path.');
       }
   }
 
@@ -1070,6 +1076,7 @@ class PDFZineMaker {
     const {
       totalSlots,
       filledPages,
+      sheetCount,
       layoutLabel,
       isMiniZineLayout
     } = this.getWorkflowSnapshot();
@@ -1078,6 +1085,7 @@ class PDFZineMaker {
       uploadedFiles: this.uploadedFiles.length,
       filledPages,
       totalSlots,
+      sheetCount,
       layoutLabel,
       isMiniZineLayout,
       previewOpened: this.workflowPreviewed,

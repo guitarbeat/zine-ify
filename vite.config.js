@@ -8,6 +8,7 @@ export default defineConfig({
     outDir: 'docs', // Build to docs folder for GitHub Pages support
     assetsDir: 'assets',
     sourcemap: true,
+    chunkSizeWarningLimit: 550,
     rollupOptions: {
       output: {
         manualChunks(id) {

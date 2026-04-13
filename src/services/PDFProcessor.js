@@ -1,8 +1,6 @@
 // Modern PDF processing class
 
-import * as pdfjsLib from 'pdfjs-dist';
 import { validateUploadFile } from '../utils/fileValidation.js';
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 export class PDFProcessor {
   constructor() {
@@ -10,13 +8,30 @@ export class PDFProcessor {
     this.fileUrl = null;
     this.isProcessing = false;
     this.loadingTask = null;
+    this.pdfjsLib = null;
+    this._pdfJsReadyPromise = null;
   }
 
   /**
    * Initialize PDF.js worker
    */
   async initialize() {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+    return Promise.resolve();
+  }
+
+  async ensurePdfJs() {
+    if (!this._pdfJsReadyPromise) {
+      this._pdfJsReadyPromise = Promise.all([
+        import('pdfjs-dist'),
+        import('pdfjs-dist/build/pdf.worker.min.mjs?url')
+      ]).then(([pdfjsModule, pdfWorkerModule]) => {
+        this.pdfjsLib = pdfjsModule;
+        this.pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerModule.default;
+        return this.pdfjsLib;
+      });
+    }
+
+    return this._pdfJsReadyPromise;
   }
 
   /**
@@ -53,6 +68,7 @@ export class PDFProcessor {
     let timeoutId;
 
     try {
+      const pdfjsLib = await this.ensurePdfJs();
       const validation = this.validateFile(file);
       if (!validation.valid) {
         throw new Error(validation.errors.join('. '));
@@ -163,6 +179,7 @@ export class PDFProcessor {
     }
 
     try {
+      await this.ensurePdfJs();
       onProgress?.(`Rendering page ${pageNum}...`);
 
       const page = await this.pdf.getPage(pageNum);
@@ -226,6 +243,7 @@ export class PDFProcessor {
     }
 
     try {
+      await this.ensurePdfJs();
       const page = await this.pdf.getPage(pageNum);
       const baseViewport = page.getViewport({ scale: 1 });
       const maxEdge = 420;

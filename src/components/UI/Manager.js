@@ -75,6 +75,7 @@ export class UIManager {
     this.elements = {};
     this.paperSize = 'letter';
     this.orientation = 'landscape';
+    this.pageNumbersVisible = true;
     this._pageCellsCache = null;
     this.activePageIndex = null;
     this.pagePickerState = null;
@@ -297,6 +298,7 @@ export class UIManager {
 
     // Keyboard
     document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+    window.addEventListener('resize', debounce(() => this.updatePreviewLayout(), 120));
   }
 
 
@@ -434,6 +436,7 @@ export class UIManager {
     uploadedFiles = 0,
     filledPages = 0,
     totalSlots = 8,
+    sheetCount = 1,
     layoutLabel = '8-page mini-zine',
     isMiniZineLayout = true,
     previewOpened = false,
@@ -443,7 +446,8 @@ export class UIManager {
     const hasContent = filledPages > 0;
     const hasStarted = hasQueuedFiles || hasContent;
     const isLoading = hasQueuedFiles && !hasContent;
-    const previewReady = hasContent && isMiniZineLayout;
+    const previewSupported = isMiniZineLayout && sheetCount === 1;
+    const previewReady = hasContent && previewSupported;
     const exportReady = hasContent;
     const filledSummary = `${filledPages}/${totalSlots}`;
     const placedSummary = `${filledPages} placed`;
@@ -459,7 +463,7 @@ export class UIManager {
     } else if (hasContent && previewOpened) {
       nextLabel = 'Export';
     } else if (hasContent) {
-      nextLabel = isMiniZineLayout ? 'Preview' : 'Export';
+      nextLabel = 'Export';
     } else if (hasQueuedFiles) {
       nextLabel = 'Arrange';
       emptyTitle = 'Importing pages into the sheet.';
@@ -496,10 +500,12 @@ export class UIManager {
     this.updateActionButtonState(this.elements.view3dBtn, {
       enabled: previewReady,
       title: !hasContent
-        ? 'Add pages to preview the zine'
-        : isMiniZineLayout
-          ? 'Open fold and booklet preview'
-          : 'Fold preview is only available for the 2×4 mini-zine layout'
+        ? 'Add pages to open the optional preview'
+        : previewSupported
+          ? 'Open optional preview (still WIP)'
+          : isMiniZineLayout
+            ? 'The optional preview currently supports one 8-page sheet at a time'
+            : 'The optional preview only works in the 2×4 mini-zine layout'
     });
     this.updateActionButtonState(this.elements.exportPdfBtn, {
       enabled: exportReady,
@@ -511,7 +517,7 @@ export class UIManager {
     });
 
     if (this.elements.view3dBtnLabel) {
-      this.elements.view3dBtnLabel.textContent = 'Preview';
+      this.elements.view3dBtnLabel.textContent = 'Preview (WIP)';
     }
     if (this.elements.exportPdfBtnLabel) {
       this.elements.exportPdfBtnLabel.textContent = 'Export PDF';
@@ -535,15 +541,15 @@ export class UIManager {
       },
       preview: {
         state: previewOpened ? 'done' : (previewReady ? 'ready' : 'locked'),
-        text: previewOpened ? 'Viewed' : (previewReady ? 'Open' : (hasContent ? 'Mini-zine' : 'Waiting')),
+        text: previewOpened ? 'Viewed' : (previewReady ? 'Optional' : (hasContent ? 'Unavailable' : 'Waiting')),
         disabled: !previewReady,
-        current: previewReady && !previewOpened
+        current: false
       },
       export: {
         state: exportCompleted ? 'done' : (exportReady ? 'ready' : 'locked'),
         text: exportCompleted ? 'Saved' : (exportReady ? 'Ready' : 'Waiting'),
         disabled: !exportReady,
-        current: exportReady && (previewOpened || !isMiniZineLayout) && !exportCompleted
+        current: exportReady && !exportCompleted
       }
     };
 
@@ -675,6 +681,7 @@ export class UIManager {
     cell.replaceChildren(PAGE_CELL_TEMPLATE.content.cloneNode(true));
     cell.querySelector('.page-label').textContent = labelText;
     cell.querySelector('.page-content-img').alt = altText;
+    this.applyPageNumberVisibility(cell);
 
     this.setupDragAndDrop(cell);
     this.setupToolbar(cell, labelText);
@@ -764,6 +771,7 @@ export class UIManager {
       cell.appendChild(label);
       cell.appendChild(placeholder);
       cell.appendChild(img);
+      this.applyPageNumberVisibility(cell);
 
       this.setupDragAndDrop(cell);
       this.setupSelection(cell, i);
@@ -822,6 +830,7 @@ export class UIManager {
     this._pageCellsCache = null;
     const numSheets = Math.max(1, Math.ceil(numPages / 8));
     const miniLayout = ZINE_TEMPLATES['mini-8'].layout;
+    const isSingleSheet = numSheets === 1;
 
     for (let s = 1; s <= numSheets; s++) {
       const { sheetWrapper, grid } = this.createSheetGrid({
@@ -836,7 +845,7 @@ export class UIManager {
       for (const item of miniLayout) {
         const pageNumberOnSheet = item.page;
         const pageIdx = ((s - 1) * 8) + pageNumberOnSheet;
-        const labelText = pageIdx === 1 ? 'Cover' : (pageNumberOnSheet === 8 ? 'Back' : `Page ${pageIdx}`);
+        const labelText = pageIdx === 1 ? 'Cover' : (isSingleSheet && pageNumberOnSheet === 8 ? 'Back' : `Page ${pageIdx}`);
         const cell = this.createPageCell({
           pageIndex: pageIdx - 1,
           pageNumber: pageNumberOnSheet,
@@ -1425,6 +1434,7 @@ export class UIManager {
   loadSettings() {
     const savedPaperSize = localStorage.getItem('paperSize');
     const savedOrientation = localStorage.getItem('orientation');
+    const savedPageNumbers = localStorage.getItem('showPageNumbers');
 
     if (savedPaperSize) {
       this.paperSize = savedPaperSize;
@@ -1435,6 +1445,13 @@ export class UIManager {
       this.orientation = savedOrientation;
     }
     if (this.elements.orientationSelect) { this.elements.orientationSelect.value = this.orientation; }
+
+    if (savedPageNumbers !== null) {
+      this.pageNumbersVisible = savedPageNumbers === 'true';
+    }
+    if (this.elements.pageNumbersCheckbox) {
+      this.elements.pageNumbersCheckbox.checked = this.pageNumbersVisible;
+    }
   }
 
   updatePaperSize(paperSize) {
@@ -1452,14 +1469,19 @@ export class UIManager {
   }
 
   togglePageNumbers(show) {
-    const labels = document.querySelectorAll('.page-label');
+    this.pageNumbersVisible = show;
+    localStorage.setItem('showPageNumbers', String(show));
+    this.applyPageNumberVisibility(document);
+  }
+
+  applyPageNumberVisibility(root) {
+    const scope = root instanceof Element || root instanceof Document ? root : document;
+    const labels = scope.querySelectorAll('.page-label');
     labels.forEach(label => {
-      if (show) {
+      if (this.pageNumbersVisible) {
         label.classList.remove('hidden');
-        label.classList.add('centered'); // Force centered style when shown per user request
       } else {
         label.classList.add('hidden');
-        label.classList.remove('centered');
       }
     });
   }
@@ -1469,21 +1491,28 @@ export class UIManager {
     const sheets = document.querySelectorAll('.print-sheet');
     if (!sheets.length) { return; }
 
-    // Get dimensions for the current selection
     const dims = this.getPaperDimensions(this.paperSize, this.orientation);
-    // Calculate ratio (width / height)
     const ratio = dims.width / dims.height;
+    const workspaceWidth = this.elements.zineSheetsContainer?.clientWidth || window.innerWidth;
+    const desktopViewport = window.innerWidth >= 1024;
+    const availableHeight = window.innerHeight * (desktopViewport ? 0.58 : 0.62);
+    const widthFromHeight = availableHeight * ratio;
+    const targetWidth = Math.min(
+      workspaceWidth,
+      widthFromHeight,
+      desktopViewport ? 980 : window.innerWidth - 24
+    );
+    const targetHeight = targetWidth / ratio;
 
     sheets.forEach(sheet => {
-      // 1. Set Aspect Ratio
       sheet.style.aspectRatio = `${ratio}`;
-
-      // 2. Fit to Screen Logic
-      // We want the sheet to fit within, say, 75vh to leave room for headers/controls
-      // and max-width 100% of container.
-      sheet.style.maxHeight = '75vh';
-      sheet.style.maxWidth = '100%'; // Ensure it fits in the container width
-      sheet.style.margin = '0 auto'; // Center it
+      sheet.style.width = `${targetWidth}px`;
+      sheet.style.maxWidth = '100%';
+      sheet.style.height = `${targetHeight}px`;
+      sheet.style.maxHeight = `${availableHeight}px`;
+      sheet.style.margin = '0 auto';
+      sheet.dataset.paperSize = this.paperSize;
+      sheet.dataset.orientation = this.orientation;
     });
   }
 
