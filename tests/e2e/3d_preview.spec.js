@@ -7,6 +7,74 @@ function createPdfBuffer(label) {
   return Buffer.from(doc.output('arraybuffer'));
 }
 
+async function setQuadrantInputFile(page, name = 'cover-map.png') {
+  const dataTransfer = await page.evaluateHandle((fileName) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1000;
+    canvas.height = 1414;
+
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#ff0000';
+    context.fillRect(0, 0, 500, 707);
+    context.fillStyle = '#00ff00';
+    context.fillRect(500, 0, 500, 707);
+    context.fillStyle = '#0000ff';
+    context.fillRect(0, 707, 500, 707);
+    context.fillStyle = '#ffff00';
+    context.fillRect(500, 707, 500, 707);
+
+    return new Promise((resolve, reject) => {
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          reject(new Error('Failed to generate preview test image'));
+          return;
+        }
+
+        const data = new DataTransfer();
+        data.items.add(new File([blob], fileName, { type: 'image/png' }));
+        resolve(data);
+      }, 'image/png');
+    });
+  }, name);
+
+  await page.evaluate((dt) => {
+    const input = document.querySelector('#pdf-upload');
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: dt.files
+    });
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }, dataTransfer);
+}
+
+async function samplePreviewPixel(page, selector, xRatio = 0.1, yRatio = 0.1) {
+  return page.evaluate(async ({ targetSelector, x, y }) => {
+    const imageElement = document.querySelector(targetSelector);
+    const src = imageElement?.getAttribute('src');
+
+    if (!src) {
+      return null;
+    }
+
+    const image = new Image();
+    image.src = src;
+    await image.decode();
+
+    const canvas = document.createElement('canvas');
+    canvas.width = image.naturalWidth || image.width || 1;
+    canvas.height = image.naturalHeight || image.height || 1;
+
+    const context = canvas.getContext('2d');
+    context.drawImage(image, 0, 0);
+
+    const sampleX = Math.max(0, Math.min(canvas.width - 1, Math.floor(canvas.width * x)));
+    const sampleY = Math.max(0, Math.min(canvas.height - 1, Math.floor(canvas.height * y)));
+    const [r, g, b, a] = context.getImageData(sampleX, sampleY, 1, 1).data;
+
+    return { r, g, b, a };
+  }, { targetSelector: selector, x: xRatio, y: yRatio });
+}
+
 test('opens the 3D preview modal with a sized canvas', async ({ page }) => {
   await page.goto('/');
 
@@ -46,4 +114,26 @@ test('opens the 3D preview modal with a sized canvas', async ({ page }) => {
 
   await page.locator('#booklet-next-btn').click();
   await expect(page.locator('#booklet-status')).toHaveText('Pages 2-3');
+});
+
+test('booklet preview reflects flip adjustments from the sheet preview', async ({ page }) => {
+  await page.goto('/');
+
+  await setQuadrantInputFile(page);
+
+  await expect(page.locator('#upload-status')).toContainText('Imported image: cover-map.png', { timeout: 30000 });
+
+  await page.locator('button[title="Flip Cover"]').click();
+  await page.locator('#view3dBtn').click();
+
+  const modal = page.locator('#zine-3d-modal');
+  await expect(modal).toBeVisible();
+  await expect(page.locator('#booklet-status')).toHaveText('Cover');
+
+  const pixel = await samplePreviewPixel(page, '.booklet-page-right .booklet-page-media', 0.1, 0.1);
+
+  expect(pixel).not.toBeNull();
+  expect(pixel.r).toBeGreaterThan(200);
+  expect(pixel.g).toBeGreaterThan(200);
+  expect(pixel.b).toBeLessThan(80);
 });

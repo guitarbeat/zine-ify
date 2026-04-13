@@ -2,6 +2,22 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { MINI_ZINE_STACKS, computeMiniZineFoldState } from '../utils/miniZineFold.js';
 
+function normalizePreviewPage(page) {
+  if (!page || typeof page === 'string') {
+    const src = page || null;
+    return {
+      sourceUrl: src,
+      previewUrl: src
+    };
+  }
+
+  return {
+    ...page,
+    sourceUrl: page.sourceUrl ?? page.previewUrl ?? page.src ?? null,
+    previewUrl: page.previewUrl ?? page.sourceUrl ?? page.src ?? null
+  };
+}
+
 export class Zine3DViewer {
   constructor(containerElement) {
     this.container = containerElement;
@@ -97,6 +113,8 @@ export class Zine3DViewer {
    * @param {Array} imageUrls - Array of 8 image URLs (blob URLs or data URIs)
    */
   loadPages(imageUrls) {
+    const previewPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
+
     // Clear existing planes
     this.pages.forEach((page) => {
       page.frontMaterial?.map?.dispose?.();
@@ -136,7 +154,8 @@ export class Zine3DViewer {
     
     for (let i = 1; i <= 8; i++) {
       const config = this.panelDefinitions[i];
-      const url = imageUrls[i - 1]; // Array is 0-indexed
+      const pageData = previewPages[i - 1]; // Array is 0-indexed
+      const url = pageData?.previewUrl || pageData?.sourceUrl || null;
 
       const stack = this.stacks.find((entry) => entry.index === config.stackIndex);
       const group = new THREE.Group();

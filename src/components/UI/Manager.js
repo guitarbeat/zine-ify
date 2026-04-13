@@ -90,11 +90,6 @@ export class UIManager {
     this.loadSettings();
     this.updatePreviewLayout();
     this.setupEventListeners();
-
-    // Ensure preview is visible and enabled on load
-    if (this.elements.previewArea) {
-      this.elements.previewArea.classList.remove('opacity-50', 'pointer-events-none');
-    }
   }
 
 
@@ -110,6 +105,11 @@ export class UIManager {
       previewArea: $('#preview-area'),
       actionButtons: $('#action-buttons'),
       previewDescription: $('#preview-description'),
+      previewLayoutChip: $('#preview-layout-chip'),
+      previewCountChip: $('#preview-count-chip'),
+      previewModeChip: $('#preview-mode-chip'),
+      previewEmptyTitle: $('#preview-empty-title'),
+      previewEmptyBody: $('#preview-empty-body'),
       zineSheetsContainer: $('#zine-sheets-container'),
       workflowChip: $('#workflow-chip'),
       workflowTitle: $('#workflow-title'),
@@ -311,10 +311,8 @@ export class UIManager {
    */
   setReady(ready, description = null) {
     if (ready) {
-      this.elements.previewArea?.classList.remove('opacity-30', 'pointer-events-none');
       this.elements.actionButtons?.classList.remove('hidden');
     } else {
-      this.elements.previewArea?.classList.add('opacity-30', 'pointer-events-none');
       this.elements.actionButtons?.classList.add('hidden');
     }
 
@@ -436,39 +434,58 @@ export class UIManager {
     previewOpened = false,
     exportCompleted = false
   } = {}) {
-    const hasUploads = uploadedFiles > 0;
+    const hasQueuedFiles = uploadedFiles > 0;
     const hasContent = filledPages > 0;
+    const hasStarted = hasQueuedFiles || hasContent;
+    const isLoading = hasQueuedFiles && !hasContent;
     const previewReady = hasContent && isMiniZineLayout;
     const exportReady = hasContent;
     const filledSummary = `${filledPages}/${totalSlots}`;
+    const placedSummary = `${filledPages} page${filledPages === 1 ? '' : 's'} placed`;
 
     let nextLabel = 'Add Pages';
     let title = 'Start Here';
     let body = 'Drop in PDFs or phone photos. The app will queue them, place them on the sheet, and guide you to the next useful step.';
+    let modeChip = 'Fold + Read appears on the standard 2×4 mini-zine layout.';
+    let emptyTitle = 'Your working sheet builds itself here.';
+    let emptyBody = 'Add a PDF or phone photo on the left. When pages arrive, drag them into order and use the corner tools to zoom, crop, flip, or clear each slot.';
 
     if (hasContent && !isMiniZineLayout) {
       nextLabel = exportCompleted ? 'Adjust Layout' : 'Export PDF';
       title = 'Custom Layout Active';
       body = `You are working in a ${layoutLabel}. Arrange pages on the sheet, then export or print. Fold + Read is only available for the 2×4 mini-zine.`;
+      modeChip = 'Custom grid mode: export or print the sheet after you finish arranging it.';
     } else if (hasContent && previewOpened && exportCompleted) {
       nextLabel = 'Adjust Layout';
       title = 'Ready For Another Pass';
       body = `Your ${layoutLabel} is already previewed and exported. Swap pages, crop, or flip anything that still feels off, then export again.`;
+      modeChip = 'Fold + Read has already been checked. Export again after any new layout changes.';
     } else if (hasContent && previewOpened) {
       nextLabel = 'Export PDF';
       title = 'Preview Looks Good';
-      body = `The fold and booklet preview are openable now. Export the sheet as a PDF or print it directly when the order feels right.`;
+      body = 'The fold and booklet preview are openable now. Export the sheet as a PDF or print it directly when the order feels right.';
+      modeChip = 'Fold + Read is openable now. Use it to verify the booklet order before export.';
     } else if (hasContent) {
       nextLabel = isMiniZineLayout ? 'Arrange Pages' : 'Export PDF';
       title = 'Arrange Before Export';
       body = isMiniZineLayout
         ? 'Drag pages into place on the sheet, then open Fold + Read to confirm the folding sequence and booklet order.'
         : `Drag pages into place on the ${layoutLabel}, then export or print when the sheet looks right.`;
-    } else if (hasUploads) {
+      modeChip = isMiniZineLayout
+        ? 'Standard mini-zine mode: Fold + Read unlocks once pages are on the sheet.'
+        : 'Custom grid mode: use the canvas as your print-ready layout.';
+    } else if (hasQueuedFiles) {
       nextLabel = 'Arrange Pages';
       title = 'Files Queued';
       body = 'Your files are being placed on the sheet. As soon as pages land in the canvas, drag, flip, crop, or remove them before you preview or export.';
+      modeChip = 'Import in progress: pages will appear on the sheet as soon as decoding finishes.';
+      emptyTitle = 'Importing pages into the sheet.';
+      emptyBody = 'Stay on this view. As files finish processing, the sheet will update automatically and the action buttons will unlock.';
     }
+
+    this.elements.previewArea?.classList.toggle('has-content', hasContent);
+    this.elements.previewArea?.classList.toggle('is-empty', !hasContent);
+    this.elements.previewArea?.classList.toggle('is-loading', isLoading);
 
     if (this.elements.workflowChip) {
       this.elements.workflowChip.textContent = `Next: ${nextLabel}`;
@@ -479,10 +496,27 @@ export class UIManager {
     if (this.elements.workflowBody) {
       this.elements.workflowBody.textContent = body;
     }
+    if (this.elements.previewLayoutChip) {
+      this.elements.previewLayoutChip.textContent = layoutLabel;
+    }
+    if (this.elements.previewCountChip) {
+      this.elements.previewCountChip.textContent = hasContent ? placedSummary : (isLoading ? 'Import in progress' : 'No pages placed');
+    }
+    if (this.elements.previewModeChip) {
+      this.elements.previewModeChip.textContent = modeChip;
+    }
+    if (this.elements.previewEmptyTitle) {
+      this.elements.previewEmptyTitle.textContent = emptyTitle;
+    }
+    if (this.elements.previewEmptyBody) {
+      this.elements.previewEmptyBody.textContent = emptyBody;
+    }
 
     const previewDescription = hasContent
-      ? `${layoutLabel} • ${filledSummary} slots filled • drag pages to reorder`
-      : 'Upload pages to start laying out the sheet.';
+      ? `${layoutLabel} • ${placedSummary} • drag pages to reorder`
+      : hasQueuedFiles
+        ? 'Importing pages into the sheet...'
+        : 'Upload pages to start laying out the sheet.';
     this.setPreviewDescription(previewDescription);
 
     this.updateActionButtonState(this.elements.view3dBtn, {
@@ -514,15 +548,15 @@ export class UIManager {
 
     const workflowStates = {
       upload: {
-        state: hasUploads ? 'done' : 'ready',
-        text: hasUploads ? `${uploadedFiles} file${uploadedFiles === 1 ? '' : 's'}` : 'Add Files',
+        state: hasStarted ? 'done' : 'ready',
+        text: hasQueuedFiles ? `${uploadedFiles} file${uploadedFiles === 1 ? '' : 's'}` : (hasContent ? 'Loaded' : 'Add Files'),
         disabled: false,
-        current: !hasUploads
+        current: !hasStarted
       },
       arrange: {
         state: hasContent ? (previewOpened || exportCompleted ? 'done' : 'ready') : 'locked',
         text: hasContent ? `${filledSummary} placed` : 'Waiting',
-        disabled: !hasUploads,
+        disabled: !hasStarted,
         current: hasContent && !previewOpened
       },
       preview: {
@@ -636,11 +670,6 @@ export class UIManager {
     }
 
     this.updatePreviewLayout();
-
-    // Ensure preview is visible and enabled
-    if (this.elements.previewArea) {
-      this.elements.previewArea.classList.remove('opacity-50', 'pointer-events-none');
-    }
   }
 
 
@@ -1125,7 +1154,7 @@ export class UIManager {
       selected.delete(pageNumber);
     } else {
       if (selected.size >= selectionLimit) {
-        toast.warning('Selection Full', `Pick up to ${selectionLimit} pages for this upload.`);
+        toast.warning('Selection Limit Reached', `This import can place up to ${selectionLimit} pages. Deselect one to add another.`);
         return;
       }
       selected.add(pageNumber);
@@ -1200,7 +1229,7 @@ export class UIManager {
 
     const selectedPages = Array.from(this.pagePickerState.selected).sort((a, b) => a - b);
     if (selectedPages.length === 0) {
-      toast.warning('No Pages Selected', 'Choose at least one page to import.');
+      toast.warning('Choose At Least One Page', 'Select one or more pages before importing from this PDF.');
       return;
     }
 
@@ -1262,14 +1291,16 @@ export class UIManager {
     const limitedFiles = files.slice(0, MAX_UPLOAD_FILES);
 
     if (files.length > MAX_UPLOAD_FILES) {
-      toast.warning('Limit Exceeded', `Maximum ${MAX_UPLOAD_FILES} files allowed at once. Processing first ${MAX_UPLOAD_FILES} files.`);
+      toast.warning('Upload Limit Reached', `You added ${files.length} files. Only the first ${MAX_UPLOAD_FILES} will be queued.`);
     }
 
     const { acceptedFiles, rejectedFiles } = partitionSupportedFiles(limitedFiles);
 
     if (rejectedFiles.length > 0) {
-      const title = acceptedFiles.length > 0 ? 'Unsupported Files' : 'Error';
-      const message = acceptedFiles.length > 0 ? MIXED_UPLOAD_WARNING : SUPPORTED_UPLOAD_MESSAGE;
+      const title = acceptedFiles.length > 0 ? 'Some Files Were Skipped' : 'Unsupported Upload';
+      const message = acceptedFiles.length > 0
+        ? `${MIXED_UPLOAD_WARNING} The supported files are still queued.`
+        : `${SUPPORTED_UPLOAD_MESSAGE} Add a PDF or image file to start the layout.`;
       toast[acceptedFiles.length > 0 ? 'warning' : 'error'](title, message);
     }
 

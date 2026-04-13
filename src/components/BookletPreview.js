@@ -6,6 +6,22 @@ const BOOKLET_STATES = [
   { label: 'Back', left: 8, right: null }
 ];
 
+function normalizePreviewPage(page) {
+  if (!page || typeof page === 'string') {
+    const src = page || null;
+    return {
+      sourceUrl: src,
+      previewUrl: src
+    };
+  }
+
+  return {
+    ...page,
+    sourceUrl: page.sourceUrl ?? page.previewUrl ?? page.src ?? null,
+    previewUrl: page.previewUrl ?? page.sourceUrl ?? page.src ?? null
+  };
+}
+
 function getPageLabel(pageNumber) {
   if (pageNumber === null) {
     return 'Blank';
@@ -82,7 +98,7 @@ export class BookletPreview {
   }
 
   loadPages(imageUrls = []) {
-    this.pages = imageUrls;
+    this.pages = (imageUrls || []).map((page) => normalizePreviewPage(page));
     this.spreadIndex = 0;
     this.isAnimating = false;
     this.turnLayer?.classList.remove('is-visible', 'is-active', 'is-next', 'is-prev');
@@ -103,7 +119,8 @@ export class BookletPreview {
       return null;
     }
 
-    return this.pages[pageNumber - 1] || null;
+    const page = this.pages[pageNumber - 1];
+    return page?.previewUrl || page?.sourceUrl || null;
   }
 
   setPageFace(element, pageNumber) {
