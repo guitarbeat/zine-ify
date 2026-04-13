@@ -1,0 +1,267 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - paragraph [ref=e6]: DIY fold-ready zines
+          - generic [ref=e7]:
+            - heading "ZINE-IFY" [level=1] [ref=e8]
+            - paragraph [ref=e9]: Turn PDFs and phone photos into a printable mini-zine sheet you can rearrange, preview, and export.
+        - generic "How it works" [ref=e10]:
+          - paragraph [ref=e11]: How It Works
+          - generic [ref=e12]:
+            - generic [ref=e13]: Add files
+            - generic [ref=e14]: Arrange the sheet
+            - generic [ref=e15]: Fold + read
+            - generic [ref=e16]: Export or print
+          - paragraph [ref=e17]: Setup stays on the left. The live sheet and final actions stay on the right so the next move is always visible.
+    - main [ref=e18]:
+      - complementary [ref=e19]:
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - generic [ref=e22]:
+              - generic [ref=e23]:
+                - paragraph [ref=e24]: Step 1
+                - heading "Add Source Files" [level=2] [ref=e25]
+              - generic [ref=e26]: Ctrl+O
+            - button "Upload PDF or image files" [ref=e27] [cursor=pointer]:
+              - generic [ref=e28]: cloud_upload
+              - heading "DROP PDFS OR IMAGES" [level=2] [ref=e29]
+              - paragraph [ref=e30]: Upload PDF or image files to get started
+              - paragraph [ref=e31]: Queue multiple files, then rearrange the sheet after import.
+            - generic "Upload hints" [ref=e32]:
+              - generic [ref=e33]:
+                - generic [ref=e34]: picture_as_pdf
+                - text: PDF or image files
+              - generic [ref=e35]:
+                - generic [ref=e36]: layers
+                - text: Up to 10 files queued
+              - generic [ref=e37]:
+                - generic [ref=e38]: swap_horiz
+                - text: Drag pages into order
+          - generic [ref=e39]:
+            - generic [ref=e40]:
+              - generic [ref=e41]:
+                - paragraph [ref=e42]: Step 2
+                - heading "route What Happens Next" [level=3] [ref=e43]:
+                  - generic [ref=e44]: route
+                  - text: What Happens Next
+              - generic [ref=e45]: "Next: Add Pages"
+            - generic "Zine workflow" [ref=e46]:
+              - button "1 Add Pages Queue PDFs or photos Add Files" [ref=e47]:
+                - generic [ref=e48]: "1"
+                - generic [ref=e49]:
+                  - generic [ref=e50]: Add Pages
+                  - generic [ref=e51]: Queue PDFs or photos
+                - generic [ref=e52]: Add Files
+              - button "2 Arrange Drag, flip, crop, remove Waiting" [disabled] [ref=e53]:
+                - generic [ref=e54]: "2"
+                - generic [ref=e55]:
+                  - generic [ref=e56]: Arrange
+                  - generic [ref=e57]: Drag, flip, crop, remove
+                - generic [ref=e58]: Waiting
+              - button "3 Fold + Read See the fold and booklet Waiting" [disabled] [ref=e59]:
+                - generic [ref=e60]: "3"
+                - generic [ref=e61]:
+                  - generic [ref=e62]: Fold + Read
+                  - generic [ref=e63]: See the fold and booklet
+                - generic [ref=e64]: Waiting
+              - button "4 Export Download PDF or print Waiting" [disabled] [ref=e65]:
+                - generic [ref=e66]: "4"
+                - generic [ref=e67]:
+                  - generic [ref=e68]: Export
+                  - generic [ref=e69]: Download PDF or print
+                - generic [ref=e70]: Waiting
+            - generic [ref=e71]:
+              - paragraph [ref=e72]: Start Here
+              - paragraph [ref=e73]: Drop in PDFs or phone photos. The app will queue them, place them on the sheet, and guide you to the next useful step.
+          - generic [ref=e74]:
+            - generic [ref=e75]:
+              - paragraph [ref=e76]: Step 3
+              - heading "tune Sheet Setup" [level=3] [ref=e77]:
+                - generic [ref=e78]: tune
+                - text: Sheet Setup
+              - paragraph [ref=e79]: Set the paper, grid, and labels before you export or print.
+            - generic [ref=e80]:
+              - generic [ref=e81]:
+                - generic [ref=e82]: Paper Size
+                - combobox "Paper Size" [ref=e83]:
+                  - option "A4 (210 × 297 mm)"
+                  - option "A3 (297 × 420 mm)"
+                  - option "Letter (8.5 × 11 in)" [selected]
+                  - option "Legal (8.5 × 14 in)"
+                  - option "A5 (148 × 210 mm)"
+              - generic [ref=e84]:
+                - generic [ref=e85]: Orientation
+                - combobox "Orientation" [ref=e86]:
+                  - option "Landscape" [selected]
+                  - option "Portrait"
+            - group "grid_view Grid Layout" [ref=e87]:
+              - generic [ref=e88]:
+                - generic [ref=e89]:
+                  - generic [ref=e90]: grid_view
+                  - text: Grid Layout
+                - generic [ref=e91]: (8 Pages)
+              - generic [ref=e92]:
+                - spinbutton "Grid Rows" [ref=e93]: "2"
+                - generic [ref=e94]: ×
+                - spinbutton "Grid Columns" [ref=e95]: "4"
+            - generic [ref=e97] [cursor=pointer]:
+              - checkbox "Show Page Numbers" [checked] [ref=e98]
+              - generic [ref=e99]: Show Page Numbers
+      - generic [ref=e100]:
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - paragraph [ref=e104]: Working Sheet
+            - heading "preview Canvas" [level=2] [ref=e105]:
+              - generic [ref=e106]: preview
+              - text: Canvas
+          - paragraph [ref=e107]: Upload pages to start laying out the sheet.
+        - generic "Canvas status" [ref=e108]:
+          - generic [ref=e109]: 8-page mini-zine
+          - generic [ref=e110]: No pages placed
+          - generic [ref=e111]: Fold + Read appears on the standard 2×4 mini-zine layout.
+        - generic [ref=e112]:
+          - generic [ref=e113]:
+            - paragraph [ref=e114]: Start with the first file
+            - heading "Your working sheet builds itself here." [level=3] [ref=e115]
+            - paragraph [ref=e116]: Add a PDF or phone photo on the left. When pages arrive, drag them into order and use the corner tools to zoom, crop, flip, or clear each slot.
+          - generic "Canvas guide" [ref=e117]:
+            - article [ref=e118]:
+              - generic [ref=e119]: "1"
+              - strong [ref=e120]: Add files
+              - paragraph [ref=e121]: Queue PDFs or images from the upload panel.
+            - article [ref=e122]:
+              - generic [ref=e123]: "2"
+              - strong [ref=e124]: Arrange pages
+              - paragraph [ref=e125]: Drag pages into order and fine-tune each slot.
+            - article [ref=e126]:
+              - generic [ref=e127]: "3"
+              - strong [ref=e128]: Export or print
+              - paragraph [ref=e129]: Use Fold + Read for mini-zines, then download the sheet.
+        - generic "Canvas controls" [ref=e130]:
+          - generic [ref=e131]:
+            - generic [ref=e132]: open_with
+            - text: Drag to reorder
+          - generic [ref=e133]:
+            - generic [ref=e134]: crop_free
+            - text: Use the page tools in each corner
+          - generic [ref=e135]:
+            - generic [ref=e136]: inventory_2
+            - text: Extra pages stay in Unplaced Pages
+        - generic [ref=e139]:
+          - generic [ref=e140]:
+            - generic [ref=e141]: Page 5
+            - generic [ref=e142]:
+              - button "Quick Preview Page 5" [ref=e143]:
+                - generic [ref=e144]: zoom_in
+              - button "Toggle Crop/Zoom Page 5" [ref=e145]:
+                - generic [ref=e146]: crop_free
+              - button "Rotate Page 5 180 degrees" [ref=e147]:
+                - generic [ref=e148]: rotate_right
+              - button "Remove Page 5" [ref=e149]:
+                - generic [ref=e150]: close
+            - generic [ref=e151]:
+              - generic [ref=e152]: note_stack
+              - generic [ref=e153]: Empty
+          - generic [ref=e154]:
+            - generic [ref=e155]: Page 4
+            - generic [ref=e156]:
+              - button "Quick Preview Page 4" [ref=e157]:
+                - generic [ref=e158]: zoom_in
+              - button "Toggle Crop/Zoom Page 4" [ref=e159]:
+                - generic [ref=e160]: crop_free
+              - button "Rotate Page 4 180 degrees" [ref=e161]:
+                - generic [ref=e162]: rotate_right
+              - button "Remove Page 4" [ref=e163]:
+                - generic [ref=e164]: close
+            - generic [ref=e165]:
+              - generic [ref=e166]: note_stack
+              - generic [ref=e167]: Empty
+          - generic [ref=e168]:
+            - generic [ref=e169]: Page 3
+            - generic [ref=e170]:
+              - button "Quick Preview Page 3" [ref=e171]:
+                - generic [ref=e172]: zoom_in
+              - button "Toggle Crop/Zoom Page 3" [ref=e173]:
+                - generic [ref=e174]: crop_free
+              - button "Rotate Page 3 180 degrees" [ref=e175]:
+                - generic [ref=e176]: rotate_right
+              - button "Remove Page 3" [ref=e177]:
+                - generic [ref=e178]: close
+            - generic [ref=e179]:
+              - generic [ref=e180]: note_stack
+              - generic [ref=e181]: Empty
+          - generic [ref=e182]:
+            - generic [ref=e183]: Page 2
+            - generic [ref=e184]:
+              - button "Quick Preview Page 2" [ref=e185]:
+                - generic [ref=e186]: zoom_in
+              - button "Toggle Crop/Zoom Page 2" [ref=e187]:
+                - generic [ref=e188]: crop_free
+              - button "Rotate Page 2 180 degrees" [ref=e189]:
+                - generic [ref=e190]: rotate_right
+              - button "Remove Page 2" [ref=e191]:
+                - generic [ref=e192]: close
+            - generic [ref=e193]:
+              - generic [ref=e194]: note_stack
+              - generic [ref=e195]: Empty
+          - generic [ref=e196]:
+            - generic [ref=e197]: Page 6
+            - generic [ref=e198]:
+              - button "Quick Preview Page 6" [ref=e199]:
+                - generic [ref=e200]: zoom_in
+              - button "Toggle Crop/Zoom Page 6" [ref=e201]:
+                - generic [ref=e202]: crop_free
+              - button "Rotate Page 6 180 degrees" [ref=e203]:
+                - generic [ref=e204]: rotate_right
+              - button "Remove Page 6" [ref=e205]:
+                - generic [ref=e206]: close
+            - generic [ref=e207]:
+              - generic [ref=e208]: note_stack
+              - generic [ref=e209]: Empty
+          - generic [ref=e210]:
+            - generic [ref=e211]: Page 7
+            - generic [ref=e212]:
+              - button "Quick Preview Page 7" [ref=e213]:
+                - generic [ref=e214]: zoom_in
+              - button "Toggle Crop/Zoom Page 7" [ref=e215]:
+                - generic [ref=e216]: crop_free
+              - button "Rotate Page 7 180 degrees" [ref=e217]:
+                - generic [ref=e218]: rotate_right
+              - button "Remove Page 7" [ref=e219]:
+                - generic [ref=e220]: close
+            - generic [ref=e221]:
+              - generic [ref=e222]: note_stack
+              - generic [ref=e223]: Empty
+          - generic [ref=e224]:
+            - generic [ref=e225]: Back
+            - generic [ref=e226]:
+              - button "Quick Preview Back" [ref=e227]:
+                - generic [ref=e228]: zoom_in
+              - button "Toggle Crop/Zoom Back" [ref=e229]:
+                - generic [ref=e230]: crop_free
+              - button "Rotate Back 180 degrees" [ref=e231]:
+                - generic [ref=e232]: rotate_right
+              - button "Remove Back" [ref=e233]:
+                - generic [ref=e234]: close
+            - generic [ref=e235]:
+              - generic [ref=e236]: note_stack
+              - generic [ref=e237]: Empty
+          - generic [ref=e238]:
+            - generic [ref=e239]: Cover
+            - generic [ref=e240]:
+              - button "Quick Preview Cover" [ref=e241]:
+                - generic [ref=e242]: zoom_in
+              - button "Toggle Crop/Zoom Cover" [ref=e243]:
+                - generic [ref=e244]: crop_free
+              - button "Rotate Cover 180 degrees" [ref=e245]:
+                - generic [ref=e246]: rotate_right
+              - button "Remove Cover" [ref=e247]:
+                - generic [ref=e248]: close
+            - generic [ref=e249]:
+              - generic [ref=e250]: note_stack
+              - generic [ref=e251]: Empty
+    - contentinfo [ref=e252]:
+      - paragraph [ref=e253]: Made with ♥ by Aaron
+  - region "Notifications"

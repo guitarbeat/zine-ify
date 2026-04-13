@@ -345,7 +345,7 @@ class PDFZineMaker {
       return Array.from({ length: numPages }, (_, index) => index + 1);
     }
 
-    toast.info('Choose Pages To Import', `${fileName} has ${numPages} pages. Pick up to ${selectionLimit} to place on the sheet.`);
+    this.ui.setStatus(`Choose pages from ${fileName}`, 'info');
     this.ui.showProgress(true, 'Preparing Page Picker...', 'Rendering thumbnails');
 
     const thumbnails = [];
@@ -475,7 +475,7 @@ class PDFZineMaker {
 
   async processAdditionalPDF(file) {
     try {
-      toast.info('Importing PDF', `${file.name} is being decoded and placed on the sheet.`);
+      this.ui.setStatus(`Reading: ${file.name}`, 'info');
       this.ui.showProgress(true, 'Reading PDF...', '0%');
 
       const result = await this.pdfProcessor.loadPDF(file, (progress) => {
@@ -563,7 +563,7 @@ class PDFZineMaker {
 
   async processAdditionalImage(file) {
     try {
-      toast.info('Adding Image', `${file.name} is being placed on the next open slot.`);
+      this.ui.setStatus(`Reading image: ${file.name}`, 'info');
       this.ui.showProgress(true, 'Reading image...', '0%');
 
       const { currentFilledPages, requiredLength } = this.prepareLayoutForAdditionalPages(1);
