@@ -13,10 +13,30 @@
   min-height: 0;
 }
 
+.control-scroll {
+  display: grid;
+  align-content: start;
+}
+
 .combined-rail-panel {
   background:
     linear-gradient(180deg, rgba(16, 185, 129, 0.08), rgba(255, 255, 255, 0.94) 20%),
     white;
+}
+
+.rail-settings-panel {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 242, 234, 0.98)),
+    white;
+}
+
+.rail-section-header-stacked {
+  align-items: start;
+}
+
+.rail-section-header-stacked p {
+  margin-top: 0.35rem;
+  max-width: 28ch;
 }
 
 .combined-rail-divider {
@@ -402,7 +422,7 @@ body.mobile-rail-open {
   .app-layout {
       height: 100%;
       min-height: 0;
-      grid-template-columns: 260px minmax(0, 1fr) !important;
+      grid-template-columns: 380px minmax(0, 1fr) !important;
       gap: 1.25rem !important;
       padding-bottom: 0;
   }
@@ -426,7 +446,7 @@ body.mobile-rail-open {
   }
 
   .workspace-header {
-      grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 0.6rem;
       margin-bottom: 0.55rem;
       padding-bottom: 0.55rem;

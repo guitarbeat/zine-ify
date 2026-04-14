@@ -34,6 +34,15 @@
   @apply base-panel;
 }
 
+#uploaded-files-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.rail-config-grid {
+  gap: 0.8rem;
+}
+
 .workspace-config-header {
   display: flex;
   flex-wrap: wrap;
@@ -49,6 +58,7 @@
   font-size: 0.73rem;
   letter-spacing: 0.04em;
   color: var(--muted-ink);
+  line-height: 1.45;
 }
 
 .workspace-config-grid {
@@ -61,13 +71,14 @@
   display: grid;
   gap: 0.42rem;
   border: var(--border-thin);
-  background: white;
+  background: rgba(255, 255, 255, 0.92);
   border-radius: var(--radius-button);
   padding: 0.75rem;
   transition: border-color 0.2s ease;
 }
 .workspace-config-field:focus-within {
   border-color: var(--primary-vibrant);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.08);
 }
 
 .workspace-config-label-row {
@@ -177,6 +188,16 @@
 
 .workspace-config-toggle:focus-within {
   border-color: var(--primary-vibrant);
+}
+
+.workspace-overflow-panel {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.workspace-overflow-chip {
+  @apply base-chip;
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .upload-status--success {
