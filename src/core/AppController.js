@@ -201,15 +201,38 @@ export class AppController {
     this.ui.modal.updateProgress(0);
 
     try {
-      for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
+      // ⚡ Bolt: Sliding window worker pool for faster thumbnail generation
+      // This maintains a constant stream of processing instead of waiting for batched promises,
+      // avoiding UI stuttering and utilizing resources more evenly.
+      const CONCURRENCY_LIMIT = 4;
+      const activePromises = new Set();
+      let completedCount = 0;
+
+      const processPage = async (pageNumber) => {
         const canvas = await this.pdfProcessor.renderPageThumbnail(pageNumber);
         const thumbnailUrl = await this.pdfProcessor.canvasToBlob(canvas);
         thumbnails.push({ pageNumber, thumbnailUrl });
 
-        const percent = Math.round((pageNumber / numPages) * 100);
+        completedCount++;
+        const percent = Math.round((completedCount / numPages) * 100);
         this.ui.modal.setProgressCopy('Preparing page picker...', `${percent}%`);
         this.ui.modal.updateProgress(percent);
+      };
+
+      for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
+        const promise = processPage(pageNumber);
+        activePromises.add(promise);
+        promise.finally(() => activePromises.delete(promise));
+
+        if (activePromises.size >= CONCURRENCY_LIMIT) {
+          await Promise.race(activePromises);
+        }
       }
+
+      await Promise.all(activePromises);
+
+      // Ensure thumbnails are sorted by pageNumber since they resolve out of order
+      thumbnails.sort((a, b) => a.pageNumber - b.pageNumber);
     } finally {
       this.ui.modal.showProgress(false);
     }
