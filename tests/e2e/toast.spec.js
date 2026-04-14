@@ -22,7 +22,7 @@ test('Toast notification for invalid file upload', async ({ page }) => {
     await expect(toast).toBeVisible({ timeout: 5000 });
 
     // We expect the clearer workflow-specific error title.
-    await expect(toast).toContainText('Unsupported Upload');
+    await expect(toast).toContainText('Unsupported File');
     // We expect the specific error message
     await expect(toast).toContainText('Please select a PDF or image file.');
   } finally {

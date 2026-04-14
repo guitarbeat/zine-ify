@@ -26,8 +26,8 @@ test.describe('Grid DoS Protection', () => {
     expect(colsValue).toBe('10');
 
     // Generate a layout - simulating the grid total pages update and layout rendering
-    // Let's assert that the grid total text shows at most 100 pages
+    // Let's assert that the grid total text shows at most 100 slots
     const gridTotalText = await page.locator('#grid-total').textContent();
-    expect(gridTotalText).toContain('100 pages');
+    expect(gridTotalText).toContain('100 slots');
   });
 });

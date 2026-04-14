@@ -2,7 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test('Toast should allow safe HTML but sanitize XSS', async ({ page }) => {
   // Navigate to our test page served by Vite
-  await page.goto('/tests/security/test-toast.html');
+  await page.goto('/');
+  await page.waitForFunction(() => true); // just an entry point, we can import toast or trigger it
+
   await page.waitForFunction(() => window.toast);
 
   // 1. Check Safe HTML (Bold)

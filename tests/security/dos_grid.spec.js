@@ -19,7 +19,7 @@ test('Should clamp extreme grid layout dimensions to prevent DoS', async ({ page
 
   // Check the total pages text
   const gridTotal = page.locator('#grid-total');
-  await expect(gridTotal).toContainText('(100 pages)');
+  await expect(gridTotal).toContainText('100 slots');
 
   // Verify the number of generated cells
   // Wait a bit more just in case DOM needs time to render

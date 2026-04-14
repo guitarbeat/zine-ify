@@ -194,8 +194,14 @@ export class UIManager {
     });
 
     const debouncedGridChange = debounce(() => {
-      const rows = parseInt(this.elements.gridRows?.value || '2', 10);
-      const cols = parseInt(this.elements.gridCols?.value || '4', 10);
+      let rows = parseInt(this.elements.gridRows?.value || '2', 10);
+      let cols = parseInt(this.elements.gridCols?.value || '4', 10);
+
+      rows = Math.min(Math.max(rows, 1), 10);
+      cols = Math.min(Math.max(cols, 1), 10);
+
+      if (this.elements.gridRows) {this.elements.gridRows.value = rows;}
+      if (this.elements.gridCols) {this.elements.gridCols.value = cols;}
 
       this.updateGridTotalBadge(rows, cols);
       this.emitter.emit('gridSizeChanged', { rows, cols });
