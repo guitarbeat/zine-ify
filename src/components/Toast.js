@@ -157,3 +157,7 @@ class Toast {
 
 // Export singleton instance
 export const toast = new Toast();
+// Expose on window for tests since Vite strips out module imports in production build
+if (typeof window !== 'undefined') {
+  window.toast = toast;
+}
