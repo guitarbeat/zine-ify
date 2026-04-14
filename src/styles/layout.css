@@ -10,7 +10,8 @@ body.mobile-rail-open {
 }
 
 .app-header {
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: var(--border-bold);
+  background: white;
 }
 
 .app-header-main {
@@ -46,45 +47,38 @@ body.mobile-rail-open {
 
 .app-title-cut {
   display: inline-block;
-  padding: 0.02em 0.14em 0.08em;
-  color: #111;
-  background: #fff8f2;
-  border: 3px solid #111;
-  box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+  padding: 0.05em 0.2em 0.1em;
+  color: white;
+  background: var(--accent-dark);
+  border: var(--border-bold);
+  box-shadow: var(--shadow-sm);
   line-height: 0.88;
 }
 
 .app-title-cut-1 {
-  font-family: 'Permanent Marker', 'Space Grotesk', sans-serif;
-  background: #ff00e5;
-  color: #fff7fd;
+  font-family: 'Permanent Marker', cursive;
+  background: #ff00ea; /* Neon Pink */
+  color: white;
   transform: rotate(-4deg) skewX(-10deg);
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.55);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
 .app-title-cut-dash {
-  padding-inline: 0.2em;
+  padding-inline: 0.25em;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.86em;
-  background: #fff;
-  color: #111;
+  font-size: 0.9em;
+  background: white;
+  color: var(--accent-dark);
   transform: rotate(3deg);
 }
 
 .app-title-cut-2 {
   font-family: 'IBM Plex Mono', monospace;
-  font-weight: 700;
-  background:
-      repeating-linear-gradient(
-          -45deg,
-          #fff5fb 0,
-          #fff5fb 10px,
-          #ff00e5 10px,
-          #ff00e5 20px
-      );
-  color: #111;
+  font-weight: 800;
+  background: var(--primary-vibrant);
+  color: white;
   transform: rotate(2deg) skewX(-6deg);
-  letter-spacing: -0.08em;
+  letter-spacing: -0.05em;
 }
 
 .app-overview-title,
@@ -128,17 +122,26 @@ body.mobile-rail-open {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  min-height: 2.3rem;
-  padding: 0.45rem 0.8rem;
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  border: var(--border-bold);
+  border-radius: var(--radius-pill);
+  background: white;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--accent-dark);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.rail-sheet-close:hover,
+.workspace-mobile-rail-trigger:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-vibrant);
 }
 
 .workspace-mobile-rail-trigger {

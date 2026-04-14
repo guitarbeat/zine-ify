@@ -1,5 +1,5 @@
 import { PDFProcessor } from '../services/PDFProcessor.js';
-import { UIManager } from '../components/UI/UIManager.js'; // I'll rename Manager.js to UIManager.js too
+import { UIManager } from '../components/UI/UIManager.js';
 import { StateStore } from './StateStore.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
@@ -12,7 +12,7 @@ export class AppController {
     this.pdfProcessor = new PDFProcessor();
     this.ui = new UIManager();
     this.exportService = new ExportService(this.ui, this.state, this.pdfProcessor);
-    
+
     this.init();
   }
 
@@ -20,7 +20,8 @@ export class AppController {
     try {
       await this.pdfProcessor.initialize();
       this.setupEventListeners();
-      this.ui.generateLayout(8, 'mini-8');
+      this.renderCurrentLayout();
+      this.ui.setStatus('Choose files or drop them here');
     } catch (error) {
       toast.error('Initialization Failed', 'Check console for details.');
       // eslint-disable-next-line no-console
@@ -41,88 +42,245 @@ export class AppController {
     this.ui.on('orientationChanged', (data) => this.state.updatePaperSettings(data));
   }
 
-  async handleFileSelected(file) {
-    this.ui.modal.showProgress(true, `Reading ${file.name}...`);
-    try {
-      const fileKind = classifyFileKind(file);
-
-      if (fileKind === 'image') {
-        await this.importImage(file);
-        return;
-      }
-
-      const result = await this.pdfProcessor.loadPDF(file, (progress) => {
-        this.ui.modal.updateProgress(progress);
-      });
-      
-      const selectionLimit = this.state.gridSize.rows * this.state.gridSize.cols;
-      const thumbnails = [];
-      for (let i = 1; i <= result.numPages; i++) {
-        const canvas = await this.pdfProcessor.renderPageThumbnail(i);
-        thumbnails.push({ pageNumber: i, thumbnailUrl: await this.pdfProcessor.canvasToBlob(canvas) });
-      }
-
-      const selectedPages = await this.ui.modal.showPagePicker({
-        fileName: file.name,
-        totalPages: result.numPages,
-        selectionLimit,
-        thumbnails
-      });
-
-      if (selectedPages?.length > 0) {
-        await this.importPages(selectedPages);
-      }
-    } catch (error) {
-      toast.error('Import Failed', error.message);
-    } finally {
-      this.ui.modal.showProgress(false);
-    }
-  }
-
-  getNextInsertionIndex() {
-    const emptyIndex = this.state.allPageImages.findIndex((url) => !url);
-    if (emptyIndex !== -1) {
-      return emptyIndex;
+  handleFileSelected(file) {
+    const kind = classifyFileKind(file);
+    if (!kind) {
+      toast.error('Unsupported File', 'Please select a PDF or image file.');
+      return;
     }
 
-    return this.state.allPageImages.length - 1;
+    const record = {
+      file,
+      kind,
+      name: file.name,
+      size: file.size,
+      status: 'Queued'
+    };
+
+    this.state.uploadedFiles.push(record);
+    this.ui.updateUploadedFilesList(this.state.uploadedFiles);
+    this.ui.setStatus(`Adding: ${file.name}`);
+
+    this.state.fileQueue.push(record);
+    void this.processFileQueue();
   }
 
-  async importImage(file) {
-    this.ui.modal.updateProgress('Rendering image...');
+  async processFileQueue() {
+    if (this.state.isProcessingQueue) {
+      return;
+    }
 
-    const insertIndex = this.getNextInsertionIndex();
-    const existingUrl = this.state.allPageImages[insertIndex];
+    this.state.isProcessingQueue = true;
 
-    const canvas = await this.pdfProcessor.renderImageFile(file);
+    while (this.state.fileQueue.length > 0) {
+      const nextRecord = this.state.fileQueue.shift();
+      if (!nextRecord) {
+        continue;
+      }
+
+      try {
+        this.updateUploadedFileRecord(nextRecord, { status: 'Processing' });
+
+        if (nextRecord.kind === 'image') {
+          await this.processImageUpload(nextRecord);
+        } else {
+          await this.processPdfUpload(nextRecord);
+        }
+      } catch (error) {
+        this.updateUploadedFileRecord(nextRecord, { status: 'Failed' });
+        this.ui.setStatus(`Failed: ${nextRecord.name}`, 'error');
+        toast.error('Import Failed', error.message);
+      } finally {
+        this.ui.modal.showProgress(false);
+      }
+    }
+
+    this.state.isProcessingQueue = false;
+  }
+
+  updateUploadedFileRecord(record, updates) {
+    Object.assign(record, updates);
+    this.ui.updateUploadedFilesList(this.state.uploadedFiles);
+  }
+
+  async processImageUpload(record) {
+    this.ui.modal.showProgress(true, `Reading ${record.name}...`);
+    this.ui.modal.setProgressCopy('Rendering image...');
+
+    const targetIndex = this.getNextImageInsertionIndex();
+    const currentFilledPages = this.state.getFilledPageCount();
+
+    this.prepareLayoutForTotalPages(Math.max(currentFilledPages, targetIndex + 1));
+
+    const existingUrl = this.state.allPageImages[targetIndex];
+    const canvas = await this.pdfProcessor.renderImageFile(record.file);
     const imageUrl = await this.pdfProcessor.canvasToBlob(canvas);
 
     if (existingUrl) {
       this.pdfProcessor.revokeBlobUrl(existingUrl);
     }
 
-    this.state.allPageImages[insertIndex] = imageUrl;
-    this.ui.updatePagePreview(insertIndex, imageUrl);
+    this.state.allPageImages[targetIndex] = imageUrl;
+    this.state.totalPages = this.state.getFilledPageCount();
+    this.ui.updatePagePreview(targetIndex, imageUrl);
 
-    toast.success('Import Complete', `Imported image into slot ${insertIndex + 1}.`);
+    const status = `Imported image: ${record.name}`;
+    this.updateUploadedFileRecord(record, { status });
+    this.ui.setStatus(status, 'success');
+    toast.success('Import Complete', status);
   }
 
-  async importPages(pageNumbers) {
-    this.ui.modal.showProgress(true, 'Rendering pages...');
-    for (const [idx, pageNum] of pageNumbers.entries()) {
-      const canvas = await this.pdfProcessor.renderPage(pageNum);
-      const url = await this.pdfProcessor.canvasToBlob(canvas);
-      this.state.allPageImages[idx] = url;
-      this.ui.updatePagePreview(idx, url);
+  async processPdfUpload(record) {
+    this.ui.modal.showProgress(true, `Reading ${record.name}...`);
+
+    const result = await this.pdfProcessor.loadPDF(record.file, (message) => {
+      this.ui.modal.setProgressCopy(message);
+    });
+
+    const selectedPages = await this.getSelectedPagesForImport(record.name, result.numPages);
+    if (!selectedPages || selectedPages.length === 0) {
+      const status = `Skipped: ${record.name}`;
+      this.updateUploadedFileRecord(record, { status });
+      this.ui.setStatus(status);
+      toast.info('Import Cancelled', 'No pages were added from that PDF.');
+      return;
     }
-    this.ui.modal.showProgress(false);
-    toast.success('Import Complete', `${pageNumbers.length} pages added.`);
+
+    const startIndex = this.state.getFilledPageCount();
+    this.prepareLayoutForTotalPages(startIndex + selectedPages.length);
+
+    this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
+    this.ui.modal.updateProgress(0);
+
+    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
+      const targetIndex = startIndex + selectedIndex;
+      const canvas = await this.pdfProcessor.renderPage(pageNumber);
+      const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
+      const existingUrl = this.state.allPageImages[targetIndex];
+
+      if (existingUrl) {
+        this.pdfProcessor.revokeBlobUrl(existingUrl);
+      }
+
+      this.state.allPageImages[targetIndex] = pageUrl;
+      this.ui.updatePagePreview(targetIndex, pageUrl);
+
+      const percent = Math.round(((selectedIndex + 1) / selectedPages.length) * 100);
+      this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
+      this.ui.modal.updateProgress(percent);
+    }
+
+    this.state.totalPages = this.state.getFilledPageCount();
+
+    const status = `Imported ${selectedPages.length} of ${result.numPages} pages from ${record.name}`;
+    this.updateUploadedFileRecord(record, { status });
+    this.ui.setStatus(status, 'success');
+    toast.success('Import Complete', status);
+  }
+
+  async getSelectedPagesForImport(fileName, numPages) {
+    const selectionLimit = Math.max(1, this.state.gridSize.rows * this.state.gridSize.cols);
+
+    if (numPages <= selectionLimit) {
+      return Array.from({ length: numPages }, (_, index) => index + 1);
+    }
+
+    const thumbnails = [];
+    this.ui.modal.showProgress(true, 'Preparing page picker...', '0%');
+    this.ui.modal.updateProgress(0);
+
+    try {
+      for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
+        const canvas = await this.pdfProcessor.renderPageThumbnail(pageNumber);
+        const thumbnailUrl = await this.pdfProcessor.canvasToBlob(canvas);
+        thumbnails.push({ pageNumber, thumbnailUrl });
+
+        const percent = Math.round((pageNumber / numPages) * 100);
+        this.ui.modal.setProgressCopy('Preparing page picker...', `${percent}%`);
+        this.ui.modal.updateProgress(percent);
+      }
+    } finally {
+      this.ui.modal.showProgress(false);
+    }
+
+    try {
+      return await this.ui.modal.showPagePicker({
+        fileName,
+        totalPages: numPages,
+        selectionLimit,
+        thumbnails
+      });
+    } finally {
+      thumbnails.forEach(({ thumbnailUrl }) => {
+        this.pdfProcessor.revokeBlobUrl(thumbnailUrl);
+      });
+    }
+  }
+
+  getNextImageInsertionIndex() {
+    const emptyIndex = this.state.allPageImages.findIndex((url) => !url);
+    if (emptyIndex !== -1) {
+      return emptyIndex;
+    }
+
+    return this.state.getFilledPageCount();
+  }
+
+  prepareLayoutForTotalPages(totalPages) {
+    const requiredPages = Math.max(totalPages, 1);
+    this.state.totalPages = requiredPages;
+    const requiredLength = this.state.getRequiredPageCapacity();
+
+    if (this.state.allPageImages.length !== requiredLength) {
+      const nextImages = new Array(requiredLength).fill(null);
+      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
+        nextImages[index] = this.state.allPageImages[index];
+      }
+      this.state.allPageImages = nextImages;
+    }
+
+    this.renderCurrentLayout();
+  }
+
+  getCurrentTemplate() {
+    const { rows, cols } = this.state.gridSize;
+
+    if (rows === 2 && cols === 4) {
+      return 'mini-8';
+    }
+
+    return {
+      label: `${rows}x${cols} Layout`,
+      grid: { rows, cols },
+      layout: Array.from({ length: rows * cols }, (_, index) => ({
+        page: index + 1,
+        upsideDown: false
+      }))
+    };
+  }
+
+  renderCurrentLayout() {
+    const requiredLength = this.state.getRequiredPageCapacity();
+    if (this.state.allPageImages.length !== requiredLength) {
+      const nextImages = new Array(requiredLength).fill(null);
+      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
+        nextImages[index] = this.state.allPageImages[index];
+      }
+      this.state.allPageImages = nextImages;
+    }
+
+    this.ui.generateLayout(requiredLength, this.getCurrentTemplate());
+    this.state.allPageImages.forEach((url, index) => this.ui.updatePagePreview(index, url));
+
+    for (let index = 0; index < this.state.allPageImages.length; index++) {
+      this.ui.setPageFlip(index, !!this.state.pageFlips[index]);
+      this.ui.setPageZoom(index, !!this.state.pageZooms[index]);
+    }
   }
 
   handleGridSizeChanged({ rows, cols }) {
     this.state.gridSize = { rows, cols };
-    this.ui.generateLayout(this.state.getRequiredPageCapacity());
-    this.state.allPageImages.forEach((url, i) => this.ui.updatePagePreview(i, url));
+    this.renderCurrentLayout();
   }
 
   handlePageFlipped(i) {
@@ -139,6 +297,7 @@ export class AppController {
     if (this.state.allPageImages[i]) {
       this.pdfProcessor.revokeBlobUrl(this.state.allPageImages[i]);
       this.state.allPageImages[i] = null;
+      this.state.totalPages = this.state.getFilledPageCount();
       this.ui.updatePagePreview(i, null);
     }
   }

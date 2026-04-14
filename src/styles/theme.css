@@ -2,57 +2,65 @@
 
 :root {
   --bg-neutral: #f4efe6;
-  --surface-bg: rgba(255, 252, 247, 0.78);
-  --surface-strong: #fffdf8;
+  --surface-bg: #fffdf8;
+  --surface-strong: #ffffff;
   --surface-muted: #ebe3d6;
   --accent-dark: #171717;
-  --primary-vibrant: #31536b;
-  --border-color: rgba(23, 23, 23, 0.14);
-  --border-strong: rgba(23, 23, 23, 0.22);
-  --muted-ink: rgba(23, 23, 23, 0.62);
-  --paper-bg: #fffdf8;
-  --surface-shadow: 0 12px 32px rgba(24, 27, 32, 0.06);
-  --surface-shadow-strong: 0 18px 46px rgba(24, 27, 32, 0.1);
+  --primary-vibrant: #10b981; /* Precise Toxic Green */
+  --primary-glow: rgba(16, 185, 129, 0.15);
+  --border-color: #171717;
+  --border-faint: rgba(23, 23, 23, 0.1);
+  --muted-ink: rgba(23, 23, 23, 0.65);
   
-  /* Shared values */
+  /* Hard shadow tokens */
+  --shadow-sm: 3px 3px 0px 0px #171717;
+  --shadow-md: 6px 6px 0px 0px #171717;
+  --shadow-lg: 10px 10px 0px 0px #171717;
+  
+  /* Spacing & Borders */
+  --radius-panel: 1.15rem;
+  --radius-button: 0.85rem;
   --radius-pill: 999px;
-  --radius-panel: 1.25rem;
-  --glass-bg: rgba(255, 255, 255, 0.76);
-  --glass-bg-alt: rgba(49, 83, 107, 0.06);
+  --border-bold: 3px solid #171717;
+  --border-thin: 1.5px solid #171717;
 }
 
-/* Base utility for small status chips used across the app */
 @utility base-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.35rem 0.7rem;
-  border: 1px solid var(--border-color);
+  padding: 0.4rem 0.8rem;
+  border: var(--border-thin);
   border-radius: var(--radius-pill);
-  background: var(--glass-bg);
-  font-size: 0.68rem;
-  font-weight: 700;
+  background: white;
+  font-size: 0.7rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   white-space: nowrap;
-  line-height: 1.35;
+  box-shadow: var(--shadow-sm);
+  color: var(--accent-dark);
 }
 
-/* Base utility for panels */
 @utility base-panel {
-  background: var(--glass-bg);
-  border: 1px solid var(--border-color);
+  background: white;
+  border: var(--border-bold);
   border-radius: var(--radius-panel);
-  box-shadow: var(--surface-shadow);
-  padding: 1rem;
+  box-shadow: var(--shadow-md);
+  padding: 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 body {
-  background:
-      radial-gradient(circle at top left, rgba(255, 255, 255, 0.75), transparent 32%),
-      linear-gradient(180deg, #fbf7f1 0%, #f3ecdf 100%);
+  background-color: var(--bg-neutral);
+  background-image: 
+    radial-gradient(#171717 1px, transparent 1px),
+    linear-gradient(180deg, #fbf7f1 0%, #f3ecdf 100%);
+  background-size: 40px 40px, 100% 100%;
+  background-attachment: fixed;
   font-family: 'Space Grotesk', sans-serif;
   color: var(--accent-dark);
+  line-height: 1.5;
 }
 
 .mobile-zine-app {
@@ -60,6 +68,6 @@ body {
 }
 
 /* Typography utilities */
-.font-marker { font-family: 'Space Grotesk', sans-serif; font-weight: 700; }
+.font-marker { font-family: 'Permanent Marker', cursive; }
 .font-typewriter { font-family: 'IBM Plex Mono', monospace; }
 

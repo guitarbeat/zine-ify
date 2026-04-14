@@ -226,14 +226,14 @@
                 <span id="view3dBtnLabel">Preview (WIP)</span>
             </button>
             <button id="exportPdfBtn"
-                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black"
+                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-white text-black font-bold"
                 title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
                 <span class="material-symbols-outlined text-lg" aria-hidden="true">file_download</span>
                 <span id="exportPdfBtnLabel">Export PDF</span>
             </button>
             <button id="printBtn"
-                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 text-white font-bold border-4 border-black"
-                style="background-color: var(--primary-vibrant);"
+                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 text-white font-bold"
+                style="background-color: var(--primary-vibrant); border-color: var(--accent-dark) !important;"
                 title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
                 <span class="material-symbols-outlined text-lg" aria-hidden="true">print</span>
                 <span id="printBtnLabel">Print</span>
@@ -244,10 +244,9 @@
 
     <!-- Progress Overlay -->
     <div id="progress-container"
-        class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 hidden"
-        style="background-color: rgba(240, 240, 240, 0.95); display: none;"
+        class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 hidden bg-black/40 backdrop-blur-sm"
         role="dialog" aria-modal="true" aria-label="Processing">
-        <div class="bg-white border-4 border-black p-8 w-full max-w-sm text-center" style="box-shadow: 6px 6px 0px 0px black;">
+        <div class="base-panel w-full max-w-sm text-center">
             <span class="material-symbols-outlined text-4xl mb-3 block" style="color: var(--primary-vibrant);">sync</span>
             <h3 id="progress-text" class="font-marker text-xl mb-4" aria-live="polite" aria-atomic="true">Processing...</h3>
             <div class="progress-bar-container mb-3" id="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
@@ -378,9 +377,8 @@
     <!-- Page Picker Modal -->
     <div id="page-picker-modal" class="fixed inset-0 z-[220] hidden items-center justify-center p-4 sm:p-6">
         <div id="page-picker-backdrop" class="absolute inset-0 bg-black/60"></div>
-        <div class="relative w-full max-w-6xl max-h-[92dvh] bg-[var(--bg-neutral)] border-4 border-black flex flex-col overflow-hidden"
-            style="box-shadow: 8px 8px 0px 0px black;">
-            <div class="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 border-b-4 border-black bg-white">
+        <div class="relative w-full max-w-6xl max-h-[92dvh] base-panel flex flex-col overflow-hidden p-0">
+            <div class="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 border-b-2 border-black bg-white">
                 <div>
                     <h3 class="font-marker text-lg sm:text-2xl tracking-wide">PICK YOUR PAGES</h3>
                     <p id="page-picker-subtitle" class="text-[11px] sm:text-xs font-bold uppercase tracking-wider mt-1">

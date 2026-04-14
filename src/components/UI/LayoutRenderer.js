@@ -32,7 +32,7 @@ export class LayoutRenderer {
 
       // Fill grid based on template layout or sequential order
       for (let i = 0; i < slotsPerSheet; i++) {
-        const slotConfig = template.layout ? template.layout[i] : { page: i + 1, upsideDown: false };
+        const slotConfig = this.normalizeSlotConfig(template, i);
         const pageNumberInSheet = slotConfig.page;
         const pageIndex = (s * slotsPerSheet) + (pageNumberInSheet - 1);
         const overallPageNumber = pageIndex + 1;
@@ -59,6 +59,25 @@ export class LayoutRenderer {
       sheetWrapper.appendChild(grid);
       this.container.appendChild(sheetWrapper);
     }
+  }
+
+  normalizeSlotConfig(template, index) {
+    const rawSlot = template.layout ? template.layout[index] : null;
+    if (typeof rawSlot === 'number') {
+      return {
+        page: rawSlot,
+        upsideDown: Array.isArray(template.upsideDownPages) && template.upsideDownPages.includes(rawSlot)
+      };
+    }
+
+    if (rawSlot && typeof rawSlot === 'object') {
+      return {
+        page: rawSlot.page,
+        upsideDown: !!rawSlot.upsideDown
+      };
+    }
+
+    return { page: index + 1, upsideDown: false };
   }
 
   createSheetGrid({ sheetNumber, template, columns, rows, id }) {
