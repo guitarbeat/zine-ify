@@ -249,6 +249,28 @@ select:focus, input:focus {
   transition: all 0.2s ease;
 }
 
+.workflow-step.is-idle {
+  opacity: 0.78;
+}
+
+.workflow-step.is-current {
+  border-color: var(--primary-vibrant);
+  box-shadow: -4px 0 0 var(--primary-vibrant);
+}
+
+.workflow-step.is-current .workflow-step-index {
+  background: var(--primary-vibrant);
+}
+
+.workflow-step.is-done {
+  background: rgba(16, 185, 129, 0.09);
+  border-color: rgba(16, 185, 129, 0.55);
+}
+
+.workflow-step.is-done .workflow-step-index {
+  background: #0f8a62;
+}
+
 .workflow-step:not(:disabled):hover {
   transform: translateX(4px);
   border-color: var(--primary-vibrant);
@@ -279,6 +301,18 @@ select:focus, input:focus {
   background: white;
   border-radius: var(--radius-pill);
   white-space: nowrap;
+}
+
+.workflow-step.is-current .workflow-step-state {
+  background: var(--primary-vibrant);
+  border-color: var(--primary-vibrant);
+  color: white;
+}
+
+.workflow-step.is-done .workflow-step-state {
+  background: white;
+  color: #0f8a62;
+  border-color: rgba(16, 185, 129, 0.45);
 }
 
 .progress-bar-container {
@@ -354,6 +388,13 @@ select:focus, input:focus {
   outline: none;
 }
 
+.page-picker-chip:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
 .page-picker-grid {
   display: grid;
   gap: 1rem;
@@ -392,6 +433,13 @@ select:focus, input:focus {
 .page-picker-thumb.is-disabled {
   cursor: not-allowed;
   opacity: 0.45;
+}
+
+.page-picker-thumb.is-disabled:hover,
+.page-picker-thumb.is-disabled:focus-visible {
+  transform: none;
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-color);
 }
 
 .page-picker-thumb-media {
@@ -436,4 +484,12 @@ select:focus, input:focus {
   justify-content: center;
   min-width: 1.5rem;
   padding: 0 0.35rem;
+}
+
+.fold-step-btn.is-active {
+  background: var(--primary-vibrant);
+  border-color: var(--accent-dark) !important;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }

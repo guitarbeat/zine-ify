@@ -1,4 +1,4 @@
-import { buildMiniZineBookletStates } from '../utils/miniZineLayout.js';
+import { buildMiniZineBookletStates, MINI_ZINE_LAYOUT } from '../utils/miniZineLayout.js';
 import { normalizePreviewPage, getPageLabel } from '../utils/previewHelpers.js';
 
 export class BookletPreview {
@@ -70,7 +70,20 @@ export class BookletPreview {
   }
 
   loadPages(imageUrls = []) {
-    this.slotPages = (imageUrls || []).map((page, slotIndex) => normalizePreviewPage(page, slotIndex));
+    const orderedPages = (imageUrls || []).map((page, pageIndex) => normalizePreviewPage(page, pageIndex));
+    this.slotPages = MINI_ZINE_LAYOUT.map((pageNumber, slotIndex) => {
+      const page = orderedPages[pageNumber - 1] ?? null;
+      if (!page) {
+        return null;
+      }
+
+      return {
+        ...page,
+        slotIndex,
+        pageIndex: pageNumber - 1
+      };
+    });
+
     this.states = buildMiniZineBookletStates(this.slotPages);
     this.spreadIndex = 0;
     this.isAnimating = false;
@@ -121,11 +134,15 @@ export class BookletPreview {
     if (src) {
       media.src = src;
       media.classList.add('is-visible');
+      media.style.transform = 'none';
+      media.style.objectFit = 'contain';
       placeholder.textContent = '';
       element.classList.remove('is-empty');
     } else {
       media.removeAttribute('src');
       media.classList.remove('is-visible');
+      media.style.transform = 'none';
+      media.style.objectFit = 'contain';
       placeholder.textContent = pageLabel;
       element.classList.add('is-empty');
     }

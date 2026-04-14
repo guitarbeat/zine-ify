@@ -16,6 +16,7 @@ export class AppController {
     this.viewer3d = null;
     this.bookletPreview = null;
     this.zine3dViewerClassPromise = null;
+    this.previewAssetUrls = [];
 
     this.init();
   }
@@ -36,6 +37,7 @@ export class AppController {
   setupEventListeners() {
     this.ui.on('fileSelected', (file) => this.handleFileSelected(file));
     this.ui.on('gridSizeChanged', (data) => this.handleGridSizeChanged(data));
+    this.ui.on('pageNumbersToggled', () => this.renderCurrentLayout());
     this.ui.on('pageFlipped', (i) => this.handlePageFlipped(i));
     this.ui.on('pageCropToggled', (i) => this.handlePageCropToggled(i));
     this.ui.on('pageRemoved', (i) => this.handlePageRemoved(i));
@@ -64,6 +66,7 @@ export class AppController {
     };
 
     this.state.uploadedFiles.push(record);
+    this.state.resetWorkflowStatus();
     this.ui.updateUploadedFilesList(this.state.uploadedFiles);
     this.ui.setStatus(`Adding: ${file.name}`);
 
@@ -127,6 +130,7 @@ export class AppController {
 
     this.state.allPageImages[targetIndex] = imageUrl;
     this.state.totalPages = this.state.getFilledPageCount();
+    this.state.resetWorkflowStatus();
     await this.fillBlankSlots();
     this.renderCurrentLayout();
 
@@ -175,6 +179,7 @@ export class AppController {
     }
 
     this.state.totalPages = this.state.getFilledPageCount();
+    this.state.resetWorkflowStatus();
     await this.fillBlankSlots();
     this.renderCurrentLayout();
 
@@ -291,6 +296,47 @@ export class AppController {
     }
   }
 
+  revokePreviewAssetUrls() {
+    this.previewAssetUrls.forEach((url) => {
+      this.pdfProcessor.revokeBlobUrl(url);
+    });
+    this.previewAssetUrls = [];
+  }
+
+  async buildPreviewAsset(sourceUrl, { isFlipped = false, isZoomed = false } = {}) {
+    if (!sourceUrl || (!isFlipped && !isZoomed)) {
+      return sourceUrl;
+    }
+
+    const image = new Image();
+    image.src = sourceUrl;
+    await image.decode();
+
+    const width = image.naturalWidth || image.width || 1000;
+    const height = image.naturalHeight || image.height || 1414;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, width, height);
+    context.save();
+    context.translate(width / 2, height / 2);
+    if (isFlipped) {
+      context.rotate(Math.PI);
+    }
+
+    const scale = isZoomed ? 1.1 : 1;
+    context.scale(scale, scale);
+    context.drawImage(image, -width / 2, -height / 2, width, height);
+    context.restore();
+
+    const previewUrl = await this.pdfProcessor.canvasToBlob(canvas);
+    this.previewAssetUrls.push(previewUrl);
+    return previewUrl;
+  }
+
   getCurrentTemplate() {
     const { rows, cols } = this.state.gridSize;
 
@@ -343,21 +389,41 @@ export class AppController {
 
   handleGridSizeChanged({ rows, cols }) {
     this.state.gridSize = { rows, cols };
+    this.state.resetWorkflowStatus();
+    if (!this.state.isMiniZineLayout()) {
+      this.ui.toggle3DModal(false);
+    }
     this.renderCurrentLayout();
   }
 
   handlePageFlipped(index) {
+    if (!this.state.allPageImages[index]) {
+      return;
+    }
+
     this.state.pageFlips[index] = !this.state.pageFlips[index];
+    this.state.resetWorkflowStatus();
     this.ui.setPageFlip(index, this.state.pageFlips[index]);
+    this.updateWorkspaceUi();
   }
 
   handlePageCropToggled(index) {
+    if (!this.state.allPageImages[index]) {
+      return;
+    }
+
     this.state.pageZooms[index] = !this.state.pageZooms[index];
+    this.state.resetWorkflowStatus();
     this.ui.setPageZoom(index, this.state.pageZooms[index]);
+    this.updateWorkspaceUi();
   }
 
   handlePageRemoved(index) {
     const currentUrl = this.state.allPageImages[index];
+    if (!currentUrl) {
+      return;
+    }
+
     if (currentUrl && currentUrl !== this.state._blankPageUrl) {
       this.pdfProcessor.revokeBlobUrl(currentUrl);
     }
@@ -366,6 +432,7 @@ export class AppController {
     this.state.pageFlips[index] = false;
     this.state.pageZooms[index] = false;
     this.state.totalPages = this.state.getFilledPageCount();
+    this.state.resetWorkflowStatus();
 
     if (this.state.totalPages === 0) {
       this.clearBlankSlots();
@@ -387,6 +454,7 @@ export class AppController {
     this.state.pageZooms[fromIndex] = this.state.pageZooms[toIndex];
     this.state.pageZooms[toIndex] = tempZoom;
 
+    this.state.resetWorkflowStatus();
     this.renderCurrentLayout();
   }
 
@@ -432,7 +500,26 @@ export class AppController {
 
     try {
       const blankUrl = await this.ensureBlankPageUrl();
-      const imageUrls = this.state.allPageImages.slice(0, 8).map((url) => url || blankUrl);
+      this.revokePreviewAssetUrls();
+      const imageUrls = await Promise.all(this.state.allPageImages.slice(0, 8).map(async (url, index) => {
+        const sourceUrl = url || blankUrl;
+        const isFlipped = !!this.state.pageFlips[index];
+        const isZoomed = !!this.state.pageZooms[index];
+
+        return {
+          sourceUrl,
+          previewUrl: await this.buildPreviewAsset(sourceUrl, { isFlipped, isZoomed }),
+          pageNumber: index + 1,
+          isFlipped,
+          isZoomed
+        };
+      }));
+
+      this.ensureBookletPreview();
+      this.ui.toggle3DModal(true);
+      await new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      });
 
       if (!this.viewer3d) {
         const container = this.ui.elements.zine3dContainer;
@@ -442,11 +529,10 @@ export class AppController {
         }
       }
 
-      this.ensureBookletPreview();
       this.viewer3d?.loadPages(imageUrls);
+      this.viewer3d?.refreshLayout?.();
       this.bookletPreview?.loadPages(imageUrls);
       this.ui.setFoldProgressControl(0);
-      this.ui.toggle3DModal(true);
       this.state.markPreviewed();
       this.updateWorkspaceUi();
     } catch (error) {

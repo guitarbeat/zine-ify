@@ -1,5 +1,28 @@
 import { getPageLabel } from '../../utils/previewHelpers.js';
 
+const TOOLBAR_BUTTONS = [
+  {
+    selector: '.zoom-btn',
+    title: (label) => `Quick Preview ${label}`,
+    ariaLabel: (label) => `Quick Preview ${label}`
+  },
+  {
+    selector: '.crop-btn',
+    title: (label) => `Toggle Crop/Zoom ${label}`,
+    ariaLabel: (label) => `Toggle Crop/Zoom for ${label}`
+  },
+  {
+    selector: '.flip-btn',
+    title: (label) => `Flip ${label}`,
+    ariaLabel: (label) => `Rotate ${label} 180 degrees`
+  },
+  {
+    selector: '.remove-btn',
+    title: (label) => `Remove ${label}`,
+    ariaLabel: (label) => `Remove ${label} from the sheet`
+  }
+];
+
 /**
  * LayoutRenderer.js
  * Handles the rendering of zine sheets and grids
@@ -38,12 +61,14 @@ export class LayoutRenderer {
         const overallPageNumber = pageIndex + 1;
 
         const labelText = getPageLabel(overallPageNumber, numPages, true);
+        const accessibleLabelText = getPageLabel(overallPageNumber, numPages, false);
 
         const cell = this.createPageCell({
           pageIndex,
           pageNumber: pageNumberInSheet,
           labelText,
-          altText: `Page ${overallPageNumber}`,
+          accessibleLabelText,
+          altText: `${accessibleLabelText} preview`,
           upsideDown: slotConfig.upsideDown,
           options,
           handlers
@@ -96,7 +121,7 @@ export class LayoutRenderer {
     return { sheetWrapper, grid };
   }
 
-  createPageCell({ pageIndex, pageNumber, labelText, altText, upsideDown, options, handlers }) {
+  createPageCell({ pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers }) {
     const cell = document.createElement('div');
     cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
     cell.setAttribute('data-page-index', pageIndex);
@@ -126,6 +151,17 @@ export class LayoutRenderer {
     cell.addEventListener('click', (e) => handlers.onClick(e, pageIndex));
 
     const toolbar = cell.querySelector('.page-toolbar');
+    TOOLBAR_BUTTONS.forEach(({ selector, title, ariaLabel }) => {
+      const button = toolbar.querySelector(selector);
+      if (!button) {
+        return;
+      }
+
+      button.type = 'button';
+      button.setAttribute('title', title(accessibleLabelText));
+      button.setAttribute('aria-label', ariaLabel(accessibleLabelText));
+    });
+
     toolbar.querySelector('.flip-btn').onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); };
     toolbar.querySelector('.zoom-btn').onclick = (e) => { e.stopPropagation(); handlers.onZoom(pageIndex); };
     toolbar.querySelector('.crop-btn').onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); };

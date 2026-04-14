@@ -1,12 +1,15 @@
 .print-sheet {
-  background-color: var(--paper-bg);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 245, 238, 0.98)),
+    var(--paper-bg);
   box-shadow: var(--surface-shadow-strong);
-  border: 1px solid var(--border-color);
+  border: var(--border-bold);
   border-radius: 1.35rem;
   position: relative;
   flex-shrink: 0;
   transition: all 0.2s ease;
   scroll-margin-top: 1rem;
+  padding: 0.35rem;
 }
 
 @media print {
@@ -54,7 +57,10 @@
   justify-content: center;
   overflow: hidden;
   cursor: grab;
-  background: white;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 239, 230, 0.62)),
+    white;
+  min-height: 7rem;
 }
 .page-cell.dragging {
   opacity: 0.8;
@@ -74,13 +80,17 @@
 }
 
 .page-toolbar {
-  opacity: 0;
-  pointer-events: none;
-}
-.page-cell.has-page .page-toolbar {
-  opacity: 0.72;
+  opacity: 1;
   pointer-events: auto;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(23, 23, 23, 0.12);
+  box-shadow: 0 4px 14px rgba(23, 23, 23, 0.08);
 }
+
 .page-cell.has-page:hover .page-toolbar,
 .page-cell.active .page-toolbar {
   opacity: 1 !important;
@@ -97,6 +107,17 @@
   transform: rotate(var(--page-image-rotation)) scale(var(--page-image-scale));
   mix-blend-mode: multiply; 
   transition: transform 0.2s ease, object-fit 0.2s ease;
+}
+
+.page-placeholder {
+  color: rgba(23, 23, 23, 0.45);
+  background:
+    linear-gradient(180deg, rgba(250, 250, 250, 0.9), rgba(244, 239, 230, 0.55)),
+    #fafafa;
+}
+
+.page-cell.has-page .page-placeholder {
+  display: none;
 }
 .page-zoomed .page-content-img {
   object-fit: cover;
