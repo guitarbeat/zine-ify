@@ -180,7 +180,13 @@ class PDFZineMaker {
         }
       }
 
-      this.totalPages = currentFilledPages + numPages;
+      const proposedTotalPages = currentFilledPages + numPages;
+      const ABSOLUTE_MAX_PAGES = 100;
+      if (proposedTotalPages > ABSOLUTE_MAX_PAGES) {
+        throw new Error(`Total pages exceed the absolute limit of ${ABSOLUTE_MAX_PAGES}. Cannot add this PDF.`);
+      }
+
+      this.totalPages = proposedTotalPages;
       this.selectedLayout = this.totalPages;
       const maxPages = numPages;
 
@@ -298,6 +304,13 @@ class PDFZineMaker {
       console.error('PDF Error:', error);
       this.ui.showProgress(false);
       toast.error('Error', error.message || 'Failed to process PDF.');
+
+      // Cleanup the failed file from the UI list
+      const fileIndex = this.uploadedFiles.findIndex(f => f.file === file);
+      if (fileIndex !== -1) {
+        this.uploadedFiles.splice(fileIndex, 1);
+        this.ui.updateUploadedFilesList(this.uploadedFiles);
+      }
     }
   }
 
