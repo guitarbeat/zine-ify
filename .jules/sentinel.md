@@ -37,3 +37,8 @@
 **Vulnerability:** The application's Content Security Policy (CSP) lacked directives to restrict objects, base URIs, and form actions (`object-src 'none'`, `base-uri 'self'`, `form-action 'self'`), leaving it vulnerable to plugin-based XSS, base tag hijacking, and unauthorized form submissions.
 **Learning:** A robust client-side tool CSP must explicitly deny obsolete/dangerous features like plugins and ensure that relative URLs and form submissions remain bound to the application's origin, even if the application doesn't currently use forms or plugins.
 **Prevention:** Always include `object-src 'none'`, `base-uri 'self'`, and `form-action 'self'` in the initial CSP configuration as a defense-in-depth measure.
+
+## 2025-02-14 - [CSP for Local Dynamic Windows]
+**Vulnerability:** Dynamically generated windows created via `window.open('', '_blank')` and populated with `document.write()` (e.g., for print layouts) were missing a Content Security Policy (CSP). If user input manages to taint the layout HTML, arbitrary scripts could execute within this window. We cannot use `noopener` for these windows because `window.open` would return `null` preventing us from writing to it.
+**Learning:** When spawning local dynamic windows via `window.open` that require a JavaScript reference to write content, `noopener` or `noreferrer` cannot be used. Thus, any vulnerability within this window could easily hijack the parent window (via `window.opener`) or exfiltrate data.
+**Prevention:** Always inject a strict `<meta http-equiv="Content-Security-Policy" ...>` tag directly into the `<head>` of the HTML string being written to the new window via `document.write()`. This ensures defense-in-depth within the popup.
