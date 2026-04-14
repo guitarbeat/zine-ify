@@ -1,45 +1,35 @@
-
 import { test, expect } from '@playwright/test';
 import path from 'path';
 
-test('automate 16-page zine conversion', async ({ page }) => {
-    test.setTimeout(60000); // Increase timeout for export
+test('imports a 16-page PDF into a 4 x 4 layout and exports it', async ({ page }) => {
+  test.setTimeout(90000);
 
-    // 1. Go to app
-    console.log('Navigating to app...');
-    await page.goto('http://localhost:8000');
+  await page.goto('/');
 
-    // 2. Prepare file upload
-    console.log('Uploading PDF...');
-    const fileInput = page.locator('#pdf-upload');
-    await fileInput.setInputFiles('test-16-pages.pdf');
+  await page.locator('#grid-rows').fill('4');
+  await page.locator('#grid-cols').fill('4');
 
-    // 3. Wait for processing to finish
-    // We look for the progress container to disappear OR the success toast
-    console.log('Waiting for processing...');
-    await expect(page.locator('#progress-container')).toBeHidden({ timeout: 30000 });
-    await expect(page.locator('.toast-success').filter({ hasText: 'PDF Added To Layout' })).toBeVisible({ timeout: 10000 });
+  await expect(page.locator('#grid-total')).toHaveText('16 slots', { timeout: 10000 });
 
-    // Verify 16 pages/ 2 zines detected
-    // Check if tabs exist
-    const tab2 = page.locator('#zine-tab-2');
-    if (await tab2.isVisible()) {
-        console.log('Detected 16-page zine (tabs visible).');
-    } else {
-        console.log('Detected single zine.');
-    }
+  const pdfPath = path.resolve('tests/assets/test-16-pages.pdf');
+  await page.locator('#pdf-upload').setInputFiles(pdfPath);
 
-    // 4. Click Export
-    console.log('Clicking Export...');
-    const downloadPromise = page.waitForEvent('download');
-    await page.locator('#exportPdfBtn').click();
+  await expect(page.locator('#upload-status')).toContainText('Imported 16 of 16 pages from test-16-pages.pdf', {
+    timeout: 45000
+  });
 
-    // 5. Wait for download
-    const download = await downloadPromise;
-    console.log(`Download started: ${download.suggestedFilename()}`);
+  await expect(page.locator('#preview-count-chip')).toHaveText('16 of 16 placed');
+  await page.waitForFunction(() => {
+    const images = Array.from(document.querySelectorAll('.page-cell .page-content-img'));
+    return images.filter((img) => /^blob:/.test(img.getAttribute('src') || '')).length >= 16;
+  }, { timeout: 45000 });
 
-    // 6. Save to project root
-    const outputPath = path.resolve('zine-output.pdf');
-    await download.saveAs(outputPath);
-    console.log(`Saved zine to: ${outputPath}`);
+  const downloadPromise = page.waitForEvent('download');
+  await page.locator('#exportPdfBtn').click();
+
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toMatch(/\.pdf$/i);
+
+  const outputPath = path.resolve('zine-output.pdf');
+  await download.saveAs(outputPath);
 });
