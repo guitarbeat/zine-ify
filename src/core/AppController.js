@@ -5,6 +5,7 @@ import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
 import referenceImageUrl from '../assets/reference-back-side.jpg';
 import { classifyFileKind } from '../utils/fileValidation.js';
+import { BookletPreview } from '../components/BookletPreview.js';
 
 export class AppController {
   constructor() {
@@ -12,6 +13,9 @@ export class AppController {
     this.pdfProcessor = new PDFProcessor();
     this.ui = new UIManager();
     this.exportService = new ExportService(this.ui, this.state, this.pdfProcessor);
+    this.viewer3d = null;
+    this.bookletPreview = null;
+    this.zine3dViewerClassPromise = null;
 
     this.init();
   }
@@ -36,8 +40,10 @@ export class AppController {
     this.ui.on('pageCropToggled', (i) => this.handlePageCropToggled(i));
     this.ui.on('pageRemoved', (i) => this.handlePageRemoved(i));
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
-    this.ui.on('print', () => this.exportService.handlePrint(referenceImageUrl));
+    this.ui.on('print', () => this.handlePrint());
     this.ui.on('export', () => this.handleExport());
+    this.ui.on('view3d', () => this.handleView3d());
+    this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
     this.ui.on('paperSizeChanged', (data) => this.state.updatePaperSettings(data));
     this.ui.on('orientationChanged', (data) => this.state.updatePaperSettings(data));
   }
@@ -107,22 +113,22 @@ export class AppController {
     this.ui.modal.showProgress(true, `Reading ${record.name}...`);
     this.ui.modal.setProgressCopy('Rendering image...');
 
-    const targetIndex = this.getNextImageInsertionIndex();
+    const targetIndex = this.getNextInsertionIndex();
     const currentFilledPages = this.state.getFilledPageCount();
-
     this.prepareLayoutForTotalPages(Math.max(currentFilledPages, targetIndex + 1));
 
     const existingUrl = this.state.allPageImages[targetIndex];
     const canvas = await this.pdfProcessor.renderImageFile(record.file);
     const imageUrl = await this.pdfProcessor.canvasToBlob(canvas);
 
-    if (existingUrl) {
+    if (existingUrl && existingUrl !== this.state._blankPageUrl) {
       this.pdfProcessor.revokeBlobUrl(existingUrl);
     }
 
     this.state.allPageImages[targetIndex] = imageUrl;
     this.state.totalPages = this.state.getFilledPageCount();
-    this.ui.updatePagePreview(targetIndex, imageUrl);
+    await this.fillBlankSlots();
+    this.renderCurrentLayout();
 
     const status = `Imported image: ${record.name}`;
     this.updateUploadedFileRecord(record, { status });
@@ -148,9 +154,7 @@ export class AppController {
 
     const startIndex = this.state.getFilledPageCount();
     this.prepareLayoutForTotalPages(startIndex + selectedPages.length);
-
     this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
-    this.ui.modal.updateProgress(0);
 
     for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
       const targetIndex = startIndex + selectedIndex;
@@ -158,7 +162,7 @@ export class AppController {
       const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
       const existingUrl = this.state.allPageImages[targetIndex];
 
-      if (existingUrl) {
+      if (existingUrl && existingUrl !== this.state._blankPageUrl) {
         this.pdfProcessor.revokeBlobUrl(existingUrl);
       }
 
@@ -171,6 +175,8 @@ export class AppController {
     }
 
     this.state.totalPages = this.state.getFilledPageCount();
+    await this.fillBlankSlots();
+    this.renderCurrentLayout();
 
     const status = `Imported ${selectedPages.length} of ${result.numPages} pages from ${record.name}`;
     this.updateUploadedFileRecord(record, { status });
@@ -217,8 +223,8 @@ export class AppController {
     }
   }
 
-  getNextImageInsertionIndex() {
-    const emptyIndex = this.state.allPageImages.findIndex((url) => !url);
+  getNextInsertionIndex() {
+    const emptyIndex = this.state.allPageImages.findIndex((url) => !url || url === this.state._blankPageUrl);
     if (emptyIndex !== -1) {
       return emptyIndex;
     }
@@ -238,8 +244,51 @@ export class AppController {
       }
       this.state.allPageImages = nextImages;
     }
+  }
 
-    this.renderCurrentLayout();
+  async ensureBlankPageUrl() {
+    if (this.state._blankPageUrl) {
+      return this.state._blankPageUrl;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 1000;
+    canvas.height = 1414;
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#fcfaf5';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.strokeStyle = 'rgba(28, 28, 28, 0.08)';
+    context.lineWidth = 6;
+    context.strokeRect(36, 36, canvas.width - 72, canvas.height - 72);
+    context.fillStyle = '#2b2b2b';
+    context.font = '700 56px "Space Grotesk", sans-serif';
+    context.textAlign = 'center';
+    context.fillText('Blank page', canvas.width / 2, canvas.height / 2 - 16);
+    context.fillStyle = 'rgba(43, 43, 43, 0.55)';
+    context.font = '500 22px "IBM Plex Mono", monospace';
+    context.fillText('Ready for the next import', canvas.width / 2, canvas.height / 2 + 40);
+
+    this.state._blankPageUrl = await this.pdfProcessor.canvasToBlob(canvas);
+    return this.state._blankPageUrl;
+  }
+
+  async fillBlankSlots() {
+    const blankUrl = await this.ensureBlankPageUrl();
+    const filledPages = this.state.getFilledPageCount();
+
+    for (let index = filledPages; index < this.state.allPageImages.length; index++) {
+      if (!this.state.allPageImages[index] || this.state.allPageImages[index] === this.state._blankPageUrl) {
+        this.state.allPageImages[index] = blankUrl;
+      }
+    }
+  }
+
+  clearBlankSlots() {
+    for (let index = 0; index < this.state.allPageImages.length; index++) {
+      if (this.state.allPageImages[index] === this.state._blankPageUrl) {
+        this.state.allPageImages[index] = null;
+      }
+    }
   }
 
   getCurrentTemplate() {
@@ -276,6 +325,20 @@ export class AppController {
       this.ui.setPageFlip(index, !!this.state.pageFlips[index]);
       this.ui.setPageZoom(index, !!this.state.pageZooms[index]);
     }
+
+    this.updateWorkspaceUi();
+  }
+
+  updateWorkspaceUi() {
+    this.ui.updateWorkspaceState({
+      placedCount: this.state.getFilledPageCount(),
+      totalSlots: this.state.allPageImages.length,
+      rows: this.state.gridSize.rows,
+      cols: this.state.gridSize.cols,
+      isMiniLayout: this.state.isMiniZineLayout(),
+      previewed: this.state.workflowPreviewed,
+      exported: this.state.workflowExported
+    });
   }
 
   handleGridSizeChanged({ rows, cols }) {
@@ -283,23 +346,32 @@ export class AppController {
     this.renderCurrentLayout();
   }
 
-  handlePageFlipped(i) {
-    this.state.pageFlips[i] = !this.state.pageFlips[i];
-    this.ui.setPageFlip(i, this.state.pageFlips[i]);
+  handlePageFlipped(index) {
+    this.state.pageFlips[index] = !this.state.pageFlips[index];
+    this.ui.setPageFlip(index, this.state.pageFlips[index]);
   }
 
-  handlePageCropToggled(i) {
-    this.state.pageZooms[i] = !this.state.pageZooms[i];
-    this.ui.setPageZoom(i, this.state.pageZooms[i]);
+  handlePageCropToggled(index) {
+    this.state.pageZooms[index] = !this.state.pageZooms[index];
+    this.ui.setPageZoom(index, this.state.pageZooms[index]);
   }
 
-  handlePageRemoved(i) {
-    if (this.state.allPageImages[i]) {
-      this.pdfProcessor.revokeBlobUrl(this.state.allPageImages[i]);
-      this.state.allPageImages[i] = null;
-      this.state.totalPages = this.state.getFilledPageCount();
-      this.ui.updatePagePreview(i, null);
+  handlePageRemoved(index) {
+    const currentUrl = this.state.allPageImages[index];
+    if (currentUrl && currentUrl !== this.state._blankPageUrl) {
+      this.pdfProcessor.revokeBlobUrl(currentUrl);
     }
+
+    this.state.allPageImages[index] = null;
+    this.state.pageFlips[index] = false;
+    this.state.pageZooms[index] = false;
+    this.state.totalPages = this.state.getFilledPageCount();
+
+    if (this.state.totalPages === 0) {
+      this.clearBlankSlots();
+    }
+
+    this.renderCurrentLayout();
   }
 
   handlePagesSwapped({ fromIndex, toIndex }) {
@@ -307,14 +379,96 @@ export class AppController {
     this.state.allPageImages[fromIndex] = this.state.allPageImages[toIndex];
     this.state.allPageImages[toIndex] = tempImg;
 
-    this.ui.updatePagePreview(fromIndex, this.state.allPageImages[fromIndex]);
-    this.ui.updatePagePreview(toIndex, this.state.allPageImages[toIndex]);
+    const tempFlip = this.state.pageFlips[fromIndex];
+    this.state.pageFlips[fromIndex] = this.state.pageFlips[toIndex];
+    this.state.pageFlips[toIndex] = tempFlip;
+
+    const tempZoom = this.state.pageZooms[fromIndex];
+    this.state.pageZooms[fromIndex] = this.state.pageZooms[toIndex];
+    this.state.pageZooms[toIndex] = tempZoom;
+
+    this.renderCurrentLayout();
+  }
+
+  handlePrint() {
+    if (!this.state.getFilledPageCount()) {
+      toast.warning('No Content', 'Import pages before printing.');
+      return;
+    }
+
+    this.exportService.handlePrint(referenceImageUrl);
+  }
+
+  async getZine3DViewerClass() {
+    if (!this.zine3dViewerClassPromise) {
+      this.zine3dViewerClassPromise = import('../components/Zine3DViewer.js')
+        .then((module) => module.Zine3DViewer);
+    }
+
+    return this.zine3dViewerClassPromise;
+  }
+
+  ensureBookletPreview() {
+    if (!this.bookletPreview) {
+      this.bookletPreview = new BookletPreview({
+        container: this.ui.elements.bookletPreviewContainer,
+        prevButton: this.ui.elements.bookletPrevBtn,
+        nextButton: this.ui.elements.bookletNextBtn,
+        statusElement: this.ui.elements.bookletStatus
+      });
+    }
+  }
+
+  async handleView3d() {
+    if (!this.state.getFilledPageCount()) {
+      toast.warning('No Content', 'Import pages before opening the fold preview.');
+      return;
+    }
+
+    if (!this.state.isMiniZineLayout()) {
+      toast.warning('Mini-Zine Only', 'Fold preview is available for the 2 × 4 mini-zine layout.');
+      return;
+    }
+
+    try {
+      const blankUrl = await this.ensureBlankPageUrl();
+      const imageUrls = this.state.allPageImages.slice(0, 8).map((url) => url || blankUrl);
+
+      if (!this.viewer3d) {
+        const container = this.ui.elements.zine3dContainer;
+        if (container) {
+          const Zine3DViewer = await this.getZine3DViewerClass();
+          this.viewer3d = new Zine3DViewer(container);
+        }
+      }
+
+      this.ensureBookletPreview();
+      this.viewer3d?.loadPages(imageUrls);
+      this.bookletPreview?.loadPages(imageUrls);
+      this.ui.setFoldProgressControl(0);
+      this.ui.toggle3DModal(true);
+      this.state.markPreviewed();
+      this.updateWorkspaceUi();
+    } catch (error) {
+      toast.error('3D Preview Failed', error.message || 'Unable to load the fold preview.');
+    }
+  }
+
+  handleFoldProgress(value) {
+    this.viewer3d?.setFoldProgress(value);
   }
 
   async handleExport() {
+    if (!this.state.getFilledPageCount()) {
+      toast.warning('No Content', 'Import pages before exporting.');
+      return;
+    }
+
     this.ui.modal.showProgress(true, 'Generating PDF...');
     try {
       await this.exportService.handleExport(referenceImageUrl);
+      this.state.markExported();
+      this.updateWorkspaceUi();
       toast.success('Export Ready', 'Your PDF has been generated.');
     } catch (error) {
       toast.error('Export Failed', error.message);
