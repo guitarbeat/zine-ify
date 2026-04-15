@@ -6,31 +6,29 @@
 /**
  * Standardizes various page object formats into a unified preview object.
  * @param {Object|string} page - The page data (string URL or object)
- * @param {number} slotIndex - The index in the current zine layout
+ * @param {number|null} fallbackPageNumber - The page number to use when the page has no explicit number
  * @returns {Object} Normalized page object
  */
-export function normalizePreviewPage(page, slotIndex = null) {
+export function normalizePreviewPage(page, fallbackPageNumber = null) {
   if (!page || typeof page === 'string') {
     const src = page || null;
     return {
       sourceUrl: src,
       previewUrl: src,
-      pageNumber: slotIndex !== null ? slotIndex + 1 : null,
-      slotIndex
+      pageNumber: fallbackPageNumber,
+      slotIndex: null
     };
   }
 
-  // Handle various property names used across the legacy code
-  const sourceUrl = page.sourceUrl ?? page.previewUrl ?? page.src ?? null;
-  const previewUrl = page.previewUrl ?? page.sourceUrl ?? page.src ?? null;
-  const fallbackNum = slotIndex !== null ? slotIndex + 1 : null;
-  
+  const sourceUrl = page.sourceUrl ?? page.previewUrl ?? null;
+  const previewUrl = page.previewUrl ?? page.sourceUrl ?? null;
+
   return {
     ...page,
     sourceUrl,
     previewUrl,
-    pageNumber: page.pageNumber ?? (Number.isInteger(page.pageIndex) ? page.pageIndex + 1 : fallbackNum),
-    slotIndex: page.slotIndex ?? slotIndex
+    pageNumber: page.pageNumber ?? fallbackPageNumber,
+    slotIndex: page.slotIndex ?? null
   };
 }
 

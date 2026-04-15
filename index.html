@@ -34,7 +34,7 @@
             <div id="mobile-rail-overlay" class="mobile-rail-overlay hidden lg:hidden" aria-hidden="true"></div>
             <aside id="control-rail" class="control-rail space-y-3 sm:space-y-4 lg:sticky lg:top-4 relative z-20 flex flex-col h-full lg:max-h-[calc(100vh-4.5rem)]" aria-label="Files, workflow, and settings">
 
-                <div class="control-scroll overflow-y-visible lg:overflow-y-auto space-y-3 sm:space-y-4 lg:pr-2 flex-1 pb-28 lg:pb-10">
+                <div class="control-scroll overflow-y-visible lg:overflow-y-auto space-y-3 sm:space-y-4 lg:pr-2 flex-1 pb-6 lg:pb-10">
                     <section id="workflow-panel" class="base-panel rail-section rail-section-priority workflow-panel combined-rail-panel space-y-4">
                         <div class="rail-section-header">
                             <div>
@@ -58,15 +58,6 @@
                             <input type="file" id="pdf-upload" class="hidden" accept="application/pdf,image/*" multiple>
                         </div>
                         <div class="combined-rail-divider" aria-hidden="true"></div>
-
-                        <div class="combined-rail-subheader flex items-center justify-between gap-4">
-                            <div class="space-y-1">
-                                <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-[16px]">route</span> Flow
-                                </h3>
-                            </div>
-                            <span id="workflow-chip" class="workflow-chip">Next: import</span>
-                        </div>
 
                         <div class="workflow-steps" aria-label="Zine workflow">
                             <button type="button" class="workflow-step" data-workflow-step="upload">
@@ -106,7 +97,6 @@
                                 <h2 class="rail-section-title">Sheet Setup</h2>
                                 <p class="workspace-config-summary">Paper, orientation, and slot count all live here now.</p>
                             </div>
-                            <span class="rail-section-chip">Live</span>
                         </div>
 
                         <div class="workspace-config-grid rail-config-grid">
@@ -191,7 +181,7 @@
                         </p>
                     </div>
 
-                    <button id="open-rail-sheet-btn" type="button" class="workspace-mobile-rail-trigger lg:hidden">
+                    <button id="open-rail-sheet-btn" type="button" class="workspace-mobile-rail-trigger lg:hidden" aria-controls="control-rail" aria-expanded="false">
                         <span class="material-symbols-outlined text-[18px]" aria-hidden="true">folder_open</span>
                         <span>Controls</span>
                     </button>
@@ -199,8 +189,8 @@
                 </div>
 
                 <div class="workspace-meta" aria-label="Canvas status">
-                    <span id="preview-layout-chip" class="workspace-chip">Mini-zine</span>
                     <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0 placed</span>
+                    <span id="preview-helper-chip" class="workspace-chip workspace-chip-muted">Import pages to begin</span>
                 </div>
 
                 <div id="preview-empty-state" class="preview-empty-state">
@@ -211,8 +201,10 @@
                 </div>
 
                 <!-- Unified Zine View -->
-                <div id="zine-sheets-container" class="workspace-sheet-stack w-full space-y-5 sm:space-y-8">
-                    <!-- Sheets will be injected here -->
+                <div class="workspace-stage">
+                    <div id="zine-sheets-container" class="workspace-sheet-stack w-full space-y-5 sm:space-y-8">
+                        <!-- Sheets will be injected here -->
+                    </div>
                 </div>
             </section>
         </main>
@@ -280,7 +272,7 @@
                         <span class="simulation-meta-chip">Keys 1-6 = steps</span>
                     </div>
                 </div>
-                <button id="close-3d-btn" class="action-button simulation-close-btn bg-white text-black font-bold focus:outline-none" type="button">
+                <button id="close-3d-btn" class="action-button simulation-close-btn bg-white text-black font-bold focus:outline-none" type="button" aria-label="Close 3D preview" title="Close 3D preview">
                     <span class="material-symbols-outlined text-xl" aria-hidden="true">close</span>
                 </button>
             </div>
@@ -353,10 +345,6 @@
 
                         <div id="booklet-preview-container" class="booklet-preview-container" aria-label="Small booklet preview"></div>
 
-                        <p class="simulation-helper simulation-helper-compact">
-                            Click a page or use the buttons below.
-                        </p>
-
                         <div class="grid grid-cols-2 gap-3">
                             <button id="booklet-prev-btn" class="action-button w-full py-2.5 px-3 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black" type="button">
                                 <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>
@@ -376,7 +364,7 @@
     <!-- Page Picker Modal -->
     <div id="page-picker-modal" class="fixed inset-0 z-[220] hidden items-center justify-center p-4 sm:p-6">
         <div id="page-picker-backdrop" class="absolute inset-0 bg-black/60"></div>
-        <div class="relative w-full max-w-6xl max-h-[92dvh] base-panel flex flex-col overflow-hidden p-0">
+        <div class="page-picker-panel relative w-full max-w-6xl max-h-[92dvh] base-panel flex flex-col overflow-hidden p-0">
             <div class="flex items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 border-b-2 border-black bg-white">
                 <div>
                     <h3 class="font-marker text-lg sm:text-2xl tracking-wide">PICK YOUR PAGES</h3>
@@ -385,20 +373,20 @@
                     </p>
                 </div>
                 <button id="page-picker-close" type="button"
-                    class="action-button w-10 h-10 flex items-center justify-center bg-white text-black font-bold">
+                    class="action-button w-10 h-10 flex items-center justify-center bg-white text-black font-bold" aria-label="Close page picker" title="Close page picker">
                     <span class="material-symbols-outlined" aria-hidden="true">close</span>
                 </button>
             </div>
 
-            <div class="px-4 py-3 sm:px-6 border-b-2 border-black bg-white flex flex-col gap-3">
-                <div class="flex flex-wrap items-center gap-2">
+            <div class="page-picker-toolbar px-4 py-3 sm:px-6 border-b-2 border-black bg-white flex flex-col gap-3">
+                <div class="page-picker-presets flex flex-wrap items-center gap-2">
                     <button id="page-picker-select-first" type="button" class="page-picker-chip">First 8</button>
                     <button id="page-picker-select-last" type="button" class="page-picker-chip">Last 8</button>
                     <button id="page-picker-select-even" type="button" class="page-picker-chip">Even Pages</button>
                     <button id="page-picker-select-odd" type="button" class="page-picker-chip">Odd Pages</button>
                     <button id="page-picker-clear" type="button" class="page-picker-chip">Clear</button>
                 </div>
-                <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="page-picker-status flex flex-wrap items-center justify-between gap-3">
                     <p id="page-picker-count" class="text-xs sm:text-sm font-bold uppercase tracking-wide">
                         0 selected
                     </p>
@@ -411,11 +399,8 @@
             <div id="page-picker-grid" class="page-picker-grid flex-1 overflow-y-auto p-4 sm:p-6 bg-[var(--bg-neutral)]">
             </div>
 
-            <div class="flex items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 border-t-4 border-black bg-white">
-                <p id="page-picker-helper" class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-600">
-                    Choose the pages you want in this zine.
-                </p>
-                <div class="flex items-center gap-3">
+            <div class="page-picker-footer flex items-center justify-end gap-3 px-4 py-3 sm:px-6 sm:py-4 border-t-4 border-black bg-white">
+                <div class="page-picker-footer-actions flex items-center gap-3">
                     <button id="page-picker-cancel" type="button"
                         class="action-button py-2 px-4 bg-white text-black font-bold">
                         Cancel

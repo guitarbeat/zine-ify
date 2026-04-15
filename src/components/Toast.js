@@ -157,7 +157,7 @@ class Toast {
 
 // Export singleton instance
 export const toast = new Toast();
-// Expose on window for tests since Vite strips out module imports in production build
-if (typeof window !== 'undefined') {
-  window.toast = toast;
+
+if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('expose-toast')) {
+  window.__zineifyToast = toast;
 }

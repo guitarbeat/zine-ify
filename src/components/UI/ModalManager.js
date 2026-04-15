@@ -211,12 +211,6 @@ export class ModalManager {
       this.elements.pagePickerCount.textContent = `${selectedPages.length} of ${this.pagePickerState.selectionLimit} selected`;
     }
 
-    if (this.elements.pagePickerHelper) {
-      this.elements.pagePickerHelper.textContent = selectedPages.length === 0
-        ? `Choose up to ${this.pagePickerState.selectionLimit} pages to import.`
-        : `Selected pages: ${selectedPages.join(', ')}`;
-    }
-
     if (this.elements.pagePickerConfirm) {
       this.elements.pagePickerConfirm.disabled = selectedPages.length === 0;
       this.elements.pagePickerConfirm.setAttribute('aria-disabled', selectedPages.length === 0 ? 'true' : 'false');
@@ -247,7 +241,7 @@ export class ModalManager {
         <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white overflow-hidden flex flex-col scale-95 transition-transform duration-300" style="border: 3px solid black; box-shadow: 6px 6px 0px 0px black;">
           <div class="flex justify-between items-center px-4 py-2 border-b-2 border-black">
             <h3 class="font-bold uppercase tracking-wider text-sm">Page Preview</h3>
-            <button class="close-modal w-8 h-8 bg-white border-2 border-black text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors focus:outline-none" style="box-shadow: 2px 2px 0px 0px black;">
+            <button class="close-modal w-8 h-8 bg-white border-2 border-black text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors focus:outline-none" style="box-shadow: 2px 2px 0px 0px black;" aria-label="Close page preview" title="Close page preview">
               <span class="material-symbols-outlined font-bold" aria-hidden="true">close</span>
             </button>
           </div>
