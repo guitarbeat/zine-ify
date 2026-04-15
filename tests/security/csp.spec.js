@@ -12,12 +12,12 @@ test.describe('Content Security Policy', () => {
     const content = await cspMeta.getAttribute('content');
 
     // Check for critical directives
-    expect(content).toContain("default-src 'self'");
-    expect(content).toContain("script-src 'self'");
-    expect(content).toContain("style-src 'self'");
+    expect(content).toContain('default-src \'self\'');
+    expect(content).toContain('script-src \'self\'');
+    expect(content).toContain('style-src \'self\'');
     // Check for Google Fonts allowance
-    expect(content).toContain("https://fonts.googleapis.com");
-    expect(content).toContain("https://fonts.gstatic.com");
+    expect(content).toContain('https://fonts.googleapis.com');
+    expect(content).toContain('https://fonts.gstatic.com');
     // Check that unsafe-inline is restricted (it's present but hopefully only for styles)
     // We can't easily parse the full CSP string in this test without a library, but basic checks are good.
   });

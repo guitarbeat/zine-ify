@@ -18,6 +18,20 @@ export function debounce(func, wait) {
   };
 }
 
+export function clampNumber(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+export function parseBoundedInteger(value, { min = 0, max = Number.MAX_SAFE_INTEGER, fallback = min } = {}) {
+  const parsed = Number.parseInt(String(value ?? ''), 10);
+
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+
+  return clampNumber(parsed, min, max);
+}
+
 /**
  * Check if a value is a valid number
  * @param {*} value - Value to check

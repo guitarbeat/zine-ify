@@ -33,7 +33,7 @@ export class LayoutRenderer {
     this.cellTemplate = cellTemplate;
   }
 
-  render(numPages, template, options, handlers) {
+  render(numPages, template, options, handlers, paper = {}) {
     this.container.innerHTML = '';
     
     // Determine number of sheets needed based on template and pages
@@ -46,7 +46,8 @@ export class LayoutRenderer {
         template: template.label,
         columns: template.grid.cols,
         rows: template.grid.rows,
-        id: `zine-grid-sheet-${s + 1}`
+        id: `zine-grid-sheet-${s + 1}`,
+        paper
       });
 
       if (template.gridAreas) {
@@ -105,11 +106,24 @@ export class LayoutRenderer {
     return { page: index + 1, upsideDown: false };
   }
 
-  createSheetGrid({ sheetNumber, template, columns, rows, id }) {
+  createSheetGrid({ sheetNumber, template, columns, rows, id, paper }) {
     const sheetWrapper = document.createElement('div');
     sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
     sheetWrapper.setAttribute('data-sheet', sheetNumber);
     sheetWrapper.setAttribute('data-template', template);
+
+    if (paper?.paperSize) {
+      sheetWrapper.setAttribute('data-paper-size', paper.paperSize);
+    }
+
+    if (paper?.orientation) {
+      sheetWrapper.setAttribute('data-paper-orientation', paper.orientation);
+    }
+
+    if (paper?.width && paper?.height) {
+      const aspectRatio = `${paper.width} / ${paper.height}`;
+      sheetWrapper.style.aspectRatio = aspectRatio;
+    }
 
     const grid = document.createElement('div');
     grid.className = 'zine-grid';

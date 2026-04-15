@@ -6,7 +6,7 @@
 export const PAGE_CELL_TEMPLATE = document.createElement('template');
 PAGE_CELL_TEMPLATE.innerHTML = `
   <span class="page-label"></span>
-  <div class="page-toolbar absolute top-2 right-2 flex flex-wrap justify-end gap-2 z-10 max-w-[calc(100%-1rem)] transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100">
+  <div class="page-toolbar absolute top-2 right-2 flex flex-wrap justify-end gap-2 z-10 max-w-[calc(100%-1rem)] transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100" data-layout="row">
      <button class="zoom-btn w-8 h-8 bg-white border-2 border-black text-black flex items-center justify-center transition-all duration-100 focus:outline-none hover:bg-[var(--primary-vibrant)] hover:text-white" style="box-shadow: var(--shadow-sm);" title="Quick Preview (Z)">
           <span class="material-symbols-outlined text-[18px]" aria-hidden="true">zoom_in</span>
      </button>

@@ -211,12 +211,6 @@ export class ModalManager {
       this.elements.pagePickerCount.textContent = `${selectedPages.length} of ${this.pagePickerState.selectionLimit} selected`;
     }
 
-    if (this.elements.pagePickerHelper) {
-      this.elements.pagePickerHelper.textContent = selectedPages.length === 0
-        ? `Choose up to ${this.pagePickerState.selectionLimit} pages to import.`
-        : `Selected pages: ${selectedPages.join(', ')}`;
-    }
-
     if (this.elements.pagePickerConfirm) {
       this.elements.pagePickerConfirm.disabled = selectedPages.length === 0;
       this.elements.pagePickerConfirm.setAttribute('aria-disabled', selectedPages.length === 0 ? 'true' : 'false');

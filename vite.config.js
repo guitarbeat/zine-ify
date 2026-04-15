@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite';
-import legacy from '@vitejs/plugin-legacy';
 
 export default defineConfig({
   root: '.',
@@ -33,11 +32,6 @@ export default defineConfig({
     port: 8001,
     host: true
   },
-  plugins: [
-    legacy({
-      targets: ['defaults', 'not IE 11']
-    })
-  ],
   optimizeDeps: {
     include: ['pdfjs-dist', 'jspdf', 'html2canvas']
   }

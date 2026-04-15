@@ -17,7 +17,7 @@ test('Should reject polyglot files (PDF signature not at offset 0)', async ({ pa
   await fileInput.setInputFiles({
     name: 'polyglot.pdf',
     mimeType: 'application/pdf',
-    buffer: buffer
+    buffer
   });
 
   // Check for the specific error message in the toast

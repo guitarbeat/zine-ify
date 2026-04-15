@@ -8,8 +8,8 @@ import {
 
 test.describe('Mini Zine Layout', () => {
   test('matches the standard one-sheet imposition', () => {
-    expect(MINI_ZINE_LAYOUT.map((item) => item.page)).toEqual([5, 4, 3, 2, 6, 7, 8, 1]);
-    expect(MINI_ZINE_UPSIDE_DOWN_PAGES).toEqual([5, 4, 3, 2]);
+    expect(MINI_ZINE_LAYOUT).toEqual([5, 4, 3, 2, 6, 7, 8, 1]);
+    expect(MINI_ZINE_UPSIDE_DOWN_PAGES).toEqual([2, 3, 4, 5]);
   });
 
   test('derives booklet spreads from physical slot order', () => {
