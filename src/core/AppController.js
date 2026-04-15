@@ -52,26 +52,26 @@ export class AppController {
       // Sliding window concurrency for thumbnail processing
       const CONCURRENCY_LIMIT = 4;
       const activePromises = new Set();
-      const thumbnails = [];
+      const thumbnails = new Array(result.numPages);
 
       for (let i = 1; i <= result.numPages; i++) {
         const promise = (async () => {
-          const canvas = await this.pdfProcessor.renderPageThumbnail(i);
-          const url = await this.pdfProcessor.canvasToBlob(canvas);
-          return { pageNumber: i, thumbnailUrl: url };
+          try {
+            const canvas = await this.pdfProcessor.renderPageThumbnail(i);
+            const url = await this.pdfProcessor.canvasToBlob(canvas);
+            return { pageNumber: i, thumbnailUrl: url };
+          } catch (error) {
+            console.error(`Failed to render thumbnail for page ${i}:`, error);
+            return { pageNumber: i, thumbnailUrl: null };
+          }
         })();
 
-        let trackedPromise;
-        trackedPromise = promise
-          .then((thumb) => {
-            thumbnails.push(thumb);
-            return thumb;
-          })
-          .finally(() => {
-            activePromises.delete(trackedPromise);
-          });
+        activePromises.add(promise);
 
-        activePromises.add(trackedPromise);
+        promise.then((thumb) => {
+          activePromises.delete(promise);
+          thumbnails[i - 1] = thumb;
+        });
 
         if (activePromises.size >= CONCURRENCY_LIMIT) {
           await Promise.race(activePromises);
@@ -79,9 +79,6 @@ export class AppController {
       }
 
       await Promise.all(activePromises);
-
-      // Sort thumbnails to maintain correct page order
-      thumbnails.sort((a, b) => a.pageNumber - b.pageNumber);
 
       const selectedPages = await this.ui.modal.showPagePicker({
         fileName: file.name,
@@ -103,37 +100,45 @@ export class AppController {
   async importPages(pageNumbers) {
     this.ui.modal.showProgress(true, 'Rendering pages...');
 
-    try {
-      // Sliding window concurrency for page import processing
-      const CONCURRENCY_LIMIT = 4;
-      const activePromises = new Set();
+    // Sliding window concurrency for page import processing
+    const CONCURRENCY_LIMIT = 4;
+    const activePromises = new Set();
+    const results = [];
 
-      for (const [idx, pageNum] of pageNumbers.entries()) {
-        const promise = (async () => {
+    for (const [idx, pageNum] of pageNumbers.entries()) {
+      const promise = (async () => {
+        try {
           const canvas = await this.pdfProcessor.renderPage(pageNum);
           const url = await this.pdfProcessor.canvasToBlob(canvas);
-          const prior = this.state.allPageImages[idx];
-          if (prior && prior.startsWith('blob:')) {
-            URL.revokeObjectURL(prior);
-          }
-          this.state.allPageImages[idx] = url;
-          this.ui.updatePagePreview(idx, url);
-        })();
-
-        activePromises.add(promise);
-        promise.finally(() => activePromises.delete(promise));
-
-        if (activePromises.size >= CONCURRENCY_LIMIT) {
-          await Promise.race(activePromises);
+          return { idx, url };
+        } catch (error) {
+          console.error(`Failed to render page ${pageNum}:`, error);
+          return { idx, url: null };
         }
+      })();
+
+      activePromises.add(promise);
+
+      promise.then((res) => {
+        activePromises.delete(promise);
+        results.push(res);
+      });
+
+      if (activePromises.size >= CONCURRENCY_LIMIT) {
+        await Promise.race(activePromises);
       }
-
-      await Promise.all(activePromises);
-
-      toast.success('Import Complete', `${pageNumbers.length} pages added.`);
-    } finally {
-      this.ui.modal.showProgress(false);
     }
+
+    await Promise.all(activePromises);
+
+    // Apply results synchronously after processing to guarantee correct ordering
+    for (const { idx, url } of results) {
+      this.state.allPageImages[idx] = url;
+      this.ui.updatePagePreview(idx, url);
+    }
+
+    this.ui.modal.showProgress(false);
+    toast.success('Import Complete', `${pageNumbers.length} pages added.`);
   }
 
   handleGridSizeChanged({ rows, cols }) {
