@@ -1,10 +1,16 @@
 import mitt from 'mitt';
-import { PAPER_SIZES, ZINE_TEMPLATES } from '../../utils/config.js';
-import { debounce, formatFileSize } from '../../utils/helpers.js';
+import {
+  GRID_DIMENSION_MAX,
+  GRID_DIMENSION_MIN,
+  PAPER_SIZES,
+  ZINE_TEMPLATES
+} from '../../utils/config.js';
+import { debounce, formatFileSize, parseBoundedInteger } from '../../utils/helpers.js';
 import {
   MAX_UPLOAD_FILES,
   MIXED_UPLOAD_WARNING,
   SUPPORTED_UPLOAD_MESSAGE,
+  UNSUPPORTED_UPLOAD_TITLE,
   getFileTypeLabel,
   partitionSupportedFiles
 } from '../../utils/fileValidation.js';
@@ -38,6 +44,9 @@ const FOLD_STAGES = [
   }
 ];
 
+const DEFAULT_GRID_ROWS = 2;
+const DEFAULT_GRID_COLS = 4;
+
 export class UIManager {
   constructor() {
     this.emitter = mitt();
@@ -55,7 +64,8 @@ export class UIManager {
     this.renderer = new LayoutRenderer(this.elements.zineSheetsContainer, PAGE_CELL_TEMPLATE);
 
     this.renderPaperSizeOptions();
-    this.updateGridTotalBadge();
+    const { rows, cols } = this.normalizeGridInputs();
+    this.updateGridTotalBadge(rows, cols);
     this.setupEventListeners();
   }
 
@@ -194,8 +204,7 @@ export class UIManager {
     });
 
     const debouncedGridChange = debounce(() => {
-      const rows = parseInt(this.elements.gridRows?.value || '2', 10);
-      const cols = parseInt(this.elements.gridCols?.value || '4', 10);
+      const { rows, cols } = this.normalizeGridInputs();
 
       this.updateGridTotalBadge(rows, cols);
       this.emitter.emit('gridSizeChanged', { rows, cols });
@@ -224,7 +233,7 @@ export class UIManager {
 
     const { acceptedFiles, rejectedFiles } = partitionSupportedFiles(files);
     if (acceptedFiles.length === 0) {
-      toast.error('Unsupported File', SUPPORTED_UPLOAD_MESSAGE);
+      toast.error(UNSUPPORTED_UPLOAD_TITLE, SUPPORTED_UPLOAD_MESSAGE);
       return;
     }
 
@@ -430,9 +439,40 @@ export class UIManager {
     this.modal.toggle3DModal(show);
   }
 
-  updateGridTotalBadge(rows = parseInt(this.elements.gridRows?.value || '2', 10), cols = parseInt(this.elements.gridCols?.value || '4', 10)) {
+  getNormalizedGridSize(rowsValue = this.elements.gridRows?.value, colsValue = this.elements.gridCols?.value) {
+    return {
+      rows: parseBoundedInteger(rowsValue, {
+        min: GRID_DIMENSION_MIN,
+        max: GRID_DIMENSION_MAX,
+        fallback: DEFAULT_GRID_ROWS
+      }),
+      cols: parseBoundedInteger(colsValue, {
+        min: GRID_DIMENSION_MIN,
+        max: GRID_DIMENSION_MAX,
+        fallback: DEFAULT_GRID_COLS
+      })
+    };
+  }
+
+  normalizeGridInputs(rowsValue = this.elements.gridRows?.value, colsValue = this.elements.gridCols?.value) {
+    const { rows, cols } = this.getNormalizedGridSize(rowsValue, colsValue);
+
+    if (this.elements.gridRows) {
+      this.elements.gridRows.value = String(rows);
+    }
+
+    if (this.elements.gridCols) {
+      this.elements.gridCols.value = String(cols);
+    }
+
+    return { rows, cols };
+  }
+
+  updateGridTotalBadge(rows = this.elements.gridRows?.value, cols = this.elements.gridCols?.value) {
+    const { rows: normalizedRows, cols: normalizedCols } = this.getNormalizedGridSize(rows, cols);
+
     if (this.elements.gridTotal) {
-      this.elements.gridTotal.textContent = `${rows * cols} slots`;
+      this.elements.gridTotal.textContent = `${normalizedRows * normalizedCols} slots`;
     }
   }
 

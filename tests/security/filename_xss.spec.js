@@ -31,7 +31,9 @@ test('File names in uploaded list should be sanitized to prevent XSS', async ({ 
   // Clean up
   try {
     fs.unlinkSync(filePath);
-  } catch (e) {}
+  } catch {
+    // Ignore cleanup errors from pre-existing temp files.
+  }
 
   // Assert that XSS did NOT execute
   expect(isXssInjected).toBeUndefined();

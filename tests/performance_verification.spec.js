@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { jsPDF } from 'jspdf';
 import fs from 'fs';
-import path from 'path';
 
 const pdfPath = 'test-1-page.pdf';
 

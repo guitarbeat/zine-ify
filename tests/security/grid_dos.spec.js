@@ -1,33 +1,30 @@
 import { test, expect } from '@playwright/test';
+import { GRID_DIMENSION_MAX } from '../../src/utils/config.js';
 
 test.describe('Grid DoS Protection', () => {
   test('should clamp large grid inputs to prevent massive DOM node generation (client-side DoS)', async ({ page }) => {
     await page.goto('/');
 
-    // Verify UI is loaded
-    await expect(page.locator('#grid-rows')).toBeVisible();
+    const rowsInput = page.locator('#grid-rows');
+    const colsInput = page.locator('#grid-cols');
+    const gridTotal = page.locator('#grid-total');
+    const maxSlots = GRID_DIMENSION_MAX * GRID_DIMENSION_MAX;
 
-    // Directly set huge values using JS (bypassing HTML min/max constraints)
-    await page.locator('#grid-rows').evaluate(node => node.value = '1000');
-    await page.locator('#grid-cols').evaluate(node => node.value = '1000');
+    await expect(rowsInput).toBeVisible();
+    await expect(colsInput).toBeVisible();
 
-    // Dispatch input events
-    await page.locator('#grid-rows').dispatchEvent('input');
-    await page.locator('#grid-cols').dispatchEvent('input');
+    await rowsInput.evaluate((node) => {
+      node.value = '1000';
+      node.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await colsInput.evaluate((node) => {
+      node.value = '1000';
+      node.dispatchEvent(new Event('input', { bubbles: true }));
+    });
 
-    // Wait for debounce (300ms)
-    await page.waitForTimeout(500);
-
-    // Assert the input values are clamped back to max 10
-    const rowsValue = await page.locator('#grid-rows').inputValue();
-    const colsValue = await page.locator('#grid-cols').inputValue();
-
-    expect(rowsValue).toBe('10');
-    expect(colsValue).toBe('10');
-
-    // Generate a layout - simulating the grid total pages update and layout rendering
-    // Let's assert that the grid total text shows at most 100 pages
-    const gridTotalText = await page.locator('#grid-total').textContent();
-    expect(gridTotalText).toContain('100 pages');
+    await expect(rowsInput).toHaveValue(String(GRID_DIMENSION_MAX));
+    await expect(colsInput).toHaveValue(String(GRID_DIMENSION_MAX));
+    await expect(gridTotal).toHaveText(`${maxSlots} slots`);
+    await expect(page.locator('.page-cell')).toHaveCount(maxSlots);
   });
 });

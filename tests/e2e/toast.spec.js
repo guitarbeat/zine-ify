@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../../src/utils/fileValidation.js';
 
 test('Toast notification for invalid file upload', async ({ page }) => {
   // Navigate to the app. Using relative path if served via file://, but here we assume served via localhost
@@ -22,9 +23,9 @@ test('Toast notification for invalid file upload', async ({ page }) => {
     await expect(toast).toBeVisible({ timeout: 5000 });
 
     // We expect the clearer workflow-specific error title.
-    await expect(toast).toContainText('Unsupported Upload');
+    await expect(toast).toContainText(UNSUPPORTED_UPLOAD_TITLE);
     // We expect the specific error message
-    await expect(toast).toContainText('Please select a PDF or image file.');
+    await expect(toast).toContainText(SUPPORTED_UPLOAD_MESSAGE);
   } finally {
     // No cleanup needed
   }

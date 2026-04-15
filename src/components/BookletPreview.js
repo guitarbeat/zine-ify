@@ -70,7 +70,7 @@ export class BookletPreview {
   }
 
   loadPages(imageUrls = []) {
-    const orderedPages = (imageUrls || []).map((page, pageIndex) => normalizePreviewPage(page, pageIndex));
+    const orderedPages = (imageUrls || []).map((page, pageIndex) => normalizePreviewPage(page, pageIndex + 1));
     this.slotPages = MINI_ZINE_LAYOUT.map((pageNumber, slotIndex) => {
       const page = orderedPages[pageNumber - 1] ?? null;
       if (!page) {
