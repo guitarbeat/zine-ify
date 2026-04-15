@@ -103,30 +103,37 @@ export class AppController {
   async importPages(pageNumbers) {
     this.ui.modal.showProgress(true, 'Rendering pages...');
 
-    // Sliding window concurrency for page import processing
-    const CONCURRENCY_LIMIT = 4;
-    const activePromises = new Set();
+    try {
+      // Sliding window concurrency for page import processing
+      const CONCURRENCY_LIMIT = 4;
+      const activePromises = new Set();
 
-    for (const [idx, pageNum] of pageNumbers.entries()) {
-      const promise = (async () => {
-        const canvas = await this.pdfProcessor.renderPage(pageNum);
-        const url = await this.pdfProcessor.canvasToBlob(canvas);
-        this.state.allPageImages[idx] = url;
-        this.ui.updatePagePreview(idx, url);
-      })();
+      for (const [idx, pageNum] of pageNumbers.entries()) {
+        const promise = (async () => {
+          const canvas = await this.pdfProcessor.renderPage(pageNum);
+          const url = await this.pdfProcessor.canvasToBlob(canvas);
+          const prior = this.state.allPageImages[idx];
+          if (prior && prior.startsWith('blob:')) {
+            URL.revokeObjectURL(prior);
+          }
+          this.state.allPageImages[idx] = url;
+          this.ui.updatePagePreview(idx, url);
+        })();
 
-      activePromises.add(promise);
-      promise.finally(() => activePromises.delete(promise));
+        activePromises.add(promise);
+        promise.finally(() => activePromises.delete(promise));
 
-      if (activePromises.size >= CONCURRENCY_LIMIT) {
-        await Promise.race(activePromises);
+        if (activePromises.size >= CONCURRENCY_LIMIT) {
+          await Promise.race(activePromises);
+        }
       }
+
+      await Promise.all(activePromises);
+
+      toast.success('Import Complete', `${pageNumbers.length} pages added.`);
+    } finally {
+      this.ui.modal.showProgress(false);
     }
-
-    await Promise.all(activePromises);
-
-    this.ui.modal.showProgress(false);
-    toast.success('Import Complete', `${pageNumbers.length} pages added.`);
   }
 
   handleGridSizeChanged({ rows, cols }) {
