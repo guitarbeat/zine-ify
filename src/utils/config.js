@@ -1,5 +1,8 @@
 import { MINI_ZINE_LAYOUT, MINI_ZINE_UPSIDE_DOWN_PAGES } from './miniZineLayout.js';
 
+export const GRID_DIMENSION_MIN = 1;
+export const GRID_DIMENSION_MAX = 10;
+
 export const PAPER_SIZES = {
     a4: { label: 'A4 (210 × 297 mm)', width: 210, height: 297 },
     a3: { label: 'A3 (297 × 420 mm)', width: 297, height: 420 },

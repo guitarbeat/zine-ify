@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { formatFileSize, isNumber, debounce } from '../../src/utils/helpers.js';
+import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger } from '../../src/utils/helpers.js';
 import {
   classifyFileKind,
   getFileTypeLabel,
@@ -23,6 +23,19 @@ test.describe('Utils', () => {
     expect(isNumber('123')).toBe(false);
     expect(isNumber(NaN)).toBe(false);
     expect(isNumber(Infinity)).toBe(false);
+  });
+
+  test('clampNumber', () => {
+    expect(clampNumber(5, 1, 10)).toBe(5);
+    expect(clampNumber(-3, 1, 10)).toBe(1);
+    expect(clampNumber(42, 1, 10)).toBe(10);
+  });
+
+  test('parseBoundedInteger', () => {
+    expect(parseBoundedInteger('7', { min: 1, max: 10, fallback: 2 })).toBe(7);
+    expect(parseBoundedInteger('1000', { min: 1, max: 10, fallback: 2 })).toBe(10);
+    expect(parseBoundedInteger('0', { min: 1, max: 10, fallback: 2 })).toBe(1);
+    expect(parseBoundedInteger('abc', { min: 1, max: 10, fallback: 2 })).toBe(2);
   });
 
   test('debounce', async () => {

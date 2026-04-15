@@ -15,7 +15,7 @@ test('Should reject files without PDF signature', async ({ page }) => {
   await fileInput.setInputFiles({
     name: 'fake.pdf',
     mimeType: 'application/pdf',
-    buffer: buffer
+    buffer
   });
 
   // Check for the specific error message in the toast
@@ -36,7 +36,7 @@ test('Should reject polyglot files (valid signature not at offset 0)', async ({ 
   await fileInput.setInputFiles({
     name: 'polyglot.pdf',
     mimeType: 'application/pdf',
-    buffer: buffer
+    buffer
   });
 
   const toastMessage = page.locator('#toast-container');
@@ -55,7 +55,7 @@ test('Should accept files with valid PDF signature (even if corrupted later)', a
   await fileInput.setInputFiles({
     name: 'valid_header.pdf',
     mimeType: 'application/pdf',
-    buffer: buffer
+    buffer
   });
 
   const toastMessage = page.locator('#toast-container');

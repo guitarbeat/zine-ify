@@ -91,10 +91,16 @@
   box-shadow: 0 4px 14px rgba(23, 23, 23, 0.08);
 }
 
-.page-cell.has-page:hover .page-toolbar,
 .page-cell.active .page-toolbar {
   opacity: 1 !important;
   pointer-events: auto;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .page-cell.has-page:hover .page-toolbar {
+    opacity: 1 !important;
+    pointer-events: auto;
+  }
 }
 
 .page-content-img {
@@ -164,4 +170,89 @@
   z-index: 20;
   background-color: rgba(255, 255, 255, 0.9);
   color: var(--accent-dark);
+}
+
+@media (max-width: 767px) {
+  .page-cell {
+      min-height: 5.35rem;
+  }
+
+  .page-toolbar {
+      opacity: 0;
+      pointer-events: none;
+      gap: 0.2rem;
+      padding: 0.16rem;
+  }
+
+  .page-cell.active .page-toolbar,
+  .page-cell:focus-within .page-toolbar {
+      opacity: 1 !important;
+      pointer-events: auto;
+  }
+
+  .page-toolbar .zoom-btn,
+  .page-toolbar .crop-btn,
+  .page-toolbar .flip-btn,
+  .page-toolbar .remove-btn {
+      width: 1.85rem;
+      height: 1.85rem;
+  }
+
+  .page-toolbar .material-symbols-outlined {
+      font-size: 15px;
+  }
+
+  .page-label,
+  .page-label.centered {
+      top: 0.25rem;
+      left: 0.25rem;
+      font-size: 8px;
+      padding: 2px 4px;
+  }
+
+  .page-placeholder span:last-child {
+      display: none;
+  }
+}
+
+@media (max-width: 359px) {
+  .page-toolbar {
+      top: 0.22rem;
+      right: 0.22rem;
+      max-width: calc(100% - 0.45rem);
+      border-radius: 0.75rem;
+      padding: 0.14rem;
+  }
+
+  .page-toolbar[data-layout="grid"] {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      justify-items: end;
+      gap: 0.14rem;
+  }
+
+  .page-toolbar[data-layout="grid"] .zoom-btn,
+  .page-toolbar[data-layout="grid"] .crop-btn,
+  .page-toolbar[data-layout="grid"] .flip-btn,
+  .page-toolbar[data-layout="grid"] .remove-btn {
+      width: 1.55rem;
+      height: 1.55rem;
+  }
+
+  .page-toolbar[data-layout="grid"] .material-symbols-outlined {
+      font-size: 13px;
+  }
+
+  .page-placeholder {
+      gap: 0.4rem;
+  }
+
+  .page-placeholder .material-symbols-outlined {
+      font-size: 1.45rem;
+  }
+
+  .page-placeholder span:last-child {
+      font-size: 8px;
+      letter-spacing: 0.12em;
+  }
 }

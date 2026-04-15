@@ -3,6 +3,7 @@ import { formatFileSize } from './helpers.js';
 export const MAX_UPLOAD_FILES = 10;
 export const MAX_UPLOAD_FILE_SIZE = 50 * 1024 * 1024;
 export const SUPPORTED_UPLOAD_ACCEPT = 'application/pdf,image/*';
+export const UNSUPPORTED_UPLOAD_TITLE = 'Unsupported File';
 export const SUPPORTED_UPLOAD_MESSAGE = 'Please select a PDF or image file.';
 export const MIXED_UPLOAD_WARNING = 'Some files were skipped. Upload PDFs or image files only.';
 
