@@ -115,17 +115,14 @@ export class UIManager {
       pagePickerGrid: $('#page-picker-grid'),
       pagePickerCount: $('#page-picker-count'),
       pagePickerSubtitle: $('#page-picker-subtitle'),
-      pagePickerHelper: $('#page-picker-helper'),
       pagePickerSelectFirst: $('#page-picker-select-first'),
       pagePickerSelectLast: $('#page-picker-select-last'),
       pagePickerSelectEven: $('#page-picker-select-even'),
       pagePickerSelectOdd: $('#page-picker-select-odd'),
       pagePickerClear: $('#page-picker-clear'),
       actionButtons: $('#action-buttons'),
-      workflowChip: $('#workflow-chip'),
       workflowSteps: Array.from(document.querySelectorAll('.workflow-step')),
       previewDescription: $('#preview-description'),
-      previewLayoutChip: $('#preview-layout-chip'),
       previewCountChip: $('#preview-count-chip'),
       previewEmptyState: $('#preview-empty-state'),
       previewEmptyTitle: $('#preview-empty-title'),
@@ -586,12 +583,10 @@ export class UIManager {
     const hasPages = placedCount > 0;
     const slotsPerSheet = Math.max(rows * cols, 1);
     const sheetCount = Math.max(1, Math.ceil(Math.max(placedCount, 1) / slotsPerSheet));
-    const layoutLabel = isMiniLayout ? 'Mini-zine 2 x 4' : `${rows} x ${cols} custom sheet`;
 
     this.updateGridTotalBadge(rows, cols);
 
     this.elements.previewArea?.classList.toggle('is-empty', !hasPages);
-    this.elements.previewLayoutChip && (this.elements.previewLayoutChip.textContent = layoutLabel);
     this.elements.previewCountChip && (this.elements.previewCountChip.textContent = hasPages
       ? `${placedCount} of ${totalSlots} placed`
       : `${totalSlots} slots ready`);
@@ -648,18 +643,6 @@ export class UIManager {
 
     if (this.elements.view3dBtnLabel) {
       this.elements.view3dBtnLabel.textContent = isMiniLayout ? 'Fold Preview' : 'Mini Preview Only';
-    }
-
-    if (this.elements.workflowChip) {
-      if (!hasPages) {
-        this.elements.workflowChip.textContent = 'Next: import';
-      } else if (isMiniLayout && !previewed) {
-        this.elements.workflowChip.textContent = 'Next: preview';
-      } else if (!exported) {
-        this.elements.workflowChip.textContent = 'Next: export';
-      } else {
-        this.elements.workflowChip.textContent = 'Ready: print or share';
-      }
     }
 
     const stepStateMap = {

@@ -59,15 +59,6 @@
                         </div>
                         <div class="combined-rail-divider" aria-hidden="true"></div>
 
-                        <div class="combined-rail-subheader flex items-center justify-between gap-4">
-                            <div class="space-y-1">
-                                <h3 class="font-marker text-sm uppercase tracking-widest flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-[16px]">route</span> Flow
-                                </h3>
-                            </div>
-                            <span id="workflow-chip" class="workflow-chip">Next: import</span>
-                        </div>
-
                         <div class="workflow-steps" aria-label="Zine workflow">
                             <button type="button" class="workflow-step" data-workflow-step="upload">
                                 <span class="workflow-step-index">1</span>
@@ -106,7 +97,6 @@
                                 <h2 class="rail-section-title">Sheet Setup</h2>
                                 <p class="workspace-config-summary">Paper, orientation, and slot count all live here now.</p>
                             </div>
-                            <span class="rail-section-chip">Live</span>
                         </div>
 
                         <div class="workspace-config-grid rail-config-grid">
@@ -199,7 +189,6 @@
                 </div>
 
                 <div class="workspace-meta" aria-label="Canvas status">
-                    <span id="preview-layout-chip" class="workspace-chip">Mini-zine</span>
                     <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0 placed</span>
                 </div>
 
@@ -353,10 +342,6 @@
 
                         <div id="booklet-preview-container" class="booklet-preview-container" aria-label="Small booklet preview"></div>
 
-                        <p class="simulation-helper simulation-helper-compact">
-                            Click a page or use the buttons below.
-                        </p>
-
                         <div class="grid grid-cols-2 gap-3">
                             <button id="booklet-prev-btn" class="action-button w-full py-2.5 px-3 flex items-center justify-center gap-2 bg-white text-black font-bold border-4 border-black" type="button">
                                 <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>
@@ -411,10 +396,7 @@
             <div id="page-picker-grid" class="page-picker-grid flex-1 overflow-y-auto p-4 sm:p-6 bg-[var(--bg-neutral)]">
             </div>
 
-            <div class="flex items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 border-t-4 border-black bg-white">
-                <p id="page-picker-helper" class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-600">
-                    Choose the pages you want in this zine.
-                </p>
+            <div class="flex items-center justify-end gap-3 px-4 py-3 sm:px-6 sm:py-4 border-t-4 border-black bg-white">
                 <div class="flex items-center gap-3">
                     <button id="page-picker-cancel" type="button"
                         class="action-button py-2 px-4 bg-white text-black font-bold">

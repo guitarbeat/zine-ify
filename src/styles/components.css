@@ -19,7 +19,6 @@
 }
 
 .upload-status,
-.workflow-chip,
 .grid-total-chip,
 .workspace-description {
   @apply base-chip;
