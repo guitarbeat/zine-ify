@@ -61,12 +61,17 @@ export class AppController {
           return { pageNumber: i, thumbnailUrl: url };
         })();
 
-        activePromises.add(promise);
+        let trackedPromise;
+        trackedPromise = promise
+          .then((thumb) => {
+            thumbnails.push(thumb);
+            return thumb;
+          })
+          .finally(() => {
+            activePromises.delete(trackedPromise);
+          });
 
-        promise.then((thumb) => {
-          activePromises.delete(promise);
-          thumbnails.push(thumb);
-        });
+        activePromises.add(trackedPromise);
 
         if (activePromises.size >= CONCURRENCY_LIMIT) {
           await Promise.race(activePromises);
