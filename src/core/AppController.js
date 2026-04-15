@@ -166,23 +166,40 @@ export class AppController {
     this.prepareLayoutForTotalPages(startIndex + selectedPages.length);
     this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
 
+    const concurrencyLimit = 4;
+    const activePromises = new Set();
+    let completedCount = 0;
+
     for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
-      const targetIndex = startIndex + selectedIndex;
-      const canvas = await this.pdfProcessor.renderPage(pageNumber);
-      const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
-      const existingUrl = this.state.allPageImages[targetIndex];
+      // ⚡ Bolt: Use a sliding window worker pool to process pages concurrently
+      const renderPromise = (async () => {
+        const targetIndex = startIndex + selectedIndex;
+        const canvas = await this.pdfProcessor.renderPage(pageNumber);
+        const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
+        const existingUrl = this.state.allPageImages[targetIndex];
 
-      if (existingUrl && existingUrl !== this.state._blankPageUrl) {
-        this.pdfProcessor.revokeBlobUrl(existingUrl);
+        if (existingUrl && existingUrl !== this.state._blankPageUrl) {
+          this.pdfProcessor.revokeBlobUrl(existingUrl);
+        }
+
+        this.state.allPageImages[targetIndex] = pageUrl;
+        this.ui.updatePagePreview(targetIndex, pageUrl);
+
+        completedCount++;
+        const percent = Math.round((completedCount / selectedPages.length) * 100);
+        this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
+        this.ui.modal.updateProgress(percent);
+      })();
+
+      activePromises.add(renderPromise);
+      renderPromise.finally(() => activePromises.delete(renderPromise));
+
+      if (activePromises.size >= concurrencyLimit) {
+        await Promise.race(activePromises);
       }
-
-      this.state.allPageImages[targetIndex] = pageUrl;
-      this.ui.updatePagePreview(targetIndex, pageUrl);
-
-      const percent = Math.round(((selectedIndex + 1) / selectedPages.length) * 100);
-      this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
-      this.ui.modal.updateProgress(percent);
     }
+
+    await Promise.all(activePromises);
 
     this.state.totalPages = this.state.getFilledPageCount();
     this.state.resetWorkflowStatus();
@@ -207,15 +224,34 @@ export class AppController {
     this.ui.modal.updateProgress(0);
 
     try {
-      for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
-        const canvas = await this.pdfProcessor.renderPageThumbnail(pageNumber);
-        const thumbnailUrl = await this.pdfProcessor.canvasToBlob(canvas);
-        thumbnails.push({ pageNumber, thumbnailUrl });
+      const concurrencyLimit = 4;
+      const activePromises = new Set();
+      let completedCount = 0;
 
-        const percent = Math.round((pageNumber / numPages) * 100);
-        this.ui.modal.setProgressCopy('Preparing page picker...', `${percent}%`);
-        this.ui.modal.updateProgress(percent);
+      for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
+        // ⚡ Bolt: Use a sliding window worker pool to process thumbnails concurrently
+        const renderPromise = (async () => {
+          const canvas = await this.pdfProcessor.renderPageThumbnail(pageNumber);
+          const thumbnailUrl = await this.pdfProcessor.canvasToBlob(canvas);
+          thumbnails.push({ pageNumber, thumbnailUrl });
+
+          completedCount++;
+          const percent = Math.round((completedCount / numPages) * 100);
+          this.ui.modal.setProgressCopy('Preparing page picker...', `${percent}%`);
+          this.ui.modal.updateProgress(percent);
+        })();
+
+        activePromises.add(renderPromise);
+        renderPromise.finally(() => activePromises.delete(renderPromise));
+
+        if (activePromises.size >= concurrencyLimit) {
+          await Promise.race(activePromises);
+        }
       }
+
+      await Promise.all(activePromises);
+      // Ensure thumbnails are in order since they resolved concurrently
+      thumbnails.sort((a, b) => a.pageNumber - b.pageNumber);
     } finally {
       this.ui.modal.showProgress(false);
     }
