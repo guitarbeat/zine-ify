@@ -27,6 +27,10 @@ export class AppController {
     try {
       await this.pdfProcessor.initialize();
       this.setupEventListeners();
+      this.ui.syncPaperSettings({
+        paperSize: this.state.paperSize,
+        orientation: this.state.orientation
+      });
       this.renderCurrentLayout();
       this.ui.setStatus('Choose files or drop them here');
     } catch (error) {
@@ -48,8 +52,8 @@ export class AppController {
     this.ui.on('export', () => this.handleExport());
     this.ui.on('view3d', () => this.handleView3d());
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
-    this.ui.on('paperSizeChanged', (data) => this.state.updatePaperSettings(data));
-    this.ui.on('orientationChanged', (data) => this.state.updatePaperSettings(data));
+    this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
+    this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
   }
 
   handleFileSelected(file) {
@@ -366,7 +370,10 @@ export class AppController {
       this.state.allPageImages = nextImages;
     }
 
-    this.ui.generateLayout(requiredLength, this.getCurrentTemplate());
+    this.ui.generateLayout(requiredLength, this.getCurrentTemplate(), {
+      paperSize: this.state.paperSize,
+      orientation: this.state.orientation
+    });
     this.state.allPageImages.forEach((url, index) => this.ui.updatePagePreview(index, url));
 
     for (let index = 0; index < this.state.allPageImages.length; index++) {
@@ -384,9 +391,17 @@ export class AppController {
       rows: this.state.gridSize.rows,
       cols: this.state.gridSize.cols,
       isMiniLayout: this.state.isMiniZineLayout(),
+      paperSize: this.state.paperSize,
+      orientation: this.state.orientation,
       previewed: this.state.workflowPreviewed,
       exported: this.state.workflowExported
     });
+  }
+
+  handlePaperSettingsChanged(data) {
+    this.state.updatePaperSettings(data);
+    this.state.resetWorkflowStatus();
+    this.renderCurrentLayout();
   }
 
   handleGridSizeChanged({ rows, cols }) {

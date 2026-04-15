@@ -64,9 +64,11 @@ export class UIManager {
     this.renderer = new LayoutRenderer(this.elements.zineSheetsContainer, PAGE_CELL_TEMPLATE);
 
     this.renderPaperSizeOptions();
+    this.syncPaperSettings({ paperSize: 'letter', orientation: 'landscape' });
     const { rows, cols } = this.normalizeGridInputs();
     this.updateGridTotalBadge(rows, cols);
     this.setupEventListeners();
+    this.syncResponsiveUI();
   }
 
   cacheElements() {
@@ -124,6 +126,7 @@ export class UIManager {
       workflowSteps: Array.from(document.querySelectorAll('.workflow-step')),
       previewDescription: $('#preview-description'),
       previewCountChip: $('#preview-count-chip'),
+      previewHelperChip: $('#preview-helper-chip'),
       previewEmptyState: $('#preview-empty-state'),
       previewEmptyTitle: $('#preview-empty-title'),
       previewEmptyBody: $('#preview-empty-body'),
@@ -210,11 +213,7 @@ export class UIManager {
     this.elements.gridRows?.addEventListener('input', debouncedGridChange);
     this.elements.gridCols?.addEventListener('input', debouncedGridChange);
 
-    window.addEventListener('resize', () => {
-      if (window.innerWidth >= 1024) {
-        this.toggleMobileRail(false);
-      }
-    });
+    window.addEventListener('resize', () => this.syncResponsiveUI());
 
     document.addEventListener('keydown', (event) => this.handleKeyboard(event));
   }
@@ -324,7 +323,7 @@ export class UIManager {
     this.emitter.on(event, handler);
   }
 
-  generateLayout(numPages, templateType) {
+  generateLayout(numPages, templateType, paperSettings = {}) {
     const template = typeof templateType === 'string'
       ? ZINE_TEMPLATES[templateType || 'mini-8']
       : (templateType || ZINE_TEMPLATES['mini-8']);
@@ -352,11 +351,35 @@ export class UIManager {
       onRemove: (index) => this.emitter.emit('pageRemoved', index)
     };
 
-    this.renderer.render(numPages, template, { pageNumbersVisible: this.pageNumbersVisible }, handlers);
+    const dimensions = this.getPaperDimensions(
+      paperSettings.paperSize || 'letter',
+      paperSettings.orientation || 'landscape'
+    );
+
+    this.renderer.render(
+      numPages,
+      template,
+      { pageNumbersVisible: this.pageNumbersVisible },
+      handlers,
+      {
+        ...paperSettings,
+        ...dimensions
+      }
+    );
   }
 
   getImgUrl(index) {
     return document.querySelectorAll('.page-cell')[index]?.querySelector('img')?.src;
+  }
+
+  syncPaperSettings({ paperSize = 'letter', orientation = 'landscape' } = {}) {
+    if (this.elements.paperSizeSelect && this.elements.paperSizeSelect.value !== paperSize) {
+      this.elements.paperSizeSelect.value = paperSize;
+    }
+
+    if (this.elements.orientationSelect && this.elements.orientationSelect.value !== orientation) {
+      this.elements.orientationSelect.value = orientation;
+    }
   }
 
   updatePagePreview(index, url) {
@@ -427,9 +450,39 @@ export class UIManager {
 
     const shouldShow = !!show && window.innerWidth < 1024;
     this.elements.controlRail.classList.toggle('is-open', shouldShow);
-    this.elements.mobileRailOverlay?.classList.toggle('hidden', !shouldShow);
-    this.elements.mobileRailOverlay?.setAttribute('aria-hidden', shouldShow ? 'false' : 'true');
-    document.body.classList.toggle('mobile-rail-open', shouldShow);
+    this.syncResponsiveUI();
+  }
+
+  syncResponsiveUI() {
+    const isDesktop = window.innerWidth >= 1024;
+    const isOpen = !isDesktop && this.isMobileRailOpen();
+    const isTinyPhone = window.innerWidth < 360;
+
+    if (this.elements.controlRail) {
+      if (isDesktop) {
+        this.elements.controlRail.classList.remove('is-open');
+      }
+
+      const hideRail = !isDesktop && !isOpen;
+      this.elements.controlRail.setAttribute('aria-hidden', hideRail ? 'true' : 'false');
+      this.elements.controlRail.inert = hideRail;
+    }
+
+    this.elements.mobileRailOverlay?.classList.toggle('hidden', !isOpen);
+    this.elements.mobileRailOverlay?.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+    this.elements.openRailSheetBtn?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    if (this.elements.openRailSheetBtn) {
+      const labelNode = this.elements.openRailSheetBtn.querySelector('span:last-child');
+      if (labelNode) {
+        labelNode.textContent = isTinyPhone ? 'Tools' : 'Controls';
+      }
+    }
+
+    document.querySelectorAll('.page-toolbar').forEach((toolbar) => {
+      toolbar.dataset.layout = isTinyPhone ? 'grid' : 'row';
+    });
+
+    document.body.classList.toggle('mobile-rail-open', isOpen);
   }
 
   toggle3DModal(show) {
@@ -577,24 +630,34 @@ export class UIManager {
     rows = 2,
     cols = 4,
     isMiniLayout = true,
+    paperSize = 'letter',
+    orientation = 'landscape',
     previewed = false,
     exported = false
   }) {
     const hasPages = placedCount > 0;
     const slotsPerSheet = Math.max(rows * cols, 1);
     const sheetCount = Math.max(1, Math.ceil(Math.max(placedCount, 1) / slotsPerSheet));
+    const paperLabel = PAPER_SIZES[paperSize]?.label?.split(' (')[0] || 'Letter';
+    const orientationLabel = orientation === 'portrait' ? 'Portrait' : 'Landscape';
 
     this.updateGridTotalBadge(rows, cols);
+    this.syncPaperSettings({ paperSize, orientation });
 
     this.elements.previewArea?.classList.toggle('is-empty', !hasPages);
+    this.elements.previewArea?.setAttribute('data-paper-size', paperSize);
+    this.elements.previewArea?.setAttribute('data-orientation', orientation);
     this.elements.previewCountChip && (this.elements.previewCountChip.textContent = hasPages
       ? `${placedCount} of ${totalSlots} placed`
       : `${totalSlots} slots ready`);
+    this.elements.previewHelperChip && (this.elements.previewHelperChip.textContent = window.innerWidth < 420
+      ? `${paperLabel} ${orientationLabel}`
+      : `${paperLabel} · ${orientationLabel}`);
 
     if (this.elements.previewDescription) {
       this.elements.previewDescription.textContent = hasPages
-        ? `${placedCount} page${placedCount === 1 ? '' : 's'} placed across ${sheetCount} sheet${sheetCount === 1 ? '' : 's'}. Drag to reorder, then flip, crop, preview, or export.`
-        : 'Import a PDF or image stack to start laying out the sheet.';
+        ? `${placedCount} page${placedCount === 1 ? '' : 's'} placed across ${sheetCount} sheet${sheetCount === 1 ? '' : 's'} on ${paperLabel.toLowerCase()} ${orientationLabel.toLowerCase()}. Drag to reorder, then flip, crop, preview, or export.`
+        : `Import a PDF or image stack to start laying out the sheet on ${paperLabel.toLowerCase()} ${orientationLabel.toLowerCase()}.`;
     }
 
     if (this.elements.previewEmptyState) {
@@ -626,11 +689,15 @@ export class UIManager {
     }
 
     if (this.elements.exportPdfBtnLabel) {
-      this.elements.exportPdfBtnLabel.textContent = exported ? 'Export Again' : 'Export PDF';
+      this.elements.exportPdfBtnLabel.textContent = window.innerWidth < 360
+        ? 'Export'
+        : (exported ? 'Export Again' : 'Export PDF');
     }
 
     if (this.elements.printBtnLabel) {
-      this.elements.printBtnLabel.textContent = hasPages ? 'Print Sheet' : 'Print';
+      this.elements.printBtnLabel.textContent = window.innerWidth < 360
+        ? 'Print'
+        : (hasPages ? 'Print Sheet' : 'Print');
     }
 
     if (this.elements.view3dBtn) {
@@ -642,7 +709,9 @@ export class UIManager {
     }
 
     if (this.elements.view3dBtnLabel) {
-      this.elements.view3dBtnLabel.textContent = isMiniLayout ? 'Fold Preview' : 'Mini Preview Only';
+      this.elements.view3dBtnLabel.textContent = window.innerWidth < 360
+        ? 'Preview'
+        : (isMiniLayout ? 'Fold Preview' : 'Mini Preview Only');
     }
 
     const stepStateMap = {
