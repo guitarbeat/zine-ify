@@ -1,20 +1,17 @@
 @reference "./theme.css";
 
 .upload-box {
-  border: var(--border-bold);
-  border-radius: var(--radius-panel);
-  background-color: white;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  box-shadow: var(--shadow-md);
+  border: 2px dashed rgba(0, 0, 0, 0.2);
+  border-radius: 0.75rem;
+  background-color: var(--bg-neutral);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 .upload-box:hover, .upload-box:focus {
-  transform: translateY(-2px);
   border-color: var(--primary-vibrant);
-  box-shadow: var(--shadow-lg);
+  background-color: var(--primary-glow);
 }
-.upload-box:active, .upload-box.dragover {
-  transform: translateY(0px);
-  box-shadow: var(--shadow-sm);
+.upload-box.dragover {
+  border-color: var(--primary-vibrant);
   background-color: var(--primary-glow);
 }
 
@@ -246,103 +243,7 @@ select:focus, input:focus {
   border-color: var(--muted-ink) !important;
 }
 
-.workflow-panel {
-  @apply base-panel;
-}
 
-.workflow-steps {
-  display: grid;
-  gap: 0.55rem;
-}
-
-.workflow-step {
-  width: 100%;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 0.7rem;
-  align-items: center;
-  padding: 0.8rem 1rem;
-  text-align: left;
-  background: white;
-  border: var(--border-thin);
-  border-radius: var(--radius-button);
-  transition: all 0.2s ease;
-}
-
-.workflow-step-copy {
-  display: grid;
-  min-width: 0;
-}
-
-.workflow-step-label {
-  min-width: 0;
-}
-
-.workflow-step.is-idle {
-  opacity: 0.78;
-}
-
-.workflow-step.is-current {
-  border-color: var(--primary-vibrant);
-  box-shadow: -4px 0 0 var(--primary-vibrant);
-}
-
-.workflow-step.is-current .workflow-step-index {
-  background: var(--primary-vibrant);
-}
-
-.workflow-step.is-done {
-  background: rgba(16, 185, 129, 0.09);
-  border-color: rgba(16, 185, 129, 0.55);
-}
-
-.workflow-step.is-done .workflow-step-index {
-  background: #0f8a62;
-}
-
-.workflow-step:not(:disabled):hover {
-  transform: translateX(4px);
-  border-color: var(--primary-vibrant);
-  box-shadow: -4px 0 0 var(--primary-vibrant);
-}
-
-.workflow-step-index {
-  min-width: 2rem;
-  height: 2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  font-weight: 800;
-  background: var(--accent-dark);
-  color: white;
-  border-radius: 4px;
-}
-
-.workflow-step-state {
-  justify-self: end;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.65rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border: var(--border-thin);
-  background: white;
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-}
-
-.workflow-step.is-current .workflow-step-state {
-  background: var(--primary-vibrant);
-  border-color: var(--primary-vibrant);
-  color: white;
-}
-
-.workflow-step.is-done .workflow-step-state {
-  background: white;
-  color: #0f8a62;
-  border-color: rgba(16, 185, 129, 0.45);
-}
 
 .progress-bar-container {
   width: 100%;

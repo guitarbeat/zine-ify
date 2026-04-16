@@ -15,18 +15,8 @@
 <body class="min-h-screen mobile-zine-app">
 
     <div class="app-shell max-w-[1800px] mx-auto px-3 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6">
-        <header class="app-header pt-2 sm:pt-6 pb-3 sm:pb-4">
-            <div class="app-header-main">
-                <div class="space-y-3">
-                    <div class="space-y-2">
-                        <h1 class="font-marker app-title app-title-ink" aria-label="Zine-ify">
-                            <span class="app-title-cut app-title-cut-1">ZINE</span>
-                            <span class="app-title-cut app-title-cut-dash">-</span>
-                            <span class="app-title-cut app-title-cut-2">IFY</span>
-                        </h1>
-                    </div>
-                </div>
-            </div>
+        <header class="app-header">
+            <h1 class="font-marker app-title">Zine-ify</h1>
         </header>
 
         <main class="app-layout grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4 sm:gap-5 items-start">
@@ -35,73 +25,31 @@
             <aside id="control-rail" class="control-rail space-y-3 sm:space-y-4 lg:sticky lg:top-4 relative z-20 flex flex-col h-full lg:max-h-[calc(100vh-4.5rem)]" aria-label="Files, workflow, and settings">
 
                 <div class="control-scroll overflow-y-visible lg:overflow-y-auto space-y-3 sm:space-y-4 lg:pr-2 flex-1 pb-6 lg:pb-10">
-                    <section id="workflow-panel" class="base-panel rail-section rail-section-priority workflow-panel combined-rail-panel space-y-4">
+                    <section id="workflow-panel" class="base-panel rail-section rail-section-priority workflow-panel space-y-3">
                         <div class="rail-section-header">
-                            <div>
-                                <h2 class="rail-section-title">Files + Flow</h2>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="rail-section-chip">Ctrl+O</span>
-                                <button id="close-rail-sheet-btn" type="button" class="rail-sheet-close lg:hidden" aria-label="Close files and flow panel">
-                                    <span class="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
-                                </button>
-                            </div>
+                            <h2 class="rail-section-title">Add Pages</h2>
+                            <button id="close-rail-sheet-btn" type="button" class="rail-sheet-close lg:hidden" aria-label="Close panel">
+                                <span class="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
+                            </button>
                         </div>
 
                         <div id="upload-zone"
-                            class="upload-box relative overflow-hidden px-4 py-5 sm:p-6 flex flex-col items-center justify-center text-center cursor-pointer min-h-[128px] sm:min-h-[140px] group focus:outline-none"
-                            role="button" tabindex="0" aria-label="Upload PDF or image files" title="Upload PDFs or images (Ctrl+O)" aria-keyshortcuts="Control+O">
-                            <span class="material-symbols-outlined text-4xl mb-3" style="color: var(--primary-vibrant);" aria-hidden="true">cloud_upload</span>
-                            <h2 class="font-marker text-base sm:text-lg leading-tight mb-1">Add a PDF or image set</h2>
-                            <p id="upload-status" class="upload-status" aria-live="polite">
-                                Choose files or drop them here</p>
+                            class="upload-box relative overflow-hidden p-4 flex flex-col items-center justify-center text-center cursor-pointer group focus:outline-none"
+                            role="button" tabindex="0" aria-label="Upload PDF or image files">
+                            <span class="material-symbols-outlined text-3xl mb-2" style="color: var(--primary-vibrant);" aria-hidden="true">add_circle</span>
+                            <p id="upload-status" class="text-sm font-medium" aria-live="polite">Drop PDF or images here</p>
                             <input type="file" id="pdf-upload" class="hidden" accept="application/pdf,image/*" multiple>
-                        </div>
-                        <div class="combined-rail-divider" aria-hidden="true"></div>
-
-                        <div class="workflow-steps" aria-label="Zine workflow">
-                            <button type="button" class="workflow-step" data-workflow-step="upload">
-                                <span class="workflow-step-index">1</span>
-                                <span class="workflow-step-copy">
-                                    <span class="workflow-step-label">Add files</span>
-                                </span>
-                                <span class="workflow-step-state">Ready</span>
-                            </button>
-                            <button type="button" class="workflow-step" data-workflow-step="arrange">
-                                <span class="workflow-step-index">2</span>
-                                <span class="workflow-step-copy">
-                                    <span class="workflow-step-label">Arrange</span>
-                                </span>
-                                <span class="workflow-step-state">Waiting</span>
-                            </button>
-                            <button type="button" class="workflow-step" data-workflow-step="preview">
-                                <span class="workflow-step-index">3</span>
-                                <span class="workflow-step-copy">
-                                    <span class="workflow-step-label">Preview (WIP)</span>
-                                </span>
-                                <span class="workflow-step-state">Optional</span>
-                            </button>
-                            <button type="button" class="workflow-step" data-workflow-step="export">
-                                <span class="workflow-step-index">4</span>
-                                <span class="workflow-step-copy">
-                                    <span class="workflow-step-label">Export</span>
-                                </span>
-                                <span class="workflow-step-state">Waiting</span>
-                            </button>
                         </div>
                     </section>
 
-                    <section id="settings-group" class="base-panel rail-section rail-settings-panel workspace-config-bar space-y-4">
-                        <div class="rail-section-header rail-section-header-stacked">
-                            <div>
-                                <h2 class="rail-section-title">Sheet Setup</h2>
-                                <p class="workspace-config-summary">Paper, orientation, and slot count all live here now.</p>
-                            </div>
+                    <section id="settings-group" class="base-panel rail-section rail-settings-panel space-y-3">
+                        <div class="rail-section-header">
+                            <h2 class="rail-section-title">Sheet Settings</h2>
                         </div>
 
                         <div class="workspace-config-grid rail-config-grid">
                             <div class="workspace-config-field">
-                                <label for="paper-size-select" class="workspace-config-label">Paper Size</label>
+                                <label for="paper-size-select" class="workspace-config-label">Paper</label>
                                 <select id="paper-size-select" class="workspace-config-input">
                                     <!-- Populated by JS -->
                                 </select>
@@ -117,24 +65,20 @@
 
                             <div class="workspace-config-field workspace-config-field-wide" role="group" aria-labelledby="grid-layout-label">
                                 <div class="workspace-config-label-row">
-                                    <label id="grid-layout-label" class="workspace-config-label">Grid Layout</label>
+                                    <label id="grid-layout-label" class="workspace-config-label">Grid</label>
                                     <span id="grid-total" class="grid-total-chip">8 slots</span>
                                 </div>
                                 <div class="workspace-config-split">
-                                    <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Grid Rows"
+                                    <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Rows"
                                         class="workspace-config-input workspace-config-number">
                                     <span class="workspace-config-times" aria-hidden="true">×</span>
-                                    <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Grid Columns"
+                                    <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Columns"
                                         class="workspace-config-input workspace-config-number">
                                 </div>
-                                <p class="workspace-config-hint">Use larger grids when you want more slots before export.</p>
                             </div>
 
                             <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
-                                <span class="workspace-config-toggle-copy-wrap">
-                                    <span class="workspace-config-toggle-copy">Show Page Numbers</span>
-                                    <span class="workspace-config-hint">Keep labels visible while rearranging the sheet.</span>
-                                </span>
+                                <span class="workspace-config-toggle-copy">Page Numbers</span>
                                 <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
                                 <span class="workspace-config-toggle-switch" aria-hidden="true">
                                     <span class="workspace-config-toggle-knob"></span>
@@ -148,16 +92,12 @@
                     </section>
 
                     <section id="unused-pages-section" class="base-panel rail-section workspace-overflow-panel hidden">
-                        <div class="rail-section-header rail-section-header-stacked">
-                            <div>
-                                <h2 class="rail-section-title">Overflow</h2>
-                                <p class="workspace-config-summary">Extra pages land here when the canvas is full.</p>
-                            </div>
+                        <div class="rail-section-header">
+                            <h2 class="rail-section-title">Overflow</h2>
                             <span class="workspace-overflow-chip">Drag to swap</span>
                         </div>
-
                         <div id="unused-grid"
-                            class="grid grid-cols-2 gap-3 min-h-[120px] p-3 border-2 border-dashed border-black bg-[var(--bg-neutral)]">
+                            class="grid grid-cols-2 gap-2 min-h-[80px] p-2 border-2 border-dashed border-black/20 rounded-lg bg-[var(--bg-neutral)]">
                             <!-- Unused pages injected here -->
                         </div>
                     </section>
@@ -168,68 +108,51 @@
 
             <!-- Right Column: Preview Area -->
             <section id="preview-area"
-                class="workspace-panel is-empty transition-all duration-300 flex flex-col pt-1 sm:pt-4 lg:pt-0 gap-4">
+                class="workspace-panel is-empty flex flex-col gap-3">
                 <div class="workspace-header">
-                    <div class="workspace-title-block">
-                        <div class="space-y-1">
-                            <h2 class="font-marker text-lg sm:text-xl tracking-wide flex items-center gap-2">
-                                <span class="material-symbols-outlined" style="color: var(--primary-vibrant);">preview</span> Layout
-                            </h2>
-                        </div>
-                        <p class="workspace-description" id="preview-description">
-                            Waiting for files.
-                        </p>
+                    <div class="workspace-meta" aria-label="Canvas status">
+                        <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0 placed</span>
+                        <span id="preview-helper-chip" class="workspace-chip workspace-chip-muted hidden"></span>
                     </div>
-
                     <button id="open-rail-sheet-btn" type="button" class="workspace-mobile-rail-trigger lg:hidden" aria-controls="control-rail" aria-expanded="false">
-                        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">folder_open</span>
-                        <span>Controls</span>
+                        <span class="material-symbols-outlined text-[18px]" aria-hidden="true">tune</span>
+                        <span>Settings</span>
                     </button>
-
-                </div>
-
-                <div class="workspace-meta" aria-label="Canvas status">
-                    <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0 placed</span>
-                    <span id="preview-helper-chip" class="workspace-chip workspace-chip-muted">Import pages to begin</span>
                 </div>
 
                 <div id="preview-empty-state" class="preview-empty-state">
-                    <div class="preview-empty-copy">
-                        <h3 id="preview-empty-title" class="preview-empty-title">The sheet is ready when you are.</h3>
-                        <p id="preview-empty-body" class="preview-empty-body">Add files from the rail.</p>
-                    </div>
+                    <p id="preview-empty-title" class="preview-empty-title">Drop files to start</p>
                 </div>
 
-                <!-- Unified Zine View -->
                 <div class="workspace-stage">
-                    <div id="zine-sheets-container" class="workspace-sheet-stack w-full space-y-5 sm:space-y-8">
+                    <div id="zine-sheets-container" class="workspace-sheet-stack w-full space-y-4">
                         <!-- Sheets will be injected here -->
                     </div>
                 </div>
+
+                <div id="action-buttons" class="global-action-dock hidden" aria-label="Primary actions">
+                    <button id="exportPdfBtn"
+                        class="action-button workspace-action-button flex items-center justify-center gap-2 bg-black text-white"
+                        title="Download PDF">
+                        <span class="material-symbols-outlined" aria-hidden="true">download</span>
+                        <span id="exportPdfBtnLabel">Export PDF</span>
+                    </button>
+                    <button id="printBtn"
+                        class="action-button workspace-action-button flex items-center justify-center gap-2"
+                        style="background-color: var(--primary-vibrant); color: white;"
+                        title="Print Zine">
+                        <span class="material-symbols-outlined" aria-hidden="true">print</span>
+                        <span id="printBtnLabel">Print</span>
+                    </button>
+                    <button id="view3dBtn"
+                        class="action-button workspace-action-button workspace-action-button-secondary flex items-center justify-center gap-2"
+                        title="3D Preview">
+                        <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
+                        <span id="view3dBtnLabel">Preview</span>
+                    </button>
+                </div>
             </section>
         </main>
-
-        <div id="action-buttons" class="global-action-dock mobile-action-dock workspace-actions workspace-action-tray hidden" aria-label="Primary actions">
-            <button id="view3dBtn"
-                class="action-button workspace-action-button workspace-action-button-preview w-full py-3 px-4 flex items-center justify-center gap-2 bg-black text-white font-bold"
-                title="Open optional preview (work in progress)">
-                <span class="material-symbols-outlined" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span>
-                <span id="view3dBtnLabel">Preview (WIP)</span>
-            </button>
-            <button id="exportPdfBtn"
-                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 bg-white text-black font-bold"
-                title="Download PDF (Ctrl+S)" aria-keyshortcuts="Control+S">
-                <span class="material-symbols-outlined text-lg" aria-hidden="true">file_download</span>
-                <span id="exportPdfBtnLabel">Export PDF</span>
-            </button>
-            <button id="printBtn"
-                class="action-button workspace-action-button w-full py-3 px-4 flex items-center justify-center gap-2 text-white font-bold"
-                style="background-color: var(--primary-vibrant); border-color: var(--accent-dark) !important;"
-                title="Print Zine (Ctrl+P)" aria-keyshortcuts="Control+P">
-                <span class="material-symbols-outlined text-lg" aria-hidden="true">print</span>
-                <span id="printBtnLabel">Print</span>
-            </button>
-        </div>
 
     </div>
 
