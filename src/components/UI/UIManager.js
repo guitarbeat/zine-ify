@@ -131,8 +131,7 @@ export class UIManager {
       closeRailSheetBtn: $('#close-rail-sheet-btn'),
       mobileRailOverlay: $('#mobile-rail-overlay'),
       controlRail: $('#control-rail'),
-      unusedSection: $('#unused-pages-section'),
-      unusedGrid: $('#unused-grid')
+      unifiedDropZone: $('#unified-drop-zone')
     };
   }
 
@@ -621,6 +620,7 @@ export class UIManager {
     exported = false
   }) {
     const hasPages = placedCount > 0;
+    const isFull = placedCount >= totalSlots;
 
     this.updateGridTotalBadge(rows, cols);
     this.syncPaperSettings({ paperSize, orientation });
@@ -629,18 +629,23 @@ export class UIManager {
     this.elements.previewArea?.setAttribute('data-paper-size', paperSize);
     this.elements.previewArea?.setAttribute('data-orientation', orientation);
 
+    // Update count chip - show filled/total
     if (this.elements.previewCountChip) {
-      this.elements.previewCountChip.textContent = hasPages
-        ? `${placedCount}/${totalSlots}`
-        : `${totalSlots} slots`;
+      this.elements.previewCountChip.textContent = `${placedCount}/${totalSlots}`;
     }
 
-    if (this.elements.previewEmptyState) {
-      this.elements.previewEmptyState.classList.toggle('hidden', hasPages);
-    }
-
-    if (this.elements.previewEmptyTitle) {
-      this.elements.previewEmptyTitle.textContent = 'Drop files to start';
+    // Update helper chip - contextual hint
+    if (this.elements.previewHelperChip) {
+      if (!hasPages) {
+        this.elements.previewHelperChip.textContent = 'Drop to fill';
+        this.elements.previewHelperChip.classList.remove('hidden');
+      } else if (isFull) {
+        this.elements.previewHelperChip.textContent = 'Drag to swap';
+        this.elements.previewHelperChip.classList.remove('hidden');
+      } else {
+        this.elements.previewHelperChip.textContent = 'Drag to reorder';
+        this.elements.previewHelperChip.classList.remove('hidden');
+      }
     }
 
     if (this.elements.actionButtons) {

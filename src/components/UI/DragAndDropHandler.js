@@ -10,6 +10,7 @@ export class DragAndDropHandler {
   }
 
   setupEventListeners() {
+    // Upload zone in sidebar
     this.elements.uploadZone?.addEventListener('dragover', (e) => {
       e.preventDefault();
       this.elements.uploadZone.classList.add('dragover');
@@ -26,6 +27,36 @@ export class DragAndDropHandler {
         this.emitter.emit('filesDropped', files);
       }
     });
+
+    // Unified drop zone (workspace stage)
+    const unifiedDropZone = document.getElementById('unified-drop-zone');
+    if (unifiedDropZone) {
+      unifiedDropZone.addEventListener('dragover', (e) => {
+        // Only activate for file drops, not page reordering
+        if (this._draggedItem) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        unifiedDropZone.classList.add('drag-active');
+      });
+      
+      unifiedDropZone.addEventListener('dragleave', (e) => {
+        // Only deactivate if leaving the zone entirely
+        if (!unifiedDropZone.contains(e.relatedTarget)) {
+          unifiedDropZone.classList.remove('drag-active');
+        }
+      });
+      
+      unifiedDropZone.addEventListener('drop', (e) => {
+        // Only handle file drops, not page reordering
+        if (this._draggedItem) return;
+        e.preventDefault();
+        unifiedDropZone.classList.remove('drag-active');
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0) {
+          this.emitter.emit('filesDropped', files);
+        }
+      });
+    }
   }
 
   handleDragStart(e, cell) {

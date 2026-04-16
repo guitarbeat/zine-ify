@@ -91,16 +91,7 @@
                         <!-- Populated by JS -->
                     </section>
 
-                    <section id="unused-pages-section" class="base-panel rail-section workspace-overflow-panel hidden">
-                        <div class="rail-section-header">
-                            <h2 class="rail-section-title">Overflow</h2>
-                            <span class="workspace-overflow-chip">Drag to swap</span>
-                        </div>
-                        <div id="unused-grid"
-                            class="grid grid-cols-2 gap-2 min-h-[80px] p-2 border-2 border-dashed border-black/20 rounded-lg bg-[var(--bg-neutral)]">
-                            <!-- Unused pages injected here -->
-                        </div>
-                    </section>
+
 
                 </div>
 
@@ -111,8 +102,8 @@
                 class="workspace-panel is-empty flex flex-col gap-3">
                 <div class="workspace-header">
                     <div class="workspace-meta" aria-label="Canvas status">
-                        <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0 placed</span>
-                        <span id="preview-helper-chip" class="workspace-chip workspace-chip-muted hidden"></span>
+                        <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0/8</span>
+                        <span id="preview-helper-chip" class="workspace-chip workspace-chip-muted">Drag to reorder</span>
                     </div>
                     <button id="open-rail-sheet-btn" type="button" class="workspace-mobile-rail-trigger lg:hidden" aria-controls="control-rail" aria-expanded="false">
                         <span class="material-symbols-outlined text-[18px]" aria-hidden="true">tune</span>
@@ -120,13 +111,19 @@
                     </button>
                 </div>
 
-                <div id="preview-empty-state" class="preview-empty-state">
-                    <p id="preview-empty-title" class="preview-empty-title">Drop files to start</p>
-                </div>
-
-                <div class="workspace-stage">
+                <div class="workspace-stage" id="unified-drop-zone" 
+                    role="region" 
+                    aria-label="Page layout grid - drag to reorder or drop files to add">
                     <div id="zine-sheets-container" class="workspace-sheet-stack w-full space-y-4">
                         <!-- Sheets will be injected here -->
+                    </div>
+                    
+                    <div id="preview-empty-state" class="preview-empty-state">
+                        <div class="empty-state-content">
+                            <span class="material-symbols-outlined text-3xl mb-2" style="color: var(--primary-vibrant);" aria-hidden="true">grid_view</span>
+                            <p class="preview-empty-title">Drop files anywhere</p>
+                            <p class="preview-empty-hint">PDF pages or images fill slots automatically</p>
+                        </div>
                     </div>
                 </div>
 
