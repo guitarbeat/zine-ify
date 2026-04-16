@@ -426,7 +426,6 @@ export class AppController {
       isMiniLayout: this.state.isMiniZineLayout(),
       paperSize: this.state.paperSize,
       orientation: this.state.orientation,
-      previewed: this.state.workflowPreviewed,
       exported: this.state.workflowExported
     });
   }

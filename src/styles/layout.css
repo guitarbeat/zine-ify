@@ -20,16 +20,8 @@
   align-content: start;
 }
 
-.combined-rail-panel {
-  background:
-    linear-gradient(180deg, rgba(16, 185, 129, 0.08), rgba(255, 255, 255, 0.94) 20%),
-    white;
-}
-
 .rail-settings-panel {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 242, 234, 0.98)),
-    white;
+  background: white;
 }
 
 .rail-section-header-stacked {
@@ -49,32 +41,17 @@
 .workspace-panel {
   min-height: 0;
   border: var(--border-bold);
-  border-radius: 1.5rem;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 245, 238, 0.96)),
-    white;
-  box-shadow: var(--shadow-lg);
+  border-radius: 1rem;
+  background: white;
+  box-shadow: var(--shadow-md);
   padding: 1rem;
 }
 
-.workspace-panel.is-empty .workspace-sheet-stack {
-  opacity: 0.82;
-}
-
 .workspace-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 1rem;
-  align-items: end;
-}
-
-.workspace-title-block {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.workspace-description {
-  max-width: 60ch;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
 }
 
 .workspace-meta {
@@ -99,68 +76,81 @@
   color: var(--muted-ink);
 }
 
+/* Unified Drop Zone */
 .workspace-stage {
   min-height: 0;
   flex: 1 1 auto;
-  border: 1px solid rgba(23, 23, 23, 0.08);
-  border-radius: 1.2rem;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(244, 239, 230, 0.36)),
-    rgba(255, 255, 255, 0.56);
+  border: 2px dashed rgba(0, 0, 0, 0.12);
+  border-radius: 0.75rem;
+  background: var(--bg-neutral);
   padding: 0.75rem;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.workspace-stage.drag-active {
+  border-color: var(--primary-vibrant);
+  background: var(--primary-glow);
+  box-shadow: inset 0 0 0 2px var(--primary-vibrant);
+}
+
+.workspace-stage.drag-active .preview-empty-state {
+  border-color: var(--primary-vibrant);
+  background: white;
 }
 
 .workspace-sheet-stack {
-  min-height: 18rem;
+  min-height: 12rem;
 }
 
+.workspace-panel:not(.is-empty) .preview-empty-state {
+  display: none;
+}
+
+/* Empty State */
 .preview-empty-state {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  min-height: 6.75rem;
-  border: var(--border-thin);
-  border-radius: 1.2rem;
-  background:
-    linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(255, 255, 255, 0.92)),
-    white;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65);
-  padding: 1rem 1.1rem;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  border: 2px dashed rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
+  background: white;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.preview-empty-copy {
-  display: grid;
-  gap: 0.3rem;
+.empty-state-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.25rem;
 }
 
 .preview-empty-title {
-  font-family: 'Permanent Marker', cursive;
-  font-size: 1.1rem;
-  line-height: 1.1;
-  letter-spacing: 0.01em;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent-dark);
 }
 
-.preview-empty-body {
-  max-width: 56ch;
-  font-size: 0.84rem;
+.preview-empty-hint {
+  font-size: 0.8rem;
   color: var(--muted-ink);
 }
 
 .workspace-actions,
 .workspace-action-tray,
 .global-action-dock {
-  position: fixed;
-  left: 50%;
-  bottom: 1rem;
-  transform: translateX(-50%);
-  width: min(calc(100vw - 1rem), 68rem);
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.75rem;
-  z-index: 90;
   box-sizing: border-box;
-  transition: transform 0.22s ease, opacity 0.22s ease;
+  padding: 1rem;
+  background: white;
+  border: var(--border-bold);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-md);
+  margin-top: 1rem;
 }
 
 .workspace-action-button {
@@ -168,14 +158,15 @@
   box-shadow: var(--shadow-md);
 }
 
-.workspace-action-button-preview {
-  background: #111111;
-  color: white;
+.workspace-action-button-secondary {
+  background: white;
+  color: var(--accent-dark);
+  border-color: rgba(0, 0, 0, 0.2) !important;
 }
 
-.workspace-action-button-preview:disabled {
-  background: rgba(17, 17, 17, 0.5);
-  color: rgba(255, 255, 255, 0.72);
+.workspace-action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 body.mobile-rail-open {
@@ -183,75 +174,13 @@ body.mobile-rail-open {
 }
 
 .app-header {
-  border-bottom: var(--border-bold);
-  background: white;
-}
-
-.app-header-main {
-  display: grid;
-  gap: 0.4rem;
-  align-items: end;
-}
-
-.app-kicker,
-.rail-section-kicker {
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--muted-ink);
+  padding: 0.5rem 0;
 }
 
 .app-title {
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  line-height: 0.85;
-  letter-spacing: -0.04em;
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  line-height: 1;
   color: var(--accent-dark);
-}
-
-.app-title-ink {
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 0.18em;
-  letter-spacing: 0;
-  transform: rotate(-2deg);
-  transform-origin: left center;
-}
-
-.app-title-cut {
-  display: inline-block;
-  padding: 0.05em 0.2em 0.1em;
-  color: white;
-  background: var(--accent-dark);
-  border: var(--border-bold);
-  box-shadow: var(--shadow-sm);
-  line-height: 0.88;
-}
-
-.app-title-cut-1 {
-  font-family: 'Permanent Marker', cursive;
-  background: #ff00ea; /* Neon Pink */
-  color: white;
-  transform: rotate(-4deg) skewX(-10deg);
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
-}
-
-.app-title-cut-dash {
-  padding-inline: 0.25em;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.9em;
-  background: white;
-  color: var(--accent-dark);
-  transform: rotate(3deg);
-}
-
-.app-title-cut-2 {
-  font-family: 'IBM Plex Mono', monospace;
-  font-weight: 800;
-  background: var(--primary-vibrant);
-  color: white;
-  transform: rotate(2deg) skewX(-6deg);
-  letter-spacing: -0.05em;
 }
 
 .app-overview-title,
@@ -333,10 +262,11 @@ body.mobile-rail-open {
 @media (max-width: 1023px) {
   .app-shell {
       --mobile-action-dock-reserve: calc(1rem + var(--mobile-safe-bottom));
+      padding-bottom: 1rem;
   }
 
   .app-layout {
-      gap: 0;
+      gap: 1rem;
   }
 
   .control-rail {
@@ -376,7 +306,7 @@ body.mobile-rail-open {
   }
 
   .workspace-panel {
-      padding-bottom: 0.65rem;
+      padding-bottom: 1rem;
   }
 
   .workspace-sheet-stack {
@@ -387,6 +317,23 @@ body.mobile-rail-open {
       padding: 0.55rem;
   }
 
+  .workspace-actions,
+  .workspace-action-tray,
+  .global-action-dock {
+      position: static;
+      left: auto;
+      bottom: auto;
+      transform: none;
+      width: 100%;
+      padding: 0.75rem;
+      border: var(--border-bold);
+      border-radius: var(--radius-panel);
+      background: white;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: none;
+      margin-top: 1rem;
+  }
+
   body.mobile-rail-open .workspace-actions,
   body.mobile-rail-open .workspace-action-tray,
   body.mobile-rail-open .global-action-dock {
@@ -394,7 +341,7 @@ body.mobile-rail-open {
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (max-width: 1023px) {
   .workspace-config-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -403,7 +350,9 @@ body.mobile-rail-open {
       grid-column: 1 / -1;
   }
 
-  .workspace-action-tray {
+  .workspace-actions,
+  .workspace-action-tray,
+  .global-action-dock {
       grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -411,6 +360,7 @@ body.mobile-rail-open {
 @media (max-width: 767px) {
   .app-shell {
       --mobile-action-dock-reserve: calc(1rem + var(--mobile-safe-bottom));
+      padding-bottom: 1rem;
   }
 
   .app-kicker,
@@ -453,6 +403,7 @@ body.mobile-rail-open {
 
   .workspace-panel {
       min-height: auto;
+      padding-bottom: 1rem;
   }
 
   .workspace-meta {
@@ -483,12 +434,13 @@ body.mobile-rail-open {
       width: 100%;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.55rem;
-      padding: 0.65rem 0 0;
-      border: none;
-      border-radius: 0;
-      background: transparent;
-      box-shadow: none;
+      padding: 0.75rem;
+      border: var(--border-bold);
+      border-radius: var(--radius-panel);
+      background: white;
+      box-shadow: var(--shadow-md);
       backdrop-filter: none;
+      margin-top: 1rem;
   }
 
   .workspace-action-tray > :nth-child(3) {
@@ -575,21 +527,21 @@ body.mobile-rail-open {
 @media (min-width: 1024px) {
   html,
   body {
-      height: 100%;
-      overflow: hidden;
+      min-height: 100%;
   }
 
   .app-shell {
-      height: 100dvh;
-      display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
       gap: 0.9rem;
       padding-top: 1rem;
-      padding-bottom: 1rem;
+      padding-bottom: 7rem;
   }
 
   .app-header {
       padding-bottom: 0.6rem;
+      flex-shrink: 0;
   }
 
   .app-title {
@@ -597,20 +549,24 @@ body.mobile-rail-open {
   }
 
   .app-layout {
-      height: 100%;
+      flex: 1 1 auto;
       min-height: 0;
       grid-template-columns: 380px minmax(0, 1fr) !important;
       gap: 1.25rem !important;
       padding-bottom: 0;
+      align-items: start;
   }
 
-  .control-rail,
-  .workspace-panel {
-      min-height: 0;
+  .control-rail {
+      position: sticky;
+      top: 1rem;
+      max-height: calc(100vh - 2rem);
+      overflow-y: auto;
+      overflow-x: hidden;
   }
 
   .control-scroll {
-      overflow-y: auto;
+      overflow-y: visible;
       overflow-x: hidden;
       padding-right: 0;
       padding-bottom: 0;
@@ -618,8 +574,9 @@ body.mobile-rail-open {
   }
 
   .workspace-panel {
-      overflow: hidden;
-      padding-bottom: 6.5rem;
+      min-height: 0;
+      overflow: visible;
+      padding-bottom: 1.5rem;
   }
 
   .workspace-header {
@@ -630,10 +587,8 @@ body.mobile-rail-open {
   }
 
   .workspace-sheet-stack {
-      min-height: 0;
-      flex: 1 1 auto;
-      overflow-y: auto;
-      overflow-x: hidden;
+      min-height: 18rem;
+      overflow: visible;
       padding-bottom: 0 !important;
       padding-right: 0.35rem;
       gap: 0.75rem !important;
@@ -643,5 +598,20 @@ body.mobile-rail-open {
   .rail-sheet-close,
   .mobile-rail-overlay {
       display: none !important;
+  }
+
+  .workspace-actions,
+  .workspace-action-tray,
+  .global-action-dock {
+      position: fixed;
+      left: 50%;
+      bottom: 1rem;
+      transform: translateX(-50%);
+      width: min(calc(100vw - 2rem), 68rem);
+      z-index: 90;
+      margin-top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-lg);
   }
 }

@@ -1,15 +1,14 @@
 .print-sheet {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 245, 238, 0.98)),
-    var(--paper-bg);
-  box-shadow: var(--surface-shadow-strong);
-  border: var(--border-bold);
-  border-radius: 1.35rem;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
   position: relative;
   flex-shrink: 0;
   transition: all 0.2s ease;
   scroll-margin-top: 1rem;
-  padding: 0.35rem;
+  padding: 0.25rem;
+  overflow: hidden;
 }
 
 @media print {
@@ -49,34 +48,61 @@
   height: 100%;
   width: 100%;
 }
+/* Empty slot - shows it's droppable */
 .page-cell {
-  border: 1px solid rgba(23, 23, 23, 0.12);
+  border: 2px dashed rgba(0, 0, 0, 0.12);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  cursor: grab;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 239, 230, 0.62)),
-    white;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.6);
   min-height: 7rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  border-radius: 0.5rem;
 }
+
+/* Empty slot hover - invite drop */
+.page-cell:not(.has-page):hover {
+  border-color: var(--primary-vibrant);
+  background: var(--primary-glow);
+}
+
+/* Filled slot - solid border */
+.page-cell.has-page {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background: white;
+  cursor: grab;
+}
+
+.page-cell.has-page:hover {
+  border-color: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Dragging state */
 .page-cell.dragging {
-  opacity: 0.8;
+  opacity: 0.5;
   cursor: grabbing;
-  filter: invert(1);
+  transform: scale(0.95);
   z-index: 50;
 }
+
+/* Drop target highlight */
 .page-cell.drag-over {
-  background-color: rgba(49, 83, 107, 0.12);
+  border-color: var(--primary-vibrant) !important;
+  border-style: solid !important;
+  background: var(--primary-glow) !important;
+  box-shadow: inset 0 0 0 2px var(--primary-vibrant);
   z-index: 40;
 }
+
+/* Active/selected state */
 .page-cell.active {
-  border: 2px solid rgba(49, 83, 107, 0.45);
-  box-shadow: inset 0 0 0 1px rgba(49, 83, 107, 0.18);
+  border: 2px solid var(--primary-vibrant);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
   z-index: 30;
-  transform: scale(1.005);
 }
 
 .page-toolbar {
@@ -116,10 +142,26 @@
 }
 
 .page-placeholder {
-  color: rgba(23, 23, 23, 0.45);
-  background:
-    linear-gradient(180deg, rgba(250, 250, 250, 0.9), rgba(244, 239, 230, 0.55)),
-    #fafafa;
+  color: rgba(0, 0, 0, 0.3);
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.page-placeholder .material-symbols-outlined {
+  font-size: 1.5rem;
+  opacity: 0.5;
+}
+
+.page-cell:not(.has-page):hover .page-placeholder {
+  color: var(--primary-vibrant);
+}
+
+.page-cell:not(.has-page):hover .page-placeholder .material-symbols-outlined {
+  opacity: 1;
 }
 
 .page-cell.has-page .page-placeholder {
