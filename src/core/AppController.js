@@ -207,15 +207,59 @@ export class AppController {
     this.ui.modal.updateProgress(0);
 
     try {
-      for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
-        const canvas = await this.pdfProcessor.renderPageThumbnail(pageNumber);
-        const thumbnailUrl = await this.pdfProcessor.canvasToBlob(canvas);
-        thumbnails.push({ pageNumber, thumbnailUrl });
+      // ⚡ Bolt: Performance optimization
+      // Replaced sequential thumbnail generation with a concurrent sliding window worker pool.
+      // This maintains a constant stream of processing, avoiding UI stuttering and speeding up
+      // the page picker rendering for large PDFs.
+      const CONCURRENCY_LIMIT = 5;
+      const activePromises = new Set();
+      const allPromises = [];
+      let completedCount = 0;
+      let hasError = false;
 
-        const percent = Math.round((pageNumber / numPages) * 100);
-        this.ui.modal.setProgressCopy('Preparing page picker...', `${percent}%`);
-        this.ui.modal.updateProgress(percent);
+      for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
+        if (hasError) break;
+
+        const promise = (async () => {
+          const canvas = await this.pdfProcessor.renderPageThumbnail(pageNumber);
+          const thumbnailUrl = await this.pdfProcessor.canvasToBlob(canvas);
+
+          if (hasError) return;
+
+          thumbnails.push({ pageNumber, thumbnailUrl });
+          completedCount++;
+
+          const percent = Math.round((completedCount / numPages) * 100);
+          this.ui.modal.setProgressCopy('Preparing page picker...', `${percent}%`);
+          this.ui.modal.updateProgress(percent);
+        })();
+
+        // We catch errors to set the flag, but we still want them to propagate
+        // so we push the original promise to allPromises
+        allPromises.push(promise.catch((e) => {
+          hasError = true;
+          throw e;
+        }));
+
+        activePromises.add(promise);
+
+        promise.finally(() => activePromises.delete(promise));
+
+        if (activePromises.size >= CONCURRENCY_LIMIT) {
+          // If a background promise rejects, Promise.race might not catch it if
+          // another promise resolves first. But Promise.all at the end will catch it.
+          await Promise.race(activePromises).catch(() => {
+            hasError = true;
+          });
+        }
       }
+
+      // This will throw if any promise rejected, which is what we want.
+      // We must await all of them to ensure no dangling background tasks.
+      await Promise.all(allPromises);
+
+      // ⚡ Sort thumbnails to ensure correct sequencing as promises may resolve out of order
+      thumbnails.sort((a, b) => a.pageNumber - b.pageNumber);
     } finally {
       this.ui.modal.showProgress(false);
     }
