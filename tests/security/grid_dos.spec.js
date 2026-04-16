@@ -22,6 +22,7 @@ test.describe('Grid DoS Protection', () => {
       node.dispatchEvent(new Event('input', { bubbles: true }));
     });
 
+
     await expect(rowsInput).toHaveValue(String(GRID_DIMENSION_MAX));
     await expect(colsInput).toHaveValue(String(GRID_DIMENSION_MAX));
     await expect(gridTotal).toHaveText(`${maxSlots} slots`);
