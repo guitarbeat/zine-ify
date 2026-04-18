@@ -12,21 +12,21 @@ test('layout view stays synced with paper config changes', async ({ page }) => {
 
   await expect(page.locator('#paper-size-select')).toHaveValue('letter');
   await expect(page.locator('#orientation-select')).toHaveValue('landscape');
-  await expect(page.locator('#preview-helper-chip')).toContainText('Letter');
-  await expect(page.locator('#preview-helper-chip')).toContainText('Landscape');
+  await expect(page.locator('#preview-area')).toHaveAttribute('data-paper-size', 'letter');
+  await expect(page.locator('#preview-area')).toHaveAttribute('data-orientation', 'landscape');
 
   const landscapeBounds = await getSheetBounds(page);
   expect(landscapeBounds.ratio).toBeGreaterThan(1);
 
   await page.locator('#orientation-select').selectOption('portrait');
-  await expect(page.locator('#preview-helper-chip')).toContainText('Portrait');
+  await expect(page.locator('#preview-area')).toHaveAttribute('data-orientation', 'portrait');
 
   const portraitBounds = await getSheetBounds(page);
   expect(portraitBounds.ratio).toBeLessThan(1);
   expect(portraitBounds.height).toBeGreaterThan(landscapeBounds.height);
 
   await page.locator('#paper-size-select').selectOption('legal');
-  await expect(page.locator('#preview-helper-chip')).toContainText('Legal');
+  await expect(page.locator('#preview-area')).toHaveAttribute('data-paper-size', 'legal');
 
   const legalPortraitBounds = await getSheetBounds(page);
   expect(legalPortraitBounds.height).toBeGreaterThan(portraitBounds.height);

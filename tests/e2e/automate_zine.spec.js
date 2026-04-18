@@ -18,7 +18,7 @@ test('imports a 16-page PDF into a 4 x 4 layout and exports it', async ({ page }
     timeout: 45000
   });
 
-  await expect(page.locator('#preview-count-chip')).toHaveText('16 of 16 placed');
+  await expect(page.locator('#preview-count-chip')).toHaveText('16/16');
   await page.waitForFunction(() => {
     const images = Array.from(document.querySelectorAll('.page-cell .page-content-img'));
     return images.filter((img) => /^blob:/.test(img.getAttribute('src') || '')).length >= 16;
