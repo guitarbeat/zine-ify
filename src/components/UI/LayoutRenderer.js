@@ -9,7 +9,7 @@ const TOOLBAR_BUTTONS = [
   {
     selector: '.crop-btn',
     title: (label) => `Toggle Crop/Zoom ${label}`,
-    ariaLabel: (label) => `Toggle Crop/Zoom for ${label}`
+    ariaLabel: (label) => `Toggle Crop or Zoom for ${label}`
   },
   {
     selector: '.flip-btn',
