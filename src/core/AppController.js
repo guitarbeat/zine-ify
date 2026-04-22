@@ -294,10 +294,8 @@ export class AppController {
       return this.state._blankPageUrl;
     }
 
-    const canvas = document.createElement('canvas');
-    canvas.width = 1000;
-    canvas.height = 1414;
-    const context = canvas.getContext('2d');
+    // ⚡ Bolt: Use OffscreenCanvas when available to prevent main thread blocking during blank page generation
+    const { canvas, context } = this.pdfProcessor.createRenderCanvas(1000, 1414);
     context.fillStyle = '#fcfaf5';
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.strokeStyle = 'rgba(28, 28, 28, 0.08)';
@@ -352,11 +350,9 @@ export class AppController {
 
     const width = image.naturalWidth || image.width || 1000;
     const height = image.naturalHeight || image.height || 1414;
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
 
-    const context = canvas.getContext('2d');
+    // ⚡ Bolt: Use OffscreenCanvas when available to prevent main thread blocking during preview rendering
+    const { canvas, context } = this.pdfProcessor.createRenderCanvas(width, height);
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, width, height);
     context.save();
