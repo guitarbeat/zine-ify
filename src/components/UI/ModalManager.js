@@ -128,15 +128,29 @@ export class ModalManager {
       button.className = 'page-picker-thumb';
       button.dataset.pageNumber = String(pageNumber);
       button.setAttribute('aria-pressed', initialSelection.includes(pageNumber) ? 'true' : 'false');
-      button.innerHTML = `
-        <div class="page-picker-thumb-media">
-          <img src="${thumbnailUrl}" alt="PDF page ${pageNumber}">
-        </div>
-        <div class="page-picker-thumb-page">
-          <span>Page ${pageNumber}</span>
-          <span class="page-picker-thumb-order" aria-hidden="true"></span>
-        </div>
-      `;
+      const mediaDiv = document.createElement('div');
+      mediaDiv.className = 'page-picker-thumb-media';
+
+      const img = document.createElement('img');
+      img.src = thumbnailUrl;
+      img.alt = `PDF page ${pageNumber}`;
+      mediaDiv.appendChild(img);
+
+      const pageDiv = document.createElement('div');
+      pageDiv.className = 'page-picker-thumb-page';
+
+      const pageSpan = document.createElement('span');
+      pageSpan.textContent = `Page ${pageNumber}`;
+
+      const orderSpan = document.createElement('span');
+      orderSpan.className = 'page-picker-thumb-order';
+      orderSpan.setAttribute('aria-hidden', 'true');
+
+      pageDiv.appendChild(pageSpan);
+      pageDiv.appendChild(orderSpan);
+
+      button.appendChild(mediaDiv);
+      button.appendChild(pageDiv);
       button.addEventListener('click', () => this.togglePageSelection(pageNumber));
       this.elements.pagePickerGrid.appendChild(button);
     });

@@ -7,3 +7,8 @@
 **Vulnerability:** Error Data Exposure through client-side console logging (stack traces, internal variables).
 **Learning:** Raw Error objects passed to console.error() expose deep application stack traces to users and potential attackers, revealing application internals.
 **Prevention:** Only log error.message or a safe generic string, rather than the raw Error object in production-facing client code.
+
+## 2026-04-23 - Avoid .innerHTML for dynamic content
+**Vulnerability:** Potential Cross-Site Scripting (XSS) via .innerHTML with dynamic content.
+**Learning:** Using .innerHTML with dynamic data, even if currently sourced locally, is a risky practice that can lead to XSS if the data source becomes untrusted or compromised.
+**Prevention:** Always use safe DOM manipulation methods like document.createElement, textContent, and setAttribute to handle dynamic content.
