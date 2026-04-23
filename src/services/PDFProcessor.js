@@ -99,6 +99,8 @@ export class PDFProcessor extends MediaProcessor {
 
       this.loadingTask = pdfjsLib.getDocument({
         url: this.fileUrl,
+        cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.624/cmaps/',
+        cMapPacked: true,
         verbosity: 0,
         enableScripting: false,
         isEvalSupported: false
