@@ -16,3 +16,6 @@
 ## 2025-02-18 - OffscreenCanvas for PDF Processing
 **Learning:** Using `document.createElement('canvas')` in background PDF processing tasks interacts with the DOM and blocks the main thread unnecessarily.
 **Action:** Use `OffscreenCanvas` when available to render PDF pages and extract blobs asynchronously (via `convertToBlob`), reducing main thread blocking and improving performance, while keeping a fallback for unsupported browsers.
+## 2025-02-18 - Template Pattern for Toast Notifications
+**Learning:** Repetitive execution of `document.createElement` and DOM property assignments inside frequently called methods (like `toast.show()`) generates unnecessary parsing and memory allocation overhead. Additionally, defining static objects (like SVG icon dictionaries) inside the method causes them to be recreated on every invocation.
+**Action:** Implement the Template/Flyweight pattern using a `<template>` element (`TOAST_TEMPLATE`) and use `.cloneNode(true)` for rapid element generation. Extract static dictionaries into module-level constants to avoid redundant memory allocation.

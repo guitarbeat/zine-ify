@@ -1,5 +1,39 @@
 // Modern toast notification system
 
+const TOAST_ICONS = {
+  success: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+    <polyline points="22,4 12,14.01 9,11.01"/>
+  </svg>`,
+  error: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="15" y1="9" x2="9" y2="15"/>
+    <line x1="9" y1="9" x2="15" y2="15"/>
+  </svg>`,
+  warning: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+    <line x1="12" y1="9" x2="12" y2="13"/>
+    <line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>`,
+  info: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 16v-4"/>
+    <path d="M12 8h.01"/>
+  </svg>`
+};
+
+const TOAST_TEMPLATE = document.createElement('template');
+TOAST_TEMPLATE.innerHTML = `
+  <div class="toast">
+    <div class="toast-icon"></div>
+    <div class="toast-content">
+      <div class="toast-title"></div>
+      <div class="toast-message"></div>
+    </div>
+    <button class="toast-close focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black focus-visible:ring-0" aria-label="Close notification">&times;</button>
+  </div>
+`;
+
 class Toast {
   constructor() {
     this.container = null;
@@ -33,45 +67,29 @@ class Toast {
    * @param {number} duration - Duration in milliseconds (default: 5000)
    */
   show(type, title, message = '', duration = 5000) {
-    const toast = document.createElement('div');
+    // ⚡ Bolt: Performance Optimization
+    // Use template cloning instead of multiple document.createElement calls
+    const fragment = TOAST_TEMPLATE.content.cloneNode(true);
+    const toast = fragment.querySelector('.toast');
+
     toast.className = `toast toast-${type}`;
+    toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
 
-    // Dynamic role based on type
-    const role = type === 'error' ? 'alert' : 'status';
-    toast.setAttribute('role', role);
+    const iconDiv = toast.querySelector('.toast-icon');
+    iconDiv.innerHTML = TOAST_ICONS[type] || TOAST_ICONS.info;
 
-    const icon = this.getIcon(type);
-    // Create structure securely to prevent XSS
-    const iconDiv = document.createElement('div');
-    iconDiv.className = 'toast-icon';
-    iconDiv.innerHTML = icon; // Icons are trusted SVGs from getIcon()
+    toast.querySelector('.toast-title').textContent = title;
 
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'toast-content';
-
-    const titleDiv = document.createElement('div');
-    titleDiv.className = 'toast-title';
-    titleDiv.textContent = title; // Secure and fast: Direct text content assignment, avoiding DOMParser
-    contentDiv.appendChild(titleDiv);
-
+    const messageDiv = toast.querySelector('.toast-message');
     if (message) {
-      const messageDiv = document.createElement('div');
-      messageDiv.className = 'toast-message';
-      messageDiv.textContent = message; // Secure and fast: Direct text content assignment, avoiding DOMParser
-      contentDiv.appendChild(messageDiv);
+      messageDiv.textContent = message;
+    } else {
+      messageDiv.remove();
     }
 
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'toast-close focus-visible:outline-4 focus-visible:outline-black focus-visible:outline-dashed focus-visible:outline-offset-4 focus-visible:!bg-yellow-300 focus-visible:!text-black focus-visible:ring-0';
-    closeBtn.setAttribute('aria-label', 'Close notification');
-    closeBtn.innerHTML = '&times;'; // Safe entity
-    closeBtn.addEventListener('click', () => this.remove(toast));
+    toast.querySelector('.toast-close').addEventListener('click', () => this.remove(toast));
 
-    toast.appendChild(iconDiv);
-    toast.appendChild(contentDiv);
-    toast.appendChild(closeBtn);
-
-    this.container.appendChild(toast);
+    this.container.appendChild(fragment);
 
     // Auto remove after duration
     if (duration > 0) {
@@ -104,36 +122,6 @@ class Toast {
         toast.parentNode.removeChild(toast);
       }
     }, 300); // Match CSS transition duration
-  }
-
-  /**
-   * Get icon SVG for toast type
-   * @param {string} type - Toast type
-   * @returns {string} SVG icon HTML
-   */
-  getIcon(type) {
-    const icons = {
-      success: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-        <polyline points="22,4 12,14.01 9,11.01"/>
-      </svg>`,
-      error: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="15" y1="9" x2="9" y2="15"/>
-        <line x1="9" y1="9" x2="15" y2="15"/>
-      </svg>`,
-      warning: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-        <line x1="12" y1="9" x2="12" y2="13"/>
-        <line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>`,
-      info: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M12 16v-4"/>
-        <path d="M12 8h.01"/>
-      </svg>`
-    };
-    return icons[type] || icons.info;
   }
 
   // Convenience methods
