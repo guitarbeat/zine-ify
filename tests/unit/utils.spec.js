@@ -7,6 +7,8 @@ test.describe('Utils', () => {
     expect(formatFileSize(1024)).toBe('1.0 KB');
     expect(formatFileSize(1048576)).toBe('1.0 MB');
     expect(formatFileSize(1073741824)).toBe('1.0 GB');
+    expect(formatFileSize(-1024)).toBe('-1.0 KB');
+    expect(formatFileSize(-1048576)).toBe('-1.0 MB');
     expect(formatFileSize('not a number')).toBe('0 B');
   });
 

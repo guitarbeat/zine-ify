@@ -40,7 +40,7 @@ export function formatFileSize(bytes) {
   let size = bytes;
   let unitIndex = 0;
 
-  while (size >= 1024 && unitIndex < units.length - 1) {
+  while (Math.abs(size) >= 1024 && unitIndex < units.length - 1) {
     size /= 1024;
     unitIndex++;
   }
