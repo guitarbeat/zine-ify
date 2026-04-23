@@ -3,7 +3,8 @@ import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger } 
 import {
   classifyFileKind,
   getFileTypeLabel,
-  validateUploadFile
+  validateUploadFile,
+  MAX_UPLOAD_FILE_SIZE
 } from '../../src/utils/fileValidation.js';
 
 test.describe('Utils', () => {
@@ -66,22 +67,44 @@ test.describe('Utils', () => {
     expect(getFileTypeLabel('unknown')).toBe('File');
   });
 
-  test('validateUploadFile', () => {
+  test('validateUploadFile: valid PDF', () => {
     expect(validateUploadFile({ type: 'application/pdf', size: 1024 })).toEqual({
       valid: true,
       errors: [],
       kind: 'pdf'
     });
+  });
 
+  test('validateUploadFile: valid image', () => {
     expect(validateUploadFile({ type: 'image/png', size: 2048 })).toEqual({
       valid: true,
       errors: [],
       kind: 'image'
     });
+  });
 
+  test('validateUploadFile: unsupported file type', () => {
     const invalid = validateUploadFile({ type: 'text/plain', size: 12 });
     expect(invalid.valid).toBe(false);
     expect(invalid.kind).toBeNull();
     expect(invalid.errors).toContain('Please select a PDF or image file.');
+  });
+
+  test('validateUploadFile: null file', () => {
+    const result = validateUploadFile(null);
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('No file selected');
+  });
+
+  test('validateUploadFile: empty file', () => {
+    const result = validateUploadFile({ type: 'application/pdf', size: 0 });
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('File appears to be empty');
+  });
+
+  test('validateUploadFile: oversized file', () => {
+    const result = validateUploadFile({ type: 'application/pdf', size: MAX_UPLOAD_FILE_SIZE + 1 });
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('File too large'))).toBe(true);
   });
 });
