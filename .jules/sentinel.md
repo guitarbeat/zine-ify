@@ -7,3 +7,8 @@
 **Vulnerability:** Error Data Exposure through client-side console logging (stack traces, internal variables).
 **Learning:** Raw Error objects passed to console.error() expose deep application stack traces to users and potential attackers, revealing application internals.
 **Prevention:** Only log error.message or a safe generic string, rather than the raw Error object in production-facing client code.
+
+## 2026-04-23 - Prevent DOM Clobbering/XSS in Sanitizer
+**Vulnerability:** Safe HTML sanitization using `template.innerHTML` could potentially trigger execution of payload (e.g. `img` `onerror`) before sanitization takes place if assigned directly.
+**Learning:** Assigning unsafe strings to `innerHTML`, even on detached template tags, has inherent risks. Using `DOMParser` parses the string into a safe document object model without evaluating executing elements.
+**Prevention:** Use `new DOMParser().parseFromString(html, 'text/html')` for safe DOM element creation during sanitization instead of `innerHTML` assignment.
