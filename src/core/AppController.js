@@ -610,6 +610,14 @@ export class AppController {
     }
 
     this.ui.modal.showProgress(true, 'Generating PDF...');
+
+    // Add loading state to export button
+    if (this.ui.elements.exportPdfBtn) {
+      this.ui.elements.exportPdfBtn.disabled = true;
+      this.ui.elements.exportPdfBtn.setAttribute('aria-busy', 'true');
+      this.ui.elements.exportPdfBtn.innerHTML = `<span class="material-symbols-outlined animate-spin" aria-hidden="true">sync</span> <span id="exportPdfBtnLabel">Exporting...</span>`;
+    }
+
     try {
       await this.exportService.handleExport(referenceImageUrl);
       this.state.markExported();
@@ -619,6 +627,14 @@ export class AppController {
       toast.error('Export Failed', error.message);
     } finally {
       this.ui.modal.showProgress(false);
+
+      // Restore export button state
+      if (this.ui.elements.exportPdfBtn) {
+        this.ui.elements.exportPdfBtn.disabled = false;
+        this.ui.elements.exportPdfBtn.removeAttribute('aria-busy');
+        this.ui.elements.exportPdfBtn.innerHTML = `<span class="material-symbols-outlined" aria-hidden="true">download</span> <span id="exportPdfBtnLabel">${this.state.workflowExported ? 'Export Again' : 'Export PDF'}</span>`;
+        this.ui.elements.exportPdfBtnLabel = document.getElementById('exportPdfBtnLabel');
+      }
     }
   }
 }

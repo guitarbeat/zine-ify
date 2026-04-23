@@ -1,3 +1,17 @@
+
+/* Palette: Explicit focus rings for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[role="button"]:focus-visible,
+.action-button:focus-visible {
+  outline: 4px dashed black !important;
+  outline-offset: 4px !important;
+  background-color: #fde047 !important; /* Tailwind yellow-300 */
+  color: black !important;
+}
+
 @reference "./theme.css";
 
 .upload-box {
@@ -213,7 +227,7 @@ select, input {
   background: rgba(255, 255, 255, 0.92);
 }
 select:focus, input:focus {
-  outline: none;
+
   border-color: rgba(49, 83, 107, 0.42) !important;
   box-shadow: 0 0 0 4px rgba(49, 83, 107, 0.12);
   transform: none;
@@ -315,7 +329,6 @@ select:focus, input:focus {
   border-color: var(--primary-vibrant);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
-  outline: none;
 }
 
 .page-picker-chip:disabled {
@@ -351,7 +364,6 @@ select:focus, input:focus {
   border-color: var(--primary-vibrant);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
-  outline: none;
 }
 
 .page-picker-thumb.is-selected {
