@@ -6,13 +6,13 @@ test('toolbar buttons have accessible labels and focus states', async ({ page })
 
   const coverZoomBtn = page.locator('button[aria-label^="Quick Preview"]').first();
   await expect(coverZoomBtn).toHaveAttribute('aria-label', /Quick Preview/);
-  await expect(coverZoomBtn).toHaveClass(/focus:outline-none/);
+  await expect(coverZoomBtn).toHaveClass(/focus-visible:outline-4/);
 
-  const coverCropBtn = page.locator('button[aria-label^="Toggle Crop\\/Zoom"]').first();
-  await expect(coverCropBtn).toHaveAttribute('aria-label', /Toggle Crop\/Zoom/);
-  await expect(coverCropBtn).toHaveClass(/focus:outline-none/);
+  const coverCropBtn = page.locator('button[aria-label^="Toggle Crop"]').first();
+  await expect(coverCropBtn).toHaveAttribute('aria-label', /Toggle Crop/);
+  await expect(coverCropBtn).toHaveClass(/focus-visible:outline-4/);
 
   const coverRemoveBtn = page.locator('button[aria-label^="Remove"]').first();
   await expect(coverRemoveBtn).toHaveAttribute('aria-label', /Remove/);
-  await expect(coverRemoveBtn).toHaveClass(/focus:outline-none/);
+  await expect(coverRemoveBtn).toHaveClass(/focus-visible:outline-4/);
 });

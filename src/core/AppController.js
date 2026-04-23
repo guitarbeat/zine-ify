@@ -229,8 +229,10 @@ export class AppController {
         for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
           // Intentional forward reference: `trackedPromise` is captured by the `.finally()` closure
           // so that the Set removes the correct (finally-wrapped) promise upon settlement.
-          let trackedPromise;
-          trackedPromise = processPage(pageNumber).finally(() => activePromises.delete(trackedPromise));
+
+
+          // eslint-disable-next-line prefer-const
+          let trackedPromise = processPage(pageNumber).finally(() => activePromises.delete(trackedPromise));
           activePromises.add(trackedPromise);
 
           if (activePromises.size >= CONCURRENCY_LIMIT) {
