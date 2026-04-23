@@ -36,7 +36,7 @@ export class AppController {
     } catch (error) {
       toast.error('Initialization Failed', 'Check console for details.');
       // eslint-disable-next-line no-console
-      console.error(error);
+      console.error(error.message || 'An unexpected error occurred during initialization.');
     }
   }
 
@@ -229,8 +229,8 @@ export class AppController {
         for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
           // Intentional forward reference: `trackedPromise` is captured by the `.finally()` closure
           // so that the Set removes the correct (finally-wrapped) promise upon settlement.
-          let trackedPromise;
-          trackedPromise = processPage(pageNumber).finally(() => activePromises.delete(trackedPromise));
+          let trackedPromise = processPage(pageNumber);
+          trackedPromise = trackedPromise.finally(() => activePromises.delete(trackedPromise));
           activePromises.add(trackedPromise);
 
           if (activePromises.size >= CONCURRENCY_LIMIT) {

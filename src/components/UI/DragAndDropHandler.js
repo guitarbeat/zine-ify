@@ -33,7 +33,7 @@ export class DragAndDropHandler {
     if (unifiedDropZone) {
       unifiedDropZone.addEventListener('dragover', (e) => {
         // Only activate for file drops, not page reordering
-        if (this._draggedItem) return;
+        if (this._draggedItem) {return;}
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
         unifiedDropZone.classList.add('drag-active');
@@ -48,7 +48,7 @@ export class DragAndDropHandler {
       
       unifiedDropZone.addEventListener('drop', (e) => {
         // Only handle file drops, not page reordering
-        if (this._draggedItem) return;
+        if (this._draggedItem) {return;}
         e.preventDefault();
         unifiedDropZone.classList.remove('drag-active');
         const files = Array.from(e.dataTransfer.files);
