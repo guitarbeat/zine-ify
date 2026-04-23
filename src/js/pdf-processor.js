@@ -157,10 +157,11 @@ export class PDFProcessor {
       throw new Error('No PDF loaded');
     }
 
+    let page = null;
     try {
       onProgress?.(`Rendering page ${pageNum}...`);
 
-      const page = await this.pdf.getPage(pageNum);
+      page = await this.pdf.getPage(pageNum);
       // Reduced scale for better performance and smaller data URLs
       const scale = 1.5; // Balanced quality vs performance
       const viewport = page.getViewport({ scale });
@@ -191,6 +192,10 @@ export class PDFProcessor {
     } catch (error) {
       console.error(`Failed to render page ${pageNum}:`, error);
       throw new Error(`Failed to render page ${pageNum}`, { cause: error });
+    } finally {
+      if (page && typeof page.cleanup === 'function') {
+        page.cleanup();
+      }
     }
   }
 

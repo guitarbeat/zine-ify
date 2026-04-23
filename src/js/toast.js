@@ -1,5 +1,6 @@
 // Modern toast notification system
 
+// eslint-disable-next-line no-unused-vars
 import { sanitizeHTML } from './utils.js';
 
 class Toast {
