@@ -229,7 +229,7 @@ export class AppController {
         for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
           // Intentional forward reference: `trackedPromise` is captured by the `.finally()` closure
           // so that the Set removes the correct (finally-wrapped) promise upon settlement.
-          let trackedPromise;
+          let trackedPromise = null;
           trackedPromise = processPage(pageNumber).finally(() => activePromises.delete(trackedPromise));
           activePromises.add(trackedPromise);
 
@@ -295,22 +295,23 @@ export class AppController {
       return this.state._blankPageUrl;
     }
 
-    const canvas = document.createElement('canvas');
-    canvas.width = 1000;
-    canvas.height = 1414;
-    const context = canvas.getContext('2d');
+    const width = 1000;
+    const height = 1414;
+    // ⚡ Bolt: Use OffscreenCanvas to bypass DOM node creation overhead
+    // This is a cold path optimization that abstracts canvas creation
+    const { canvas, context } = this.pdfProcessor.createRenderCanvas(width, height);
     context.fillStyle = '#fcfaf5';
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, width, height);
     context.strokeStyle = 'rgba(28, 28, 28, 0.08)';
     context.lineWidth = 6;
-    context.strokeRect(36, 36, canvas.width - 72, canvas.height - 72);
+    context.strokeRect(36, 36, width - 72, height - 72);
     context.fillStyle = '#2b2b2b';
     context.font = '700 56px "Space Grotesk", sans-serif';
     context.textAlign = 'center';
-    context.fillText('Blank page', canvas.width / 2, canvas.height / 2 - 16);
+    context.fillText('Blank page', width / 2, height / 2 - 16);
     context.fillStyle = 'rgba(43, 43, 43, 0.55)';
     context.font = '500 22px "IBM Plex Mono", monospace';
-    context.fillText('Ready for the next import', canvas.width / 2, canvas.height / 2 + 40);
+    context.fillText('Ready for the next import', width / 2, height / 2 + 40);
 
     this.state._blankPageUrl = await this.pdfProcessor.canvasToBlob(canvas);
     return this.state._blankPageUrl;
@@ -353,11 +354,10 @@ export class AppController {
 
     const width = image.naturalWidth || image.width || 1000;
     const height = image.naturalHeight || image.height || 1414;
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
+    // ⚡ Bolt: Use OffscreenCanvas to bypass DOM node creation overhead
+    // This abstracts canvas creation when building preview assets
+    const { canvas, context } = this.pdfProcessor.createRenderCanvas(width, height);
 
-    const context = canvas.getContext('2d');
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, width, height);
     context.save();
