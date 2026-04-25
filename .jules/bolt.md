@@ -10,6 +10,10 @@
 **Learning:** O(n^2) DOM querying bottlenecks during grid operations in `src/js/zine-ui.js` (e.g. `querySelectorAll` in `updatePagePreview`) degrade performance.
 **Action:** Cache `.page-cell` element lookups in a `_pageCellsCache` Map grouped by `data-page-index`. Invalidate this cache (`this._pageCellsCache = null`) during layout regenerations.
 
+## 2026-04-23 - Proper DOM Query Caching Implementation
+**Learning:** When caching DOM queries (e.g., `.page-cell` elements in `UIManager.js` using a `Map`) to optimize performance, it is critical to preserve the physical DOM index order alongside identifying attributes (like `data-page-index`). Failing to maintain physical sequence breaks underlying logic that relies on indexing, such as `getImgUrl` or layout generation.
+**Action:** When implementing DOM caching, store elements by their physical index in the DOM NodeList, and optionally map their `data-index` attributes as secondary keys, ensuring both access patterns resolve correctly without stale or mismatched nodes.
+
 ## 2025-02-18 - Repeated DOM Parsing Bottleneck in Grid Generation
 **Learning:** Repeatedly setting `.innerHTML` inside a loop (e.g., when generating custom grid layouts) causes significant performance overhead because the browser has to parse the HTML string and construct the DOM fragment on every iteration. This creates a noticeable bottleneck when generating larger grids (like 10x10).
 **Action:** Implement the Template/Flyweight pattern using a `<template>` element. Create the structure once in `template.innerHTML`, and inside the loop, use `element.replaceChildren(template.content.cloneNode(true))` to safely and quickly duplicate the DOM structure without repeated parsing.

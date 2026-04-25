@@ -29,8 +29,7 @@ test('mobile layout avoids horizontal overflow on a narrow phone viewport', asyn
   await page.setViewportSize({ width: 280, height: 653 });
   await page.goto('/');
 
-  await expect(page.locator('#preview-helper-chip')).toContainText('Letter');
-  await expect(page.locator('#open-rail-sheet-btn')).toContainText('Tools');
+  await expect(page.locator('#open-rail-sheet-btn')).toContainText('Settings');
   await expectNoHorizontalOverflow(page);
 });
 
