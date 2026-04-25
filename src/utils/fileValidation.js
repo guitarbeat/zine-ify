@@ -2,6 +2,7 @@ import { formatFileSize } from './helpers.js';
 
 export const MAX_UPLOAD_FILES = 10;
 export const MAX_UPLOAD_FILE_SIZE = 50 * 1024 * 1024;
+export const MAX_FILE_NAME_LENGTH = 255;
 export const SUPPORTED_UPLOAD_ACCEPT = 'application/pdf,image/*';
 export const UNSUPPORTED_UPLOAD_TITLE = 'Unsupported File';
 export const SUPPORTED_UPLOAD_MESSAGE = 'Please select a PDF or image file.';
@@ -54,6 +55,10 @@ export function validateUploadFile(file) {
 
   if (file.size === 0) {
     errors.push('File appears to be empty');
+  }
+
+  if (file.name && file.name.length > MAX_FILE_NAME_LENGTH) {
+    errors.push(`File name is too long (maximum ${MAX_FILE_NAME_LENGTH} characters)`);
   }
 
   return {
