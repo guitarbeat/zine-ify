@@ -58,6 +58,7 @@ export class UIManager {
   }
 
   init() {
+    this._pageCellsCache = null;
     this.cacheElements();
     this.modal = new ModalManager(this.elements, this.emitter);
     this.dnd = new DragAndDropHandler(this.elements, this.emitter);
@@ -332,8 +333,11 @@ export class UIManager {
       onDragEnd: (cell) => this.dnd.handleDragEnd(cell),
       onClick: (_, index) => {
         this.activePageIndex = index;
-        document.querySelectorAll('.page-cell').forEach((cell, cellIndex) => {
-          cell.classList.toggle('active', cellIndex === index);
+        this._getAllPageCells().forEach((cell) => {
+          if (cell) {
+             const cellIndex = Number.parseInt(cell.getAttribute('data-page-index'), 10);
+             cell.classList.toggle('active', cellIndex === index);
+          }
         });
       },
       onFlip: (index) => this.emitter.emit('pageFlipped', index),
@@ -362,10 +366,24 @@ export class UIManager {
         ...dimensions
       }
     );
+
+    this._pageCellsCache = null;
+  }
+
+  // ⚡ Bolt: Cache DOM queries to avoid O(n^2) bottlenecking during frequent UI updates
+  _getAllPageCells() {
+    if (!this._pageCellsCache) {
+      this._pageCellsCache = Array.from(document.querySelectorAll('.page-cell'));
+    }
+    return this._pageCellsCache;
+  }
+
+  _getPageCell(index) {
+    return this._getAllPageCells().find((cell) => cell.getAttribute('data-page-index') === String(index));
   }
 
   getImgUrl(index) {
-    return document.querySelectorAll('.page-cell')[index]?.querySelector('img')?.src;
+    return this._getPageCell(index)?.querySelector('img')?.src;
   }
 
   syncPaperSettings({ paperSize = 'letter', orientation = 'landscape' } = {}) {
@@ -379,7 +397,7 @@ export class UIManager {
   }
 
   updatePagePreview(index, url) {
-    const cell = document.querySelector(`.page-cell[data-page-index="${index}"]`);
+    const cell = this._getPageCell(index);
     if (!cell) {
       return;
     }
@@ -400,7 +418,7 @@ export class UIManager {
   }
 
   setPageFlip(index, flipped) {
-    const cell = document.querySelector(`.page-cell[data-page-index="${index}"]`);
+    const cell = this._getPageCell(index);
     if (!cell) {
       return;
     }
@@ -411,7 +429,7 @@ export class UIManager {
   }
 
   setPageZoom(index, zoomed) {
-    const cell = document.querySelector(`.page-cell[data-page-index="${index}"]`);
+    const cell = this._getPageCell(index);
     if (!cell) {
       return;
     }
@@ -428,7 +446,7 @@ export class UIManager {
   }
 
   hasContent() {
-    return !!document.querySelector('.page-cell.has-page');
+    return this._getAllPageCells().some(cell => cell.classList.contains('has-page'));
   }
 
   is3DModalOpen() {
