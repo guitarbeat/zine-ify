@@ -105,6 +105,10 @@
   z-index: 30;
 }
 
+.hide-page-controls .page-toolbar {
+  display: none !important;
+}
+
 .page-toolbar {
   opacity: 1;
   pointer-events: auto;

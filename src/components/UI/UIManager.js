@@ -70,6 +70,18 @@ export class UIManager {
     this.updateGridTotalBadge(rows, cols);
     this.setupEventListeners();
     this.syncResponsiveUI();
+
+    const savedControls = localStorage.getItem('zine-page-controls');
+    const showControls = savedControls !== 'false';
+    if (this.elements.pageControlsCheckbox) {
+      this.elements.pageControlsCheckbox.checked = showControls;
+    }
+    this._applyPageControlsVisibility(showControls);
+  }
+
+  _applyPageControlsVisibility(show) {
+    this.elements.previewArea?.classList.toggle('hide-page-controls', !show);
+    localStorage.setItem('zine-page-controls', String(show));
   }
 
   cacheElements() {
@@ -84,6 +96,7 @@ export class UIManager {
       paperSizeSelect: $('#paper-size-select'),
       orientationToggle: $('#orientation-toggle'),
       pageNumbersCheckbox: $('#show-page-numbers'),
+      pageControlsCheckbox: $('#show-page-controls'),
       gridRows: $('#grid-rows'),
       gridCols: $('#grid-cols'),
       gridTotal: $('#grid-total'),
@@ -178,6 +191,10 @@ export class UIManager {
     this.elements.pageNumbersCheckbox?.addEventListener('change', (event) => {
       this.pageNumbersVisible = event.target.checked;
       this.emitter.emit('pageNumbersToggled', this.pageNumbersVisible);
+    });
+
+    this.elements.pageControlsCheckbox?.addEventListener('change', (event) => {
+      this._applyPageControlsVisibility(event.target.checked);
     });
 
     this.elements.printBtn?.addEventListener('click', () => this.emitter.emit('print'));
