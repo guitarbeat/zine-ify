@@ -10,6 +10,12 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <script>
+      (function() {
+        var t = localStorage.getItem('zine-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
 </head>
 
 <body class="min-h-screen mobile-zine-app">
@@ -20,6 +26,9 @@
                 <span class="material-symbols-outlined" style="font-size:15px;color:#fff;font-variation-settings:'FILL' 1;">book_2</span>
             </div>
             <h1 class="app-title">Zine-ify</h1>
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+                <span class="material-symbols-outlined" style="font-size:17px;" id="theme-icon">dark_mode</span>
+            </button>
         </header>
 
         <main class="app-layout grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4 sm:gap-5 items-start">
@@ -335,6 +344,24 @@
     </div>
 
     <script type="module" src="/src/core/main.js"></script>
+    <script>
+      (function() {
+        var btn = document.getElementById('theme-toggle');
+        var icon = document.getElementById('theme-icon');
+        function sync() {
+          var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+          icon.textContent = dark ? 'light_mode' : 'dark_mode';
+          btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+        }
+        sync();
+        btn.addEventListener('click', function() {
+          var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          localStorage.setItem('zine-theme', next);
+          sync();
+        });
+      })();
+    </script>
 </body>
 
 </html>

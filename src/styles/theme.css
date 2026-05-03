@@ -15,13 +15,11 @@
   --muted-ink: #71717a;
   --paper-bg: #ffffff;
 
-  /* Soft shadows */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.04);
   --shadow-md: 0 2px 8px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.1), 0 2px 6px rgba(0,0,0,0.05);
   --surface-shadow-strong: 0 8px 32px rgba(0,0,0,0.12);
 
-  /* Borders */
   --radius-panel: 0.875rem;
   --radius-button: 0.625rem;
   --radius-pill: 999px;
@@ -29,14 +27,39 @@
   --border-thin: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+/* ── Dark mode overrides ─────────────────────────── */
+[data-theme="dark"] {
+  --bg-neutral: #0d1117;
+  --surface-bg: #161d2c;
+  --surface-strong: #1e2840;
+  --surface-muted: #1a2235;
+  --glass-bg-alt: rgba(22, 29, 44, 0.9);
+
+  --accent-dark: #f1f5f9;
+  --primary-vibrant: #fbbf24;
+  --primary-glow: rgba(251, 191, 36, 0.1);
+  --border-color: rgba(255, 255, 255, 0.09);
+  --border-faint: rgba(255, 255, 255, 0.05);
+  --muted-ink: rgba(255, 255, 255, 0.4);
+  --paper-bg: #1e2840;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4), 0 1px 6px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4);
+  --surface-shadow-strong: 0 8px 40px rgba(0,0,0,0.6);
+
+  --border-bold: 1px solid rgba(255, 255, 255, 0.09);
+  --border-thin: 1px solid rgba(255, 255, 255, 0.07);
+}
+
 @utility base-chip {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0.3rem 0.7rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-pill);
-  background: #ffffff;
+  background: var(--surface-bg);
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -46,8 +69,8 @@
 }
 
 @utility base-panel {
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  background: var(--surface-bg);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-sm);
   padding: 1.25rem;
@@ -59,6 +82,12 @@ body {
   color: var(--accent-dark);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+[data-theme="dark"] body,
+[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 .mobile-zine-app {

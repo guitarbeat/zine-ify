@@ -42,6 +42,7 @@ src/
 - **Shadows**: Soft Gaussian (no hard offset)
 - **Border radius**: `0.875rem` panels, `0.625rem` buttons/fields
 - **No** dot-grid backgrounds, no neo-brutalist thick borders, no hard shadows
+- **Dark mode**: Full dark-navy theme (`[data-theme="dark"]`) toggled via header button, persisted in `localStorage`. Instantly applied via inline `<script>` in `<head>` to prevent flash.
 
 ## Dev Server
 
