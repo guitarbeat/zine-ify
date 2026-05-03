@@ -150,14 +150,7 @@ export class ExportService {
     const dims = this.getPaperDimensions();
     const sheetsHtml = this.buildSheetsHtml();
     const html = this.buildPrintHtml(sheetsHtml, dims);
-    try {
-      this.openPrintWindow(html);
-    } catch (error) {
-      if (this.ui?.setStatus) {
-        this.ui.setStatus('Print blocked by browser popup settings.', 'error');
-      }
-      throw error;
-    }
+    await this.openPrintWindow(html);
   }
 
   buildSheetsHtml() {
@@ -242,22 +235,43 @@ export class ExportService {
       : { width: paper.width, height: paper.height };
   }
 
-  openPrintWindow(html) {
-    const win = window.open('', '_blank', 'noopener,noreferrer');
-    if (!win) {
-      throw new Error('Unable to open print window. Please allow popups for this site.');
+  async openPrintWindow(html) {
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      win.print();
+      return;
     }
 
-    win.document.open();
-    win.document.write(html);
-    win.document.close();
-    win.focus();
+    const printFrame = document.createElement('iframe');
+    printFrame.style.position = 'fixed';
+    printFrame.style.right = '0';
+    printFrame.style.bottom = '0';
+    printFrame.style.width = '0';
+    printFrame.style.height = '0';
+    printFrame.style.border = '0';
+    printFrame.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(printFrame);
+
+    const frameDoc = printFrame.contentDocument;
+    frameDoc.open();
+    frameDoc.write(html);
+    frameDoc.close();
+
+    await new Promise((resolve) => {
+      printFrame.onload = resolve;
+      setTimeout(resolve, 300);
+    });
+
+    printFrame.contentWindow?.focus();
+    printFrame.contentWindow?.print();
+
     setTimeout(() => {
-      try {
-        win.print();
-      } catch {
-        throw new Error('Unable to start printing. Please allow popups for this site.');
-      }
-    }, 500);
+      printFrame.remove();
+    }, 1000);
   }
 }
