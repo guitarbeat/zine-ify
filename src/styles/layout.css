@@ -90,6 +90,8 @@
 
 .workspace-sheet-stack { min-height: 12rem; }
 
+.workspace-sheet-stack + .preview-empty-state { margin-top: 1.5rem; }
+
 .workspace-panel:not(.is-empty) .preview-empty-state { display: none; }
 
 .preview-empty-state {
