@@ -140,6 +140,10 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
   line-height: 1.35;
 }
 
+.workspace-config-hint.workspace-config-field-wide {
+  margin-top: -0.1rem;
+}
+
 /* Orientation segmented control */
 .orientation-seg {
   display: flex;
