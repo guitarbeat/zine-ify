@@ -238,8 +238,8 @@ export class ExportService {
     const paper = PAPER_SIZES[this.state.paperSize] || PAPER_SIZES.letter;
     const isLandscape = this.state.orientation === 'landscape';
     return isLandscape
-      ? { width: paper.width, height: paper.height }
-      : { width: paper.height, height: paper.width };
+      ? { width: paper.height, height: paper.width }
+      : { width: paper.width, height: paper.height };
   }
 
   openPrintWindow(html) {
