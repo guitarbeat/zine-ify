@@ -55,7 +55,14 @@ export class ExportService {
     const dims = this.getPaperDimensions();
     const sheetsHtml = this.buildSheetsHtml();
     const html = this.buildPrintHtml(sheetsHtml, dims);
-    this.openPrintWindow(html);
+    try {
+      this.openPrintWindow(html);
+    } catch (error) {
+      if (this.ui?.setStatus) {
+        this.ui.setStatus('Print blocked by browser popup settings.', 'error');
+      }
+      throw error;
+    }
   }
 
   buildSheetsHtml() {
