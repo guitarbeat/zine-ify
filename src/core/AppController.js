@@ -568,7 +568,7 @@ export class AppController {
       return;
     }
 
-    this.exportService.handlePrint(referenceImageUrl);
+    this.exportService.handlePrint();
   }
 
   async getZine3DViewerClass() {
@@ -667,7 +667,7 @@ export class AppController {
 
     this.ui.modal.showProgress(true, 'Generating PDF...');
     try {
-      await this.exportService.handleExport(referenceImageUrl);
+      await this.exportService.handleExport();
       this.state.markExported();
       this.updateWorkspaceUi();
       toast.success('Export Ready', 'Your PDF has been generated.');
