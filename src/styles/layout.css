@@ -83,46 +83,9 @@
   background: var(--primary-glow);
 }
 
-.workspace-stage.drag-active .preview-empty-state {
-  border-color: var(--primary-vibrant);
-  background: var(--surface-bg);
-}
 
 .workspace-sheet-stack { min-height: 12rem; }
 
-.workspace-sheet-stack + .preview-empty-state { margin-top: 1.5rem; }
-
-.workspace-panel:not(.is-empty) .preview-empty-state { display: none; }
-
-.preview-empty-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3.5rem 1.5rem;
-  border: 1.5px dashed var(--border-color);
-  border-radius: 0.75rem;
-  background: var(--surface-bg);
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-}
-
-.empty-state-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 0.4rem;
-}
-
-.preview-empty-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--accent-dark);
-}
-
-.preview-empty-hint {
-  font-size: 0.82rem;
-  color: var(--muted-ink);
-}
 
 .workspace-actions,
 .workspace-action-tray,
@@ -339,10 +302,6 @@ body.mobile-rail-open { overflow: hidden; }
   .workspace-panel { min-height: auto; padding-bottom: 1rem; }
   .workspace-meta { gap: 0.45rem; }
 
-  .preview-empty-state {
-    min-height: auto;
-    padding: 1.5rem 1rem;
-  }
 
   .workspace-actions,
   .workspace-action-tray,
