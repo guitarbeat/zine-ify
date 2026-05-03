@@ -568,7 +568,9 @@ export class AppController {
       return;
     }
 
-    this.exportService.handlePrint();
+    this.exportService.handlePrint().catch((error) => {
+      toast.error('Print Failed', error.message || 'Unable to print.');
+    });
   }
 
   async getZine3DViewerClass() {
