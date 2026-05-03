@@ -152,20 +152,6 @@
 
 body.mobile-rail-open { overflow: hidden; }
 
-.app-header {
-  padding: 0.5rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.app-title {
-  font-size: clamp(1.25rem, 3vw, 1.5rem);
-  line-height: 1;
-  color: var(--accent-dark);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-}
 
 .app-overview-title,
 .rail-section-title {
