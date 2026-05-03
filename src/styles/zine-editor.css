@@ -1,32 +1,32 @@
 .print-sheet {
   background: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0, 0, 0, 0.07);
   border-radius: 0.75rem;
   position: relative;
   flex-shrink: 0;
   transition: all 0.2s ease;
   scroll-margin-top: 1rem;
-  padding: 0.25rem;
+  padding: 0.2rem;
   overflow: hidden;
 }
 
 @media print {
   .print-sheet {
-      border: none;
-      box-shadow: none;
-      margin: 0;
-      page-break-after: always;
-      max-width: none !important;
-      max-height: none !important;
-      width: 100% !important;
-      height: 100% !important;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+    page-break-after: always;
+    max-width: none !important;
+    max-height: none !important;
+    width: 100% !important;
+    height: 100% !important;
   }
   .flip-btn, .zoom-btn, .crop-btn, .remove-btn, .page-label, .guidelines {
-      display: none !important;
+    display: none !important;
   }
   .page-cell {
-      border: none !important;
+    border: none !important;
   }
 }
 
@@ -48,60 +48,55 @@
   height: 100%;
   width: 100%;
 }
-/* Empty slot - shows it's droppable */
+
 .page-cell {
-  border: 2px dashed rgba(0, 0, 0, 0.12);
+  border: 1.5px dashed rgba(0, 0, 0, 0.1);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(250, 250, 250, 0.8);
   min-height: 7rem;
-  transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
   border-radius: 0.5rem;
 }
 
-/* Empty slot hover - invite drop */
 .page-cell:not(.has-page):hover {
   border-color: var(--primary-vibrant);
   background: var(--primary-glow);
 }
 
-/* Filled slot - solid border */
 .page-cell.has-page {
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   background: white;
   cursor: grab;
 }
 
 .page-cell.has-page:hover {
-  border-color: rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.14);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
-/* Dragging state */
 .page-cell.dragging {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: grabbing;
-  transform: scale(0.95);
+  transform: scale(0.96);
   z-index: 50;
 }
 
-/* Drop target highlight */
 .page-cell.drag-over {
   border-color: var(--primary-vibrant) !important;
   border-style: solid !important;
   background: var(--primary-glow) !important;
-  box-shadow: inset 0 0 0 2px var(--primary-vibrant);
+  box-shadow: inset 0 0 0 1.5px var(--primary-vibrant);
   z-index: 40;
 }
 
-/* Active/selected state */
 .page-cell.active {
-  border: 2px solid var(--primary-vibrant);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  border: 1.5px solid var(--primary-vibrant);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
   z-index: 30;
 }
 
@@ -109,12 +104,12 @@
   opacity: 1;
   pointer-events: auto;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.2rem;
+  gap: 0.3rem;
+  padding: 0.18rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(23, 23, 23, 0.12);
-  box-shadow: 0 4px 14px rgba(23, 23, 23, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .page-cell.active .page-toolbar {
@@ -137,12 +132,12 @@
   --page-image-rotation: 0deg;
   --page-image-scale: 1;
   transform: rotate(var(--page-image-rotation)) scale(var(--page-image-scale));
-  mix-blend-mode: multiply; 
-  transition: transform 0.2s ease, object-fit 0.2s ease;
+  mix-blend-mode: multiply;
+  transition: transform 0.2s ease;
 }
 
 .page-placeholder {
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(0, 0, 0, 0.22);
   background: transparent;
   display: flex;
   flex-direction: column;
@@ -152,8 +147,8 @@
 }
 
 .page-placeholder .material-symbols-outlined {
-  font-size: 1.5rem;
-  opacity: 0.5;
+  font-size: 1.4rem;
+  opacity: 0.4;
 }
 
 .page-cell:not(.has-page):hover .page-placeholder {
@@ -161,36 +156,38 @@
 }
 
 .page-cell:not(.has-page):hover .page-placeholder .material-symbols-outlined {
-  opacity: 1;
+  opacity: 0.8;
 }
 
 .page-cell.has-page .page-placeholder {
   display: none;
 }
+
 .page-zoomed .page-content-img {
   object-fit: cover;
   --page-image-scale: 1.1;
 }
+
 .page-cell.is-flipped .page-content-img {
   --page-image-rotation: 180deg;
 }
 
 .page-label {
   position: absolute;
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--accent-dark);
-  font-family: 'IBM Plex Mono', monospace;
-  font-weight: bold;
-  font-size: 9px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--muted-ink);
+  font-family: 'Inter', monospace;
+  font-weight: 600;
+  font-size: 8px;
   line-height: 1;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   padding: 3px 5px;
   z-index: 20;
-  top: 0.35rem;
-  left: 0.35rem;
-  border: 1px solid rgba(23, 23, 23, 0.14);
+  top: 0.3rem;
+  left: 0.3rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 999px;
-  box-shadow: 0 3px 10px rgba(23, 23, 23, 0.06);
+  box-shadow: none;
   pointer-events: none;
 }
 
@@ -202,99 +199,89 @@
 }
 
 .page-label.centered {
-  top: 0.35rem;
-  left: 0.35rem;
+  top: 0.3rem;
+  left: 0.3rem;
   transform: none;
-  font-size: 9px;
+  font-size: 8px;
   padding: 3px 5px;
-  border: 1px solid rgba(23, 23, 23, 0.14);
-  box-shadow: 0 3px 10px rgba(23, 23, 23, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   z-index: 20;
-  background-color: rgba(255, 255, 255, 0.9);
-  color: var(--accent-dark);
+  background-color: rgba(255, 255, 255, 0.92);
+  color: var(--muted-ink);
 }
 
 @media (max-width: 767px) {
   .page-cell {
-      min-height: 5.35rem;
+    min-height: 5rem;
   }
 
   .page-toolbar {
-      opacity: 0;
-      pointer-events: none;
-      gap: 0.2rem;
-      padding: 0.16rem;
+    opacity: 0;
+    pointer-events: none;
+    gap: 0.18rem;
+    padding: 0.14rem;
   }
 
   .page-cell.active .page-toolbar,
   .page-cell:focus-within .page-toolbar {
-      opacity: 1 !important;
-      pointer-events: auto;
+    opacity: 1 !important;
+    pointer-events: auto;
   }
 
   .page-toolbar .zoom-btn,
   .page-toolbar .crop-btn,
   .page-toolbar .flip-btn,
   .page-toolbar .remove-btn {
-      width: 1.85rem;
-      height: 1.85rem;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 
   .page-toolbar .material-symbols-outlined {
-      font-size: 15px;
+    font-size: 14px;
   }
 
   .page-label,
   .page-label.centered {
-      top: 0.25rem;
-      left: 0.25rem;
-      font-size: 8px;
-      padding: 2px 4px;
+    top: 0.2rem;
+    left: 0.2rem;
+    font-size: 7px;
+    padding: 2px 4px;
   }
 
   .page-placeholder span:last-child {
-      display: none;
+    display: none;
   }
 }
 
 @media (max-width: 359px) {
   .page-toolbar {
-      top: 0.22rem;
-      right: 0.22rem;
-      max-width: calc(100% - 0.45rem);
-      border-radius: 0.75rem;
-      padding: 0.14rem;
+    top: 0.2rem;
+    right: 0.2rem;
+    max-width: calc(100% - 0.4rem);
+    border-radius: 0.65rem;
+    padding: 0.12rem;
   }
 
   .page-toolbar[data-layout="grid"] {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      justify-items: end;
-      gap: 0.14rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-items: end;
+    gap: 0.12rem;
   }
 
   .page-toolbar[data-layout="grid"] .zoom-btn,
   .page-toolbar[data-layout="grid"] .crop-btn,
   .page-toolbar[data-layout="grid"] .flip-btn,
   .page-toolbar[data-layout="grid"] .remove-btn {
-      width: 1.55rem;
-      height: 1.55rem;
+    width: 1.5rem;
+    height: 1.5rem;
   }
 
   .page-toolbar[data-layout="grid"] .material-symbols-outlined {
-      font-size: 13px;
-  }
-
-  .page-placeholder {
-      gap: 0.4rem;
+    font-size: 12px;
   }
 
   .page-placeholder .material-symbols-outlined {
-      font-size: 1.45rem;
-  }
-
-  .page-placeholder span:last-child {
-      font-size: 8px;
-      letter-spacing: 0.12em;
+    font-size: 1.35rem;
   }
 }

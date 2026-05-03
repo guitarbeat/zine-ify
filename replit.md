@@ -31,6 +31,18 @@ src/
 └── utils/            - Helpers (config, helpers, fileValidation, miniZineLayout, etc.)
 ```
 
+## Design System
+
+- **Aesthetic**: Modern minimalist — clean, functional, no ornamentation
+- **Font**: Inter (400/500/600/700)
+- **Background**: `#f4f4f5` (zinc-100)
+- **Surfaces**: White with `1px rgba(0,0,0,0.07)` borders + soft box shadows
+- **Accent / CTA**: Amber `#f59e0b` (primary vibrant) — logo, Print button, toggles
+- **Text**: `#18181b` primary, `#71717a` muted
+- **Shadows**: Soft Gaussian (no hard offset)
+- **Border radius**: `0.875rem` panels, `0.625rem` buttons/fields
+- **No** dot-grid backgrounds, no neo-brutalist thick borders, no hard shadows
+
 ## Dev Server
 
 - Port: 5000
