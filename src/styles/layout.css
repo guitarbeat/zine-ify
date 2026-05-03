@@ -70,17 +70,14 @@
 .workspace-stage {
   min-height: 0;
   flex: 1 1 auto;
-  border: 1.5px dashed var(--border-color);
-  border-radius: 0.75rem;
-  background: var(--bg-neutral);
-  padding: 0.75rem;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
   position: relative;
+  border-radius: 0.75rem;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .workspace-stage.drag-active {
-  border-color: var(--primary-vibrant);
   background: var(--primary-glow);
+  box-shadow: inset 0 0 0 2px var(--primary-vibrant);
 }
 
 
