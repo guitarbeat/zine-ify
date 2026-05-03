@@ -29,8 +29,9 @@ export default defineConfig({
     }
   },
   server: {
-    port: 8001,
-    host: true
+    port: 5000,
+    host: '0.0.0.0',
+    allowedHosts: true
   },
   optimizeDeps: {
     include: ['pdfjs-dist', 'jspdf', 'html2canvas']
