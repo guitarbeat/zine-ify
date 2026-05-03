@@ -148,6 +148,10 @@ export class UIManager {
     this.elements.pdfUpload?.click();
   }
 
+  handleIncomingFiles(files) {
+    this.emitter.emit('fileSelected', files?.[0] || null);
+  }
+
   updateWorkspaceState() {}
 
   setPageTitle() {}
