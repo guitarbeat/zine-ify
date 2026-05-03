@@ -252,6 +252,12 @@ export class ExportService {
     win.document.write(html);
     win.document.close();
     win.focus();
-    setTimeout(() => win.print(), 500);
+    setTimeout(() => {
+      try {
+        win.print();
+      } catch {
+        throw new Error('Unable to start printing. Please allow popups for this site.');
+      }
+    }, 500);
   }
 }
