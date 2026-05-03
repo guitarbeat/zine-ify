@@ -204,7 +204,11 @@ export class UIManager {
     }
   }
 
-  syncResponsiveUI() {}
+  syncResponsiveUI() {
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    this.elements.previewArea?.classList.toggle('is-mobile', isMobile);
+    this.elements.previewArea?.classList.toggle('mobile-rail-open', isMobile);
+  }
 
   _getAllPageCells() {
     return Array.from(this.elements.zineSheetsContainer?.querySelectorAll('.page-cell') || []);

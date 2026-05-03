@@ -272,8 +272,8 @@ body.mobile-rail-open { overflow: hidden; }
 
 @media (max-width: 767px) {
   .app-shell {
-    --mobile-action-dock-reserve: calc(1rem + var(--mobile-safe-bottom));
-    padding-bottom: 1rem;
+    --mobile-action-dock-reserve: calc(6rem + var(--mobile-safe-bottom));
+    padding-bottom: calc(1rem + var(--mobile-action-dock-reserve));
   }
 
   .control-rail {
@@ -287,8 +287,15 @@ body.mobile-rail-open { overflow: hidden; }
   .workspace-header { grid-template-columns: 1fr; }
 
   .workspace-panel,
-  .workspace-stage,
-  .workspace-sheet-stack { overflow: visible; }
+  .workspace-stage {
+    overflow: visible;
+  }
+
+  .workspace-sheet-stack {
+    overflow: visible;
+    min-height: 0;
+    padding-bottom: calc(1rem + var(--mobile-action-dock-reserve));
+  }
 
   .workspace-panel { min-height: auto; padding-bottom: 1rem; }
   .workspace-meta { gap: 0.45rem; }
@@ -302,6 +309,12 @@ body.mobile-rail-open { overflow: hidden; }
     width: 100%;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem; padding: 0.65rem; margin-top: 1rem;
+  }
+
+  .workspace-action-dock {
+    position: sticky;
+    bottom: calc(var(--mobile-safe-bottom) + 0.5rem);
+    z-index: 20;
   }
 
   .workspace-action-tray > :nth-child(3) { grid-column: 1 / -1; }
