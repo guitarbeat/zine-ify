@@ -168,6 +168,10 @@ export class UIManager {
       .join('');
   }
 
+  bindAppController(controller) {
+    this.controller = controller;
+  }
+
   syncPaperSettings({ paperSize, orientation } = {}) {
     if (paperSize && this.elements.paperSizeSelect) {
       this.elements.paperSizeSelect.value = paperSize;
