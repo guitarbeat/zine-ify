@@ -140,6 +140,125 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
   line-height: 1.35;
 }
 
+/* Orientation segmented control */
+.orientation-seg {
+  display: flex;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--surface-muted);
+}
+
+.orientation-seg-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2.25rem;
+  padding: 0.3rem 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted-ink);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  line-height: 1;
+}
+
+.orientation-seg-btn + .orientation-seg-btn {
+  border-left: 1px solid var(--border-color);
+}
+
+.orientation-seg-btn svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.orientation-seg-btn.is-active {
+  background: var(--accent-dark);
+  color: var(--surface-bg);
+}
+
+.orientation-seg-btn.is-active svg {
+  opacity: 1;
+}
+
+[data-theme="dark"] .orientation-seg-btn.is-active {
+  background: var(--primary-vibrant);
+  color: #78350f;
+}
+
+.orientation-seg-btn:hover:not(.is-active) {
+  background: var(--surface-bg);
+  color: var(--accent-dark);
+}
+
+/* Grid stepper control */
+.stepper {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--surface-muted);
+}
+
+.stepper-btn {
+  width: 1.9rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--muted-ink);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+  user-select: none;
+}
+
+.stepper-btn:hover {
+  background: var(--surface-bg);
+  color: var(--accent-dark);
+}
+
+.stepper-btn:active {
+  background: var(--primary-glow);
+  color: var(--primary-vibrant);
+}
+
+.stepper-input {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  border: none;
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  background: transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent-dark);
+  padding: 0;
+  min-height: 2.25rem;
+  -moz-appearance: textfield;
+}
+
+.stepper-input::-webkit-inner-spin-button,
+.stepper-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stepper-input:focus {
+  outline: none;
+  background: var(--primary-glow);
+}
+
 .workspace-config-toggle {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;

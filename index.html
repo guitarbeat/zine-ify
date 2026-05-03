@@ -56,19 +56,25 @@
                         </div>
 
                         <div class="workspace-config-grid rail-config-grid">
-                            <div class="workspace-config-field">
+                            <div class="workspace-config-field workspace-config-field-wide">
                                 <label for="paper-size-select" class="workspace-config-label">Paper</label>
                                 <select id="paper-size-select" class="workspace-config-input">
                                     <!-- Populated by JS -->
                                 </select>
                             </div>
 
-                            <div class="workspace-config-field">
-                                <label for="orientation-select" class="workspace-config-label">Orientation</label>
-                                <select id="orientation-select" class="workspace-config-input">
-                                    <option value="landscape">Landscape</option>
-                                    <option value="portrait">Portrait</option>
-                                </select>
+                            <div class="workspace-config-field workspace-config-field-wide">
+                                <span class="workspace-config-label" id="orientation-label">Orientation</span>
+                                <div id="orientation-toggle" class="orientation-seg" role="group" aria-labelledby="orientation-label">
+                                    <button type="button" class="orientation-seg-btn is-active" data-value="landscape" aria-pressed="true">
+                                        <svg width="15" height="11" viewBox="0 0 15 11" fill="none" aria-hidden="true"><rect x="0.75" y="0.75" width="13.5" height="9.5" rx="1.75" stroke="currentColor" stroke-width="1.5"/></svg>
+                                        Landscape
+                                    </button>
+                                    <button type="button" class="orientation-seg-btn" data-value="portrait" aria-pressed="false">
+                                        <svg width="11" height="15" viewBox="0 0 11 15" fill="none" aria-hidden="true"><rect x="0.75" y="0.75" width="9.5" height="13.5" rx="1.75" stroke="currentColor" stroke-width="1.5"/></svg>
+                                        Portrait
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="workspace-config-field workspace-config-field-wide" role="group" aria-labelledby="grid-layout-label">
@@ -77,11 +83,17 @@
                                     <span id="grid-total" class="grid-total-chip">8 slots</span>
                                 </div>
                                 <div class="workspace-config-split">
-                                    <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Rows"
-                                        class="workspace-config-input workspace-config-number">
+                                    <div class="stepper">
+                                        <button type="button" class="stepper-btn" data-target="grid-rows" data-delta="-1" aria-label="Fewer rows">−</button>
+                                        <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Rows" class="stepper-input workspace-config-number">
+                                        <button type="button" class="stepper-btn" data-target="grid-rows" data-delta="1" aria-label="More rows">+</button>
+                                    </div>
                                     <span class="workspace-config-times" aria-hidden="true">×</span>
-                                    <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Columns"
-                                        class="workspace-config-input workspace-config-number">
+                                    <div class="stepper">
+                                        <button type="button" class="stepper-btn" data-target="grid-cols" data-delta="-1" aria-label="Fewer columns">−</button>
+                                        <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Columns" class="stepper-input workspace-config-number">
+                                        <button type="button" class="stepper-btn" data-target="grid-cols" data-delta="1" aria-label="More columns">+</button>
+                                    </div>
                                 </div>
                             </div>
 

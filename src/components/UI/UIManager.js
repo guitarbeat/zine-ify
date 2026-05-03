@@ -82,7 +82,7 @@ export class UIManager {
       previewArea: $('#preview-area'),
       zineSheetsContainer: $('#zine-sheets-container'),
       paperSizeSelect: $('#paper-size-select'),
-      orientationSelect: $('#orientation-select'),
+      orientationToggle: $('#orientation-toggle'),
       pageNumbersCheckbox: $('#show-page-numbers'),
       gridRows: $('#grid-rows'),
       gridCols: $('#grid-cols'),
@@ -151,8 +151,28 @@ export class UIManager {
       this.emitter.emit('paperSizeChanged', { paperSize: event.target.value });
     });
 
-    this.elements.orientationSelect?.addEventListener('change', (event) => {
-      this.emitter.emit('orientationChanged', { orientation: event.target.value });
+    this.elements.orientationToggle?.querySelectorAll('.orientation-seg-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.value;
+        this.elements.orientationToggle.querySelectorAll('.orientation-seg-btn').forEach((b) => {
+          b.classList.toggle('is-active', b === btn);
+          b.setAttribute('aria-pressed', String(b === btn));
+        });
+        this.emitter.emit('orientationChanged', { orientation: value });
+      });
+    });
+
+    this.elements.gridRows?.closest('.workspace-config-split')?.querySelectorAll('.stepper-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.target);
+        if (!target) return;
+        const min = parseInt(target.min, 10) || 1;
+        const max = parseInt(target.max, 10) || 10;
+        const delta = parseInt(btn.dataset.delta, 10);
+        const next = Math.min(max, Math.max(min, parseInt(target.value, 10) + delta));
+        target.value = next;
+        target.dispatchEvent(new Event('change', { bubbles: true }));
+      });
     });
 
     this.elements.pageNumbersCheckbox?.addEventListener('change', (event) => {
@@ -391,8 +411,12 @@ export class UIManager {
       this.elements.paperSizeSelect.value = paperSize;
     }
 
-    if (this.elements.orientationSelect && this.elements.orientationSelect.value !== orientation) {
-      this.elements.orientationSelect.value = orientation;
+    if (this.elements.orientationToggle) {
+      this.elements.orientationToggle.querySelectorAll('.orientation-seg-btn').forEach((btn) => {
+        const active = btn.dataset.value === orientation;
+        btn.classList.toggle('is-active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
     }
   }
 

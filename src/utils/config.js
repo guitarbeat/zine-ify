@@ -4,11 +4,11 @@ export const GRID_DIMENSION_MIN = 1;
 export const GRID_DIMENSION_MAX = 10;
 
 export const PAPER_SIZES = {
-    a4: { label: 'A4 (210 × 297 mm)', width: 210, height: 297 },
-    a3: { label: 'A3 (297 × 420 mm)', width: 297, height: 420 },
-    letter: { label: 'Letter (8.5 × 11 in)', width: 215.9, height: 279.4 },
-    legal: { label: 'Legal (8.5 × 14 in)', width: 215.9, height: 355.6 },
-    a5: { label: 'A5 (148 × 210 mm)', width: 148, height: 210 }
+    a4: { label: 'A4', width: 210, height: 297 },
+    a3: { label: 'A3', width: 297, height: 420 },
+    letter: { label: 'Letter', width: 215.9, height: 279.4 },
+    legal: { label: 'Legal', width: 215.9, height: 355.6 },
+    a5: { label: 'A5', width: 148, height: 210 }
 };
 
 /**
