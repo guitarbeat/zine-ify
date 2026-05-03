@@ -30,6 +30,7 @@ export class Zine3DViewer {
     this.sheetMaterialColor = 0xf4f1ea;
     this.foldGuideColor = 0xb8b8b8;
     this.slitGuideColor = 0xd32f2f;
+    this.cameraTarget = new THREE.Vector3(0, 0, 0);
     
     this.panelDefinitions = {
       1: { stackIndex: 3, isTop: false }, // Cover
@@ -71,7 +72,7 @@ export class Zine3DViewer {
     const initialWidth = this.container.clientWidth || 1;
     const initialHeight = this.container.clientHeight || 1;
     this.camera = new THREE.PerspectiveCamera(45, initialWidth / initialHeight, 0.1, 100);
-    this.camera.position.set(0, 0, 5);
+    this.camera.position.set(0, 0, 4.6);
 
     try {
       this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -86,18 +87,24 @@ export class Zine3DViewer {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.05;
+    this.controls.enablePan = false;
+    this.controls.minDistance = 2.8;
+    this.controls.maxDistance = 9;
+    this.controls.maxPolarAngle = Math.PI * 0.56;
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
     this.scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    dirLight.position.set(2, 5, 3);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
+    dirLight.position.set(2, 6, 5);
     this.scene.add(dirLight);
     
-    const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
-    backLight.position.set(-2, -5, -3);
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.45);
+    backLight.position.set(-2, -4, -4);
     this.scene.add(backLight);
+
+    this.scene.add(new THREE.HemisphereLight(0xffffff, 0x3a3a55, 0.45));
 
     // Resize handler
     this.onWindowResize = () => this.refreshLayout();
@@ -267,8 +274,8 @@ export class Zine3DViewer {
     this.setFoldProgress(0);
     
     // Automatically adjust camera slightly so the flat sheet fits
-    this.camera.position.set(0, 0, 6);
-    this.controls.target.set(0, 0, 0);
+    this.camera.position.set(0, 0, 4.9);
+    this.controls.target.copy(this.cameraTarget);
     this.controls.update();
     this.refreshLayout();
   }
@@ -292,6 +299,7 @@ export class Zine3DViewer {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    this.renderer.setClearColor(0x111111, 1);
   }
 
   /**
@@ -343,6 +351,19 @@ export class Zine3DViewer {
 
     this.updateSeams();
     this.updateGuides(state.stages.horizontalFold, state.stages.diamondOpen, state.stages.bookletClose);
+    this.updateCameraForProgress(progress);
+  }
+
+  updateCameraForProgress(progress) {
+    if (this.isFallbackMode || !this.camera || !this.controls) {
+      return;
+    }
+
+    const zoom = 1 - Math.min(0.22, Math.max(0, progress) * 0.055);
+    const tilt = 0.12 + Math.min(0.12, progress * 0.025);
+    this.camera.position.set(0, Math.sin(tilt) * 0.4, 4.9 * zoom);
+    this.controls.target.copy(this.cameraTarget);
+    this.controls.update();
   }
 
   createSeams() {
