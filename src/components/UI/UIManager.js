@@ -218,8 +218,8 @@ export class UIManager {
     const paper = PAPER_SIZES[paperSizeKey] || PAPER_SIZES.letter;
     const landscape = orientation === 'landscape';
     return landscape
-      ? { width: paper.width, height: paper.height }
-      : { width: paper.height, height: paper.width };
+      ? { width: paper.height, height: paper.width }
+      : { width: paper.width, height: paper.height };
   }
 
   _applyPageControlsVisibility(show) {
