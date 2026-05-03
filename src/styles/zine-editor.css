@@ -9,6 +9,8 @@
   scroll-margin-top: 1rem;
   padding: 0.2rem;
   overflow: hidden;
+  width: min(100%, calc(var(--sheet-width, 210mm) * var(--sheet-scale, 1)));
+  aspect-ratio: var(--sheet-width, 210) / var(--sheet-height, 297);
 }
 
 [data-theme="dark"] .print-sheet {
@@ -47,6 +49,12 @@
   display: grid;
   height: 100%;
   width: 100%;
+}
+
+.print-sheet {
+  --sheet-width: 210;
+  --sheet-height: 297;
+  --sheet-scale: 1;
 }
 
 .page-cell {

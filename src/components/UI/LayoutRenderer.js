@@ -120,6 +120,11 @@ export class LayoutRenderer {
       sheetWrapper.style.aspectRatio = aspectRatio;
     }
 
+    if (paper?.width && paper?.height) {
+      const scale = this.getResponsiveSheetScale(paper.width, paper.height);
+      sheetWrapper.style.setProperty('--sheet-scale', String(scale));
+    }
+
     const grid = document.createElement('div');
     grid.className = 'zine-grid';
     grid.id = id;
@@ -128,6 +133,25 @@ export class LayoutRenderer {
     grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
 
     return { sheetWrapper, grid };
+  }
+
+  getResponsiveSheetScale(width, height) {
+    if (!width || !height) {
+      return 1;
+    }
+
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || width;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || height;
+    const usableWidth = Math.max(320, viewportWidth - 32);
+    const usableHeight = Math.max(320, viewportHeight - 180);
+    const sheetRatio = width / height;
+    const viewportRatio = usableWidth / usableHeight;
+
+    if (sheetRatio > viewportRatio) {
+      return Math.min(1, usableWidth / width);
+    }
+
+    return Math.min(1, usableHeight / height);
   }
 
   createPageCell({ pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers }) {
