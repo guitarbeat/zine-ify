@@ -4,6 +4,7 @@
   border: 1.5px dashed var(--border-color);
   border-radius: 0.75rem;
   background-color: var(--surface-muted);
+  min-height: 9rem;
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 .upload-box:hover, .upload-box:focus {

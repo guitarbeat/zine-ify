@@ -20,9 +20,9 @@ PAGE_CELL_TEMPLATE.innerHTML = `
           <span class="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
      </button>
   </div>
-  <div class="page-placeholder flex flex-col items-center justify-center text-gray-400 gap-3 absolute inset-0 bg-[#fafafa]">
-     <span class="material-symbols-outlined text-4xl opacity-40">note_stack</span>
-     <span class="text-[11px] font-bold uppercase tracking-[0.2em] opacity-50">Slot Empty</span>
+  <div class="page-placeholder flex flex-col items-center justify-center gap-2 absolute inset-0">
+     <span class="material-symbols-outlined text-3xl">note_stack</span>
+     <span class="text-[10px] font-bold uppercase tracking-[0.18em]">Slot Empty</span>
   </div>
   <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-200 ease-in-out relative z-[5] border-black" draggable="false" />
 `;
