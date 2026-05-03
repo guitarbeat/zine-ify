@@ -2,11 +2,6 @@ import { getPageLabel } from '../../utils/previewHelpers.js';
 
 const TOOLBAR_BUTTONS = [
   {
-    selector: '.zoom-btn',
-    title: (label) => `Quick Preview ${label}`,
-    ariaLabel: (label) => `Quick Preview ${label}`
-  },
-  {
     selector: '.crop-btn',
     title: (label) => `Toggle Crop/Zoom ${label}`,
     ariaLabel: (label) => `Toggle Crop/Zoom for ${label}`
@@ -156,7 +151,6 @@ export class LayoutRenderer {
     const img = cell.querySelector('.page-content-img');
     img.alt = altText;
 
-    // Attach handlers
     cell.addEventListener('dragstart', (e) => handlers.onDragStart(e, cell));
     cell.addEventListener('dragover', (e) => handlers.onDragOver(e, cell));
     cell.addEventListener('dragleave', () => handlers.onDragLeave(cell));
@@ -177,7 +171,6 @@ export class LayoutRenderer {
     });
 
     toolbar.querySelector('.flip-btn').onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); };
-    toolbar.querySelector('.zoom-btn').onclick = (e) => { e.stopPropagation(); handlers.onZoom(pageIndex); };
     toolbar.querySelector('.crop-btn').onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); };
     toolbar.querySelector('.remove-btn').onclick = (e) => { e.stopPropagation(); handlers.onRemove(pageIndex); };
 

@@ -27,14 +27,13 @@
     width: 100% !important;
     height: 100% !important;
   }
-  .flip-btn, .zoom-btn, .crop-btn, .remove-btn, .page-label, .guidelines {
+  .flip-btn, .crop-btn, .remove-btn, .page-label, .guidelines {
     display: none !important;
   }
   .page-cell { border: none !important; }
 }
 
 .is-exporting .flip-btn,
-.is-exporting .zoom-btn,
 .is-exporting .crop-btn,
 .is-exporting .remove-btn,
 .is-exporting .page-label,
@@ -285,7 +284,6 @@
     pointer-events: auto;
   }
 
-  .page-toolbar .zoom-btn,
   .page-toolbar .crop-btn,
   .page-toolbar .flip-btn,
   .page-toolbar .remove-btn {
@@ -312,7 +310,6 @@
     gap: 0.12rem;
   }
 
-  .page-toolbar[data-layout="grid"] .zoom-btn,
   .page-toolbar[data-layout="grid"] .crop-btn,
   .page-toolbar[data-layout="grid"] .flip-btn,
   .page-toolbar[data-layout="grid"] .remove-btn {
