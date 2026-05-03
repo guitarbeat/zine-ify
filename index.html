@@ -350,6 +350,7 @@
       (function() {
         var btn = document.getElementById('theme-toggle');
         var icon = document.getElementById('theme-icon');
+        if (!btn || !icon) return;
         function sync() {
           var dark = document.documentElement.getAttribute('data-theme') === 'dark';
           icon.textContent = dark ? 'light_mode' : 'dark_mode';
