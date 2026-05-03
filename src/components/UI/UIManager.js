@@ -79,6 +79,85 @@ export class UIManager {
     this._applyPageControlsVisibility(showControls);
   }
 
+  on(event, handler) {
+    this.emitter.on(event, handler);
+  }
+
+  off(event, handler) {
+    this.emitter.off(event, handler);
+  }
+
+  setStatus(message, tone = 'info') {
+    if (this.elements.uploadStatus) {
+      this.elements.uploadStatus.textContent = message;
+      this.elements.uploadStatus.dataset.tone = tone;
+    }
+  }
+
+  updateUploadedFilesList(files) {
+    if (!this.elements.uploadedFilesList) {
+      return;
+    }
+
+    this.elements.uploadedFilesList.innerHTML = files.map((file) => `<li>${file.name}</li>`).join('');
+  }
+
+  updatePagePreview(index, url) {
+    const cell = this._getAllPageCells()[index];
+    if (!cell) {
+      return;
+    }
+
+    const img = cell.querySelector('.page-content-img');
+    const placeholder = cell.querySelector('.page-placeholder');
+    if (img) {
+      img.src = url || '';
+      img.classList.toggle('hidden', !url);
+    }
+    if (placeholder) {
+      placeholder.classList.toggle('hidden', !!url);
+    }
+    cell.classList.toggle('has-page', !!url);
+  }
+
+  setPageFlip(index, enabled) {
+    const cell = this._getAllPageCells()[index];
+    cell?.classList.toggle('is-flipped', !!enabled);
+  }
+
+  setPageZoom(index, enabled) {
+    const cell = this._getAllPageCells()[index];
+    cell?.classList.toggle('page-zoomed', !!enabled);
+  }
+
+  toggle3DModal(show) {
+    this.modal.toggle3DModal(show);
+  }
+
+  setFoldProgressControl(value) {
+    if (this.elements.foldSlider) {
+      this.elements.foldSlider.value = value;
+    }
+  }
+
+  toggleMobileRail(show) {
+    this.elements.previewArea?.classList.toggle('mobile-rail-open', !!show);
+  }
+
+  triggerFileUpload() {
+    this.elements.pdfUpload?.click();
+  }
+
+  updateWorkspaceState() {}
+
+  setPageTitle() {}
+
+  setPageCount() {}
+
+  setPageStatus() {}
+
+  setPageOrder() {}
+
   renderPaperSizeOptions() {
     if (!this.elements.paperSizeSelect) {
       return;
