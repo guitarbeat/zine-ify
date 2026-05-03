@@ -343,7 +343,8 @@ export class Zine3DViewer {
     });
 
     this.pages.forEach((page) => {
-      page.group.rotation.set(page.config.isTop ? state.topFoldAngle : 0, 0, 0, 'XYZ');
+      const pageAngle = page.config.isTop ? state.topFoldAngle : -state.topFoldAngle;
+      page.group.rotation.set(pageAngle, 0, 0, 'XYZ');
     });
     this.stacks.forEach((stack) => {
       stack.group.updateMatrixWorld(true);
