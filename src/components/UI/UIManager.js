@@ -65,7 +65,7 @@ export class UIManager {
     this.renderer = new LayoutRenderer(this.elements.zineSheetsContainer, PAGE_CELL_TEMPLATE);
 
     this.renderPaperSizeOptions();
-    this.syncPaperSettings({ paperSize: 'letter', orientation: 'landscape' });
+    this.syncPaperSettings({ paperSize: 'letter', orientation: 'portrait' });
     const { rows, cols } = this.normalizeGridInputs();
     this.updateGridTotalBadge(rows, cols);
     this.setupEventListeners();
