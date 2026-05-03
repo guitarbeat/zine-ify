@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 
 export const MINI_ZINE_STACKS = [
-  { index: 0, x: -1.5, topPage: 5, bottomPage: 6, bookletDepth: -1.5 },
-  { index: 1, x: -0.5, topPage: 4, bottomPage: 7, bookletDepth: -0.5 },
-  { index: 2, x: 0.5, topPage: 3, bottomPage: 8, bookletDepth: 0.5 },
-  { index: 3, x: 1.5, topPage: 2, bottomPage: 1, bookletDepth: 1.5 }
+  { index: 0, x: -1.5, topPage: 6, bottomPage: 5, bookletDepth: -1.5 },
+  { index: 1, x: -0.5, topPage: 7, bottomPage: 4, bookletDepth: -0.5 },
+  { index: 2, x: 0.5, topPage: 8, bottomPage: 3, bookletDepth: 0.5 },
+  { index: 3, x: 1.5, topPage: 1, bottomPage: 2, bookletDepth: 1.5 }
 ];
 
 const CONNECTIONS = [
