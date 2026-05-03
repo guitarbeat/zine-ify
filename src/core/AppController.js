@@ -1,6 +1,7 @@
 import { PDFProcessor } from '../services/PDFProcessor.js';
 import { UIManager } from '../components/UI/UIManager.js';
 import { StateStore } from './StateStore.js';
+import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
 import referenceImageUrl from '../assets/reference-back-side.jpg';
@@ -12,6 +13,7 @@ import { BookletPreview } from '../components/BookletPreview.js';
 export class AppController {
   constructor() {
     this.state = new StateStore();
+    this.undoManager = new UndoManager();
     this.pdfProcessor = new PDFProcessor();
     this.ui = new UIManager();
     this.exportService = new ExportService(this.ui, this.state, this.pdfProcessor);
@@ -54,6 +56,40 @@ export class AppController {
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        this.handleUndo();
+      }
+    });
+  }
+
+  /** Capture a snapshot of page state onto the undo stack. */
+  _pushSnapshot(description, { onPrune = null } = {}) {
+    this.undoManager.push({
+      description,
+      allPageImages: [...this.state.allPageImages],
+      pageFlips: { ...this.state.pageFlips },
+      pageZooms: { ...this.state.pageZooms },
+      onPrune
+    });
+  }
+
+  handleUndo() {
+    if (this.undoManager.isEmpty) {
+      toast.info('Nothing to Undo', 'No recent actions to undo.');
+      return;
+    }
+
+    const snapshot = this.undoManager.pop();
+    this.state.allPageImages = snapshot.allPageImages;
+    this.state.pageFlips = snapshot.pageFlips;
+    this.state.pageZooms = snapshot.pageZooms;
+    this.state.totalPages = this.state.getFilledPageCount();
+    this.state.resetWorkflowStatus();
+    this.renderCurrentLayout();
+    toast.info('Undone', snapshot.description);
   }
 
   handleFileSelected(file) {
@@ -460,7 +496,9 @@ export class AppController {
       return;
     }
 
-    this.state.pageFlips[index] = !this.state.pageFlips[index];
+    const wasFlipped = !!this.state.pageFlips[index];
+    this._pushSnapshot(`Page ${index + 1} flip ${wasFlipped ? 'removed' : 'applied'}`);
+    this.state.pageFlips[index] = !wasFlipped;
     this.state.resetWorkflowStatus();
     this.ui.setPageFlip(index, this.state.pageFlips[index]);
     this.updateWorkspaceUi();
@@ -483,9 +521,14 @@ export class AppController {
       return;
     }
 
-    if (currentUrl && currentUrl !== this.state._blankPageUrl) {
-      this.pdfProcessor.revokeBlobUrl(currentUrl);
-    }
+    // Defer revocation: keep the blob URL alive in the snapshot so undo can restore it.
+    // onPrune fires only when the snapshot is evicted from the undo stack (never restored).
+    const urlToRevoke = (currentUrl !== this.state._blankPageUrl) ? currentUrl : null;
+    this._pushSnapshot(`Page ${index + 1} removed`, {
+      onPrune: () => {
+        if (urlToRevoke) { this.pdfProcessor.revokeBlobUrl(urlToRevoke); }
+      }
+    });
 
     this.state.allPageImages[index] = null;
     this.state.pageFlips[index] = false;
@@ -501,6 +544,8 @@ export class AppController {
   }
 
   handlePagesSwapped({ fromIndex, toIndex }) {
+    this._pushSnapshot(`Pages ${fromIndex + 1} and ${toIndex + 1} swapped`);
+
     const tempImg = this.state.allPageImages[fromIndex];
     this.state.allPageImages[fromIndex] = this.state.allPageImages[toIndex];
     this.state.allPageImages[toIndex] = tempImg;
