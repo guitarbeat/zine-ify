@@ -52,16 +52,6 @@
 .workspace-config-field {
   display: grid;
   gap: 0.35rem;
-  border: 1px solid var(--border-color);
-  background: var(--surface-muted);
-  border-radius: var(--radius-button);
-  padding: 0.65rem 0.75rem;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
-}
-.workspace-config-field:focus-within {
-  border-color: var(--primary-vibrant);
-  box-shadow: 0 0 0 3px var(--primary-glow);
-  background: var(--surface-bg);
 }
 
 .workspace-config-label-row {
@@ -161,7 +151,7 @@
   transform: translateX(1rem);
 }
 
-.workspace-config-toggle:focus-within { border-color: var(--primary-vibrant); }
+.workspace-config-toggle:focus-within { outline: none; }
 
 .workspace-overflow-panel { display: grid; gap: 0.9rem; }
 .workspace-overflow-chip { @apply base-chip; }
@@ -411,7 +401,7 @@ select:focus, input:focus {
 }
 
 @media (max-width: 359px) {
-  .workspace-config-field { gap: 0.3rem; padding: 0.55rem 0.65rem; }
+  .workspace-config-field { gap: 0.3rem; }
   .workspace-config-label { font-size: 0.6rem; }
   .workspace-config-input { min-height: 2rem; padding: 0.4rem 0.55rem; font-size: 0.84rem; }
   .page-picker-grid { grid-template-columns: 1fr; padding: 0.65rem; }
