@@ -4,6 +4,36 @@ export class ExportService {
     this.state = state;
   }
 
+  async handlePrint(referenceImageUrl) {
+    const html = this.buildPrintHtml(
+      this.buildSheetsHtml(referenceImageUrl),
+      this.getPaperDimensions(),
+      this.getGridCss()
+    );
+    this.openPrintWindow(html);
+  }
+
+  async handleExport(referenceImageUrl) {
+    const pdf = await import('jspdf');
+    const { jsPDF } = pdf;
+    const doc = new jsPDF({
+      orientation: this.state.orientation === 'landscape' ? 'landscape' : 'portrait',
+      unit: 'mm',
+      format: this.state.paperSize || 'letter'
+    });
+
+    const sheetsHtml = this.buildSheetsHtml(referenceImageUrl);
+    const dimensions = this.getPaperDimensions();
+    const gridCss = this.getGridCss();
+    const printHtml = this.buildPrintHtml(sheetsHtml, dimensions, gridCss);
+    doc.html(printHtml, {
+      callback: (generated) => generated.save('zine.pdf'),
+      autoPaging: 'text',
+      margin: 0,
+      html2canvas: { scale: 1 }
+    });
+  }
+
   buildPrintHtml(sheetsHtml, dimensions, gridCss) {
     return `
       <!DOCTYPE html>
@@ -30,5 +60,32 @@ export class ExportService {
       </body>
       </html>
     `;
+  }
+
+  buildSheetsHtml(referenceImageUrl) {
+    return `<div class="sheet"><img alt="Reference" src="${referenceImageUrl}"></div>`;
+  }
+
+  getPaperDimensions() {
+    return this.state.paperSize === 'letter'
+      ? { width: 216, height: 279 }
+      : { width: 210, height: 297 };
+  }
+
+  getGridCss() {
+    return 'grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr);';
+  }
+
+  openPrintWindow(html) {
+    const win = window.open('', '_blank', 'noopener,noreferrer');
+    if (!win) {
+      throw new Error('Unable to open print window.');
+    }
+
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    win.print();
   }
 }
