@@ -87,7 +87,6 @@ export class UIManager {
       gridRows: $('#grid-rows'),
       gridCols: $('#grid-cols'),
       gridTotal: $('#grid-total'),
-      gridPreview: $('#grid-preview'),
       printBtn: $('#printBtn'),
       printBtnLabel: $('#printBtnLabel'),
       exportPdfBtn: $('#exportPdfBtn'),
@@ -552,19 +551,6 @@ export class UIManager {
     if (this.elements.gridTotal) {
       this.elements.gridTotal.textContent = `${normalizedRows * normalizedCols} slots`;
     }
-
-    this.updateGridPreview(normalizedRows, normalizedCols);
-  }
-
-  updateGridPreview(rows, cols) {
-    if (!this.elements.gridPreview) return;
-    const r = Math.max(1, Math.min(10, parseInt(rows, 10) || 1));
-    const c = Math.max(1, Math.min(10, parseInt(cols, 10) || 1));
-    this.elements.gridPreview.style.gridTemplateColumns = `repeat(${c}, 1fr)`;
-    this.elements.gridPreview.style.gridTemplateRows = `repeat(${r}, 1fr)`;
-    this.elements.gridPreview.innerHTML = Array.from({ length: r * c }, () =>
-      '<div class="grid-mini-cell"></div>'
-    ).join('');
   }
 
   getFoldStage(value) {

@@ -259,28 +259,6 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
   background: var(--primary-glow);
 }
 
-/* Live grid diagram */
-.grid-mini-preview {
-  display: grid;
-  gap: 3px;
-  height: 2.75rem;
-  width: 100%;
-  padding: 0.45rem;
-  background: var(--surface-muted);
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  box-sizing: border-box;
-}
-
-.grid-mini-cell {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 2px;
-  transition: background 0.15s ease;
-}
-
-[data-theme="dark"] .grid-mini-cell {
-  background: rgba(255, 255, 255, 0.25);
-}
 
 .workspace-config-toggle {
   grid-template-columns: minmax(0, 1fr) auto;
