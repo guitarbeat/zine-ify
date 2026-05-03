@@ -34,6 +34,19 @@ export class ExportService {
     });
   }
 
+  openPrintWindow(html) {
+    const win = window.open('', '_blank', 'noopener,noreferrer');
+    if (!win) {
+      throw new Error('Unable to open print window.');
+    }
+
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    win.print();
+  }
+
   buildPrintHtml(sheetsHtml, dimensions, gridCss) {
     return `
       <!DOCTYPE html>
@@ -74,18 +87,5 @@ export class ExportService {
 
   getGridCss() {
     return 'grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr);';
-  }
-
-  openPrintWindow(html) {
-    const win = window.open('', '_blank', 'noopener,noreferrer');
-    if (!win) {
-      throw new Error('Unable to open print window.');
-    }
-
-    win.document.open();
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    win.print();
   }
 }
