@@ -1,7 +1,7 @@
 modules = ["web", "nodejs-20"]
 [agent]
 expertMode = true
-stack = "BEST_EFFORT_FALLBACK"
+stack = "GAMESTACK_JS"
 
 [nix]
 channel = "stable-25_05"
@@ -39,6 +39,7 @@ localPort = 23636
 externalPort = 3001
 
 [deployment]
-deploymentTarget = "static"
-build = ["pnpm", "run", "build"]
+deploymentTarget = "autoscale"
+build = ["npm", "run", "build"]
 publicDir = "dist"
+run = ["node", "./dist/index.cjs"]
