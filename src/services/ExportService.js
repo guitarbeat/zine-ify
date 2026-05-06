@@ -31,10 +31,14 @@ export class ExportService {
       format: [dims.width, dims.height]
     });
 
+    const marginMm = this.state.margin || 0;
+    const marginPx = Math.round(marginMm * MM_TO_PX_300DPI);
     const canvasW = Math.round(dims.width * MM_TO_PX_300DPI);
     const canvasH = Math.round(dims.height * MM_TO_PX_300DPI);
-    const cellW = canvasW / cols;
-    const cellH = canvasH / rows;
+    const drawW = canvasW - 2 * marginPx;
+    const drawH = canvasH - 2 * marginPx;
+    const cellW = drawW / cols;
+    const cellH = drawH / rows;
 
     for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
       const offscreen = document.createElement('canvas');
@@ -73,8 +77,8 @@ export class ExportService {
 
         const row = Math.floor(slot / cols);
         const col = slot % cols;
-        const cellX = col * cellW;
-        const cellY = row * cellH;
+        const cellX = marginPx + col * cellW;
+        const cellY = marginPx + row * cellH;
 
         draws.push({ url, cellX, cellY, rotateDeg, scale, objectFit });
       }
@@ -161,10 +165,13 @@ export class ExportService {
     const totalSlots = this.state.allPageImages.length;
     const sheetCount = Math.max(1, Math.ceil(totalSlots / slotsPerSheet));
     const dims = this.getPaperDimensions();
+    const marginMm = this.state.margin || 0;
+    const gridW = dims.width - 2 * marginMm;
+    const gridH = dims.height - 2 * marginMm;
 
     const gridStyle = template?.gridAreas
-      ? `display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);grid-template-areas:${template.gridAreas.trim().split('\n').map((l) => l.trim()).join(' ')};width:${dims.width}mm;height:${dims.height}mm;`
-      : `display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);width:${dims.width}mm;height:${dims.height}mm;`;
+      ? `display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);grid-template-areas:${template.gridAreas.trim().split('\n').map((l) => l.trim()).join(' ')};width:${gridW}mm;height:${gridH}mm;`
+      : `display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);width:${gridW}mm;height:${gridH}mm;`;
 
     let html = '';
 

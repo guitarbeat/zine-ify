@@ -252,6 +252,7 @@ export class UIManager {
       zineSheetsContainer: $('#zine-sheets-container'),
       paperSizeSelect: $('#paper-size-select'),
       orientationToggle: $('#orientation-toggle'),
+      marginInput: $('#margin-input'),
       pageNumbersCheckbox: $('#show-page-numbers'),
       pageControlsCheckbox: $('#show-page-controls'),
       gridRows: $('#grid-rows'),
@@ -301,6 +302,23 @@ export class UIManager {
         });
         this.emitter.emit('orientationChanged', { orientation: value });
       });
+    });
+
+    this.elements.marginInput?.closest('.stepper')?.querySelectorAll('.stepper-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const min = parseInt(this.elements.marginInput.min, 10) || 0;
+        const max = parseInt(this.elements.marginInput.max, 10) || 25;
+        const delta = parseInt(btn.dataset.delta, 10);
+        const next = Math.min(max, Math.max(min, parseInt(this.elements.marginInput.value, 10) + delta));
+        this.elements.marginInput.value = next;
+        this.emitter.emit('marginChanged', { margin: next });
+      });
+    });
+
+    this.elements.marginInput?.addEventListener('change', (e) => {
+      const val = Math.min(25, Math.max(0, parseInt(e.target.value, 10) || 0));
+      this.elements.marginInput.value = val;
+      this.emitter.emit('marginChanged', { margin: val });
     });
 
     this.elements.gridRows?.closest('.workspace-config-split')?.querySelectorAll('.stepper-btn').forEach((btn) => {
@@ -398,7 +416,8 @@ export class UIManager {
              cell.classList.toggle('active', cellIndex === index);
           }
         });
-        const imageUrl = this.getImgUrl(index);
+        const cell = this._getAllPageCells()[index];
+        const imageUrl = cell?.querySelector('.page-content-img')?.src;
         if (imageUrl) {
           this.modal.showZoomModal(imageUrl);
         }

@@ -77,6 +77,19 @@ export class LayoutRenderer {
         grid.appendChild(cell);
       }
 
+      if (template.cutLines?.horizontal) {
+        const afterRow = template.cutLines.horizontal.afterRow;
+        const cutLine = document.createElement('div');
+        cutLine.className = 'sheet-cut-line sheet-cut-line-h';
+        cutLine.setAttribute('aria-hidden', 'true');
+        cutLine.style.top = `${(afterRow / template.grid.rows) * 100}%`;
+        const label = document.createElement('span');
+        label.className = 'sheet-cut-line-label';
+        label.textContent = 'Cut here';
+        cutLine.appendChild(label);
+        sheetWrapper.appendChild(cutLine);
+      }
+
       sheetWrapper.appendChild(grid);
       this.container.appendChild(sheetWrapper);
     }

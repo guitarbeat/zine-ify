@@ -215,6 +215,52 @@
   transform: none;
 }
 
+/* ── Cut line ─────────────────────────────────────── */
+.sheet-cut-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.sheet-cut-line-h {
+  height: 0;
+  border-top: 2px dashed #ef4444;
+  transform: translateY(-50%);
+}
+
+.sheet-cut-line::before,
+.sheet-cut-line::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+.sheet-cut-line::before { left: 0; }
+.sheet-cut-line::after  { right: 0; }
+
+.sheet-cut-line-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #ef4444;
+  color: white;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
 /* ── Drag-to-reorder live preview ─────────────────── */
 .drag-drop-preview {
   position: absolute;

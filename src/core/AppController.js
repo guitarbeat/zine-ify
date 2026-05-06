@@ -56,6 +56,7 @@ export class AppController {
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
+    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); });
 
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {

@@ -97,6 +97,15 @@
                                 </div>
                             </div>
 
+                            <div class="workspace-config-field workspace-config-field-wide" role="group" aria-labelledby="margin-label">
+                                <label id="margin-label" for="margin-input" class="workspace-config-label">Margin (mm)</label>
+                                <div class="stepper">
+                                    <button type="button" class="stepper-btn" data-target="margin-input" data-delta="-1" aria-label="Decrease margin">−</button>
+                                    <input type="number" id="margin-input" min="0" max="25" value="0" aria-label="Margin in mm" class="stepper-input workspace-config-number">
+                                    <button type="button" class="stepper-btn" data-target="margin-input" data-delta="1" aria-label="Increase margin">+</button>
+                                </div>
+                            </div>
+
                             <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
                                 <span class="workspace-config-toggle-copy">Page Numbers</span>
                                 <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
