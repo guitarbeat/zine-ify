@@ -6,20 +6,23 @@
 export const PAGE_CELL_TEMPLATE = document.createElement('template');
 PAGE_CELL_TEMPLATE.innerHTML = `
   <span class="page-label"></span>
-  <div class="page-toolbar absolute top-2 right-2 flex flex-wrap justify-end gap-2 z-10 max-w-[calc(100%-1rem)] transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-within:opacity-100" data-layout="row">
-     <button class="crop-btn w-8 h-8 bg-white border-2 border-black text-black flex items-center justify-center transition-all duration-100 focus:outline-none hover:bg-[var(--primary-vibrant)] hover:text-white" style="box-shadow: var(--shadow-sm);" aria-label="Toggle crop or fit for this page (C)" title="Toggle crop or fit for this page (C)">
-          <span class="material-symbols-outlined text-[18px]" aria-hidden="true">crop_free</span>
-     </button>
-     <button class="flip-btn w-8 h-8 bg-white border-2 border-black text-black flex items-center justify-center transition-all duration-100 focus:outline-none hover:bg-[var(--primary-vibrant)] hover:text-white" style="box-shadow: var(--shadow-sm);" aria-label="Rotate page 180 degrees (R)" title="Rotate page 180 degrees (R)">
-          <span class="material-symbols-outlined text-[18px]" aria-hidden="true">rotate_right</span>
-     </button>
-     <button class="remove-btn w-8 h-8 bg-white border-2 border-black text-black flex items-center justify-center transition-all duration-100 focus:outline-none hover:bg-red-500 hover:text-white" style="box-shadow: var(--shadow-sm);" aria-label="Remove this page slot (Backspace)" title="Remove this page slot (Backspace)">
-          <span class="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
-     </button>
+  <div class="page-toolbar absolute top-1.5 right-1.5 flex items-center gap-1 z-10" data-layout="row">
+    <button class="crop-btn page-tool-btn" aria-label="Toggle fit or fill for this page (C)" title="Fit — make the whole page visible. Fill — zoom to cover the slot. (C)">
+      <span class="material-symbols-outlined page-tool-icon" aria-hidden="true">fit_screen</span>
+      <span class="page-tool-label">Fit</span>
+    </button>
+    <button class="flip-btn page-tool-btn" aria-label="Rotate page 180 degrees (R)" title="Rotate 180° — flip the page upside-down. (R)">
+      <span class="material-symbols-outlined page-tool-icon" aria-hidden="true">rotate_right</span>
+      <span class="page-tool-label">Rotate</span>
+    </button>
+    <button class="remove-btn page-tool-btn page-tool-btn--danger" aria-label="Remove this page from the slot (Backspace)" title="Remove this page from the slot. (Backspace)">
+      <span class="material-symbols-outlined page-tool-icon" aria-hidden="true">delete</span>
+      <span class="page-tool-label">Remove</span>
+    </button>
   </div>
   <div class="page-placeholder flex flex-col items-center justify-center gap-2 absolute inset-0">
      <span class="material-symbols-outlined text-3xl">note_stack</span>
      <span class="text-[10px] font-bold uppercase tracking-[0.18em]">Slot Empty</span>
   </div>
-  <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-200 ease-in-out relative z-[5] border-black" draggable="false" />
+  <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-200 ease-in-out relative z-[5]" draggable="false" />
 `;

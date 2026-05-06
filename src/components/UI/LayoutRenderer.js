@@ -3,18 +3,18 @@ import { getPageLabel } from '../../utils/previewHelpers.js';
 const TOOLBAR_BUTTONS = [
   {
     selector: '.crop-btn',
-    title: (label) => `Toggle Crop/Zoom ${label}`,
-    ariaLabel: (label) => `Toggle Crop/Zoom for ${label}`
+    title: (label) => `Fit / Fill ${label} — toggle between showing the full page or filling the slot`,
+    ariaLabel: (label) => `Toggle fit or fill for ${label} (C)`
   },
   {
     selector: '.flip-btn',
-    title: (label) => `Flip ${label}`,
-    ariaLabel: (label) => `Rotate ${label} 180 degrees`
+    title: (label) => `Rotate ${label} 180° — flip the page upside-down`,
+    ariaLabel: (label) => `Rotate ${label} 180 degrees (R)`
   },
   {
     selector: '.remove-btn',
-    title: (label) => `Remove ${label}`,
-    ariaLabel: (label) => `Remove ${label} from the sheet`
+    title: (label) => `Remove ${label} from this slot`,
+    ariaLabel: (label) => `Remove ${label} from this slot (Backspace)`
   }
 ];
 
