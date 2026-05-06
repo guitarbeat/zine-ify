@@ -217,17 +217,26 @@
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 0.6rem;
+  gap: 1rem;
 }
 
 .simulation-fold-guide li {
   display: grid;
+  gap: 0.5rem;
+}
+
+.fold-guide-step-header {
+  display: grid;
   grid-template-columns: 1.5rem 1fr;
   gap: 0.55rem;
   align-items: start;
+}
+
+.fold-guide-text {
   font-size: 0.82rem;
   line-height: 1.45;
   color: var(--accent-dark);
+  padding-top: 0.1rem;
 }
 
 .fold-guide-num {
@@ -243,6 +252,19 @@
   justify-content: center;
   flex-shrink: 0;
   margin-top: 0.1rem;
+}
+
+.fold-guide-img {
+  display: block;
+  width: 100%;
+  max-height: 9rem;
+  object-fit: contain;
+  object-position: center;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-button);
+  background: var(--surface-muted);
+  padding: 0.5rem;
+  image-rendering: crisp-edges;
 }
 
 @media (max-width: 1023px) {
