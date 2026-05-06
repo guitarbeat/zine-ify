@@ -229,8 +229,6 @@
 /* ── Cut line ─────────────────────────────────────── */
 .sheet-cut-line {
   position: absolute;
-  left: 0;
-  right: 0;
   z-index: 10;
   pointer-events: none;
 }

@@ -78,11 +78,13 @@ export class LayoutRenderer {
       }
 
       if (template.cutLines?.horizontal) {
-        const afterRow = template.cutLines.horizontal.afterRow;
+        const { afterRow, fromPct = 0, toPct = 100 } = template.cutLines.horizontal;
         const cutLine = document.createElement('div');
         cutLine.className = 'sheet-cut-line sheet-cut-line-h';
         cutLine.setAttribute('aria-hidden', 'true');
         cutLine.style.top = `${(afterRow / template.grid.rows) * 100}%`;
+        cutLine.style.left = `${fromPct}%`;
+        cutLine.style.right = `${100 - toPct}%`;
         const label = document.createElement('span');
         label.className = 'sheet-cut-line-label';
         label.textContent = 'Cut here';

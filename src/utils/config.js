@@ -28,7 +28,11 @@ export const ZINE_TEMPLATES = {
         `,
         upsideDownPages: MINI_ZINE_UPSIDE_DOWN_PAGES,
         cutLines: {
-            horizontal: { afterRow: 1 } // Cut between row 1 and 2
+            horizontal: {
+                afterRow: 1,  // Cut between row 1 and 2
+                fromPct: 25,  // Start at 1st column boundary (25% of width)
+                toPct: 75     // End at 3rd column boundary (75% of width)
+            }
         }
     },
     'accordion-16': {
