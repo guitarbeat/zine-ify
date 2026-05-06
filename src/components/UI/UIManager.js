@@ -431,6 +431,7 @@ export class UIManager {
       paperSettings.paperSize || 'letter',
       paperSettings.orientation || 'landscape'
     );
+    dimensions.margin = paperSettings.margin || 0;
 
     this.renderer.render(
       numPages,

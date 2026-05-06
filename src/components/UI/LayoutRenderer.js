@@ -87,7 +87,7 @@ export class LayoutRenderer {
         label.className = 'sheet-cut-line-label';
         label.textContent = 'Cut here';
         cutLine.appendChild(label);
-        sheetWrapper.appendChild(cutLine);
+        grid.appendChild(cutLine);
       }
 
       sheetWrapper.appendChild(grid);
@@ -144,6 +144,20 @@ export class LayoutRenderer {
     grid.style.display = 'grid';
     grid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
     grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+    if (paper?.margin > 0 && paper?.width && paper?.height) {
+      const padX = (paper.margin / paper.width) * 100;
+      const padY = (paper.margin / paper.height) * 100;
+      grid.style.position = 'absolute';
+      grid.style.left = `${padX}%`;
+      grid.style.right = `${padX}%`;
+      grid.style.top = `${padY}%`;
+      grid.style.bottom = `${padY}%`;
+      grid.style.width = 'auto';
+      grid.style.height = 'auto';
+    } else {
+      grid.style.position = 'relative';
+    }
 
     return { sheetWrapper, grid };
   }

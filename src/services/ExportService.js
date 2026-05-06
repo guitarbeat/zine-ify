@@ -211,7 +211,7 @@ export class ExportService {
           : `<div style="${cellStyle};background:#f0f0f0;"></div>`;
       }
 
-      html += `<div class="sheet" style="width:${dims.width}mm;height:${dims.height}mm;overflow:hidden;page-break-after:always;"><div style="${gridStyle}">${cells}</div></div>`;
+      html += `<div class="sheet" style="width:${dims.width}mm;height:${dims.height}mm;overflow:hidden;page-break-after:always;display:flex;align-items:center;justify-content:center;"><div style="${gridStyle}">${cells}</div></div>`;
     }
 
     return html;
