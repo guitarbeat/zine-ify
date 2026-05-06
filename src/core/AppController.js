@@ -442,9 +442,9 @@ export class AppController {
       paperSize: this.state.paperSize,
       orientation: this.state.orientation
     });
-    this.state.allPageImages.forEach((url, index) => this.ui.updatePagePreview(index, url));
-
     for (let index = 0; index < this.state.allPageImages.length; index++) {
+      const url = this.state.allPageImages[index];
+      this.ui.updatePagePreview(index, url);
       this.ui.setPageFlip(index, !!this.state.pageFlips[index]);
       this.ui.setPageZoom(index, !!this.state.pageZooms[index]);
     }
