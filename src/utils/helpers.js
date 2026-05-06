@@ -74,8 +74,8 @@ export function sanitizeHTML(html) {
     return fragment;
   }
 
-  const template = document.createElement('template');
-  template.innerHTML = html;
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
 
   const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'BR', 'CODE', 'SPAN']);
 
@@ -100,7 +100,7 @@ export function sanitizeHTML(html) {
     return cleanElement;
   };
 
-  Array.from(template.content.childNodes).forEach((child) => {
+  Array.from(doc.body.childNodes).forEach((child) => {
     fragment.appendChild(sanitizeNode(child));
   });
 
