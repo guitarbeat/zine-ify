@@ -16,7 +16,7 @@ export class StateStore {
     this.workflowPreviewed = false;
     this.workflowExported = false;
     this.paperSize = 'letter';
-    this.orientation = 'portrait';
+    this.orientation = 'landscape';
   }
 
   getFilledPageCount() {
