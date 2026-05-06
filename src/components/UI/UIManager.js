@@ -68,6 +68,7 @@ export class UIManager {
     this.syncPaperSettings({ paperSize: 'letter', orientation: 'portrait' });
     const { rows, cols } = this.normalizeGridInputs();
     this.updateGridTotalBadge(rows, cols);
+    this._syncOrientationVisibility(rows, cols);
     this.setupEventListeners();
     this.syncResponsiveUI();
 
@@ -187,6 +188,19 @@ export class UIManager {
         btn.classList.toggle('is-active', isActive);
         btn.setAttribute('aria-pressed', String(isActive));
       });
+    }
+  }
+
+  _syncOrientationVisibility(rows, cols) {
+    const isMini8 = rows === 2 && cols === 4;
+    const wrapper = this.elements.orientationToggle?.closest('.workspace-config-field');
+    if (wrapper) {
+      wrapper.style.display = isMini8 ? 'none' : '';
+    }
+    // Also hide the label row sibling if needed
+    const labelEl = document.getElementById('orientation-label');
+    if (labelEl) {
+      labelEl.closest('.workspace-config-field') && (labelEl.closest('.workspace-config-field').style.display = isMini8 ? 'none' : '');
     }
   }
 
@@ -355,6 +369,7 @@ export class UIManager {
       const { rows, cols } = this.normalizeGridInputs();
 
       this.updateGridTotalBadge(rows, cols);
+      this._syncOrientationVisibility(rows, cols);
       this.emitter.emit('gridSizeChanged', { rows, cols });
     }, 300);
 

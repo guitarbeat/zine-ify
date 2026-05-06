@@ -485,7 +485,11 @@ export class AppController {
 
     this.state.gridSize = { rows, cols };
     this.state.resetWorkflowStatus();
-    if (!this.state.isMiniZineLayout()) {
+
+    if (this.state.isMiniZineLayout()) {
+      this.state.updatePaperSettings({ orientation: 'landscape' });
+      this.ui.syncPaperSettings({ orientation: 'landscape' });
+    } else {
       this.ui.toggle3DModal(false);
     }
     this.renderCurrentLayout();
