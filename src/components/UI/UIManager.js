@@ -25,22 +25,22 @@ const FOLD_STAGES = [
   {
     threshold: 2.75,
     label: 'Booklet',
-    helper: 'Flatten the stack and check the final reading order.'
+    helper: 'Collapse the four sections together so your cover page is outermost. No stapling needed — the single cut holds everything together.'
   },
   {
     threshold: 1.75,
     label: 'Diamond Open',
-    helper: 'Open the slit into a diamond before collapsing the pages flat.'
+    helper: 'Push both short ends inward — the center slit opens into a diamond or cross shape. Keep pushing until all four page sections meet.'
   },
   {
     threshold: 0.75,
     label: 'Folded Strip',
-    helper: 'Fold the sheet into a strip so the center slit lines up cleanly.'
+    helper: 'Fold in half along the long axis, pages facing out. Cut through both layers along the center crease, only between the quarter-fold marks.'
   },
   {
     threshold: -Infinity,
     label: 'Flat',
-    helper: 'Start with the sheet open, print facing down, and the center slit cut.'
+    helper: 'Print the layout, then crease the sheet in half both ways and open flat. Make two more creases to divide the long direction into quarters.'
   }
 ];
 
