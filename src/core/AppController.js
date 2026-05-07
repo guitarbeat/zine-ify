@@ -53,6 +53,7 @@ export class AppController {
     this.ui.on('print', () => this.handlePrint());
     this.ui.on('export', () => this.handleExport());
     this.ui.on('view3d', () => this.handleView3d());
+    this.ui.on('clearAll', () => this.handleClearAll());
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
@@ -566,6 +567,37 @@ export class AppController {
 
     this.state.resetWorkflowStatus();
     this.renderCurrentLayout();
+  }
+
+  handleClearAll() {
+    const filledCount = this.state.getFilledPageCount();
+    if (!filledCount) {
+      return;
+    }
+
+    this._pushSnapshot('All pages cleared', {
+      onPrune: () => {
+        this.state.allPageImages.forEach((url) => {
+          if (url && url !== this.state._blankPageUrl) {
+            this.pdfProcessor.revokeBlobUrl(url);
+          }
+        });
+      }
+    });
+
+    for (let index = 0; index < this.state.allPageImages.length; index++) {
+      this.state.allPageImages[index] = null;
+      this.state.pageFlips[index] = false;
+      this.state.pageZooms[index] = false;
+    }
+
+    this.state.totalPages = 0;
+    this.state.uploadedFiles = [];
+    this.state.resetWorkflowStatus();
+    this.ui.updateUploadedFilesList([]);
+    this.ui.setStatus('Choose files or drop them here');
+    this.renderCurrentLayout();
+    toast.info('Cleared', 'All pages have been removed.');
   }
 
   handlePrint() {

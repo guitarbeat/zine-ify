@@ -139,10 +139,16 @@
                         <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0/8</span>
                         <span id="preview-helper-chip" class="workspace-chip workspace-chip-muted">Drag to reorder</span>
                     </div>
+                    <div class="flex items-center gap-2">
+                        <button id="clear-all-btn" type="button" class="workspace-chip workspace-chip-muted items-center gap-1 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors" style="display:none;" aria-label="Clear all pages" title="Clear all pages">
+                            <span class="material-symbols-outlined" style="font-size:14px;" aria-hidden="true">delete_sweep</span>
+                            <span class="text-xs font-medium">Clear all</span>
+                        </button>
                     <button id="open-rail-sheet-btn" type="button" class="workspace-mobile-rail-trigger lg:hidden" aria-controls="control-rail" aria-expanded="false">
                         <span class="material-symbols-outlined text-[16px]" aria-hidden="true">tune</span>
                         <span>Settings</span>
                     </button>
+                    </div>
                 </div>
 
                 <div class="workspace-stage" id="unified-drop-zone" 

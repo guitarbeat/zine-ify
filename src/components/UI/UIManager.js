@@ -154,7 +154,12 @@ export class UIManager {
     files.forEach((file) => this.emitter.emit('fileSelected', file));
   }
 
-  updateWorkspaceState() {}
+  updateWorkspaceState({ placedCount = 0 } = {}) {
+    const hasPagesLoaded = placedCount > 0;
+    if (this.elements.clearAllBtn) {
+      this.elements.clearAllBtn.style.display = hasPagesLoaded ? '' : 'none';
+    }
+  }
 
   setPageTitle() {}
 
@@ -299,7 +304,8 @@ export class UIManager {
       bookletPreviewContainer: $('#booklet-preview-container'),
       bookletPrevBtn: $('#booklet-prev-btn'),
       bookletNextBtn: $('#booklet-next-btn'),
-      bookletStatus: $('#booklet-status')
+      bookletStatus: $('#booklet-status'),
+      clearAllBtn: $('#clear-all-btn')
     };
   }
 
@@ -361,6 +367,7 @@ export class UIManager {
     this.elements.printBtn?.addEventListener('click', () => this.emitter.emit('print'));
     this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
     this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
+    this.elements.clearAllBtn?.addEventListener('click', () => this.emitter.emit('clearAll'));
 
     this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
     this.elements.uploadZone?.addEventListener('keydown', (event) => {
