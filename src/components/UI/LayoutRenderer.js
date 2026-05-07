@@ -218,8 +218,11 @@ export class LayoutRenderer {
       button.setAttribute('aria-label', ariaLabel(accessibleLabelText));
     });
 
-    toolbar.querySelector('.flip-btn').onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); };
-    toolbar.querySelector('.crop-btn').onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); };
+    const flipBtn = toolbar.querySelector('.flip-btn');
+    if (flipBtn) flipBtn.onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); };
+
+    const cropBtn = toolbar.querySelector('.crop-btn');
+    if (cropBtn) cropBtn.onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); };
 
     return cell;
   }
