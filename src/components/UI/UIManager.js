@@ -431,17 +431,12 @@ export class UIManager {
       onDrop: (event, cell) => this.dnd.handleDrop(event, cell),
       onDragEnd: (cell) => this.dnd.handleDragEnd(cell),
       onClick: (_, index) => {
-        this.activePageIndex = index;
-        this._getAllPageCells().forEach((cell) => {
-          if (cell) {
-             const cellIndex = Number.parseInt(cell.getAttribute('data-page-index'), 10);
-             cell.classList.toggle('active', cellIndex === index);
-          }
-        });
         const cell = this._getAllPageCells()[index];
-        const imageUrl = cell?.querySelector('.page-content-img')?.src;
-        if (imageUrl) {
-          this.modal.showZoomModal(imageUrl);
+        const hasPage = cell?.classList.contains('has-page');
+        if (hasPage) {
+          this.emitter.emit('pageRemoved', index);
+        } else {
+          this.triggerFileUpload();
         }
       },
       onFlip: (index) => this.emitter.emit('pageFlipped', index),

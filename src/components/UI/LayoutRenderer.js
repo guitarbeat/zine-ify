@@ -10,11 +10,6 @@ const TOOLBAR_BUTTONS = [
     selector: '.flip-btn',
     title: (label) => `Rotate ${label} 180° — flip the page upside-down`,
     ariaLabel: (label) => `Rotate ${label} 180 degrees (R)`
-  },
-  {
-    selector: '.remove-btn',
-    title: (label) => `Remove ${label} from this slot`,
-    ariaLabel: (label) => `Remove ${label} from this slot (Backspace)`
   }
 ];
 
@@ -225,7 +220,6 @@ export class LayoutRenderer {
 
     toolbar.querySelector('.flip-btn').onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); };
     toolbar.querySelector('.crop-btn').onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); };
-    toolbar.querySelector('.remove-btn').onclick = (e) => { e.stopPropagation(); handlers.onRemove(pageIndex); };
 
     return cell;
   }

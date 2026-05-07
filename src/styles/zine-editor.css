@@ -83,12 +83,63 @@
 .page-cell.has-page {
   border: 1px solid transparent;
   background: white;
-  cursor: grab;
+  cursor: pointer;
 }
 
 .page-cell.has-page:hover {
   border-color: rgba(0,0,0,0.1);
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.page-cell.has-page::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  transition: background 0.15s ease;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.page-cell.has-page:hover::after {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.page-cell-remove-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 7;
+  pointer-events: none;
+}
+
+.page-cell.has-page:hover .page-cell-remove-hint {
+  opacity: 1;
+}
+
+.page-cell-remove-hint-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(239, 68, 68, 0.88);
+  color: white;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  backdrop-filter: blur(2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.page-cell-remove-hint-inner .material-symbols-outlined {
+  font-size: 18px;
 }
 
 [data-theme="dark"] .page-cell.has-page {

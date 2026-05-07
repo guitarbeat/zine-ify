@@ -15,14 +15,16 @@ PAGE_CELL_TEMPLATE.innerHTML = `
       <span class="material-symbols-outlined page-tool-icon" aria-hidden="true">rotate_right</span>
       <span class="page-tool-label">Rotate</span>
     </button>
-    <button class="remove-btn page-tool-btn page-tool-btn--danger" aria-label="Remove this page from the slot (Backspace)" title="Remove this page from the slot. (Backspace)">
-      <span class="material-symbols-outlined page-tool-icon" aria-hidden="true">delete</span>
-      <span class="page-tool-label">Remove</span>
-    </button>
   </div>
   <div class="page-placeholder flex flex-col items-center justify-center gap-2 absolute inset-0">
      <span class="material-symbols-outlined text-3xl">note_stack</span>
      <span class="text-[10px] font-bold uppercase tracking-[0.18em]">Slot Empty</span>
+  </div>
+  <div class="page-cell-remove-hint" aria-hidden="true">
+    <div class="page-cell-remove-hint-inner">
+      <span class="material-symbols-outlined">remove_circle</span>
+      <span>Remove</span>
+    </div>
   </div>
   <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-200 ease-in-out relative z-[5]" draggable="false" />
 `;
