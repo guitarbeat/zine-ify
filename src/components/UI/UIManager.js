@@ -104,7 +104,7 @@ export class UIManager {
   }
 
   updatePagePreview(index, url) {
-    const cell = this._getAllPageCells()[index];
+    const cell = this._getPageCell(index);
     if (!cell) {
       return;
     }
@@ -122,12 +122,12 @@ export class UIManager {
   }
 
   setPageFlip(index, enabled) {
-    const cell = this._getAllPageCells()[index];
+    const cell = this._getPageCell(index);
     cell?.classList.toggle('is-flipped', !!enabled);
   }
 
   setPageZoom(index, enabled) {
-    const cell = this._getAllPageCells()[index];
+    const cell = this._getPageCell(index);
     cell?.classList.toggle('page-zoomed', !!enabled);
   }
 
@@ -232,6 +232,10 @@ export class UIManager {
 
   _getAllPageCells() {
     return Array.from(this.elements.zineSheetsContainer?.querySelectorAll('.page-cell') || []);
+  }
+
+  _getPageCell(index) {
+    return this.elements.zineSheetsContainer?.querySelector(`[data-page-index="${index}"]`) || null;
   }
 
   getPaperDimensions(paperSizeKey, orientation) {
@@ -427,11 +431,11 @@ export class UIManager {
     const handlers = {
       onDragStart: (event, cell) => this.dnd.handleDragStart(event, cell),
       onDragOver: (event, cell) => this.dnd.handleDragOver(event, cell),
-      onDragLeave: (cell) => this.dnd.handleDragLeave(cell),
+      onDragLeave: (cell, e) => this.dnd.handleDragLeave(cell, e),
       onDrop: (event, cell) => this.dnd.handleDrop(event, cell),
       onDragEnd: (cell) => this.dnd.handleDragEnd(cell),
       onClick: (_, index) => {
-        const cell = this._getAllPageCells()[index];
+        const cell = this._getPageCell(index);
         const hasPage = cell?.classList.contains('has-page');
         if (hasPage) {
           this.emitter.emit('pageRemoved', index);

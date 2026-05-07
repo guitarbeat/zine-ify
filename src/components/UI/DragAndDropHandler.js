@@ -79,7 +79,8 @@ export class DragAndDropHandler {
     return false;
   }
 
-  handleDragLeave(cell) {
+  handleDragLeave(cell, e) {
+    if (e && cell.contains(e.relatedTarget)) { return; }
     cell.classList.remove('drag-over');
     this._removePreview(cell);
   }

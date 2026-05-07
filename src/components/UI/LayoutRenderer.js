@@ -201,7 +201,7 @@ export class LayoutRenderer {
 
     cell.addEventListener('dragstart', (e) => handlers.onDragStart(e, cell));
     cell.addEventListener('dragover', (e) => handlers.onDragOver(e, cell));
-    cell.addEventListener('dragleave', () => handlers.onDragLeave(cell));
+    cell.addEventListener('dragleave', (e) => handlers.onDragLeave(cell, e));
     cell.addEventListener('drop', (e) => handlers.onDrop(e, cell));
     cell.addEventListener('dragend', () => handlers.onDragEnd(cell));
     cell.addEventListener('click', (e) => handlers.onClick(e, pageIndex));
