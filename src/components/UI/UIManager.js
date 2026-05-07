@@ -150,7 +150,8 @@ export class UIManager {
   }
 
   handleIncomingFiles(files) {
-    this.emitter.emit('fileSelected', files?.[0] || null);
+    if (!files?.length) return;
+    files.forEach((file) => this.emitter.emit('fileSelected', file));
   }
 
   updateWorkspaceState() {}
@@ -205,8 +206,8 @@ export class UIManager {
   }
 
   normalizeGridInputs() {
-    const rows = parseBoundedInteger(this.elements.gridRows?.value, DEFAULT_GRID_ROWS, GRID_DIMENSION_MIN, GRID_DIMENSION_MAX);
-    const cols = parseBoundedInteger(this.elements.gridCols?.value, DEFAULT_GRID_COLS, GRID_DIMENSION_MIN, GRID_DIMENSION_MAX);
+    const rows = parseBoundedInteger(this.elements.gridRows?.value, { min: GRID_DIMENSION_MIN, max: GRID_DIMENSION_MAX, fallback: DEFAULT_GRID_ROWS });
+    const cols = parseBoundedInteger(this.elements.gridCols?.value, { min: GRID_DIMENSION_MIN, max: GRID_DIMENSION_MAX, fallback: DEFAULT_GRID_COLS });
     if (this.elements.gridRows) this.elements.gridRows.value = rows;
     if (this.elements.gridCols) this.elements.gridCols.value = cols;
     return { rows, cols };
@@ -284,7 +285,21 @@ export class UIManager {
       pagePickerCount: $('#page-picker-count'),
       pagePickerPreview: $('#page-picker-preview'),
       pagePickerDialog: $('#page-picker-dialog'),
-      pagePickerClose: $('#page-picker-close')
+      pagePickerClose: $('#page-picker-close'),
+      pagePickerModal: $('#page-picker-modal'),
+      pagePickerBackdrop: $('#page-picker-backdrop'),
+      pagePickerCancel: $('#page-picker-cancel'),
+      pagePickerConfirm: $('#page-picker-confirm'),
+      pagePickerSubtitle: $('#page-picker-subtitle'),
+      pagePickerSelectFirst: $('#page-picker-select-first'),
+      pagePickerSelectLast: $('#page-picker-select-last'),
+      pagePickerSelectEven: $('#page-picker-select-even'),
+      pagePickerSelectOdd: $('#page-picker-select-odd'),
+      pagePickerClear: $('#page-picker-clear'),
+      bookletPreviewContainer: $('#booklet-preview-container'),
+      bookletPrevBtn: $('#booklet-prev-btn'),
+      bookletNextBtn: $('#booklet-next-btn'),
+      bookletStatus: $('#booklet-status')
     };
   }
 
