@@ -17,3 +17,6 @@
 **Vulnerability:** DOM-based XSS through assignment of interpolated strings to innerHTML in dynamic UI elements.
 **Learning:** Assigning unsafe or dynamically constructed strings containing variables directly to innerHTML is a primary vector for XSS vulnerabilities.
 **Prevention:** Use programmatic DOM construction (`document.createElement`, `textContent`, and safe attribute assignment) instead of `innerHTML` for UI components containing variable data.
+## 2026-05-12 - [Test Dependency Added]
+**Learning:** Testing DOM manipulation in Node using JSDOM is effective but introduces `jsdom` dependency.
+**Action:** Monitored package updates carefully, added it cleanly without compromising build artifacts.
