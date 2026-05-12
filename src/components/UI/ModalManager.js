@@ -128,15 +128,25 @@ export class ModalManager {
       button.className = 'page-picker-thumb';
       button.dataset.pageNumber = String(pageNumber);
       button.setAttribute('aria-pressed', initialSelection.includes(pageNumber) ? 'true' : 'false');
-      button.innerHTML = `
-        <div class="page-picker-thumb-media">
-          <img src="${thumbnailUrl}" alt="PDF page ${pageNumber}">
-        </div>
-        <div class="page-picker-thumb-page">
-          <span>Page ${pageNumber}</span>
-          <span class="page-picker-thumb-order" aria-hidden="true"></span>
-        </div>
-      `;
+      const mediaDiv = document.createElement('div');
+      mediaDiv.className = 'page-picker-thumb-media';
+      const img = document.createElement('img');
+      img.src = thumbnailUrl;
+      img.alt = `PDF page ${pageNumber}`;
+      mediaDiv.appendChild(img);
+
+      const pageDiv = document.createElement('div');
+      pageDiv.className = 'page-picker-thumb-page';
+      const spanPage = document.createElement('span');
+      spanPage.textContent = `Page ${pageNumber}`;
+      const spanOrder = document.createElement('span');
+      spanOrder.className = 'page-picker-thumb-order';
+      spanOrder.setAttribute('aria-hidden', 'true');
+      pageDiv.appendChild(spanPage);
+      pageDiv.appendChild(spanOrder);
+
+      button.appendChild(mediaDiv);
+      button.appendChild(pageDiv);
       button.addEventListener('click', () => this.togglePageSelection(pageNumber));
       this.elements.pagePickerGrid.appendChild(button);
     });
@@ -236,20 +246,53 @@ export class ModalManager {
     if (!modal) {
       modal = document.createElement('div');
       modal.className = 'zoom-modal fixed inset-0 z-[300] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300';
-      modal.innerHTML = `
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-        <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white overflow-hidden flex flex-col scale-95 transition-transform duration-300" style="border: 3px solid black; box-shadow: 6px 6px 0px 0px black;">
-          <div class="flex justify-between items-center px-4 py-2 border-b-2 border-black">
-            <h3 class="font-bold uppercase tracking-wider text-sm">Page Preview</h3>
-            <button class="close-modal w-8 h-8 bg-white border-2 border-black text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors focus:outline-none" style="box-shadow: 2px 2px 0px 0px black;" aria-label="Close page preview" title="Close page preview">
-              <span class="material-symbols-outlined font-bold" aria-hidden="true">close</span>
-            </button>
-          </div>
-          <div class="flex-1 overflow-auto p-4 flex items-center justify-center" style="background-color: var(--bg-neutral);">
-            <img class="zoom-img max-w-full max-h-full object-contain" style="border: 2px solid black; box-shadow: 4px 4px 0px 0px black;" src="" alt="Zoomed Page Preview" />
-          </div>
-        </div>
-      `;
+      const overlayDiv = document.createElement('div');
+      overlayDiv.className = 'absolute inset-0 bg-black/80 backdrop-blur-sm';
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white overflow-hidden flex flex-col scale-95 transition-transform duration-300';
+      contentDiv.style.border = '3px solid black';
+      contentDiv.style.boxShadow = '6px 6px 0px 0px black';
+
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'flex justify-between items-center px-4 py-2 border-b-2 border-black';
+
+      const h3 = document.createElement('h3');
+      h3.className = 'font-bold uppercase tracking-wider text-sm';
+      h3.textContent = 'Page Preview';
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'close-modal w-8 h-8 bg-white border-2 border-black text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors focus:outline-none';
+      closeBtn.style.boxShadow = '2px 2px 0px 0px black';
+      closeBtn.setAttribute('aria-label', 'Close page preview');
+      closeBtn.setAttribute('title', 'Close page preview');
+
+      const closeSpan = document.createElement('span');
+      closeSpan.className = 'material-symbols-outlined font-bold';
+      closeSpan.setAttribute('aria-hidden', 'true');
+      closeSpan.textContent = 'close';
+      closeBtn.appendChild(closeSpan);
+
+      headerDiv.appendChild(h3);
+      headerDiv.appendChild(closeBtn);
+
+      const bodyDiv = document.createElement('div');
+      bodyDiv.className = 'flex-1 overflow-auto p-4 flex items-center justify-center';
+      bodyDiv.style.backgroundColor = 'var(--bg-neutral)';
+
+      const img = document.createElement('img');
+      img.className = 'zoom-img max-w-full max-h-full object-contain';
+      img.style.border = '2px solid black';
+      img.style.boxShadow = '4px 4px 0px 0px black';
+      img.alt = 'Zoomed Page Preview';
+      img.src = '';
+      bodyDiv.appendChild(img);
+
+      contentDiv.appendChild(headerDiv);
+      contentDiv.appendChild(bodyDiv);
+
+      modal.appendChild(overlayDiv);
+      modal.appendChild(contentDiv);
       document.body.appendChild(modal);
       const hideModal = () => {
         modal.classList.add('opacity-0', 'pointer-events-none');
