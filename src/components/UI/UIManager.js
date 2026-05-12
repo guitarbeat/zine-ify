@@ -7,6 +7,7 @@ import {
 } from '../../utils/config.js';
 import { debounce, parseBoundedInteger } from '../../utils/helpers.js';
 
+
 import { ModalManager } from './ModalManager.js';
 import { DragAndDropHandler } from './DragAndDropHandler.js';
 import { LayoutRenderer } from './LayoutRenderer.js';

@@ -65,25 +65,74 @@ export class PDFProcessor extends MediaProcessor {
     }
 
     this.isProcessing = true;
+    let timeoutId;
 
     try {
       const pdfjsLib = await this.ensurePdfJs();
+      const validation = this.validateFile(file);
+      if (!validation.valid) {
+        throw new Error(validation.errors.join('. '));
+      }
 
-      await this._verifyFile(file, onProgress);
-      this._cleanupPreviousFile();
+      onProgress?.('Reading PDF file...');
+
+      // Security check: Validate file signature
+      const isValidSignature = await this.validateFileSignature(file);
+      if (!isValidSignature) {
+        throw new Error('Invalid file signature. Please select a valid PDF file.');
+      }
+
+      // Cleanup previous file before loading a new one to prevent memory leaks
+      if (this.fileUrl) {
+        URL.revokeObjectURL(this.fileUrl);
+        this.fileUrl = null;
+      }
+      if (this.pdf) {
+        this.pdf.destroy();
+        this.pdf = null;
+      }
 
       // Use Blob URL instead of reading entire file into ArrayBuffer
       this.fileUrl = URL.createObjectURL(file);
 
       onProgress?.('Processing PDF...');
 
-      this.pdf = await this._fetchPdfDocument(pdfjsLib, this.fileUrl);
+      this.loadingTask = pdfjsLib.getDocument({
+        url: this.fileUrl,
+        verbosity: 0,
+        enableScripting: false,
+        isEvalSupported: false
+      });
 
-      this._verifyPdfBounds(this.pdf.numPages);
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(async () => {
+          try {
+            await this.loadingTask?.destroy();
+          } catch (destroyError) {
+            void destroyError;
+          }
+          reject(new Error('PDF loading timed out'));
+        }, 60000);
+      });
+
+      this.pdf = await Promise.race([this.loadingTask.promise, timeoutPromise]);
+      clearTimeout(timeoutId);
+      this.loadingTask = null;
+
+      const numPages = this.pdf.numPages;
+
+      if (numPages === 0) {
+        throw new Error('PDF appears to be empty or corrupted');
+      }
+
+      const MAX_PAGES = 128;
+      if (numPages > MAX_PAGES) {
+        throw new Error(`PDF has too many pages (${numPages}). Maximum allowed is ${MAX_PAGES} pages to prevent performance issues.`);
+      }
 
       return {
         pdf: this.pdf,
-        numPages: this.pdf.numPages,
+        numPages,
         fileName: file.name,
         fileSize: file.size
       };
@@ -92,73 +141,8 @@ export class PDFProcessor extends MediaProcessor {
       await this.cleanupFailedLoad();
       throw this.handlePDFError(error);
     } finally {
-      this.isProcessing = false;
-    }
-  }
-
-  async _verifyFile(file, onProgress) {
-    const validation = this.validateFile(file);
-    if (!validation.valid) {
-      throw new Error(validation.errors.join('. '));
-    }
-
-    onProgress?.('Reading PDF file...');
-
-    // Security check: Validate file signature
-    const isValidSignature = await this.validateFileSignature(file);
-    if (!isValidSignature) {
-      throw new Error('Invalid file signature. Please select a valid PDF file.');
-    }
-  }
-
-  _cleanupPreviousFile() {
-    if (this.fileUrl) {
-      URL.revokeObjectURL(this.fileUrl);
-      this.fileUrl = null;
-    }
-    if (this.pdf) {
-      this.pdf.destroy();
-      this.pdf = null;
-    }
-  }
-
-  async _fetchPdfDocument(pdfjsLib, fileUrl) {
-    let timeoutId;
-
-    this.loadingTask = pdfjsLib.getDocument({
-      url: fileUrl,
-      verbosity: 0,
-      enableScripting: false,
-      isEvalSupported: false
-    });
-
-    const timeoutPromise = new Promise((_, reject) => {
-      timeoutId = setTimeout(async () => {
-        try {
-          await this.loadingTask?.destroy();
-        } catch (destroyError) {
-          void destroyError;
-        }
-        reject(new Error('PDF loading timed out'));
-      }, 60000);
-    });
-
-    try {
-      return await Promise.race([this.loadingTask.promise, timeoutPromise]);
-    } finally {
       clearTimeout(timeoutId);
-      this.loadingTask = null;
-    }
-  }
-
-  _verifyPdfBounds(numPages) {
-    if (numPages === 0) {
-      throw new Error('PDF appears to be empty or corrupted');
-    }
-
-    const MAX_PAGES = 128;
-    if (numPages > MAX_PAGES) {
-      throw new Error(`PDF has too many pages (${numPages}). Maximum allowed is ${MAX_PAGES} pages to prevent performance issues.`);
+      this.isProcessing = false;
     }
   }
 
