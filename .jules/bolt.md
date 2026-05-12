@@ -17,3 +17,6 @@
 ## 2025-02-23 - Main Thread Offloading with OffscreenCanvas
 **Learning:** Rendering complex PDF pages or generating blank layouts using `document.createElement('canvas')` executes on the main thread, leading to potential UI blocking and stuttering, especially when processing multiple pages rapidly in background tasks.
 **Action:** Use `OffscreenCanvas` instead of standard DOM canvases where available (e.g., in PDF.js rendering loops and blank page generation) to allow asynchronous rendering without blocking the main UI thread. Ensure a fallback to `document.createElement('canvas')` for unsupported environments. Use `.convertToBlob()` for OffscreenCanvases in place of standard canvas `.toBlob()`.
+## 2024-05-13 - Avoid Array Double Traversal during UI Updates
+**Learning:** Running consecutive `forEach` and `for` loops on the same array structure (e.g., `allPageImages`) to update multiple UI properties results in redundant CPU cycles and double traversal, which negatively impacts rendering performance.
+**Action:** Combine these independent array traversals into a single `for` loop to eliminate double traversal and reduce overall iteration overhead, especially during frequent layout updates.

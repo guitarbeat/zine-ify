@@ -406,9 +406,9 @@ export class AppController {
       paperSize: this.state.paperSize,
       orientation: this.state.orientation
     });
-    this.state.allPageImages.forEach((url, index) => this.ui.updatePagePreview(index, url));
-
+    // ⚡ Bolt: Combines UI updates into a single loop to avoid double traversal, reducing CPU overhead during layout renders.
     for (let index = 0; index < this.state.allPageImages.length; index++) {
+      this.ui.updatePagePreview(index, this.state.allPageImages[index]);
       this.ui.setPageFlip(index, !!this.state.pageFlips[index]);
       this.ui.setPageZoom(index, !!this.state.pageZooms[index]);
     }
