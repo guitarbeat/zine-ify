@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger } from '../../src/utils/helpers.js';
+import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray } from '../../src/utils/helpers.js';
 import {
   classifyFileKind,
   getFileTypeLabel,
@@ -8,6 +8,29 @@ import {
 } from '../../src/utils/fileValidation.js';
 
 test.describe('Utils', () => {
+
+  test('resizeAndFillArray', () => {
+    // Should expand array and fill with default null
+    const arr1 = [1, 2, 3];
+    expect(resizeAndFillArray(arr1, 5)).toEqual([1, 2, 3, null, null]);
+
+    // Should expand array and fill with provided value
+    const arr2 = ['a', 'b'];
+    expect(resizeAndFillArray(arr2, 4, 'c')).toEqual(['a', 'b', 'c', 'c']);
+
+    // Should shrink array
+    const arr3 = [10, 20, 30, 40, 50];
+    expect(resizeAndFillArray(arr3, 3)).toEqual([10, 20, 30]);
+
+    // Should handle empty arrays
+    const arr4 = [];
+    expect(resizeAndFillArray(arr4, 2, 'x')).toEqual(['x', 'x']);
+
+    // Should keep array same size if lengths match
+    const arr5 = [1, 2, 3];
+    expect(resizeAndFillArray(arr5, 3)).toEqual([1, 2, 3]);
+  });
+
   test('formatFileSize', () => {
     expect(formatFileSize(0)).toBe('0 B');
     expect(formatFileSize(1024)).toBe('1.0 KB');
