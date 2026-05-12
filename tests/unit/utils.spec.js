@@ -3,7 +3,8 @@ import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger } 
 import {
   classifyFileKind,
   getFileTypeLabel,
-  validateUploadFile
+  validateUploadFile,
+  partitionSupportedFiles
 } from '../../src/utils/fileValidation.js';
 
 test.describe('Utils', () => {
@@ -83,5 +84,29 @@ test.describe('Utils', () => {
     expect(invalid.valid).toBe(false);
     expect(invalid.kind).toBeNull();
     expect(invalid.errors).toContain('Please select a PDF or image file.');
+  });
+
+  test('partitionSupportedFiles', () => {
+    expect(partitionSupportedFiles([])).toEqual({ acceptedFiles: [], rejectedFiles: [] });
+
+    const pdfFile = { type: 'application/pdf', name: 'doc.pdf' };
+    const imgFile = { type: 'image/png', name: 'pic.png' };
+    const textFile = { type: 'text/plain', name: 'notes.txt' };
+    const noTypeFile = { name: 'unknown' };
+
+    expect(partitionSupportedFiles([pdfFile, imgFile])).toEqual({
+      acceptedFiles: [pdfFile, imgFile],
+      rejectedFiles: []
+    });
+
+    expect(partitionSupportedFiles([textFile, noTypeFile, null, undefined])).toEqual({
+      acceptedFiles: [],
+      rejectedFiles: [textFile, noTypeFile, null, undefined]
+    });
+
+    expect(partitionSupportedFiles([pdfFile, textFile, imgFile, noTypeFile])).toEqual({
+      acceptedFiles: [pdfFile, imgFile],
+      rejectedFiles: [textFile, noTypeFile]
+    });
   });
 });

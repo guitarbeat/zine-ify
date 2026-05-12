@@ -1,0 +1,7 @@
+🎯 **What:** Added comprehensive unit tests for the `partitionSupportedFiles` function in `src/utils/fileValidation.js` which was previously untested.
+📊 **Coverage:** The new tests cover:
+  - Empty array input
+  - Array containing only supported files (PDF and PNG)
+  - Array containing only unsupported or malformed file entries (text, untyped files, `null`, and `undefined`)
+  - Array containing a mix of supported and unsupported files
+✨ **Result:** Improved test coverage for file upload validation logic, ensuring that the function correctly separates file arrays into `acceptedFiles` and `rejectedFiles` objects and preventing future regressions in this pure function.
