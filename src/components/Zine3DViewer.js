@@ -491,7 +491,9 @@ export class Zine3DViewer {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       this.scene.add(mesh);
-      this.seams.push({ from, to, orientation, mesh, geometry, material });
+      const pageA = this.pages.find((page) => page.id === from);
+      const pageB = this.pages.find((page) => page.id === to);
+      this.seams.push({ from, to, orientation, mesh, geometry, material, pageA, pageB });
     });
   }
 
@@ -578,8 +580,8 @@ export class Zine3DViewer {
     };
 
     this.seams.forEach((seam) => {
-      const pageA = getPage(seam.from);
-      const pageB = getPage(seam.to);
+      const pageA = seam.pageA;
+      const pageB = seam.pageB;
       if (!pageA || !pageB) { return; }
 
       const startLocal = seam.orientation === 'horizontal'
