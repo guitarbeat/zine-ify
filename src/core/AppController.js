@@ -319,10 +319,9 @@ export class AppController {
     const blankUrl = await this.ensureBlankPageUrl();
     const filledPages = this.state.getFilledPageCount();
 
-    for (let index = filledPages; index < this.state.allPageImages.length; index++) {
-      if (!this.state.allPageImages[index] || this.state.allPageImages[index] === this.state._blankPageUrl) {
-        this.state.allPageImages[index] = blankUrl;
-      }
+    // ⚡ Bolt: Replace manual iteration with bulk fill to significantly optimize memory allocation and slot generation during imports.
+    if (filledPages < this.state.allPageImages.length) {
+      this.state.allPageImages.fill(blankUrl, filledPages);
     }
   }
 
