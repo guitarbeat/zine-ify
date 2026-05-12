@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 // Utility functions for the PDF Zine Maker
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -79,43 +80,15 @@ export function formatFileSize(bytes) {
  * @returns {DocumentFragment} Sanitized fragment safe to append into the DOM
  */
 export function sanitizeHTML(html) {
-  const fragment = document.createDocumentFragment();
-
   if (typeof html !== 'string' || html.length === 0) {
-    return fragment;
+    return document.createDocumentFragment();
   }
 
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-
-  const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'BR', 'CODE', 'SPAN']);
-
-  const sanitizeNode = (node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      return document.createTextNode(node.textContent || '');
-    }
-
-    if (node.nodeType !== Node.ELEMENT_NODE) {
-      return document.createTextNode('');
-    }
-
-    if (!allowedTags.has(node.tagName)) {
-      return document.createTextNode(node.textContent || '');
-    }
-
-    const cleanElement = document.createElement(node.tagName.toLowerCase());
-    Array.from(node.childNodes).forEach((child) => {
-      cleanElement.appendChild(sanitizeNode(child));
-    });
-
-    return cleanElement;
-  };
-
-  Array.from(doc.body.childNodes).forEach((child) => {
-    fragment.appendChild(sanitizeNode(child));
+  // Use DOMPurify for secure HTML sanitization instead of template.innerHTML fallback
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['b', 'strong', 'i', 'em', 'u', 'br', 'code', 'span'],
+    RETURN_DOM_FRAGMENT: true
   });
-
-  return fragment;
 }
 
 /**

@@ -21,6 +21,7 @@
     "@radix-ui/react-separator": "^1.1.9",
     "@radix-ui/react-tooltip": "^1.2.9",
     "clsx": "^2.1.1",
+    "dompurify": "^3.4.2",
     "framer-motion": "^12.40.0",
     "html2canvas": "^1.4.1",
     "jspdf": "4.2.1",
