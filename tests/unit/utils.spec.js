@@ -3,7 +3,8 @@ import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger } 
 import {
   classifyFileKind,
   getFileTypeLabel,
-  validateUploadFile
+  validateUploadFile,
+  partitionSupportedFiles
 } from '../../src/utils/fileValidation.js';
 
 test.describe('Utils', () => {
@@ -83,5 +84,41 @@ test.describe('Utils', () => {
     expect(invalid.valid).toBe(false);
     expect(invalid.kind).toBeNull();
     expect(invalid.errors).toContain('Please select a PDF or image file.');
+  });
+
+  test('partitionSupportedFiles', () => {
+    // Empty array
+    expect(partitionSupportedFiles([])).toEqual({
+      acceptedFiles: [],
+      rejectedFiles: []
+    });
+
+    // Only accepted files
+    const accepted = [{ type: 'application/pdf' }, { type: 'image/png' }];
+    expect(partitionSupportedFiles(accepted)).toEqual({
+      acceptedFiles: accepted,
+      rejectedFiles: []
+    });
+
+    // Only rejected files
+    const rejected = [{ type: 'text/plain' }, { type: 'audio/mp3' }];
+    expect(partitionSupportedFiles(rejected)).toEqual({
+      acceptedFiles: [],
+      rejectedFiles: rejected
+    });
+
+    // Mixed array
+    const mixed = [{ type: 'application/pdf' }, { type: 'text/plain' }, { type: 'image/jpeg' }];
+    expect(partitionSupportedFiles(mixed)).toEqual({
+      acceptedFiles: [mixed[0], mixed[2]],
+      rejectedFiles: [mixed[1]]
+    });
+
+    // Array with edge cases (nulls, missing types)
+    const edgeCases = [null, {}, { type: null }];
+    expect(partitionSupportedFiles(edgeCases)).toEqual({
+      acceptedFiles: [],
+      rejectedFiles: edgeCases
+    });
   });
 });
