@@ -36,7 +36,8 @@ export class ExportService {
     const cellW = canvasW / cols;
     const cellH = canvasH / rows;
 
-    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
+        // ⚡ Bolt: Process sheet canvases concurrently to improve export speed
+    const sheetPromises = Array.from({ length: sheetCount }, async (_, sheetIndex) => {
       const offscreen = document.createElement('canvas');
       offscreen.width = canvasW;
       offscreen.height = canvasH;
@@ -63,7 +64,7 @@ export class ExportService {
 
         const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
         const url = this.state.allPageImages[pageIndex];
-        if (!url) continue;
+        if (!url) { continue; }
 
         const isFlipped = !!this.state.pageFlips[pageIndex];
         const isZoomed = !!this.state.pageZooms[pageIndex];
@@ -87,11 +88,16 @@ export class ExportService {
         )
       );
 
-      const imgData = offscreen.toDataURL('image/jpeg', 0.92);
+      return offscreen.toDataURL('image/jpeg', 0.92);
+    });
+
+    const sheetImages = await Promise.all(sheetPromises);
+
+    for (let sheetIndex = 0; sheetIndex < sheetImages.length; sheetIndex++) {
       if (sheetIndex > 0) {
         doc.addPage([dims.width, dims.height], isLandscape ? 'landscape' : 'portrait');
       }
-      doc.addImage(imgData, 'JPEG', 0, 0, dims.width, dims.height);
+      doc.addImage(sheetImages[sheetIndex], 'JPEG', 0, 0, dims.width, dims.height);
     }
 
     doc.save('zine.pdf');
