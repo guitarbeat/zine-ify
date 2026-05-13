@@ -67,7 +67,7 @@ export class ExportService {
 
         const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
         const url = this.state.allPageImages[pageIndex];
-        if (!url) continue;
+        if (!url) {continue;}
 
         const isFlipped = !!this.state.pageFlips[pageIndex];
         const isZoomed = !!this.state.pageZooms[pageIndex];
