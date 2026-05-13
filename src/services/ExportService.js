@@ -51,23 +51,11 @@ export class ExportService {
       const draws = [];
 
       for (let slot = 0; slot < slotsPerSheet; slot++) {
-        const rawSlot = template?.layout ? template.layout[slot] : null;
-        let pageNum, upsideDown;
-
-        if (typeof rawSlot === 'number') {
-          pageNum = rawSlot;
-          upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
-        } else if (rawSlot && typeof rawSlot === 'object') {
-          pageNum = rawSlot.page;
-          upsideDown = !!rawSlot.upsideDown;
-        } else {
-          pageNum = slot + 1;
-          upsideDown = false;
-        }
+        const { pageNum, upsideDown } = this._resolveSlot(template, slot);
 
         const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
         const url = this.state.allPageImages[pageIndex];
-        if (!url) continue;
+        if (!url) { continue; }
 
         const isFlipped = !!this.state.pageFlips[pageIndex];
         const isZoomed = !!this.state.pageZooms[pageIndex];
@@ -179,19 +167,7 @@ export class ExportService {
       let cells = '';
 
       for (let slot = 0; slot < slotsPerSheet; slot++) {
-        const rawSlot = template?.layout ? template.layout[slot] : null;
-        let pageNum, upsideDown;
-
-        if (typeof rawSlot === 'number') {
-          pageNum = rawSlot;
-          upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
-        } else if (rawSlot && typeof rawSlot === 'object') {
-          pageNum = rawSlot.page;
-          upsideDown = !!rawSlot.upsideDown;
-        } else {
-          pageNum = slot + 1;
-          upsideDown = false;
-        }
+        const { pageNum, upsideDown } = this._resolveSlot(template, slot);
 
         const pageIndex = (s * slotsPerSheet) + (pageNum - 1);
         const url = this.state.allPageImages[pageIndex] || null;
@@ -232,6 +208,26 @@ export class ExportService {
 </head>
 <body>${sheetsHtml}</body>
 </html>`;
+  }
+
+
+
+  _resolveSlot(template, slot) {
+    const rawSlot = template?.layout ? template.layout[slot] : null;
+    let pageNum, upsideDown;
+
+    if (typeof rawSlot === 'number') {
+      pageNum = rawSlot;
+      upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
+    } else if (rawSlot && typeof rawSlot === 'object') {
+      pageNum = rawSlot.page;
+      upsideDown = !!rawSlot.upsideDown;
+    } else {
+      pageNum = slot + 1;
+      upsideDown = false;
+    }
+
+    return { pageNum, upsideDown };
   }
 
   getPaperDimensions() {
