@@ -5,7 +5,7 @@ import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
-import { parseBoundedInteger, resizeAndFillArray } from '../utils/helpers.js';
+import { parseBoundedInteger } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
 import { BookletPreview } from '../components/BookletPreview.js';
 
@@ -49,17 +49,14 @@ export class AppController {
     this.ui.on('pageCropToggled', (i) => this.handlePageCropToggled(i));
     this.ui.on('pageRemoved', (i) => this.handlePageRemoved(i));
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
+    this.ui.on('print', () => this.handlePrint());
     this.ui.on('export', () => this.handleExport());
     this.ui.on('view3d', () => this.handleView3d());
     this.ui.on('clearAll', () => this.handleClearAll());
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
-    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); this.renderCurrentLayout(); });
-    this.ui.on('removeUploadedFile', (index) => {
-      this.state.uploadedFiles.splice(index, 1);
-      this.ui.updateUploadedFilesList(this.state.uploadedFiles);
-    });
+    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); });
 
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
@@ -321,7 +318,11 @@ export class AppController {
     const requiredLength = this.state.getRequiredPageCapacity();
 
     if (this.state.allPageImages.length !== requiredLength) {
-      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
+      const nextImages = new Array(requiredLength).fill(null);
+      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
+        nextImages[index] = this.state.allPageImages[index];
+      }
+      this.state.allPageImages = nextImages;
     }
   }
 
@@ -355,9 +356,10 @@ export class AppController {
     const blankUrl = await this.ensureBlankPageUrl();
     const filledPages = this.state.getFilledPageCount();
 
-    // ⚡ Bolt: Replace manual iteration with bulk fill to significantly optimize memory allocation and slot generation during imports.
-    if (filledPages < this.state.allPageImages.length) {
-      this.state.allPageImages.fill(blankUrl, filledPages);
+    for (let index = filledPages; index < this.state.allPageImages.length; index++) {
+      if (!this.state.allPageImages[index] || this.state.allPageImages[index] === this.state._blankPageUrl) {
+        this.state.allPageImages[index] = blankUrl;
+      }
     }
   }
 
@@ -430,14 +432,17 @@ export class AppController {
   renderCurrentLayout() {
     const requiredLength = this.state.getRequiredPageCapacity();
     if (this.state.allPageImages.length !== requiredLength) {
-      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
+      const nextImages = new Array(requiredLength).fill(null);
+      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
+        nextImages[index] = this.state.allPageImages[index];
+      }
+      this.state.allPageImages = nextImages;
     }
 
     this.ui.generateLayout(requiredLength, this.getCurrentTemplate(), {
       paperSize: this.state.paperSize,
       orientation: this.state.orientation,
-      margin: this.state.margin || 0,
-      customPaper: this.state.customPaper
+      margin: this.state.margin || 0
     });
     for (let index = 0; index < this.state.allPageImages.length; index++) {
       const url = this.state.allPageImages[index];
@@ -594,6 +599,17 @@ export class AppController {
     toast.info('Cleared', 'All pages have been removed.');
   }
 
+  handlePrint() {
+    if (!this.state.getFilledPageCount()) {
+      toast.warning('No Content', 'Import pages before printing.');
+      return;
+    }
+
+    this.exportService.handlePrint().catch((error) => {
+      toast.error('Print Failed', error.message || 'Unable to print.');
+    });
+  }
+
   async getZine3DViewerClass() {
     if (!this.zine3dViewerClassPromise) {
       this.zine3dViewerClassPromise = import('../components/Zine3DViewer.js')
@@ -654,8 +670,7 @@ export class AppController {
           const Zine3DViewer = await this.getZine3DViewerClass();
           try {
             this.viewer3d = new Zine3DViewer(container);
-          } catch (_viewerError) {
-            void _viewerError;
+          } catch {
             const fallback = container.querySelector('.zine-3d-fallback-canvas');
             if (fallback) {
               fallback.remove();
