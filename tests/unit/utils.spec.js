@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger } from '../../src/utils/helpers.js';
+import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, sanitizeHTML } from '../../src/utils/helpers.js';
 import {
   classifyFileKind,
   getFileTypeLabel,
@@ -106,5 +106,51 @@ test.describe('Utils', () => {
     const result = validateUploadFile({ type: 'application/pdf', size: MAX_UPLOAD_FILE_SIZE + 1 });
     expect(result.valid).toBe(false);
     expect(result.errors.some(e => e.includes('File too large'))).toBe(true);
+  });
+});
+
+test.describe('sanitizeHTML', () => {
+  test.beforeEach(async () => {
+    // We mock document and DOMParser for Node context using jsdom
+    const { JSDOM } = await import('jsdom');
+    const dom = new JSDOM();
+    global.document = dom.window.document;
+    global.Node = dom.window.Node;
+    global.DOMParser = dom.window.DOMParser;
+  });
+
+  test('sanitizeHTML: valid simple tags', async () => {
+    const frag = sanitizeHTML('<b>hello</b>');
+    const div = document.createElement('div');
+    div.appendChild(frag);
+    expect(div.innerHTML).toBe('<b>hello</b>');
+  });
+
+  test('sanitizeHTML: script tag stripped', async () => {
+    const frag = sanitizeHTML('<script>alert(1)</script>world');
+    const div = document.createElement('div');
+    div.appendChild(frag);
+    expect(div.innerHTML).toBe('world');
+  });
+
+  test('sanitizeHTML: attributes removed', async () => {
+    const frag = sanitizeHTML('<b onclick="alert()">bold</b>');
+    const div = document.createElement('div');
+    div.appendChild(frag);
+    expect(div.innerHTML).toBe('<b>bold</b>');
+  });
+
+  test('sanitizeHTML: nested tags and invalid mixed', async () => {
+    const frag = sanitizeHTML('<span>text <img src="x" onerror="alert(1)"></span>');
+    const div = document.createElement('div');
+    div.appendChild(frag);
+    expect(div.innerHTML).toBe('<span>text </span>');
+  });
+
+  test('sanitizeHTML: empty and null inputs', async () => {
+    const fragEmpty = sanitizeHTML('');
+    const fragNull = sanitizeHTML(null);
+    expect(fragEmpty.childNodes.length).toBe(0);
+    expect(fragNull.childNodes.length).toBe(0);
   });
 });
