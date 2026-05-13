@@ -96,11 +96,29 @@ export class UIManager {
   }
 
   updateUploadedFilesList(files) {
-    if (!this.elements.uploadedFilesList) {
+    const container = this.elements.uploadedFilesList;
+    if (!container) {
       return;
     }
 
-    this.elements.uploadedFilesList.innerHTML = files.map((file) => `<li>${file.name}</li>`).join('');
+    // Toggle visibility based on whether we have files
+    container.classList.toggle('hidden', files.length === 0);
+
+    // Clear existing list
+    container.innerHTML = '';
+
+    // Rebuild the list securely using programmatic DOM creation
+    files.forEach((file) => {
+      const item = document.createElement('div');
+      item.className = 'uploaded-file-item flex items-center justify-between p-2 bg-white border border-black rounded mb-2';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'file-name-display truncate';
+      nameSpan.textContent = file.name;
+
+      item.appendChild(nameSpan);
+      container.appendChild(item);
+    });
   }
 
   updatePagePreview(index, url) {
