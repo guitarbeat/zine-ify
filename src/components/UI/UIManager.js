@@ -5,44 +5,16 @@ import {
   PAPER_SIZES,
   ZINE_TEMPLATES
 } from '../../utils/config.js';
-import { debounce, formatFileSize, parseBoundedInteger } from '../../utils/helpers.js';
-import {
-  MAX_UPLOAD_FILES,
-  MIXED_UPLOAD_WARNING,
-  SUPPORTED_UPLOAD_MESSAGE,
-  UNSUPPORTED_UPLOAD_TITLE,
-  getFileTypeLabel,
-  partitionSupportedFiles
-} from '../../utils/fileValidation.js';
-import { toast } from '../Toast.js';
+import { debounce, parseBoundedInteger } from '../../utils/helpers.js';
+
+
 
 import { ModalManager } from './ModalManager.js';
 import { DragAndDropHandler } from './DragAndDropHandler.js';
 import { LayoutRenderer } from './LayoutRenderer.js';
 import { PAGE_CELL_TEMPLATE } from './Templates.js';
 
-const FOLD_STAGES = [
-  {
-    threshold: 2.75,
-    label: 'Booklet',
-    helper: 'Collapse the four sections together so your cover page is outermost. No stapling needed — the single cut holds everything together.'
-  },
-  {
-    threshold: 1.75,
-    label: 'Diamond Open',
-    helper: 'Push both short ends inward — the center slit opens into a diamond or cross shape. Keep pushing until all four page sections meet.'
-  },
-  {
-    threshold: 0.75,
-    label: 'Folded Strip',
-    helper: 'Fold in half along the long axis, pages facing out. Cut through both layers along the center crease, only between the quarter-fold marks.'
-  },
-  {
-    threshold: -Infinity,
-    label: 'Flat',
-    helper: 'Print the layout, then crease the sheet in half both ways and open flat. Make two more creases to divide the long direction into quarters.'
-  }
-];
+
 
 const DEFAULT_GRID_ROWS = 2;
 const DEFAULT_GRID_COLS = 4;
