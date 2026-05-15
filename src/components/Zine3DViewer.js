@@ -11,6 +11,14 @@ export class Zine3DViewer {
     this.stacks = [];
     this.seams = [];
     this.guides = [];
+
+    this.initConstants();
+    this.initLayoutDefinitions();
+
+    this.initScene();
+  }
+
+  initConstants() {
     this.w = 1.0;
     this.h = 1.414; // A-series proportion
     this.panelThickness = 0.002;
@@ -31,7 +39,10 @@ export class Zine3DViewer {
     this.foldGuideColor = 0xb8b8b8;
     this.slitGuideColor = 0xd32f2f;
     this.cameraTarget = new THREE.Vector3(0, 0, 0);
-    
+    this.debugFoldState = null;
+  }
+
+  initLayoutDefinitions() {
     this.panelDefinitions = {
       1: { stackIndex: 3, isTop: false }, // Cover
       2: { stackIndex: 3, isTop: true }, // Inside cover
@@ -60,9 +71,6 @@ export class Zine3DViewer {
       { type: 'fold', orientation: 'horizontal', x: 1.5 * this.w, y: 0, length: this.w },
       { type: 'slit', orientation: 'horizontal', x: 0, y: 0, length: this.w * 2 }
     ];
-    this.debugFoldState = null;
-    
-    this.initScene();
   }
 
   initScene() {
