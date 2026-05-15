@@ -150,7 +150,7 @@ export class UIManager {
   }
 
   handleIncomingFiles(files) {
-    if (!files?.length) return;
+    if (!files?.length) {return;}
     files.forEach((file) => this.emitter.emit('fileSelected', file));
   }
 
@@ -213,8 +213,8 @@ export class UIManager {
   normalizeGridInputs() {
     const rows = parseBoundedInteger(this.elements.gridRows?.value, { min: GRID_DIMENSION_MIN, max: GRID_DIMENSION_MAX, fallback: DEFAULT_GRID_ROWS });
     const cols = parseBoundedInteger(this.elements.gridCols?.value, { min: GRID_DIMENSION_MIN, max: GRID_DIMENSION_MAX, fallback: DEFAULT_GRID_COLS });
-    if (this.elements.gridRows) this.elements.gridRows.value = rows;
-    if (this.elements.gridCols) this.elements.gridCols.value = cols;
+    if (this.elements.gridRows) {this.elements.gridRows.value = rows;}
+    if (this.elements.gridCols) {this.elements.gridCols.value = cols;}
     return { rows, cols };
   }
 
@@ -349,7 +349,7 @@ export class UIManager {
     this.elements.gridRows?.closest('.workspace-config-split')?.querySelectorAll('.stepper-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         const target = document.getElementById(btn.dataset.target);
-        if (!target) return;
+        if (!target) {return;}
         const min = parseInt(target.min, 10) || 1;
         const max = parseInt(target.max, 10) || 10;
         const delta = parseInt(btn.dataset.delta, 10);

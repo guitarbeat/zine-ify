@@ -1,0 +1,85 @@
+import { test, expect } from '@playwright/test';
+import { UndoManager } from '../../src/core/UndoManager.js';
+
+test.describe('UndoManager', () => {
+  test('constructor initializes with default values', () => {
+    const manager = new UndoManager();
+    expect(manager.size).toBe(0);
+    expect(manager.isEmpty).toBe(true);
+    expect(manager._max).toBe(20);
+  });
+
+  test('push adds entry to stack', () => {
+    const manager = new UndoManager();
+    manager.push({
+      description: 'Test action',
+      allPageImages: ['image1'],
+      pageFlips: {},
+      pageZooms: {}
+    });
+    expect(manager.size).toBe(1);
+    expect(manager.isEmpty).toBe(false);
+  });
+
+  test('pop removes and returns top entry', () => {
+    const manager = new UndoManager();
+    const entry = {
+      description: 'Test action',
+      allPageImages: ['image1'],
+      pageFlips: {},
+      pageZooms: {}
+    };
+    manager.push(entry);
+
+    const popped = manager.pop();
+    expect(popped).toEqual(expect.objectContaining({
+        description: 'Test action',
+        allPageImages: ['image1']
+    }));
+    expect(manager.size).toBe(0);
+  });
+
+  test('pop returns null when empty', () => {
+    const manager = new UndoManager();
+    expect(manager.pop()).toBeNull();
+  });
+
+  test('prunes oldest entry when max history is exceeded', () => {
+    const manager = new UndoManager(2); // Set max history to 2
+    let prunedCount = 0;
+    const onPrune = () => prunedCount++;
+
+    manager.push({ description: '1', onPrune });
+    manager.push({ description: '2', onPrune });
+    expect(manager.size).toBe(2);
+    expect(prunedCount).toBe(0);
+
+    // This should push out the first entry
+    manager.push({ description: '3', onPrune });
+    expect(manager.size).toBe(2);
+    expect(prunedCount).toBe(1);
+
+    // Verify the remaining entries
+    const pop1 = manager.pop();
+    expect(pop1.description).toBe('3');
+    const pop2 = manager.pop();
+    expect(pop2.description).toBe('2');
+  });
+
+  test('clear empties stack and calls onPrune for all entries', () => {
+    const manager = new UndoManager();
+    let prunedCount = 0;
+    const onPrune = () => prunedCount++;
+
+    manager.push({ description: '1', onPrune });
+    manager.push({ description: '2', onPrune });
+    manager.push({ description: '3', onPrune });
+
+    expect(manager.size).toBe(3);
+    manager.clear();
+
+    expect(manager.size).toBe(0);
+    expect(manager.isEmpty).toBe(true);
+    expect(prunedCount).toBe(3);
+  });
+});
