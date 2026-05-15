@@ -178,24 +178,9 @@ function computeBounds(pageStates, dimensions) {
   return { min, max };
 }
 
-export function computeMiniZineFoldState(progress, dimensions = {}) {
-  const w = dimensions.w ?? 1;
-  const h = dimensions.h ?? 1.414;
-  const stackDepthStep = dimensions.stackDepthStep ?? 0.008;
 
-  const horizontalFold = smoothstep(clamp01(progress));
-  const diamondOpen = smoothstep(clamp01(progress - 1));
-  const bookletClose = smoothstep(clamp01(progress - 2));
-  const topFoldAngle = -Math.PI * horizontalFold;
-  const stackAngles = [
-    -(Math.PI / 2) * bookletClose,
-    -(Math.PI / 2) * diamondOpen,
-    (Math.PI / 2) * diamondOpen,
-    (Math.PI / 2) * bookletClose
-  ];
-  const stackOrigins = computeStackOrigins(stackAngles, w, stackDepthStep, bookletClose);
-
-  const stackStates = MINI_ZINE_STACKS.map((stack, index) => ({
+function computeStackStates(stackAngles, stackOrigins) {
+  return MINI_ZINE_STACKS.map((stack, index) => ({
     ...stack,
     pose: {
       position: {
@@ -210,7 +195,9 @@ export function computeMiniZineFoldState(progress, dimensions = {}) {
       }
     }
   }));
+}
 
+function computePageStates(stackStates, h, topFoldAngle) {
   const pages = {};
   stackStates.forEach((stackState) => {
     pages[stackState.bottomPage] = buildPageState({
@@ -228,8 +215,11 @@ export function computeMiniZineFoldState(progress, dimensions = {}) {
       localRotationX: topFoldAngle
     });
   });
+  return pages;
+}
 
-  const seamGaps = CONNECTIONS.map((connection) => {
+function computeSeamGaps(pages, w, h) {
+  return CONNECTIONS.map((connection) => {
     const pageA = pages[connection.from];
     const pageB = pages[connection.to];
     const start = connection.orientation === 'horizontal'
@@ -246,6 +236,28 @@ export function computeMiniZineFoldState(progress, dimensions = {}) {
       end: { x: end.x, y: end.y, z: end.z }
     };
   });
+}
+
+export function computeMiniZineFoldState(progress, dimensions = {}) {
+  const w = dimensions.w ?? 1;
+  const h = dimensions.h ?? 1.414;
+  const stackDepthStep = dimensions.stackDepthStep ?? 0.008;
+
+  const horizontalFold = smoothstep(clamp01(progress));
+  const diamondOpen = smoothstep(clamp01(progress - 1));
+  const bookletClose = smoothstep(clamp01(progress - 2));
+  const topFoldAngle = -Math.PI * horizontalFold;
+  const stackAngles = [
+    -(Math.PI / 2) * bookletClose,
+    -(Math.PI / 2) * diamondOpen,
+    (Math.PI / 2) * diamondOpen,
+    (Math.PI / 2) * bookletClose
+  ];
+  const stackOrigins = computeStackOrigins(stackAngles, w, stackDepthStep, bookletClose);
+
+  const stackStates = computeStackStates(stackAngles, stackOrigins);
+  const pages = computePageStates(stackStates, h, topFoldAngle);
+  const seamGaps = computeSeamGaps(pages, w, h);
 
   return {
     progress,
