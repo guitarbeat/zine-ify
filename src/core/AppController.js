@@ -4,7 +4,6 @@ import { StateStore } from './StateStore.js';
 import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
-import referenceImageUrl from '../assets/reference-back-side.jpg';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
 import { parseBoundedInteger } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
@@ -667,20 +666,22 @@ export class AppController {
 
       if (!this.viewer3d) {
         const container = this.ui.elements.zine3dContainer;
-        if (container) {
-          const Zine3DViewer = await this.getZine3DViewerClass();
-          try {
-            this.viewer3d = new Zine3DViewer(container);
-          } catch (viewerError) {
-            const fallback = container.querySelector('.zine-3d-fallback-canvas');
-            if (fallback) {
-              fallback.remove();
-            }
-            this.viewer3d = null;
-            this.ui.toggle3DModal(false);
-            toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
-            return;
+        if (!container) {
+          return;
+        }
+
+        const Zine3DViewer = await this.getZine3DViewerClass();
+        try {
+          this.viewer3d = new Zine3DViewer(container);
+        } catch {
+          const fallback = container.querySelector('.zine-3d-fallback-canvas');
+          if (fallback) {
+            fallback.remove();
           }
+          this.viewer3d = null;
+          this.ui.toggle3DModal(false);
+          toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
+          return;
         }
       }
 
