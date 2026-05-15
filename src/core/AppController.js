@@ -672,6 +672,7 @@ export class AppController {
             this.viewer3d = new Zine3DViewer(container);
           } catch (_viewerError) {
             void _viewerError;
+            void _viewerError;
             const fallback = container.querySelector('.zine-3d-fallback-canvas');
             if (fallback) {
               fallback.remove();
