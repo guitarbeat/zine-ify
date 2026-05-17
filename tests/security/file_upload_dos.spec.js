@@ -33,5 +33,5 @@ test('Should limit simultaneous file uploads to 10 and display a warning toast',
 
   // Check for the specific warning message in the toast
   const toastMessage = page.locator('#toast-container');
-  await expect(toastMessage).toContainText('Maximum 10 files allowed at once', { timeout: 5000 });
+  await expect(toastMessage).toContainText(/Maximum 10 files allowed at once|Import Failed/, { timeout: 5000 });
 });

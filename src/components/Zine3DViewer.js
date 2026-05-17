@@ -211,7 +211,7 @@ export class Zine3DViewer {
       const pageData = previewPages[i - 1]; // Array is 0-indexed
       const url = pageData?.previewUrl || pageData?.sourceUrl || null;
 
-      const stack = this.stacks.find((entry) => entry.index === config.stackIndex);
+      const stack = this.stacks[config.stackIndex]; // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
       const group = new THREE.Group();
       const frontGeometry = new THREE.PlaneGeometry(this.w, this.h, 4, 4);
       const backGeometry = new THREE.PlaneGeometry(this.w, this.h, 1, 1);
@@ -324,7 +324,7 @@ export class Zine3DViewer {
     this.debugFoldState = state;
 
     this.stacks.forEach((stack) => {
-      const stackState = state.stacks.find((entry) => entry.index === stack.index);
+      const stackState = state.stacks[stack.index]; // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
       if (!stackState) {
         return;
       }
@@ -458,7 +458,7 @@ export class Zine3DViewer {
   }
 
   updateSeams() {
-    const getPage = (id) => this.pages.find((page) => page.id === id);
+    const getPage = (id) => this.pages[id - 1]; // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
 
     const getAverageNormal = (pageA, pageB) => {
       const normalA = this.tmpVecC.set(0, 0, 1).applyQuaternion(pageA.group.quaternion);
