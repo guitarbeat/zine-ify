@@ -50,14 +50,7 @@ class Toast {
 
     // ⚡️ Bolt: Initialize template once to eliminate repetitive DOM node creation overhead
     this.template = document.createElement('template');
-    this.template.innerHTML = `
-      <div class="toast-icon"></div>
-      <div class="toast-content">
-        <div class="toast-title"></div>
-        <div class="toast-message"></div>
-      </div>
-      <button class="toast-close w-6 h-6 ml-2 flex items-center justify-center focus:outline-none" aria-label="Close notification">&times;</button>
-    `;
+    this.template.innerHTML = '<div class="toast-icon"></div><div class="toast-content"><div class="toast-title"></div><div class="toast-message"></div></div><button class="toast-close w-6 h-6 ml-2 flex items-center justify-center focus:outline-none" aria-label="Close notification">&times;</button>';
   }
 
   /**
@@ -78,7 +71,7 @@ class Toast {
 
     toast.appendChild(this.template.content.cloneNode(true));
 
-    toast.querySelector('.toast-icon').innerHTML = this.getIcon(type);
+    toast.querySelector('.toast-icon').insertAdjacentHTML('beforeend', this.getIcon(type)); // Safe SVGs
 
     toast.querySelector('.toast-title').appendChild(sanitizeHTML(title)); // Allow safe HTML but prevent XSS
 
