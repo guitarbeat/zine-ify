@@ -197,8 +197,88 @@
   backface-visibility: hidden;
 }
 
-.booklet-page-left, .booklet-face-front { left: 0; }
-.booklet-page-right, .booklet-face-back { right: 0; }
+.booklet-page-left,
+.booklet-face-front {
+  left: 0;
+}
+
+.booklet-page-right,
+.booklet-face-back {
+  right: 0;
+}
+
+.booklet-page-left {
+  border-right-width: 1px;
+  transform: rotateY(8deg) translateZ(1px);
+  cursor: w-resize;
+}
+
+.booklet-page-right {
+  border-left-width: 1px;
+  transform: rotateY(-8deg) translateZ(1px);
+  cursor: e-resize;
+}
+
+.booklet-page:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+}
+
+.booklet-spread.is-single-page .booklet-spine {
+  opacity: 0;
+}
+
+.booklet-spread.is-single-right .booklet-page-left,
+.booklet-spread.is-single-left .booklet-page-right {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.booklet-spread.is-single-right .booklet-page-right,
+.booklet-spread.is-single-left .booklet-page-left {
+  width: 100%;
+  left: 0;
+  right: auto;
+  border-width: 1px;
+}
+
+.booklet-spread.is-single-right .booklet-page-right {
+  transform: rotateY(-4deg) translateZ(1px);
+}
+
+.booklet-spread.is-single-left .booklet-page-left {
+  transform: rotateY(4deg) translateZ(1px);
+}
+
+.booklet-page.is-empty,
+.booklet-face.is-empty {
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.04), transparent 55%),
+    var(--surface-bg);
+}
+
+.booklet-page-media {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: none;
+  background: var(--surface-bg);
+}
+
+.booklet-page-media.is-visible {
+  display: block;
+}
+
+.booklet-page-placeholder {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 0.4rem 0.5rem;
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-ink);
+}
 
 .booklet-spine {
   position: absolute;
@@ -210,6 +290,66 @@
   background: linear-gradient(180deg, rgba(0,0,0,0.2), rgba(255,255,255,0.1) 35%, rgba(0,0,0,0.2));
   border-radius: 999px;
   opacity: 0.25;
+}
+
+.booklet-turn-layer {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform-style: preserve-3d;
+  z-index: 4;
+}
+
+.booklet-turn-layer.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.booklet-turn-layer.is-next {
+  right: 0;
+}
+
+.booklet-turn-layer.is-prev {
+  left: 0;
+}
+
+.booklet-turn-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.booklet-turn-layer.is-next .booklet-turn-card {
+  transform-origin: left center;
+}
+
+.booklet-turn-layer.is-prev .booklet-turn-card {
+  transform-origin: right center;
+}
+
+.booklet-turn-layer.is-next.is-active .booklet-turn-card {
+  transform: rotateY(-180deg);
+}
+
+.booklet-turn-layer.is-prev.is-active .booklet-turn-card {
+  transform: rotateY(180deg);
+}
+
+.booklet-face-front,
+.booklet-face-back {
+  width: 100%;
+  left: 0;
+  right: auto;
+}
+
+.booklet-face-back {
+  transform: rotateY(180deg);
 }
 
 .simulation-fold-guide {

@@ -38,11 +38,11 @@ export class BookletPreview {
             <div class="booklet-turn-layer" aria-hidden="true">
               <div class="booklet-turn-card">
                 <div class="booklet-face booklet-face-front">
-                  <img class="booklet-page-media" alt="Turning page front">
+                  <img class="booklet-page-media" alt="">
                   <span class="booklet-page-placeholder"></span>
                 </div>
                 <div class="booklet-face booklet-face-back">
-                  <img class="booklet-page-media" alt="Turning page back">
+                  <img class="booklet-page-media" alt="">
                   <span class="booklet-page-placeholder"></span>
                 </div>
               </div>
@@ -87,9 +87,22 @@ export class BookletPreview {
     this.states = buildMiniZineBookletStates(this.slotPages);
     this.spreadIndex = 0;
     this.isAnimating = false;
-    this.turnLayer?.classList.remove('is-visible', 'is-active', 'is-next', 'is-prev');
+    this.hideTurnLayer();
     this.updateStaticSpread();
     this.updateControls();
+  }
+
+  hideTurnLayer() {
+    this.turnLayer?.classList.remove('is-visible', 'is-active', 'is-next', 'is-prev');
+    this.turnLayer?.setAttribute('aria-hidden', 'true');
+    this.setPageFace(this.turnFront, null);
+    this.setPageFace(this.turnBack, null);
+  }
+
+  showTurnLayer(direction) {
+    this.turnLayer?.classList.remove('is-prev', 'is-next');
+    this.turnLayer?.classList.add(direction > 0 ? 'is-next' : 'is-prev', 'is-visible');
+    this.turnLayer?.setAttribute('aria-hidden', 'false');
   }
 
   getCurrentState() {
@@ -214,18 +227,15 @@ export class BookletPreview {
       this.setPageFace(this.rightPage, nextState.right);
       this.setPageFace(this.turnFront, currentState.right);
       this.setPageFace(this.turnBack, nextState.left);
-      this.turnLayer.classList.remove('is-prev');
-      this.turnLayer.classList.add('is-next');
+      this.showTurnLayer(direction);
     } else {
       this.setPageFace(this.leftPage, nextState.left);
       this.setPageFace(this.rightPage, currentState.right);
       this.setPageFace(this.turnFront, currentState.left);
       this.setPageFace(this.turnBack, nextState.right);
-      this.turnLayer.classList.remove('is-next');
-      this.turnLayer.classList.add('is-prev');
+      this.showTurnLayer(direction);
     }
 
-    this.turnLayer.classList.add('is-visible');
     this.updateControls();
 
     requestAnimationFrame(() => {
@@ -243,7 +253,7 @@ export class BookletPreview {
     this.spreadIndex = this.pendingSpreadIndex;
     this.pendingSpreadIndex = null;
     this.isAnimating = false;
-    this.turnLayer.classList.remove('is-visible', 'is-active', 'is-next', 'is-prev');
+    this.hideTurnLayer();
     this.updateStaticSpread();
     this.updateControls();
   }
