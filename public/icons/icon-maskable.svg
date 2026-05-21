@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Zine-ify">
+  <rect width="512" height="512" fill="#f59e0b"/>
+  <rect x="128" y="120" width="256" height="272" rx="20" fill="#fffef8" stroke="#18181b" stroke-width="10"/>
+  <path d="M152 188h208M152 256h208M152 324h144" stroke="#18181b" stroke-width="16" stroke-linecap="round"/>
+  <path d="M312 308l40 40-40 40" fill="none" stroke="#18181b" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
