@@ -479,6 +479,7 @@
   background: var(--surface-muted);
   padding: 0.5rem;
   image-rendering: crisp-edges;
+  pointer-events: none;
 }
 
 @media (max-width: 1023px) {

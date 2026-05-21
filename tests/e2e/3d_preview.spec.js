@@ -86,6 +86,7 @@ test('opens the 3D preview modal with a sized canvas', async ({ page }) => {
 
   await expect(page.locator('#upload-status')).toContainText('Imported 1 of 1 pages from 3d-preview.pdf', { timeout: 30000 });
 
+  await expect(page.locator('#printBtn')).toHaveCount(0);
   await page.locator('#view3dBtn').click();
 
   const modal = page.locator('#zine-3d-modal');
@@ -127,7 +128,7 @@ test('booklet preview reflects flip adjustments from the sheet preview', async (
 
   await expect(page.locator('#upload-status')).toContainText('Imported image: cover-map.png', { timeout: 30000 });
 
-  await page.locator('button[title="Flip Cover"]').click();
+  await page.getByRole('button', { name: 'Rotate Cover 180 degrees (R)' }).click();
   await page.locator('#view3dBtn').click();
 
   const modal = page.locator('#zine-3d-modal');
