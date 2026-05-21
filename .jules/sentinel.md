@@ -12,3 +12,8 @@
 **Vulnerability:** Safe HTML sanitization using `template.innerHTML` could potentially trigger execution of payload (e.g. `img` `onerror`) before sanitization takes place if assigned directly.
 **Learning:** Assigning unsafe strings to `innerHTML`, even on detached template tags, has inherent risks. Using `DOMParser` parses the string into a safe document object model without evaluating executing elements.
 **Prevention:** Use `new DOMParser().parseFromString(html, 'text/html')` for safe DOM element creation during sanitization instead of `innerHTML` assignment.
+
+## 2026-05-12 - Prevent DOM-based XSS via innerHTML
+**Vulnerability:** DOM-based XSS through assignment of interpolated strings to innerHTML in dynamic UI elements.
+**Learning:** Assigning unsafe or dynamically constructed strings containing variables directly to innerHTML is a primary vector for XSS vulnerabilities.
+**Prevention:** Use programmatic DOM construction (`document.createElement`, `textContent`, and safe attribute assignment) instead of `innerHTML` for UI components containing variable data.
