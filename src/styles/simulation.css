@@ -185,6 +185,16 @@
   padding-right: 0.2rem;
 }
 
+.simulation-booklet-panel {
+  position: relative;
+  z-index: 2;
+}
+
+.simulation-guide-panel {
+  position: relative;
+  z-index: 1;
+}
+
 .booklet-preview-container {
   min-height: 13rem;
   display: flex;

@@ -128,6 +128,7 @@ test('booklet preview reflects flip adjustments from the sheet preview', async (
 
   await expect(page.locator('#upload-status')).toContainText('Imported image: cover-map.png', { timeout: 30000 });
 
+  await page.locator('.page-cell[data-page-index="0"]').hover();
   await page.getByRole('button', { name: 'Rotate Cover 180 degrees (R)' }).click();
   await page.locator('#view3dBtn').click();
 
