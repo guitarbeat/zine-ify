@@ -21,8 +21,8 @@ test('Should reject polyglot files (PDF signature not at offset 0)', async ({ pa
   });
 
   // Check for the specific error message in the toast
-  // If the vulnerability is fixed, this toast should appear.
-  // If the vulnerability exists, the app accepts it (and maybe fails later with a parsing error),
+  // If the app correctly validates the signature, this toast should appear.
+  // If the app fails to validate the signature, the app accepts it (and maybe fails later with a parsing error),
   // so we won't see "Invalid file signature".
   const toastMessage = page.locator('#toast-container');
   await expect(toastMessage).toContainText('Invalid file signature', { timeout: 5000 });
