@@ -26,9 +26,10 @@
 
 .workspace-panel {
   min-height: 0;
-  border: 1px solid var(--border-color);
+  border: var(--border-thin);
   border-radius: var(--radius-panel);
-  background: var(--surface-bg);
+  background-color: var(--surface-bg);
+  background-image: var(--surface-paper-stack);
   box-shadow: var(--shadow-sm);
   padding: 1rem;
   transition: background-color 0.25s ease, border-color 0.25s ease;

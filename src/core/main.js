@@ -1,5 +1,8 @@
 import '../styles/index.css';
 import { AppController } from './AppController.js';
+import { initPwa } from './pwa.js';
+
+initPwa();
 
 // In Zine-ify, the AppController manages the high-level orchestration
 // of PDF processing, UI state, and export operations.

@@ -37,6 +37,6 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['pdfjs-dist', 'jspdf', 'html2canvas']
+    include: ['pdfjs-dist', 'jspdf', 'html2canvas', '@khmyznikov/pwa-install']
   }
 });
