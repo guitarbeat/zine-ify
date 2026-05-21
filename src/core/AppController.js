@@ -49,7 +49,6 @@ export class AppController {
     this.ui.on('pageCropToggled', (i) => this.handlePageCropToggled(i));
     this.ui.on('pageRemoved', (i) => this.handlePageRemoved(i));
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
-    this.ui.on('print', () => this.handlePrint());
     this.ui.on('export', () => this.handleExport());
     this.ui.on('view3d', () => this.handleView3d());
     this.ui.on('clearAll', () => this.handleClearAll());
@@ -596,17 +595,6 @@ export class AppController {
     this.ui.setStatus('Choose files or drop them here');
     this.renderCurrentLayout();
     toast.info('Cleared', 'All pages have been removed.');
-  }
-
-  handlePrint() {
-    if (!this.state.getFilledPageCount()) {
-      toast.warning('No Content', 'Import pages before printing.');
-      return;
-    }
-
-    this.exportService.handlePrint().catch((error) => {
-      toast.error('Print Failed', error.message || 'Unable to print.');
-    });
   }
 
   async getZine3DViewerClass() {
