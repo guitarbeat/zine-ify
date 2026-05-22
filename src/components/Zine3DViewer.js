@@ -11,6 +11,7 @@ export class Zine3DViewer {
     this.stacks = [];
     this.seams = [];
     this.guides = [];
+    this.environmentMeshes = [];
     this.w = 1.0;
     this.h = 1.414; // A-series proportion
     this.panelThickness = 0.002;
@@ -61,6 +62,7 @@ export class Zine3DViewer {
       { type: 'slit', orientation: 'horizontal', x: 0, y: 0, length: this.w * 2 }
     ];
     this.debugFoldState = null;
+    this.currentFoldProgress = 0;
     
     this.initScene();
   }
@@ -75,9 +77,12 @@ export class Zine3DViewer {
     this.camera.position.set(0, 0, 4.6);
 
     try {
-      this.renderer = new THREE.WebGLRenderer({ antialias: true });
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       this.renderer.setSize(initialWidth, initialHeight);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      this.renderer.domElement.classList.add('zine-3d-canvas');
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       this.container.appendChild(this.renderer.domElement);
     } catch {
       this.initFallbackScene(initialWidth, initialHeight);
@@ -98,6 +103,11 @@ export class Zine3DViewer {
 
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.1);
     dirLight.position.set(2, 6, 5);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    dirLight.shadow.camera.near = 0.5;
+    dirLight.shadow.camera.far = 12;
     this.scene.add(dirLight);
     
     const backLight = new THREE.DirectionalLight(0xffffff, 0.45);
@@ -105,6 +115,7 @@ export class Zine3DViewer {
     this.scene.add(backLight);
 
     this.scene.add(new THREE.HemisphereLight(0xffffff, 0x3a3a55, 0.45));
+    this.createStageEnvironment();
 
     // Resize handler
     this.onWindowResize = () => this.refreshLayout();
@@ -137,23 +148,91 @@ export class Zine3DViewer {
     context.fillStyle = '#111111';
     context.fillRect(0, 0, width, height);
 
-    context.strokeStyle = 'rgba(255,255,255,0.18)';
-    context.lineWidth = Math.max(2, width * 0.006);
-    const inset = Math.max(16, width * 0.05);
-    context.strokeRect(inset, inset, width - (inset * 2), height - (inset * 2));
+    const gradient = context.createRadialGradient(width * 0.35, height * 0.2, 0, width * 0.5, height * 0.5, width * 0.7);
+    gradient.addColorStop(0, 'rgba(232,149,95,0.22)');
+    gradient.addColorStop(0.45, 'rgba(232,149,95,0.06)');
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, width, height);
 
-    context.fillStyle = '#f4f1ea';
-    context.fillRect(inset * 1.4, inset * 1.4, width - (inset * 2.8), height - (inset * 2.8));
+    const state = computeMiniZineFoldState(this.fallbackFoldProgress, {
+      w: this.w,
+      h: this.h,
+      stackDepthStep: this.stackDepthStep
+    });
+    const bounds = state.bounds;
+    const useFlatAxis = this.fallbackFoldProgress < 0.95;
+    const modelWidth = Math.max(0.1, bounds.max.x - bounds.min.x);
+    const modelHeight = useFlatAxis
+      ? Math.max(0.1, bounds.max.y - bounds.min.y)
+      : Math.max(0.1, bounds.max.z - bounds.min.z + this.h * 0.75);
+    const scale = Math.min((width * 0.72) / modelWidth, (height * 0.62) / modelHeight);
+    const centerX = (bounds.min.x + bounds.max.x) / 2;
+    const centerY = useFlatAxis
+      ? (bounds.min.y + bounds.max.y) / 2
+      : (bounds.min.z + bounds.max.z) / 2;
+    const pageOrder = [6, 7, 8, 1, 5, 4, 3, 2];
 
-    context.fillStyle = '#ff00d4';
-    context.font = `700 ${Math.max(18, width * 0.06)}px "Bangers", sans-serif`;
+    context.save();
+    context.translate(width / 2, height / 2 + height * 0.02);
+    context.shadowColor = 'rgba(0,0,0,0.28)';
+    context.shadowBlur = Math.max(8, width * 0.018);
+    context.shadowOffsetY = Math.max(4, height * 0.01);
+
+    pageOrder.forEach((pageId) => {
+      const pageState = state.pages[pageId];
+      if (!pageState) {
+        return;
+      }
+      const page = this.fallbackPages[pageId - 1];
+      const loaded = !!(page?.previewUrl || page?.sourceUrl);
+      const x = (pageState.position.x - centerX) * scale;
+      const ySource = useFlatAxis ? -pageState.position.y : -pageState.position.z;
+      const y = (ySource + centerY) * scale;
+      const panelWidth = this.w * scale * (useFlatAxis ? 0.96 : 0.72);
+      const panelHeight = this.h * scale * (useFlatAxis ? 0.96 : 0.45);
+
+      context.save();
+      context.translate(x, y);
+      if (!useFlatAxis) {
+        context.rotate(pageState.rotation.y * 0.18);
+      }
+      context.fillStyle = loaded ? '#fffdf8' : '#f4eadb';
+      context.strokeStyle = pageId === 1 ? '#e8955f' : 'rgba(61,52,40,0.34)';
+      context.lineWidth = Math.max(1, scale * 0.012);
+      context.beginPath();
+      context.roundRect(-panelWidth / 2, -panelHeight / 2, panelWidth, panelHeight, Math.max(3, scale * 0.025));
+      context.fill();
+      context.stroke();
+      context.shadowColor = 'transparent';
+      context.fillStyle = pageId === 1 ? '#9e4529' : '#3d3428';
+      context.font = `700 ${Math.max(11, scale * 0.16)}px Inter, sans-serif`;
+      context.textAlign = 'center';
+      context.textBaseline = 'middle';
+      context.fillText(pageId === 1 ? 'Cover' : `P${pageId}`, 0, 0);
+      context.restore();
+    });
+    context.restore();
+
+    const loadedPages = this.fallbackPages.filter((page) => page?.previewUrl || page?.sourceUrl).length;
+    context.fillStyle = 'rgba(255,253,248,0.86)';
+    context.font = `700 ${Math.max(12, width * 0.026)}px Inter, sans-serif`;
     context.textAlign = 'left';
-    context.fillText('Preview WIP', inset * 1.8, inset * 2.4);
+    context.fillText(`${loadedPages} pages loaded`, Math.max(16, width * 0.05), height - Math.max(18, height * 0.06));
+  }
 
-    context.fillStyle = '#111111';
-    context.font = `${Math.max(12, width * 0.026)}px "Space Grotesk", sans-serif`;
-    context.fillText(`Fold step ${this.fallbackFoldProgress.toFixed(1)}`, inset * 1.8, inset * 3.25);
-    context.fillText(`${this.fallbackPages.filter((page) => page?.previewUrl || page?.sourceUrl).length} pages loaded`, inset * 1.8, inset * 3.85);
+  createStageEnvironment() {
+    const floorGeometry = new THREE.PlaneGeometry(6.2, 4.4);
+    const floorMaterial = new THREE.MeshStandardMaterial({
+      color: 0x1c1713,
+      roughness: 0.92,
+      metalness: 0
+    });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.position.z = -0.06;
+    floor.receiveShadow = true;
+    this.scene.add(floor);
+    this.environmentMeshes.push({ mesh: floor, geometry: floorGeometry, material: floorMaterial });
   }
 
   /**
@@ -219,6 +298,7 @@ export class Zine3DViewer {
       let frontMaterial;
       if (url) {
         const texture = textureLoader.load(url);
+        texture.colorSpace = THREE.SRGBColorSpace;
         if (config.isTop) {
           texture.center.set(0.5, 0.5);
           texture.rotation = Math.PI;
@@ -243,10 +323,14 @@ export class Zine3DViewer {
       });
 
       const frontMesh = new THREE.Mesh(frontGeometry, frontMaterial);
+      frontMesh.castShadow = true;
+      frontMesh.receiveShadow = true;
       frontMesh.position.z = this.panelThickness;
       frontMesh.position.y = config.isTop ? this.h / 2 : -this.h / 2;
 
       const backMesh = new THREE.Mesh(backGeometry, backMaterial);
+      backMesh.castShadow = true;
+      backMesh.receiveShadow = true;
       backMesh.rotation.y = Math.PI;
       backMesh.position.z = -this.panelThickness;
       backMesh.position.y = config.isTop ? this.h / 2 : -this.h / 2;
@@ -309,6 +393,7 @@ export class Zine3DViewer {
    * @param {number} progress  0=flat, 1=lengthwise fold, 2=diamond open, 3=closed booklet
    */
   setFoldProgress(progress) {
+    this.currentFoldProgress = progress;
     if (this.isFallbackMode) {
       this.fallbackFoldProgress = progress;
       this.renderFallback();
@@ -360,9 +445,33 @@ export class Zine3DViewer {
       return;
     }
 
-    const zoom = 1 - Math.min(0.22, Math.max(0, progress) * 0.055);
-    const tilt = 0.12 + Math.min(0.12, progress * 0.025);
-    this.camera.position.set(0, Math.sin(tilt) * 0.4, 4.9 * zoom);
+    const bounds = this.debugFoldState?.bounds;
+    if (!bounds) {
+      return;
+    }
+
+    const center = {
+      x: (bounds.min.x + bounds.max.x) / 2,
+      y: (bounds.min.y + bounds.max.y) / 2,
+      z: (bounds.min.z + bounds.max.z) / 2
+    };
+    const span = Math.max(
+      bounds.max.x - bounds.min.x,
+      bounds.max.y - bounds.min.y,
+      bounds.max.z - bounds.min.z,
+      1.6
+    );
+    const stage = Math.max(0, Math.min(3, progress));
+    const yaw = -0.18 + (stage / 3) * 0.32;
+    const lift = 0.25 + (stage / 3) * 0.35;
+    const distance = Math.max(3.1, span * 1.38);
+
+    this.cameraTarget.set(center.x, center.y * 0.35, center.z);
+    this.camera.position.set(
+      this.cameraTarget.x + Math.sin(yaw) * 0.7,
+      this.cameraTarget.y + lift,
+      this.cameraTarget.z + distance
+    );
     this.controls.target.copy(this.cameraTarget);
     this.controls.update();
   }
@@ -379,6 +488,8 @@ export class Zine3DViewer {
         roughness: 0.95
       });
       const mesh = new THREE.Mesh(geometry, material);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
       this.scene.add(mesh);
       this.seams.push({ from, to, orientation, mesh, geometry, material });
     });
@@ -572,5 +683,9 @@ export class Zine3DViewer {
       (guide.geometries ?? [guide.geometry]).forEach((geometry) => geometry?.dispose?.());
     });
     this.renderer.dispose();
+    this.environmentMeshes.forEach(({ geometry, material }) => {
+      geometry?.dispose?.();
+      material?.dispose?.();
+    });
   }
 }
