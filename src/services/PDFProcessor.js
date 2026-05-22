@@ -350,7 +350,7 @@ export class PDFProcessor extends MediaProcessor {
    * Clean up resources
    */
   cleanup() {
-    this.loadingTask?.destroy().catch((error) => console.warn('Error destroying PDF loading task:', error));
+    this.loadingTask?.destroy().catch((_error) => { /* Ignore destroy errors on cleanup */ });
     this.loadingTask = null;
     if (this.pdf) {
       this.pdf.destroy();
