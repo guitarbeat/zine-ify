@@ -231,13 +231,7 @@ export class AppController {
     toast.success('Import Complete', status);
   }
 
-  async getSelectedPagesForImport(fileName, numPages) {
-    const selectionLimit = Math.max(1, this.state.gridSize.rows * this.state.gridSize.cols);
-
-    if (numPages <= selectionLimit) {
-      return Array.from({ length: numPages }, (_, index) => index + 1);
-    }
-
+  async _generateThumbnails(numPages) {
     const thumbnails = [];
     this.ui.modal.showProgress(true, 'Preparing page picker...', '0%');
     this.ui.modal.updateProgress(0);
@@ -287,6 +281,17 @@ export class AppController {
     } finally {
       this.ui.modal.showProgress(false);
     }
+    return thumbnails;
+  }
+
+  async getSelectedPagesForImport(fileName, numPages) {
+    const selectionLimit = Math.max(1, this.state.gridSize.rows * this.state.gridSize.cols);
+
+    if (numPages <= selectionLimit) {
+      return Array.from({ length: numPages }, (_, index) => index + 1);
+    }
+
+    const thumbnails = await this._generateThumbnails(numPages);
 
     try {
       return await this.ui.modal.showPagePicker({
