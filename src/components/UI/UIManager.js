@@ -15,6 +15,38 @@ import { PAGE_CELL_TEMPLATE } from './Templates.js';
 
 const DEFAULT_GRID_ROWS = 2;
 const DEFAULT_GRID_COLS = 4;
+const FOLD_STEPS = [
+  {
+    value: 0,
+    status: 'Flat',
+    helper: 'Start with the imposed sheet face up. Red marks the center slit; gray marks the crease grid.'
+  },
+  {
+    value: 0.5,
+    status: 'Creasing',
+    helper: 'Crease the sheet across the short and long axes, then reopen it so every panel has a hinge.'
+  },
+  {
+    value: 1,
+    status: 'Folded Strip',
+    helper: 'Fold the sheet lengthwise into a strip with the page artwork facing outward.'
+  },
+  {
+    value: 1.5,
+    status: 'Center Cut',
+    helper: 'Cut only the center slit, stopping at the quarter folds. The red guide shows the cut span.'
+  },
+  {
+    value: 2,
+    status: 'Diamond Open',
+    helper: 'Push the short ends together so the slit opens into a diamond and the page stacks swing inward.'
+  },
+  {
+    value: 3,
+    status: 'Booklet',
+    helper: 'Press the panels into a booklet stack with the cover outside, then page through the reading preview.'
+  }
+];
 
 export class UIManager {
   constructor() {
@@ -105,9 +137,31 @@ export class UIManager {
   }
 
   setFoldProgressControl(value) {
+    const parsedValue = typeof value === 'number' ? value : parseFloat(value || '0');
+    const progress = Number.isFinite(parsedValue) ? parsedValue : 0;
     if (this.elements.foldSlider) {
-      this.elements.foldSlider.value = value;
+      this.elements.foldSlider.value = progress;
     }
+    this.syncFoldStepUi(progress);
+  }
+
+  syncFoldStepUi(progress) {
+    const currentStep = FOLD_STEPS.reduce((closest, step) => (
+      Math.abs(step.value - progress) < Math.abs(closest.value - progress) ? step : closest
+    ), FOLD_STEPS[0]);
+
+    if (this.elements.foldStatus) {
+      this.elements.foldStatus.textContent = currentStep.status;
+    }
+    if (this.elements.foldHelper) {
+      this.elements.foldHelper.textContent = currentStep.helper;
+    }
+
+    this.elements.foldStepButtons?.forEach((button) => {
+      const isActive = Number(button.dataset.foldValue) === currentStep.value;
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+    });
   }
 
   toggleMobileRail(show) {
@@ -251,8 +305,6 @@ export class UIManager {
       gridRows: $('#grid-rows'),
       gridCols: $('#grid-cols'),
       gridTotal: $('#grid-total'),
-      printBtn: $('#printBtn'),
-      printBtnLabel: $('#printBtnLabel'),
       exportPdfBtn: $('#exportPdfBtn'),
       exportPdfBtnLabel: $('#exportPdfBtnLabel'),
       openRailSheetBtn: $('#open-rail-sheet-btn'),
@@ -354,7 +406,6 @@ export class UIManager {
       this._applyPageControlsVisibility(event.target.checked);
     });
 
-    this.elements.printBtn?.addEventListener('click', () => this.emitter.emit('print'));
     this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
     this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
     this.elements.clearAllBtn?.addEventListener('click', () => this.emitter.emit('clearAll'));
@@ -379,11 +430,27 @@ export class UIManager {
     });
 
     this.elements.foldStepButtons?.forEach((button) => {
+      button.setAttribute('aria-pressed', 'false');
       button.addEventListener('click', () => {
         const value = parseFloat(button.dataset.foldValue || '0');
         this.setFoldProgressControl(value);
         this.emitter.emit('foldProgress', value);
       });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (!this.isFoldPreviewOpen() || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+        return;
+      }
+
+      const stepButton = Array.from(this.elements.foldStepButtons || [])
+        .find((button) => button.dataset.stepIndex === event.key);
+      if (!stepButton) {
+        return;
+      }
+
+      event.preventDefault();
+      stepButton.click();
     });
 
     this.dnd.setupEventListeners();
@@ -407,6 +474,12 @@ export class UIManager {
     this.elements.gridCols?.addEventListener('input', debouncedGridChange);
 
     window.addEventListener('resize', () => this.syncResponsiveUI());
+  }
+
+  isFoldPreviewOpen() {
+    return !!this.elements.zine3dModal
+      && !this.elements.zine3dModal.classList.contains('hidden')
+      && this.elements.zine3dModal.style.display !== 'none';
   }
 
   generateLayout(numPages, templateType, paperSettings = {}) {

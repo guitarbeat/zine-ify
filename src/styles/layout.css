@@ -26,9 +26,10 @@
 
 .workspace-panel {
   min-height: 0;
-  border: 1px solid var(--border-color);
+  border: var(--border-thin);
   border-radius: var(--radius-panel);
-  background: var(--surface-bg);
+  background-color: var(--surface-bg);
+  background-image: var(--surface-paper-stack);
   box-shadow: var(--shadow-sm);
   padding: 1rem;
   transition: background-color 0.25s ease, border-color 0.25s ease;
@@ -88,7 +89,7 @@
 .workspace-action-tray,
 .global-action-dock {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.6rem;
   box-sizing: border-box;
   padding: 0.75rem;
@@ -268,7 +269,7 @@ body.mobile-rail-open { overflow: hidden; }
   .workspace-actions,
   .workspace-action-tray,
   .global-action-dock {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -318,8 +319,6 @@ body.mobile-rail-open { overflow: hidden; }
     bottom: calc(var(--mobile-safe-bottom) + 0.5rem);
     z-index: 20;
   }
-
-  .workspace-action-tray > :nth-child(3) { grid-column: 1 / -1; }
 
   .workspace-action-button {
     min-height: 2.75rem;

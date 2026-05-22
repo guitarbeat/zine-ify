@@ -23,27 +23,32 @@ export class BookletPreview {
 
   renderBase() {
     this.container.innerHTML = `
-      <div class="booklet-shell">
+      <div class="booklet-shell" tabindex="0" role="group" aria-label="Booklet spread preview. Use left and right arrow keys to turn pages.">
         <div class="booklet-stage">
+          <div class="booklet-shadow" aria-hidden="true"></div>
           <div class="booklet-spread">
             <div class="booklet-page booklet-page-left" data-side="left">
               <img class="booklet-page-media" alt="Left page preview">
               <span class="booklet-page-placeholder"></span>
+              <span class="booklet-page-label"></span>
             </div>
             <div class="booklet-spine" aria-hidden="true"></div>
             <div class="booklet-page booklet-page-right" data-side="right">
               <img class="booklet-page-media" alt="Right page preview">
               <span class="booklet-page-placeholder"></span>
+              <span class="booklet-page-label"></span>
             </div>
             <div class="booklet-turn-layer" aria-hidden="true">
               <div class="booklet-turn-card">
                 <div class="booklet-face booklet-face-front">
-                  <img class="booklet-page-media" alt="Turning page front">
+                  <img class="booklet-page-media" alt="">
                   <span class="booklet-page-placeholder"></span>
+                  <span class="booklet-page-label"></span>
                 </div>
                 <div class="booklet-face booklet-face-back">
-                  <img class="booklet-page-media" alt="Turning page back">
+                  <img class="booklet-page-media" alt="">
                   <span class="booklet-page-placeholder"></span>
+                  <span class="booklet-page-label"></span>
                 </div>
               </div>
             </div>
@@ -59,6 +64,7 @@ export class BookletPreview {
     this.turnCard = this.container.querySelector('.booklet-turn-card');
     this.turnFront = this.container.querySelector('.booklet-face-front');
     this.turnBack = this.container.querySelector('.booklet-face-back');
+    this.shell = this.container.querySelector('.booklet-shell');
   }
 
   bindControls() {
@@ -67,6 +73,15 @@ export class BookletPreview {
     this.turnCard?.addEventListener('transitionend', () => this.finishTurn());
     this.leftPage?.addEventListener('click', () => this.goPrev());
     this.rightPage?.addEventListener('click', () => this.goNext());
+    this.shell?.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        this.goPrev();
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        this.goNext();
+      }
+    });
   }
 
   loadPages(imageUrls = []) {
@@ -87,9 +102,22 @@ export class BookletPreview {
     this.states = buildMiniZineBookletStates(this.slotPages);
     this.spreadIndex = 0;
     this.isAnimating = false;
-    this.turnLayer?.classList.remove('is-visible', 'is-active', 'is-next', 'is-prev');
+    this.hideTurnLayer();
     this.updateStaticSpread();
     this.updateControls();
+  }
+
+  hideTurnLayer() {
+    this.turnLayer?.classList.remove('is-visible', 'is-active', 'is-next', 'is-prev');
+    this.turnLayer?.setAttribute('aria-hidden', 'true');
+    this.setPageFace(this.turnFront, null);
+    this.setPageFace(this.turnBack, null);
+  }
+
+  showTurnLayer(direction) {
+    this.turnLayer?.classList.remove('is-prev', 'is-next');
+    this.turnLayer?.classList.add(direction > 0 ? 'is-next' : 'is-prev', 'is-visible');
+    this.turnLayer?.setAttribute('aria-hidden', 'false');
   }
 
   getCurrentState() {
@@ -128,6 +156,7 @@ export class BookletPreview {
 
     const media = element.querySelector('.booklet-page-media');
     const placeholder = element.querySelector('.booklet-page-placeholder');
+    const label = element.querySelector('.booklet-page-label');
     const src = page?.previewUrl || page?.sourceUrl || null;
     const pageLabel = page ? getPageLabel(page.pageNumber, 8) : 'Blank';
 
@@ -147,6 +176,10 @@ export class BookletPreview {
       element.classList.add('is-empty');
     }
 
+    if (label) {
+      label.textContent = pageLabel;
+      label.hidden = !page;
+    }
     element.dataset.pageNumber = page?.pageNumber ? String(page.pageNumber) : '';
     media.alt = `${pageLabel} preview`;
   }
@@ -214,18 +247,15 @@ export class BookletPreview {
       this.setPageFace(this.rightPage, nextState.right);
       this.setPageFace(this.turnFront, currentState.right);
       this.setPageFace(this.turnBack, nextState.left);
-      this.turnLayer.classList.remove('is-prev');
-      this.turnLayer.classList.add('is-next');
+      this.showTurnLayer(direction);
     } else {
       this.setPageFace(this.leftPage, nextState.left);
       this.setPageFace(this.rightPage, currentState.right);
       this.setPageFace(this.turnFront, currentState.left);
       this.setPageFace(this.turnBack, nextState.right);
-      this.turnLayer.classList.remove('is-next');
-      this.turnLayer.classList.add('is-prev');
+      this.showTurnLayer(direction);
     }
 
-    this.turnLayer.classList.add('is-visible');
     this.updateControls();
 
     requestAnimationFrame(() => {
@@ -243,7 +273,7 @@ export class BookletPreview {
     this.spreadIndex = this.pendingSpreadIndex;
     this.pendingSpreadIndex = null;
     this.isAnimating = false;
-    this.turnLayer.classList.remove('is-visible', 'is-active', 'is-next', 'is-prev');
+    this.hideTurnLayer();
     this.updateStaticSpread();
     this.updateControls();
   }
