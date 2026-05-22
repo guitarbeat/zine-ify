@@ -11,7 +11,7 @@ test('layout view stays synced with paper config changes', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.locator('#paper-size-select')).toHaveValue('letter');
-  await expect(page.locator('#orientation-select')).toHaveValue('landscape');
+  await expect(page.locator('.orientation-seg-btn[data-value="landscape"]').getAttribute('aria-pressed')).toBe('true');
   await expect(page.locator('#preview-helper-chip')).toContainText('Drop to fill');
 
   const landscapeBounds = await getSheetBounds(page);
