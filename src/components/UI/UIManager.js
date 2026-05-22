@@ -165,7 +165,21 @@ export class UIManager {
   }
 
   toggleMobileRail(show) {
-    this.elements.previewArea?.classList.toggle('mobile-rail-open', !!show);
+    document.body.classList.toggle('mobile-rail-open', !!show);
+    const rail = document.getElementById('control-rail');
+    const overlay = document.getElementById('mobile-rail-overlay');
+    if (rail) {
+      rail.classList.toggle('is-open', !!show);
+      rail.setAttribute('aria-hidden', !show);
+    }
+    if (overlay) {
+      if (show) {
+        overlay.classList.remove('hidden');
+      } else {
+        overlay.classList.add('hidden');
+      }
+      overlay.setAttribute('aria-hidden', !show);
+    }
   }
 
   triggerFileUpload() {
@@ -293,6 +307,9 @@ export class UIManager {
       gridTotal: $('#grid-total'),
       exportPdfBtn: $('#exportPdfBtn'),
       exportPdfBtnLabel: $('#exportPdfBtnLabel'),
+      openRailSheetBtn: $('#open-rail-sheet-btn'),
+      closeRailSheetBtn: $('#close-rail-sheet-btn'),
+      mobileRailOverlay: $('#mobile-rail-overlay'),
       view3dBtn: $('#view3dBtn'),
       view3dBtnLabel: $('#view3dBtnLabel'),
       pdfUpload: $('#pdf-upload'),
