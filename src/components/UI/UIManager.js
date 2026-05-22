@@ -335,6 +335,16 @@ export class UIManager {
   }
 
   setupEventListeners() {
+    this._setupPaperConfigListeners();
+    this._setupGridConfigListeners();
+    this._setupActionListeners();
+    this._setupUploadListeners();
+    this._setup3DPreviewListeners();
+
+    window.addEventListener('resize', () => this.syncResponsiveUI());
+  }
+
+  _setupPaperConfigListeners() {
     this.elements.paperSizeSelect?.addEventListener('change', (event) => {
       this.emitter.emit('paperSizeChanged', { paperSize: event.target.value });
     });
@@ -366,7 +376,9 @@ export class UIManager {
       this.elements.marginInput.value = val;
       this.emitter.emit('marginChanged', { margin: val });
     });
+  }
 
+  _setupGridConfigListeners() {
     this.elements.gridRows?.closest('.workspace-config-split')?.querySelectorAll('.stepper-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
         const target = document.getElementById(btn.dataset.target);
@@ -380,6 +392,16 @@ export class UIManager {
       });
     });
 
+    const debouncedGridChange = debounce(() => {
+      const { rows, cols } = this.normalizeGridInputs();
+      this.updateGridTotalBadge(rows, cols);
+      this._syncOrientationVisibility(rows, cols);
+      this.emitter.emit('gridSizeChanged', { rows, cols });
+    }, 300);
+
+    this.elements.gridRows?.addEventListener('input', debouncedGridChange);
+    this.elements.gridCols?.addEventListener('input', debouncedGridChange);
+
     this.elements.pageNumbersCheckbox?.addEventListener('change', (event) => {
       this.pageNumbersVisible = event.target.checked;
       this.emitter.emit('pageNumbersToggled', this.pageNumbersVisible);
@@ -388,11 +410,19 @@ export class UIManager {
     this.elements.pageControlsCheckbox?.addEventListener('change', (event) => {
       this._applyPageControlsVisibility(event.target.checked);
     });
+  }
 
+  _setupActionListeners() {
     this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
     this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
     this.elements.clearAllBtn?.addEventListener('click', () => this.emitter.emit('clearAll'));
 
+    this.elements.openRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(true));
+    this.elements.closeRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(false));
+    this.elements.mobileRailOverlay?.addEventListener('click', () => this.toggleMobileRail(false));
+  }
+
+  _setupUploadListeners() {
     this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
     this.elements.uploadZone?.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
@@ -401,9 +431,17 @@ export class UIManager {
       }
     });
 
-    this.elements.openRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(true));
-    this.elements.closeRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(false));
-    this.elements.mobileRailOverlay?.addEventListener('click', () => this.toggleMobileRail(false));
+    this.dnd.setupEventListeners();
+    this.emitter.on('filesDropped', (files) => this.handleIncomingFiles(files));
+
+    this.elements.pdfUpload?.addEventListener('change', (event) => {
+      const files = Array.from(event.target.files || []);
+      this.handleIncomingFiles(files);
+      event.target.value = '';
+    });
+  }
+
+  _setup3DPreviewListeners() {
     this.elements.close3dBtn?.addEventListener('click', () => this.toggle3DModal(false));
 
     this.elements.foldSlider?.addEventListener('input', (event) => {
@@ -435,28 +473,6 @@ export class UIManager {
       event.preventDefault();
       stepButton.click();
     });
-
-    this.dnd.setupEventListeners();
-    this.emitter.on('filesDropped', (files) => this.handleIncomingFiles(files));
-
-    this.elements.pdfUpload?.addEventListener('change', (event) => {
-      const files = Array.from(event.target.files || []);
-      this.handleIncomingFiles(files);
-      event.target.value = '';
-    });
-
-    const debouncedGridChange = debounce(() => {
-      const { rows, cols } = this.normalizeGridInputs();
-
-      this.updateGridTotalBadge(rows, cols);
-      this._syncOrientationVisibility(rows, cols);
-      this.emitter.emit('gridSizeChanged', { rows, cols });
-    }, 300);
-
-    this.elements.gridRows?.addEventListener('input', debouncedGridChange);
-    this.elements.gridCols?.addEventListener('input', debouncedGridChange);
-
-    window.addEventListener('resize', () => this.syncResponsiveUI());
   }
 
   isFoldPreviewOpen() {
