@@ -193,6 +193,75 @@
 .simulation-guide-panel {
   position: relative;
   z-index: 1;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+/* Compact folding guide - no scrollbars */
+.simulation-fold-guide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+.simulation-fold-guide li {
+  flex: 1 1 calc(50% - 0.25rem);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.4rem;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius-button);
+}
+
+.fold-guide-step-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.fold-guide-num {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--primary-vibrant);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fold-guide-text {
+  font-size: 0.68rem;
+  line-height: 1.3;
+  color: var(--accent-dark);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fold-guide-img {
+  display: none;
+}
+
+/* Prevent scrollbars in folding guide */
+.simulation-guide-panel .scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.simulation-guide-panel .scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 .booklet-preview-container {
