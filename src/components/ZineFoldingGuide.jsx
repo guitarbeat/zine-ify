@@ -3,19 +3,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Separator from '@radix-ui/react-separator';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import {
-  ChevronLeft,
-  ChevronRight,
-  FileText,
-  Scissors,
-  FoldVertical,
-  ArrowLeftRight,
-  Eye,
-  BookOpen,
-  Lightbulb,
-  CheckCircle2,
-  Menu,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileText, Scissors, FoldVertical, ArrowLeftRight, Eye, BookOpen, Lightbulb, CircleCheck as CheckCircle2, Menu } from 'lucide-react';
 import { cn } from '../utils/helpers.js';
 
 // Animation variants matching existing app motion language
