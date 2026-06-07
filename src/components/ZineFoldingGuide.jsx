@@ -1,21 +1,29 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Separator from '@radix-ui/react-separator';
-import * as Tooltip from '@radix-ui/react-tooltip';
-import { ChevronLeft, ChevronRight, FileText, Scissors, FoldVertical, ArrowLeftRight, Eye, BookOpen, Lightbulb, CircleCheck as CheckCircle2, Menu } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  Scissors,
+  FoldVertical,
+  ArrowLeftRight,
+  Eye,
+  BookOpen,
+  Lightbulb,
+  CircleCheck as CheckCircle2,
+} from 'lucide-react';
 import { cn } from '../utils/helpers.js';
 
-// Animation variants matching existing app motion language
+// Animation config matching app motion language
 const ANIMATION_CONFIG = {
-  duration: 0.3,
-  ease: [0.4, 0, 0.2, 1], // easeInOut equivalent
-  spring: { stiffness: 300, damping: 25 },
+  duration: 0.25,
+  ease: [0.4, 0, 0.2, 1],
 };
 
 const stepVariants = {
   enter: (direction) => ({
-    x: direction > 0 ? 24 : -24,
+    x: direction > 0 ? 16 : -16,
     opacity: 0,
   }),
   center: {
@@ -23,53 +31,44 @@ const stepVariants = {
     opacity: 1,
   },
   exit: (direction) => ({
-    x: direction > 0 ? -24 : 24,
+    x: direction > 0 ? -16 : 16,
     opacity: 0,
   }),
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 8 },
-  visible: { opacity: 1, y: 0 },
-};
-
-// 8-step folding documentation data
+// 8-step folding documentation data (compact descriptions)
 const STEPS = [
   {
     id: 'plan',
     number: 1,
     title: 'Plan the Layout',
     foldType: 'prepare',
-    description:
-      'Design your zine on one sheet of paper, arranging all 8 pages in the correct order and orientation. The layout shows which page goes where so they appear in proper reading order after folding.',
+    description: 'Arrange 8 pages on one sheet in correct order for proper reading sequence after folding.',
     image: '/fold-guide/step-0-plan.png',
-    imageAlt:
-      'Page layout diagram showing the correct order and orientation of all 8 pages on one sheet',
-    tip: 'Page ordering is crucial — the front cover ends up on the outside, and pages read in order from front to back when folded correctly.',
+    imageAlt: 'Page layout diagram',
+    tip: 'Front cover goes outside; pages read in order.',
     icon: FileText,
   },
   {
     id: 'crease',
     number: 2,
-    title: 'Crease Both Directions',
+    title: 'Crease Both Ways',
     foldType: 'valley',
-    description:
-      'Fold the sheet in half along the long edge, crease firmly, and unfold. Then fold in half along the short edge, crease, and unfold. You now have a cross-shaped crease pattern.',
+    description: 'Fold in half along long edge, crease and unfold. Repeat along short edge.',
     image: '/fold-guide/step-1-crease.png',
-    imageAlt: 'Sheet with dashed crease lines along both axes showing valley folds',
-    tip: 'Use your fingernail or a bone folder for crisp, sharp creases. Well-defined folds make later steps much easier.',
+    imageAlt: 'Crease lines diagram',
+    tip: 'Use fingernail or bone folder for crisp creases.',
     icon: FoldVertical,
   },
   {
     id: 'quarters',
     number: 3,
-    title: 'Mark the Quarters',
+    title: 'Mark Quarters',
     foldType: 'valley',
-    description:
-      'Fold each outer edge of the long side toward the center crease, creating two more parallel creases. Now the sheet is divided into quarters along its length. Unfold flat.',
+    description: 'Fold outer edges to center crease, creating quarter divisions. Unfold flat.',
     image: '/fold-guide/step-2-quarters.png',
-    imageAlt: 'Sheet folded to show quarter crease marks along the long axis',
-    tip: 'Align edges carefully for even divisions. Precise quarter folds ensure the booklet collapses evenly.',
+    imageAlt: 'Quarter crease marks',
+    tip: 'Precise folds ensure even collapse.',
     icon: ArrowLeftRight,
   },
   {
@@ -77,11 +76,10 @@ const STEPS = [
     number: 4,
     title: 'Cut the Center',
     foldType: 'cut',
-    description:
-      'Fold the sheet in half along the short edge. Use scissors to cut along the center crease — through both layers — but stop at the quarter-fold marks. Do not cut all the way across.',
+    description: 'Fold in half along short edge. Cut center crease through both layers, stopping at quarter marks.',
     image: '/fold-guide/step-3-cut.png',
-    imageAlt: 'Sheet folded in half with a cut shown along the center between the quarter marks',
-    tip: 'The cut should span only the middle half of the sheet. Cutting too far will prevent proper folding.',
+    imageAlt: 'Center cut diagram',
+    tip: 'Cut only middle half — not all the way across.',
     icon: Scissors,
   },
   {
@@ -89,82 +87,63 @@ const STEPS = [
     number: 5,
     title: 'Open Flat',
     foldType: 'prepare',
-    description:
-      'Unfold the sheet completely. You will see a short horizontal slit in the center of the page. This slit is the key to the magic fold that follows.',
+    description: 'Unfold completely. A short center slit appears — key to the magic fold.',
     image: '/fold-guide/step-4-open.png',
-    imageAlt: 'Flat sheet showing the short cut slit in its center',
-    tip: 'The slit creates flexibility at the center point, allowing the paper to collapse into a booklet.',
+    imageAlt: 'Flat sheet with center slit',
+    tip: 'Slit creates flexibility for collapse.',
     icon: Eye,
   },
   {
     id: 'strip',
     number: 6,
-    title: 'Fold into a Strip',
+    title: 'Fold into Strip',
     foldType: 'valley',
-    description:
-      'Fold the sheet in half along the long center crease again, like a book. Your pages should all be facing outward — visible on the outside of the folded strip.',
+    description: 'Fold in half along long crease again. Pages face outward on both sides.',
     image: '/fold-guide/step-5-fold-strip.png',
-    imageAlt: 'Sheet folded into a long strip with pages visible on the outside',
-    tip: 'Keep the artwork facing outward. This determines which pages end up on the outside of your finished booklet.',
+    imageAlt: 'Folded strip with pages outward',
+    tip: 'Keep artwork facing outward.',
     icon: FoldVertical,
   },
   {
     id: 'push',
     number: 7,
-    title: 'Push Into a Diamond',
+    title: 'Push into Diamond',
     foldType: 'mountain',
-    description:
-      'Hold the folded strip at both short ends. Push inward toward the center — the slit will open, and the pages will spread into a star or diamond cross shape. Bring the two sides together so the front cover is on the outside.',
+    description: 'Push both ends inward — slit opens into diamond shape. Bring sides together.',
     image: '/fold-guide/step-6-push-in.png',
-    imageAlt: 'The center slit opening into a diamond cross-shape as the ends are pushed together',
-    tip: 'This is the magic step. The opening slit allows the paper to collapse into a booklet without any binding.',
+    imageAlt: 'Diamond cross-shape forming',
+    tip: 'This is the magic step.',
     icon: ArrowLeftRight,
   },
   {
     id: 'done',
     number: 8,
-    title: 'Press Into a Booklet',
+    title: 'Press Flat',
     foldType: 'finish',
-    description:
-      'Press the collapsed shape flat between your palms. You now have a finished 8-page zine booklet — no stapling, gluing, or stitching required. The pages read in order from front to back.',
+    description: 'Press flat — finished 8-page booklet, no staples or glue needed!',
     image: '/fold-guide/step-7-done.png',
-    imageAlt: 'The finished folded 8-page zine booklet',
-    tip: 'Optional: trim the outer edges with a craft knife for a clean, professional finish.',
+    imageAlt: 'Finished zine booklet',
+    tip: 'Trim edges for clean finish.',
     icon: BookOpen,
   },
 ];
 
 // Fold type badge configuration
 const FOLD_TYPE_CONFIG = {
-  prepare: {
-    label: 'Prepare',
-    className: 'bg-zinc-100 text-zinc-600 border-zinc-200',
-  },
-  valley: {
-    label: 'Valley Fold',
-    className: 'bg-sky-50 text-sky-700 border-sky-200',
-  },
-  mountain: {
-    label: 'Mountain Fold',
-    className: 'bg-amber-50 text-amber-700 border-amber-200',
-  },
-  cut: {
-    label: 'Cut',
-    className: 'bg-rose-50 text-rose-700 border-rose-200',
-  },
-  finish: {
-    label: 'Finish',
-    className: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  },
+  prepare: { label: 'Prep', className: 'bg-zinc-100 text-zinc-600 border-zinc-200' },
+  valley: { label: 'Valley', className: 'bg-sky-50 text-sky-700 border-sky-200' },
+  mountain: { label: 'Mountain', className: 'bg-amber-50 text-amber-700 border-amber-200' },
+  cut: { label: 'Cut', className: 'bg-rose-50 text-rose-700 border-rose-200' },
+  finish: { label: 'Done', className: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
 };
 
-// Sub-component: Fold Type Badge
+// Sub-component: Fold Type Badge (compact)
 function FoldTypeBadge({ type }) {
   const config = FOLD_TYPE_CONFIG[type] || FOLD_TYPE_CONFIG.prepare;
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border',
+        'inline-flex items-center px-1.5 py-0 rounded-full text-[10px] font-semibold border',
         config.className
       )}
     >
@@ -173,41 +152,40 @@ function FoldTypeBadge({ type }) {
   );
 }
 
-// Sub-component: Tip Callout
-function TipCallout({ children }) {
+// Sub-component: Compact Tip
+function TipCompact({ children }) {
   return (
-    <div className="flex gap-3 p-4 rounded-xl bg-amber-50/80 border border-amber-100/80">
-      <div className="flex-shrink-0 mt-0.5">
-        <Lightbulb className="w-4 h-4 text-amber-500" aria-hidden="true" />
-      </div>
-      <p className="text-sm text-amber-800 leading-relaxed">{children}</p>
+    <div className="flex items-start gap-1.5 text-xs text-amber-700">
+      <Lightbulb className="w-3 h-3 flex-shrink-0 mt-0.5" aria-hidden="true" />
+      <span className="leading-tight">{children}</span>
     </div>
   );
 }
 
-// Sub-component: Diagram Placeholder
-function DiagramPlaceholder({ src, alt, title }) {
+// Sub-component: Compact Diagram
+function DiagramCompact({ src, alt }) {
   return (
-    <figure className="relative rounded-xl overflow-hidden bg-zinc-50 border border-zinc-200">
-      <div className="aspect-[4/3] w-full">
-        <img
-          src={src}
-          alt={alt}
-          className="w-full h-full object-contain p-4"
-          loading="lazy"
-        />
-      </div>
-      <figcaption className="sr-only">{alt}</figcaption>
+    <figure className="relative rounded-lg overflow-hidden bg-zinc-50 border border-zinc-200">
+      <img
+        src={src}
+        alt={alt}
+        className="w-full h-full object-contain p-2"
+        loading="lazy"
+      />
     </figure>
   );
 }
 
-// Sub-component: Step Icon
-function StepIcon({ icon: Icon, isActive, isCompleted }) {
+// Sub-component: Compact Step Icon
+function StepIconCompact({ icon: Icon, isActive, isCompleted, size = 'md' }) {
+  const sizeClasses = size === 'sm' ? 'w-6 h-6' : 'w-7 h-7';
+  const iconSize = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
+
   return (
     <div
       className={cn(
-        'w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-200',
+        'rounded-lg flex items-center justify-center transition-colors duration-150',
+        sizeClasses,
         isCompleted
           ? 'bg-emerald-100 text-emerald-600'
           : isActive
@@ -216,17 +194,20 @@ function StepIcon({ icon: Icon, isActive, isCompleted }) {
       )}
     >
       {isCompleted ? (
-        <CheckCircle2 className="w-5 h-5" aria-hidden="true" />
+        <CheckCircle2 className={iconSize} aria-hidden="true" />
       ) : (
-        <Icon className="w-5 h-5" aria-hidden="true" />
+        <Icon className={iconSize} aria-hidden="true" />
       )}
     </div>
   );
 }
 
-// Sub-component: Step Detail Panel
-function StepDetail({ step, direction }) {
+// Sub-component: Desktop Step Detail (compact horizontal layout)
+function StepDetailDesktop({ step, direction, onPrev, onNext }) {
   const prefersReducedMotion = useReducedMotion();
+  const currentIndex = STEPS.findIndex((s) => s.id === step.id);
+  const canGoPrev = currentIndex > 0;
+  const canGoNext = currentIndex < STEPS.length - 1;
 
   return (
     <motion.div
@@ -237,135 +218,192 @@ function StepDetail({ step, direction }) {
       animate="center"
       exit={prefersReducedMotion ? { opacity: 0 } : 'exit'}
       transition={{
-        duration: prefersReducedMotion ? 0.15 : ANIMATION_CONFIG.duration,
+        duration: prefersReducedMotion ? 0.1 : ANIMATION_CONFIG.duration,
         ease: ANIMATION_CONFIG.ease,
       }}
-      className="space-y-5"
+      className="flex flex-col h-full"
     >
-      {/* Header */}
-      <motion.div
-        variants={prefersReducedMotion ? undefined : itemVariants}
-        className="flex items-start gap-4"
-      >
-        <StepIcon icon={step.icon} isActive={true} isCompleted={false} />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-xs font-bold text-amber-600 uppercase tracking-wider">
-              Step {step.number} of 8
-            </span>
-            <FoldTypeBadge type={step.foldType} />
-          </div>
-          <h3 className="text-xl font-semibold text-zinc-900 mt-1.5 leading-tight">
-            {step.title}
-          </h3>
+      {/* Header row: icon + step number + title + badge */}
+      <div className="flex items-center gap-2 mb-2">
+        <StepIconCompact icon={step.icon} isActive={true} isCompleted={false} />
+        <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wide">
+          {step.number}/8
+        </span>
+        <h3 className="text-sm font-semibold text-zinc-900 flex-1">{step.title}</h3>
+        <FoldTypeBadge type={step.foldType} />
+      </div>
+
+      {/* Content: diagram left, text right */}
+      <div className="grid grid-cols-[140px_1fr] gap-3 flex-1">
+        {/* Diagram */}
+        <div className="h-[100px]">
+          <DiagramCompact src={step.image} alt={step.imageAlt} />
         </div>
-      </motion.div>
 
-      <Separator.Root className="h-px bg-zinc-200" />
+        {/* Text content */}
+        <div className="flex flex-col justify-between py-0.5">
+          <p className="text-xs text-zinc-600 leading-relaxed line-clamp-3">
+            {step.description}
+          </p>
+          <TipCompact>{step.tip}</TipCompact>
+        </div>
+      </div>
 
-      {/* Description */}
-      <motion.p
-        variants={prefersReducedMotion ? undefined : itemVariants}
-        className="text-base text-zinc-600 leading-relaxed"
-      >
-        {step.description}
-      </motion.p>
+      {/* Navigation row */}
+      <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-zinc-100">
+        <button
+          type="button"
+          onClick={onPrev}
+          disabled={!canGoPrev}
+          aria-label="Previous step"
+          className={cn(
+            'flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors',
+            canGoPrev
+              ? 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
+              : 'bg-zinc-50 text-zinc-300 cursor-not-allowed'
+          )}
+        >
+          <ChevronLeft className="w-3.5 h-3.5" />
+          Prev
+        </button>
 
-      {/* Diagram */}
-      <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-        <DiagramPlaceholder
-          src={step.image}
-          alt={step.imageAlt}
-          title={step.title}
-        />
-      </motion.div>
-
-      {/* Tip */}
-      <motion.div variants={prefersReducedMotion ? undefined : itemVariants}>
-        <TipCallout>{step.tip}</TipCallout>
-      </motion.div>
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={!canGoNext}
+          aria-label="Next step"
+          className={cn(
+            'flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors',
+            canGoNext
+              ? 'bg-zinc-900 text-white hover:bg-zinc-800'
+              : 'bg-zinc-100 text-zinc-300 cursor-not-allowed'
+          )}
+        >
+          Next
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
     </motion.div>
   );
 }
 
-// Sub-component: Desktop Step Navigation Sidebar
-function StepNavSidebar({ steps, activeStep, completedSteps, onStepClick }) {
+// Sub-component: Desktop Sidebar Step Item (compact)
+function SidebarStepItem({ step, isActive, isCompleted, onClick }) {
   return (
-    <nav
-      aria-label="Folding steps navigation"
-      className="flex flex-col h-full"
+    <button
+      onClick={() => onClick(step.id)}
+      aria-current={isActive ? 'step' : undefined}
+      className={cn(
+        'w-full text-left p-2 rounded-lg transition-all duration-150 group',
+        'flex items-center gap-2',
+        isActive
+          ? 'bg-white shadow-sm ring-1 ring-amber-200'
+          : 'hover:bg-white/50'
+      )}
     >
-      <div className="pb-3 mb-3 border-b border-zinc-200">
-        <h4 className="text-sm font-semibold text-zinc-700">Folding Steps</h4>
-        <p className="text-xs text-zinc-500 mt-0.5">Click any step to view</p>
-      </div>
-
-      <ScrollArea.Root className="flex-1 min-h-0">
-        <ScrollArea.Viewport className="h-full pr-2">
-          <ol className="space-y-1.5">
-            {steps.map((step) => {
-              const isActive = activeStep === step.id;
-              const isCompleted = completedSteps.has(step.id);
-
-              return (
-                <li key={step.id}>
-                  <button
-                    onClick={() => onStepClick(step.id)}
-                    aria-current={isActive ? 'step' : undefined}
-                    className={cn(
-                      'w-full text-left p-3 rounded-xl transition-all duration-200 group',
-                      'flex items-start gap-3',
-                      isActive
-                        ? 'bg-white shadow-sm ring-1 ring-amber-200'
-                        : 'hover:bg-white/60'
-                    )}
-                  >
-                    <StepIcon
-                      icon={step.icon}
-                      isActive={isActive}
-                      isCompleted={isCompleted}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div
-                        className={cn(
-                          'text-sm font-semibold transition-colors',
-                          isActive
-                            ? 'text-zinc-900'
-                            : 'text-zinc-600 group-hover:text-zinc-900'
-                        )}
-                      >
-                        {step.number}. {step.title}
-                      </div>
-                      <div className="text-xs text-zinc-400 mt-0.5 line-clamp-1">
-                        <FoldTypeBadge type={step.foldType} />
-                      </div>
-                    </div>
-                    {isActive && (
-                      <ChevronRight
-                        className="w-4 h-4 text-amber-500 flex-shrink-0 mt-1"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
-        </ScrollArea.Viewport>
-        <ScrollArea.Scrollbar
-          orientation="vertical"
-          className="flex select-none touch-none p-0.5"
+      <StepIconCompact icon={step.icon} isActive={isActive} isCompleted={isCompleted} size="sm" />
+      <div className="flex-1 min-w-0">
+        <div
+          className={cn(
+            'text-xs font-medium truncate transition-colors',
+            isActive ? 'text-zinc-900' : 'text-zinc-600 group-hover:text-zinc-900'
+          )}
         >
-          <ScrollArea.Thumb className="flex-1 bg-zinc-200 rounded-full relative" />
-        </ScrollArea.Scrollbar>
-      </ScrollArea.Root>
-    </nav>
+          {step.number}. {step.title}
+        </div>
+      </div>
+      {isActive && (
+        <ChevronRight className="w-3 h-3 text-amber-500 flex-shrink-0" aria-hidden="true" />
+      )}
+    </button>
   );
 }
 
-// Sub-component: Mobile Step Navigation Pills
-function MobileStepPills({ steps, activeStep, onStepClick }) {
-  const scrollRef = React.useRef(null);
+// Sub-component: Mobile Step Card (fixed height, no expansion)
+function MobileStepCard({ step, isActive, direction, onPrev, onNext }) {
+  const prefersReducedMotion = useReducedMotion();
+  const currentIndex = STEPS.findIndex((s) => s.id === step.id);
+  const canGoPrev = currentIndex > 0;
+  const canGoNext = currentIndex < STEPS.length - 1;
+
+  return (
+    <motion.div
+      key={step.id}
+      custom={direction}
+      variants={prefersReducedMotion ? undefined : stepVariants}
+      initial={prefersReducedMotion ? { opacity: 0 } : 'enter'}
+      animate="center"
+      exit={prefersReducedMotion ? { opacity: 0 } : 'exit'}
+      transition={{
+        duration: prefersReducedMotion ? 0.1 : ANIMATION_CONFIG.duration,
+        ease: ANIMATION_CONFIG.ease,
+      }}
+      className="bg-white rounded-xl border border-zinc-200 shadow-sm p-3"
+    >
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-2">
+        <StepIconCompact icon={step.icon} isActive={true} isCompleted={false} />
+        <span className="text-[10px] font-bold text-amber-600 uppercase">
+          {step.number}/8
+        </span>
+        <h3 className="text-sm font-semibold text-zinc-900 flex-1">{step.title}</h3>
+        <FoldTypeBadge type={step.foldType} />
+      </div>
+
+      {/* Content grid */}
+      <div className="grid grid-cols-[120px_1fr] gap-2.5">
+        {/* Diagram */}
+        <div className="h-[85px]">
+          <DiagramCompact src={step.image} alt={step.imageAlt} />
+        </div>
+
+        {/* Text */}
+        <div className="flex flex-col justify-between">
+          <p className="text-xs text-zinc-600 leading-relaxed line-clamp-3">
+            {step.description}
+          </p>
+          <TipCompact>{step.tip}</TipCompact>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div className="flex items-center justify-between gap-2 mt-2.5 pt-2 border-t border-zinc-100">
+        <button
+          type="button"
+          onClick={onPrev}
+          disabled={!canGoPrev}
+          className={cn(
+            'flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors',
+            canGoPrev
+              ? 'bg-zinc-100 text-zinc-700'
+              : 'bg-zinc-50 text-zinc-300 cursor-not-allowed'
+          )}
+        >
+          <ChevronLeft className="w-3.5 h-3.5" />
+          Prev
+        </button>
+
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={!canGoNext}
+          className={cn(
+            'flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors',
+            canGoNext
+              ? 'bg-zinc-900 text-white'
+              : 'bg-zinc-100 text-zinc-300 cursor-not-allowed'
+          )}
+        >
+          Next
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+// Sub-component: Mobile Step Pills Navigation
+function MobileStepPills({ steps, activeStep, onStepClick, scrollRef }) {
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
@@ -379,14 +417,13 @@ function MobileStepPills({ steps, activeStep, onStepClick }) {
         });
       }
     }
-  }, [activeStep, prefersReducedMotion]);
+  }, [activeStep, prefersReducedMotion, scrollRef]);
 
   return (
     <div
-      ref={scrollRef}
-      className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"
       role="tablist"
       aria-label="Folding steps"
+      className="flex gap-1.5 overflow-x-auto py-1 -mx-1 px-1 scrollbar-hide"
     >
       {steps.map((step) => {
         const isActive = activeStep === step.id;
@@ -396,16 +433,18 @@ function MobileStepPills({ steps, activeStep, onStepClick }) {
             data-step={step.id}
             role="tab"
             aria-selected={isActive}
-            aria-controls={`step-panel-${step.id}`}
             onClick={() => onStepClick(step.id)}
             className={cn(
-              'flex-shrink-0 px-3 py-2 rounded-full text-xs font-semibold transition-all duration-200',
+              'flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-semibold transition-all',
               isActive
-                ? 'bg-amber-500 text-white shadow-sm'
+                ? 'bg-amber-500 text-white'
                 : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
             )}
           >
-            {step.number}
+            <span className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+              {step.number}
+            </span>
+            <span className="hidden sm:inline">{step.title}</span>
           </button>
         );
       })}
@@ -413,150 +452,16 @@ function MobileStepPills({ steps, activeStep, onStepClick }) {
   );
 }
 
-// Sub-component: Navigation Buttons
-function StepNavigationButtons({ activeStep, onPrev, onNext }) {
-  const currentIndex = STEPS.findIndex((s) => s.id === activeStep);
-  const canGoPrev = currentIndex > 0;
-  const canGoNext = currentIndex < STEPS.length - 1;
-
-  return (
-    <div className="flex items-center justify-between gap-3 pt-4 border-t border-zinc-200 mt-5">
-      <button
-        type="button"
-        onClick={onPrev}
-        disabled={!canGoPrev}
-        aria-label="Previous step"
-        className={cn(
-          'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200',
-          canGoPrev
-            ? 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
-            : 'bg-zinc-50 text-zinc-300 cursor-not-allowed'
-        )}
-      >
-        <ChevronLeft className="w-4 h-4" aria-hidden="true" />
-        Previous
-      </button>
-
-      <span className="text-xs text-zinc-400 font-medium">
-        {currentIndex + 1} / {STEPS.length}
-      </span>
-
-      <button
-        type="button"
-        onClick={onNext}
-        disabled={!canGoNext}
-        aria-label="Next step"
-        className={cn(
-          'flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200',
-          canGoNext
-            ? 'bg-zinc-900 text-white hover:bg-zinc-800'
-            : 'bg-zinc-100 text-zinc-300 cursor-not-allowed'
-        )}
-      >
-        Next
-        <ChevronRight className="w-4 h-4" aria-hidden="true" />
-      </button>
-    </div>
-  );
-}
-
-// Sub-component: Mobile Accordion Step
-function MobileAccordionStep({
-  step,
-  isActive,
-  isCompleted,
-  onClick,
-  prefersReducedMotion,
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: prefersReducedMotion ? 0.1 : 0.2,
-        delay: prefersReducedMotion ? 0 : step.number * 0.03,
-      }}
-      className={cn(
-        'rounded-xl border transition-all duration-200 overflow-hidden',
-        isActive
-          ? 'bg-white border-amber-200 shadow-sm'
-          : 'bg-white/60 border-zinc-200'
-      )}
-    >
-      <button
-        type="button"
-        onClick={onClick}
-        aria-expanded={isActive}
-        aria-controls={`step-content-${step.id}`}
-        className="w-full text-left p-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2"
-      >
-        <div className="flex items-start gap-3">
-          <StepIcon icon={step.icon} isActive={isActive} isCompleted={isCompleted} />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className="text-xs font-bold text-amber-600 uppercase tracking-wider">
-                Step {step.number}
-              </span>
-              <FoldTypeBadge type={step.foldType} />
-            </div>
-            <h3
-              className={cn(
-                'text-base font-semibold transition-colors',
-                isActive ? 'text-zinc-900' : 'text-zinc-700'
-              )}
-            >
-              {step.title}
-            </h3>
-          </div>
-        </div>
-      </button>
-
-      <AnimatePresence initial={false}>
-        {isActive && (
-          <motion.div
-            id={`step-content-${step.id}`}
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{
-              duration: prefersReducedMotion ? 0.15 : 0.3,
-              ease: ANIMATION_CONFIG.ease,
-            }}
-            className="overflow-hidden"
-            role="region"
-            aria-label={`${step.title} details`}
-          >
-            <div className="px-4 pb-4 space-y-4">
-              <Separator.Root className="h-px bg-zinc-100" />
-
-              <p className="text-sm text-zinc-600 leading-relaxed">
-                {step.description}
-              </p>
-
-              <DiagramPlaceholder
-                src={step.image}
-                alt={step.imageAlt}
-                title={step.title}
-              />
-
-              <TipCallout>{step.tip}</TipCallout>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
-
-// Main Component: ZineFoldingGuide
+// Main Component: ZineFoldingGuide (compact, no-scroll design)
 export function ZineFoldingGuide() {
   const [activeStep, setActiveStep] = useState(STEPS[0].id);
   const [direction, setDirection] = useState(0);
   const [completedSteps, setCompletedSteps] = useState(new Set());
   const [isMobile, setIsMobile] = useState(false);
+  const pillsScrollRef = useRef(null);
   const prefersReducedMotion = useReducedMotion();
 
-  // Responsive breakpoint detection
+  // Responsive detection
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -570,14 +475,11 @@ export function ZineFoldingGuide() {
     setDirection(newIndex > currentIndex ? 1 : -1);
     setActiveStep(stepId);
 
-    // Mark previous step as completed when moving forward
     if (newIndex > currentIndex) {
       setCompletedSteps((prev) => {
         const newSet = new Set(prev);
         const prevStep = STEPS[currentIndex];
-        if (prevStep) {
-          newSet.add(prevStep.id);
-        }
+        if (prevStep) newSet.add(prevStep.id);
         return newSet;
       });
     }
@@ -585,16 +487,12 @@ export function ZineFoldingGuide() {
 
   const handlePrev = useCallback(() => {
     const currentIndex = STEPS.findIndex((s) => s.id === activeStep);
-    if (currentIndex > 0) {
-      handleStepClick(STEPS[currentIndex - 1].id);
-    }
+    if (currentIndex > 0) handleStepClick(STEPS[currentIndex - 1].id);
   }, [activeStep, handleStepClick]);
 
   const handleNext = useCallback(() => {
     const currentIndex = STEPS.findIndex((s) => s.id === activeStep);
-    if (currentIndex < STEPS.length - 1) {
-      handleStepClick(STEPS[currentIndex + 1].id);
-    }
+    if (currentIndex < STEPS.length - 1) handleStepClick(STEPS[currentIndex + 1].id);
   }, [activeStep, handleStepClick]);
 
   // Keyboard navigation
@@ -608,7 +506,6 @@ export function ZineFoldingGuide() {
         handleNext();
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handlePrev, handleNext]);
@@ -616,89 +513,81 @@ export function ZineFoldingGuide() {
   const activeStepData = STEPS.find((s) => s.id === activeStep);
 
   return (
-    <section
-      aria-label="How to fold your zine"
-      className="simulation-guide-panel"
-    >
+    <section aria-label="How to fold your zine" className="simulation-guide-panel">
       {/* Header */}
-      <div className="simulation-panel-top">
+      <div className="simulation-panel-top mb-2">
         <div>
           <p className="simulation-panel-kicker">How to fold</p>
           <p className="simulation-panel-title">8 pages · 1 sheet · 1 cut</p>
         </div>
       </div>
 
-      <Separator.Root className="my-4 h-px bg-zinc-200" />
+      <Separator.Root className="my-3 h-px bg-zinc-200" />
 
       {/* Mobile View */}
       {isMobile && (
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           <MobileStepPills
             steps={STEPS}
             activeStep={activeStep}
             onStepClick={handleStepClick}
+            scrollRef={pillsScrollRef}
           />
 
-          <ol className="space-y-3">
-            {STEPS.map((step) => {
-              const isActive = activeStep === step.id;
-              const isCompleted = completedSteps.has(step.id);
-
-              return (
-                <li key={step.id}>
-                  <MobileAccordionStep
-                    step={step}
-                    isActive={isActive}
-                    isCompleted={isCompleted}
-                    onClick={() => handleStepClick(step.id)}
-                    prefersReducedMotion={prefersReducedMotion}
-                  />
-                </li>
-              );
-            })}
-          </ol>
+          <AnimatePresence mode="wait" custom={direction}>
+            {activeStepData && (
+              <MobileStepCard
+                step={activeStepData}
+                isActive={true}
+                direction={direction}
+                onPrev={handlePrev}
+                onNext={handleNext}
+              />
+            )}
+          </AnimatePresence>
         </div>
       )}
 
-      {/* Desktop View: Two-column layout */}
+      {/* Desktop View: Compact two-column */}
       {!isMobile && (
-        <div className="grid grid-cols-2 gap-5 h-full">
-          {/* Left: Step navigation sidebar */}
-          <div className="bg-zinc-50/50 rounded-xl p-3 border border-zinc-200 min-h-[500px]">
-            <StepNavSidebar
-              steps={STEPS}
-              activeStep={activeStep}
-              completedSteps={completedSteps}
-              onStepClick={handleStepClick}
-            />
+        <div className="grid grid-cols-[180px_1fr] gap-3">
+          {/* Left: Compact step list */}
+          <div className="bg-zinc-50/50 rounded-lg p-2 border border-zinc-200">
+            <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2 px-1">
+              Steps
+            </div>
+            <nav aria-label="Folding steps navigation">
+              <ol className="space-y-1">
+                {STEPS.map((step) => {
+                  const isActive = activeStep === step.id;
+                  const isCompleted = completedSteps.has(step.id);
+                  return (
+                    <li key={step.id}>
+                      <SidebarStepItem
+                        step={step}
+                        isActive={isActive}
+                        isCompleted={isCompleted}
+                        onClick={handleStepClick}
+                      />
+                    </li>
+                  );
+                })}
+              </ol>
+            </nav>
           </div>
 
-          {/* Right: Step detail panel */}
-          <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">
-            <ScrollArea.Root className="h-full">
-              <ScrollArea.Viewport className="h-full">
-                <AnimatePresence mode="wait" custom={direction}>
-                  {activeStepData && (
-                    <StepDetail
-                      step={activeStepData}
-                      direction={direction}
-                    />
-                  )}
-                </AnimatePresence>
-
-                <StepNavigationButtons
-                  activeStep={activeStep}
+          {/* Right: Step detail */}
+          <div className="bg-white rounded-lg p-3 border border-zinc-200 shadow-sm">
+            <AnimatePresence mode="wait" custom={direction}>
+              {activeStepData && (
+                <StepDetailDesktop
+                  step={activeStepData}
+                  direction={direction}
                   onPrev={handlePrev}
                   onNext={handleNext}
                 />
-              </ScrollArea.Viewport>
-              <ScrollArea.Scrollbar
-                orientation="vertical"
-                className="flex select-none touch-none p-0.5"
-              >
-                <ScrollArea.Thumb className="flex-1 bg-zinc-200 rounded-full relative" />
-              </ScrollArea.Scrollbar>
-            </ScrollArea.Root>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       )}
