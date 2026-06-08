@@ -60,7 +60,6 @@ export class UIManager {
   }
 
   init() {
-    this._pageCellsCache = null;
     this.cacheElements();
     this.modal = new ModalManager(this.elements, this.emitter);
     this.dnd = new DragAndDropHandler(this.elements, this.emitter);
@@ -299,10 +298,6 @@ export class UIManager {
     this.elements.previewArea?.classList.toggle('mobile-rail-open', isMobile);
   }
 
-  _getAllPageCells() {
-    return Array.from(this.elements.zineSheetsContainer?.querySelectorAll('.page-cell') || []);
-  }
-
   _getPageCell(index) {
     return this.elements.zineSheetsContainer?.querySelector(`[data-page-index="${index}"]`) || null;
   }
@@ -358,12 +353,7 @@ export class UIManager {
       foldHelper: $('#fold-helper'),
       foldStepButtons: document.querySelectorAll('.fold-step-btn'),
       pagePickerGrid: $('#page-picker-grid'),
-      pagePickerSearch: $('#page-picker-search'),
-      pagePickerSelectAll: $('#page-picker-select-all'),
-      pagePickerClearAll: $('#page-picker-clear-all'),
       pagePickerCount: $('#page-picker-count'),
-      pagePickerPreview: $('#page-picker-preview'),
-      pagePickerDialog: $('#page-picker-dialog'),
       pagePickerClose: $('#page-picker-close'),
       pagePickerModal: $('#page-picker-modal'),
       pagePickerBackdrop: $('#page-picker-backdrop'),

@@ -1,4 +1,7 @@
 .print-sheet {
+  --sheet-width: 210;
+  --sheet-height: 297;
+  --sheet-scale: 1;
   background: white;
   box-shadow: var(--shadow-sm);
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -29,7 +32,7 @@
     width: 100% !important;
     height: 100% !important;
   }
-  .flip-btn, .crop-btn, .remove-btn, .page-label, .guidelines {
+  .flip-btn, .crop-btn, .page-label, .page-placeholder {
     display: none !important;
   }
   .page-cell { border: none !important; }
@@ -37,10 +40,8 @@
 
 .is-exporting .flip-btn,
 .is-exporting .crop-btn,
-.is-exporting .remove-btn,
 .is-exporting .page-label,
-.is-exporting .page-placeholder,
-.is-exporting .guidelines {
+.is-exporting .page-placeholder {
   display: none !important;
 }
 .is-exporting .page-cell { border: none !important; }
@@ -49,12 +50,6 @@
   display: grid;
   height: 100%;
   width: 100%;
-}
-
-.print-sheet {
-  --sheet-width: 210;
-  --sheet-height: 297;
-  --sheet-scale: 1;
 }
 
 .page-cell {
@@ -240,21 +235,6 @@
   line-height: 1;
 }
 
-.page-tool-btn--danger:hover {
-  background: #fef2f2;
-  border-color: #fca5a5;
-  color: #dc2626;
-}
-
-.page-tool-btn--danger:hover .page-tool-icon,
-.page-tool-btn--danger:hover .page-tool-label {
-  color: #dc2626;
-}
-
-.page-cell.is-zoomed .crop-btn .page-tool-label {
-  content: 'Fill';
-}
-
 [data-theme="dark"] .page-tool-btn {
   background: rgba(30,40,64,0.95);
   border-color: rgba(255,255,255,0.14);
@@ -349,12 +329,6 @@
 
 .is-template-upside-down { transform: rotate(180deg); }
 .is-template-upside-down .page-label { transform: rotate(180deg); }
-
-.page-label.centered {
-  top: 0.3rem;
-  left: 0.3rem;
-  transform: none;
-}
 
 /* ── Cut line ─────────────────────────────────────── */
 .sheet-cut-line {
@@ -497,13 +471,5 @@
   .page-tool-btn .page-tool-label { display: none; }
   .page-tool-btn { padding: 0.25rem; border-radius: 0.4rem; }
 
-  .page-toolbar[data-layout="grid"] .crop-btn,
-  .page-toolbar[data-layout="grid"] .flip-btn,
-  .page-toolbar[data-layout="grid"] .remove-btn {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-
-  .page-toolbar[data-layout="grid"] .material-symbols-outlined { font-size: 12px; }
   .page-placeholder .material-symbols-outlined { font-size: 1.35rem; }
 }
