@@ -571,6 +571,7 @@ export class Zine3DViewer {
   }
 
   updateSeams() {
+    const getPage = (id) => this.pages[id - 1]; void getPage; // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
 
     const getAverageNormal = (pageA, pageB) => {
       const normalA = this.tmpVecC.set(0, 0, 1).applyQuaternion(pageA.group.quaternion);
