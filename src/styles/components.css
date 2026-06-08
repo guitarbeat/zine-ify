@@ -27,6 +27,51 @@
 #uploaded-files-list { display: grid; gap: 0.45rem; }
 .rail-config-grid { gap: 0.65rem; }
 
+.uploaded-file-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-button);
+  background: var(--surface-bg);
+  border: var(--border-thin);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.uploaded-file-item:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+.uploaded-file-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-dark);
+  line-height: 1.2;
+}
+.uploaded-file-meta {
+  font-size: 0.68rem;
+  color: var(--muted-ink);
+  line-height: 1.2;
+}
+.uploaded-file-remove {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--muted-ink);
+  margin-left: auto;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.uploaded-file-remove:hover {
+  background: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+}
+
 .workspace-config-header {
   display: flex;
   flex-wrap: wrap;
@@ -583,4 +628,80 @@ select:focus, input:focus {
 [data-theme="dark"] .fold-step-btn.is-active {
   background: var(--primary-vibrant);
   color: #78350f;
+}
+
+/* ── Fun Tactile Animations ─────────────────────── */
+
+/* Stepper buttons bounce on tap */
+.stepper-btn {
+  transition: background 0.12s ease, color 0.12s ease, transform 0.12s ease;
+}
+.stepper-btn:active {
+  transform: scale(0.88);
+  background: var(--primary-glow);
+  color: var(--primary-vibrant);
+}
+
+/* Toggle switch glow on active */
+.workspace-config-toggle-input:checked + .workspace-config-toggle-switch {
+  animation: toggle-pulse 0.5s ease-out;
+}
+@keyframes toggle-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(196, 93, 62, 0.35); }
+  60%  { box-shadow: 0 0 0 10px rgba(196, 93, 62, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(196, 93, 62, 0); }
+}
+
+/* Upload zone gentle pulse */
+.upload-box {
+  animation: upload-breathe 3s ease-in-out infinite;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+.upload-box:hover {
+  transform: translateY(-2px) scale(1.01);
+}
+.upload-box.dragover {
+  animation: upload-drop-pop 0.4s ease-out;
+  border-color: var(--primary-vibrant);
+  background-color: var(--primary-glow);
+}
+@keyframes upload-breathe {
+  0%, 100% { border-color: var(--border-color); }
+  50%      { border-color: rgba(196, 93, 62, 0.25); }
+}
+@keyframes upload-drop-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+/* Action buttons lift */
+.action-button {
+  transition: all 0.15s ease;
+}
+.action-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.action-button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  box-shadow: none;
+}
+
+/* Orientation buttons tactile shift */
+.orientation-seg-btn {
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+.orientation-seg-btn:active:not(.is-active) {
+  transform: scale(0.95);
+}
+
+/* Paper select magic glow on focus */
+.workspace-config-input:focus {
+  animation: input-glow 0.5s ease-out;
+}
+@keyframes input-glow {
+  0%   { box-shadow: 0 0 0 0 var(--primary-glow); }
+  60%  { box-shadow: 0 0 0 6px rgba(196, 93, 62, 0); }
+  100% { box-shadow: 0 0 0 3px var(--primary-glow); }
 }

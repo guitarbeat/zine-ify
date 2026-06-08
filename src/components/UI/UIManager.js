@@ -101,8 +101,47 @@ export class UIManager {
     if (!this.elements.uploadedFilesList) {
       return;
     }
-
-    this.elements.uploadedFilesList.innerHTML = files.map((file) => `<li>${file.name}</li>`).join('');
+    this.elements.uploadedFilesList.innerHTML = '';
+    if (files.length === 0) {
+      this.elements.uploadedFilesList.classList.add('hidden');
+      return;
+    }
+    this.elements.uploadedFilesList.classList.remove('hidden');
+    const wrapper = document.createElement('div');
+    wrapper.className = 'base-panel';
+    const header = document.createElement('h4');
+    header.className = 'rail-section-title';
+    header.textContent = `Uploaded Files (${files.length})`;
+    wrapper.appendChild(header);
+    files.forEach((file, index) => {
+      const item = document.createElement('div');
+      item.className = 'uploaded-file-item';
+      const icon = document.createElement('span');
+      icon.className = 'material-symbols-outlined';
+      icon.style.fontSize = '14px';
+      icon.textContent = 'description';
+      icon.setAttribute('aria-hidden', 'true');
+      const body = document.createElement('div');
+      const name = document.createElement('div');
+      name.className = 'uploaded-file-name';
+      name.textContent = file.name;
+      const meta = document.createElement('div');
+      meta.className = 'uploaded-file-meta';
+      meta.textContent = `${file.kind === 'pdf' ? 'PDF' : 'Image'} \u2022 ${file.size ? (file.size / 1024).toFixed(1) + ' KB' : ''}`;
+      body.appendChild(name);
+      body.appendChild(meta);
+      const remove = document.createElement('button');
+      remove.className = 'uploaded-file-remove';
+      remove.type = 'button';
+      remove.setAttribute('aria-label', `Remove ${file.name}`);
+      remove.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;" aria-hidden="true">close</span>';
+      remove.addEventListener('click', () => this.emitter.emit('removeUploadedFile', index));
+      item.appendChild(icon);
+      item.appendChild(body);
+      item.appendChild(remove);
+      wrapper.appendChild(item);
+    });
+    this.elements.uploadedFilesList.appendChild(wrapper);
   }
 
   updatePagePreview(index, url) {
@@ -198,14 +237,6 @@ export class UIManager {
       this.elements.clearAllBtn.style.display = hasPagesLoaded ? '' : 'none';
     }
   }
-
-  setPageTitle() {}
-
-  setPageCount() {}
-
-  setPageStatus() {}
-
-  setPageOrder() {}
 
   renderPaperSizeOptions() {
     if (!this.elements.paperSizeSelect) {
