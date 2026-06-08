@@ -104,7 +104,13 @@ export class UIManager {
       return;
     }
 
-    this.elements.uploadedFilesList.innerHTML = files.map((file) => `<li>${file.name}</li>`).join('');
+    this.elements.uploadedFilesList.innerHTML = '';
+    files.forEach(file => {
+      const li = document.createElement('li');
+      li.textContent = file.name;
+      li.className = 'uploaded-file-item file-name-display';
+      this.elements.uploadedFilesList.appendChild(li);
+    });
   }
 
   updatePagePreview(index, url) {
