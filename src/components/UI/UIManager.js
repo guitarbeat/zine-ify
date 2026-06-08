@@ -139,6 +139,36 @@ export class UIManager {
     this.modal.toggle3DModal(show);
   }
 
+  setExportLoadingState(isLoading) {
+    if (!this.elements.exportPdfBtn) {
+      return;
+    }
+
+    if (isLoading) {
+      this.elements.exportPdfBtn.setAttribute('aria-busy', 'true');
+      this.elements.exportPdfBtn.setAttribute('disabled', 'true');
+      if (this.elements.exportPdfBtnLabel) {
+        this.elements.exportPdfBtnLabel.textContent = 'Exporting...';
+      }
+      const icon = this.elements.exportPdfBtn.querySelector('.material-symbols-outlined');
+      if (icon) {
+        icon.textContent = 'sync';
+        icon.classList.add('animate-spin');
+      }
+    } else {
+      this.elements.exportPdfBtn.removeAttribute('aria-busy');
+      this.elements.exportPdfBtn.removeAttribute('disabled');
+      if (this.elements.exportPdfBtnLabel) {
+        this.elements.exportPdfBtnLabel.textContent = 'Export PDF';
+      }
+      const icon = this.elements.exportPdfBtn.querySelector('.material-symbols-outlined');
+      if (icon) {
+        icon.textContent = 'download';
+        icon.classList.remove('animate-spin');
+      }
+    }
+  }
+
   setFoldProgressControl(value) {
     const parsedValue = typeof value === 'number' ? value : parseFloat(value || '0');
     const progress = Number.isFinite(parsedValue) ? parsedValue : 0;
