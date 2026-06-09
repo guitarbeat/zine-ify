@@ -150,6 +150,9 @@ export class LayoutRenderer {
       grid.style.bottom = `${padY}%`;
       grid.style.width = 'auto';
       grid.style.height = 'auto';
+      sheetWrapper.setAttribute('data-has-margin', 'true');
+      sheetWrapper.style.setProperty('--margin-x', `${padX}%`);
+      sheetWrapper.style.setProperty('--margin-y', `${padY}%`);
     } else {
       grid.style.position = 'relative';
     }

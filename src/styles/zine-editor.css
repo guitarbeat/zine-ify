@@ -1,3 +1,4 @@
+
 .print-sheet {
   --sheet-width: 210;
   --sheet-height: 297;
@@ -432,6 +433,54 @@
   font-size: 18px;
   color: #fff;
   font-variation-settings: 'FILL' 0, 'wght' 400;
+}
+
+/* ── Margin visualization ─────────────────────────── */
+.print-sheet[data-has-margin="true"] {
+  position: relative;
+}
+
+.print-sheet[data-has-margin="true"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  pointer-events: none;
+  border-left: var(--margin-x) solid rgba(255, 255, 255, 0);
+  border-right: var(--margin-x) solid rgba(255, 255, 255, 0);
+  border-top: var(--margin-y) solid rgba(255, 255, 255, 0);
+  border-bottom: var(--margin-y) solid rgba(255, 255, 255, 0);
+  outline: 2px dashed rgba(196, 93, 62, 0.4);
+  outline-offset: -1px;
+}
+
+[data-theme="dark"] .print-sheet[data-has-margin="true"]::before {
+  outline: 2px dashed rgba(196, 93, 62, 0.5);
+}
+
+.print-sheet[data-has-margin="true"]::after {
+  content: 'Safe area';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(196, 93, 62, 0.7);
+  white-space: nowrap;
+}
+
+.print-sheet[data-has-margin="true"]:hover::after {
+  opacity: 1;
 }
 
 /* ── Responsive ───────────────────────────────────── */
