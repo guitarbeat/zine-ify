@@ -6,7 +6,7 @@ export function createMagneticToggle({
 }) {
   const wrapper = document.createElement('label');
   wrapper.className = 'magnetic-toggle';
-  if (checked) {wrapper.classList.add('is-active');}
+  if (checked) wrapper.classList.add('is-active');
 
   wrapper.innerHTML = `
     <input type="checkbox" class="magnetic-toggle__input" ${checked ? 'checked' : ''}>
