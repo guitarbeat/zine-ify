@@ -705,3 +705,181 @@ select:focus, input:focus {
   60%  { box-shadow: 0 0 0 6px rgba(196, 93, 62, 0); }
   100% { box-shadow: 0 0 0 3px var(--primary-glow); }
 }
+
+/* ── Form Validation States ─────────────────────── */
+
+/* Error state */
+.workspace-config-input.is-invalid,
+.stepper-input.is-invalid,
+input.is-invalid,
+select.is-invalid {
+  border-color: #dc2626 !important;
+  background-color: rgba(220, 38, 38, 0.05);
+}
+
+.workspace-config-input.is-invalid:focus,
+.stepper-input.is-invalid:focus,
+input.is-invalid:focus,
+select.is-invalid:focus {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+[data-theme="dark"] .workspace-config-input.is-invalid,
+[data-theme="dark"] .stepper-input.is-invalid,
+[data-theme="dark"] input.is-invalid,
+[data-theme="dark"] select.is-invalid {
+  border-color: #ef4444 !important;
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+/* Success state */
+.workspace-config-input.is-valid,
+.stepper-input.is-valid,
+input.is-valid,
+select.is-valid {
+  border-color: #16a34a !important;
+  background-color: rgba(22, 163, 74, 0.03);
+}
+
+.workspace-config-input.is-valid:focus,
+.stepper-input.is-valid:focus,
+input.is-valid:focus,
+select.is-valid:focus {
+  border-color: #16a34a !important;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+[data-theme="dark"] .workspace-config-input.is-valid,
+[data-theme="dark"] .stepper-input.is-valid,
+[data-theme="dark"] input.is-valid,
+[data-theme="dark"] select.is-valid {
+  border-color: #22c55e !important;
+  background-color: rgba(34, 197, 94, 0.05);
+}
+
+/* Error message container */
+.form-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  margin-top: 0.3rem;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+  border-radius: 0.4rem;
+  border-left: 2px solid #dc2626;
+  animation: error-shake 0.4s ease-out;
+}
+
+[data-theme="dark"] .form-error {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.12);
+  border-left-color: #ef4444;
+}
+
+@keyframes error-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+/* Success indicator */
+.form-success-icon {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #16a34a;
+  animation: success-pop 0.3s ease-out;
+}
+
+[data-theme="dark"] .form-success-icon {
+  color: #22c55e;
+}
+
+@keyframes success-pop {
+  0% { transform: translateY(-50%) scale(0.5); opacity: 0; }
+  60% { transform: translateY(-50%) scale(1.2); }
+  100% { transform: translateY(-50%) scale(1); opacity: 1; }
+}
+
+/* Character counter */
+.form-char-counter {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--muted-ink);
+  text-align: right;
+  transition: color 0.15s ease;
+}
+
+.form-char-counter[data-status="warning"] {
+  color: #d97706;
+}
+
+.form-char-counter[data-status="exceeded"] {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+[data-theme="dark"] .form-char-counter[data-status="warning"] {
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .form-char-counter[data-status="exceeded"] {
+  color: #f87171;
+}
+
+/* Constraint hint */
+.form-constraint-hint {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.68rem;
+  color: var(--muted-ink);
+  opacity: 0.85;
+}
+
+/* Validation summary for form-level errors */
+.form-validation-summary {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: var(--radius-button);
+}
+
+.form-validation-summary-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #dc2626;
+  margin-bottom: 0.35rem;
+}
+
+.form-validation-summary-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.75rem;
+  color: var(--accent-dark);
+}
+
+.form-validation-summary-list li {
+  margin-bottom: 0.2rem;
+}
+
+[data-theme="dark"] .form-validation-summary {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+[data-theme="dark"] .form-validation-summary-title {
+  color: #fca5a5;
+}
