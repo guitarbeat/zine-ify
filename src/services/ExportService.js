@@ -1,4 +1,5 @@
 import { PAPER_SIZES, ZINE_TEMPLATES } from '../utils/config.js';
+import { mediaProcessor } from './MediaProcessor.js';
 
 const MM_TO_PX_300DPI = 300 / 25.4;
 
@@ -41,10 +42,8 @@ export class ExportService {
     const cellH = drawH / rows;
 
     for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
-      const offscreen = document.createElement('canvas');
-      offscreen.width = canvasW;
-      offscreen.height = canvasH;
-      const ctx = offscreen.getContext('2d');
+      // ⚡️ Bolt: Using OffscreenCanvas to prevent UI blocking during PDF sheet generation
+      const { canvas: offscreen, context: ctx } = mediaProcessor.createRenderCanvas(canvasW, canvasH);
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvasW, canvasH);
 
@@ -79,7 +78,17 @@ export class ExportService {
         )
       );
 
-      const imgData = offscreen.toDataURL('image/jpeg', 0.92);
+      let imgData;
+      if (typeof offscreen.toDataURL === 'function') {
+        imgData = offscreen.toDataURL('image/jpeg', 0.92);
+      } else if (typeof offscreen.convertToBlob === 'function') {
+        const blob = await offscreen.convertToBlob({ type: 'image/jpeg', quality: 0.92 });
+        imgData = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+      }
       if (sheetIndex > 0) {
         doc.addPage([dims.width, dims.height], isLandscape ? 'landscape' : 'portrait');
       }
