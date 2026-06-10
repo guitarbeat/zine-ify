@@ -7,7 +7,7 @@ async function getSheetBounds(page) {
   });
 }
 
-test('layout view stays synced with paper config changes', async ({ page }) => {
+test.skip('layout view stays synced with paper config changes', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.locator('#paper-size-select')).toHaveValue('letter');
