@@ -12,6 +12,18 @@ This directory contains documentation for reusable components in the Zine-ify pr
 
 - [**Toast**](./components/Toast.md) - Non-intrusive notification system for user feedback
 - [**FormValidator**](./components/FormValidator.md) - Inline form validation with immediate feedback
+- [**Accessible Components**](./components/AccessibleComponents.md) - Inclusive alternatives to problematic patterns
+
+### Accessibility Components
+
+These components provide accessible alternatives to common problematic UI patterns:
+
+| Pattern | Problem | Solution |
+|---------|---------|----------|
+| Carousel | Hidden content, motion issues | **AccessibleTabs** - All content visible, user-controlled |
+| Infinite Scroll | No progress, trapped footer | **AccessibleList** - Load more with progress indicator |
+| Complex Dropdown | Keyboard issues, no search | **AccessibleCombobox** - Full WAI-ARIA pattern |
+| Accordion | JavaScript dependency | **Accordion** - Progressive enhancement with `<details>` |
 
 ### Utility Modules
 
