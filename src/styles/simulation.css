@@ -7,6 +7,7 @@
 .simulation-modal-shell {
   width: min(100%, 86rem);
   height: 100%;
+  max-height: 100dvh;
   padding: 1rem;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
@@ -20,6 +21,7 @@
   justify-content: space-between;
   gap: 1rem;
   min-height: 0;
+  flex-shrink: 0;
 }
 
 .simulation-modal-intro {
@@ -80,6 +82,7 @@
   grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 22rem);
   gap: 1rem;
   overflow: hidden;
+  overflow-y: auto;
 }
 
 .simulation-canvas-panel,

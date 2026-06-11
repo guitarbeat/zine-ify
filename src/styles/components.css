@@ -573,7 +573,7 @@ select:focus, input:focus {
   .toast-container {
     left: 0.5rem;
     right: 0.5rem;
-    bottom: calc(var(--mobile-action-dock-reserve) + 0.6rem);
+    bottom: calc(var(--mobile-safe-bottom) + 5rem);
   }
 
   .toast { width: 100%; padding: 0.85rem 1rem; }

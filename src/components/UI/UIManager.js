@@ -293,9 +293,12 @@ export class UIManager {
   }
 
   syncResponsiveUI() {
-    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    const isMobile = window.matchMedia('(max-width: 1023px)').matches;
     this.elements.previewArea?.classList.toggle('is-mobile', isMobile);
-    this.elements.previewArea?.classList.toggle('mobile-rail-open', isMobile);
+    // Close mobile rail when resizing to desktop
+    if (!isMobile&& document.body.classList.contains('mobile-rail-open')) {
+      this.toggleMobileRail(false);
+    }
   }
 
   _getPageCell(index) {
