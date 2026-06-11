@@ -13,6 +13,7 @@ This directory contains documentation for reusable components in the Zine-ify pr
 - [**Toast**](./components/Toast.md) - Non-intrusive notification system for user feedback
 - [**FormValidator**](./components/FormValidator.md) - Inline form validation with immediate feedback
 - [**Accessible Components**](./components/AccessibleComponents.md) - Inclusive alternatives to problematic patterns
+- [**Innovative Inputs**](./components/InnovativeInputs.md) - Modern input widgets with enhanced UX
 
 ### Accessibility Components
 
