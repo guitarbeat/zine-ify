@@ -359,8 +359,7 @@ export class UIManager {
     const $ = (selector) => document.querySelector(selector);
 
     this.elements = {
-      uploadZone: $('#upload-zone'),
-      uploadStatus: $('#upload-status'),
+      unifiedDropZone: $('#unified-drop-zone'),
       uploadedFilesList: $('#uploaded-files-list'),
       previewArea: $('#preview-area'),
       zineSheetsContainer: $('#zine-sheets-container'),
