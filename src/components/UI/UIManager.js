@@ -7,7 +7,7 @@ import {
 } from '../../utils/config.js';
 import { debounce, parseBoundedInteger } from '../../utils/helpers.js';
 
-
+import { SmartSheetConfig } from '../SmartSheetConfig.js';
 import { ModalManager } from './ModalManager.js';
 import { DragAndDropHandler } from './DragAndDropHandler.js';
 import { LayoutRenderer } from './LayoutRenderer.js';
@@ -65,11 +65,8 @@ export class UIManager {
     this.dnd = new DragAndDropHandler(this.elements, this.emitter);
     this.renderer = new LayoutRenderer(this.elements.zineSheetsContainer, PAGE_CELL_TEMPLATE);
 
-    this.renderPaperSizeOptions();
+    this.initSmartSheetConfig();
     this.syncPaperSettings({ paperSize: 'letter', orientation: 'landscape' });
-    const { rows, cols } = this.normalizeGridInputs();
-    this.updateGridTotalBadge(rows, cols);
-    this._syncOrientationVisibility(rows, cols);
     this.setupEventListeners();
     this.syncResponsiveUI();
 
@@ -79,6 +76,26 @@ export class UIManager {
       this.elements.pageControlsCheckbox.checked = showControls;
     }
     this._applyPageControlsVisibility(showControls);
+  }
+
+  initSmartSheetConfig() {
+    const container = document.getElementById('smart-sheet-config-container');
+    if (!container) return;
+
+    this.smartSheetConfig = new SmartSheetConfig(container, {
+      initialRows: DEFAULT_GRID_ROWS,
+      initialCols: DEFAULT_GRID_COLS,
+      onChange: ({ rows, cols, paperSize, orientation, margin, totalSlots }) => {
+        if (this.elements.gridRows) this.elements.gridRows.value = rows;
+        if (this.elements.gridCols) this.elements.gridCols.value = cols;
+        this.updateGridTotalBadge(rows, cols);
+        this._syncOrientationVisibility(rows, cols);
+        this.emitter.emit('gridSizeChanged', { rows, cols });
+        this.emitter.emit('paperSizeChanged', { paperSize });
+        this.emitter.emit('orientationChanged', { orientation });
+        this.emitter.emit('marginChanged', { margin });
+      }
+    });
   }
 
   on(event, handler) {
@@ -258,26 +275,36 @@ export class UIManager {
   }
 
   syncPaperSettings({ paperSize, orientation } = {}) {
-    if (paperSize && this.elements.paperSizeSelect) {
-      this.elements.paperSizeSelect.value = paperSize;
+    if (paperSize) {
+      if (this.elements.paperSizeSelect?.tagName === 'SELECT') {
+        this.elements.paperSizeSelect.value = paperSize;
+      }
+      if (this.smartSheetConfig) {
+        this.smartSheetConfig.setState({ paperSize });
+      }
     }
 
-    if (orientation && this.elements.orientationToggle) {
-      this.elements.orientationToggle.querySelectorAll('.orientation-seg-btn').forEach((btn) => {
-        const isActive = btn.dataset.value === orientation;
-        btn.classList.toggle('is-active', isActive);
-        btn.setAttribute('aria-pressed', String(isActive));
-      });
+    if (orientation) {
+      if (this.elements.orientationToggle?.classList?.contains('orientation-seg')) {
+        this.elements.orientationToggle.querySelectorAll('.orientation-seg-btn').forEach((btn) => {
+          const isActive = btn.dataset.value === orientation;
+          btn.classList.toggle('is-active', isActive);
+          btn.setAttribute('aria-pressed', String(isActive));
+        });
+      }
+      if (this.smartSheetConfig) {
+        this.smartSheetConfig.setState({ orientation });
+      }
     }
   }
 
   _syncOrientationVisibility(rows, cols) {
+    if (this.smartSheetConfig) return;
     const isMini8 = rows === 2 && cols === 4;
     const wrapper = this.elements.orientationToggle?.closest('.workspace-config-field');
     if (wrapper) {
       wrapper.style.display = isMini8 ? 'none' : '';
     }
-    // Also hide the label row sibling if needed
     const labelEl = document.getElementById('orientation-label');
     if (labelEl) {
       labelEl.closest('.workspace-config-field') && (labelEl.closest('.workspace-config-field').style.display = isMini8 ? 'none' : '');
@@ -285,6 +312,10 @@ export class UIManager {
   }
 
   normalizeGridInputs() {
+    if (this.smartSheetConfig) {
+      const state = this.smartSheetConfig.getState();
+      return { rows: state.rows, cols: state.cols };
+    }
     const rows = parseBoundedInteger(this.elements.gridRows?.value, { min: GRID_DIMENSION_MIN, max: GRID_DIMENSION_MAX, fallback: DEFAULT_GRID_ROWS });
     const cols = parseBoundedInteger(this.elements.gridCols?.value, { min: GRID_DIMENSION_MIN, max: GRID_DIMENSION_MAX, fallback: DEFAULT_GRID_COLS });
     if (this.elements.gridRows) { this.elements.gridRows.value = rows; }
@@ -382,50 +413,52 @@ export class UIManager {
   }
 
   setupEventListeners() {
-    this.elements.paperSizeSelect?.addEventListener('change', (event) => {
-      this.emitter.emit('paperSizeChanged', { paperSize: event.target.value });
-    });
+    if (!this.smartSheetConfig) {
+      this.elements.paperSizeSelect?.addEventListener('change', (event) => {
+        this.emitter.emit('paperSizeChanged', { paperSize: event.target.value });
+      });
 
-    this.elements.orientationToggle?.querySelectorAll('.orientation-seg-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const value = btn.dataset.value;
-        this.elements.orientationToggle.querySelectorAll('.orientation-seg-btn').forEach((b) => {
-          b.classList.toggle('is-active', b === btn);
-          b.setAttribute('aria-pressed', String(b === btn));
+      this.elements.orientationToggle?.querySelectorAll('.orientation-seg-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const value = btn.dataset.value;
+          this.elements.orientationToggle.querySelectorAll('.orientation-seg-btn').forEach((b) => {
+            b.classList.toggle('is-active', b === btn);
+            b.setAttribute('aria-pressed', String(b === btn));
+          });
+          this.emitter.emit('orientationChanged', { orientation: value });
         });
-        this.emitter.emit('orientationChanged', { orientation: value });
       });
-    });
 
-    this.elements.marginInput?.closest('.stepper')?.querySelectorAll('.stepper-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const min = parseInt(this.elements.marginInput.min, 10) || 0;
-        const max = parseInt(this.elements.marginInput.max, 10) || 25;
-        const delta = parseInt(btn.dataset.delta, 10);
-        const next = Math.min(max, Math.max(min, parseInt(this.elements.marginInput.value, 10) + delta));
-        this.elements.marginInput.value = next;
-        this.emitter.emit('marginChanged', { margin: next });
+      this.elements.marginInput?.closest('.stepper')?.querySelectorAll('.stepper-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const min = parseInt(this.elements.marginInput.min, 10) || 0;
+          const max = parseInt(this.elements.marginInput.max, 10) || 25;
+          const delta = parseInt(btn.dataset.delta, 10);
+          const next = Math.min(max, Math.max(min, parseInt(this.elements.marginInput.value, 10) + delta));
+          this.elements.marginInput.value = next;
+          this.emitter.emit('marginChanged', { margin: next });
+        });
       });
-    });
 
-    this.elements.marginInput?.addEventListener('change', (e) => {
-      const val = Math.min(25, Math.max(0, parseInt(e.target.value, 10) || 0));
-      this.elements.marginInput.value = val;
-      this.emitter.emit('marginChanged', { margin: val });
-    });
-
-    this.elements.gridRows?.closest('.workspace-config-split')?.querySelectorAll('.stepper-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const target = document.getElementById(btn.dataset.target);
-        if (!target) { return; }
-        const min = parseInt(target.min, 10) || 1;
-        const max = parseInt(target.max, 10) || 10;
-        const delta = parseInt(btn.dataset.delta, 10);
-        const next = Math.min(max, Math.max(min, parseInt(target.value, 10) + delta));
-        target.value = next;
-        target.dispatchEvent(new Event('change', { bubbles: true }));
+      this.elements.marginInput?.addEventListener('change', (e) => {
+        const val = Math.min(25, Math.max(0, parseInt(e.target.value, 10) || 0));
+        this.elements.marginInput.value = val;
+        this.emitter.emit('marginChanged', { margin: val });
       });
-    });
+
+      this.elements.gridRows?.closest('.workspace-config-split')?.querySelectorAll('.stepper-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = document.getElementById(btn.dataset.target);
+          if (!target) { return; }
+          const min = parseInt(target.min, 10) || 1;
+          const max = parseInt(target.max, 10) || 10;
+          const delta = parseInt(btn.dataset.delta, 10);
+          const next = Math.min(max, Math.max(min, parseInt(target.value, 10) + delta));
+          target.value = next;
+          target.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+      });
+    }
 
     this.elements.pageNumbersCheckbox?.addEventListener('change', (event) => {
       this.pageNumbersVisible = event.target.checked;
@@ -492,16 +525,18 @@ export class UIManager {
       event.target.value = '';
     });
 
-    const debouncedGridChange = debounce(() => {
-      const { rows, cols } = this.normalizeGridInputs();
+    if (!this.smartSheetConfig) {
+      const debouncedGridChange = debounce(() => {
+        const { rows, cols } = this.normalizeGridInputs();
 
-      this.updateGridTotalBadge(rows, cols);
-      this._syncOrientationVisibility(rows, cols);
-      this.emitter.emit('gridSizeChanged', { rows, cols });
-    }, 300);
+        this.updateGridTotalBadge(rows, cols);
+        this._syncOrientationVisibility(rows, cols);
+        this.emitter.emit('gridSizeChanged', { rows, cols });
+      }, 300);
 
-    this.elements.gridRows?.addEventListener('input', debouncedGridChange);
-    this.elements.gridCols?.addEventListener('input', debouncedGridChange);
+      this.elements.gridRows?.addEventListener('input', debouncedGridChange);
+      this.elements.gridCols?.addEventListener('input', debouncedGridChange);
+    }
 
     window.addEventListener('resize', () => this.syncResponsiveUI());
   }

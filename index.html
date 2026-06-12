@@ -77,73 +77,36 @@
                             <h2 class="rail-section-title">Sheet Settings</h2>
                         </div>
 
-                        <div class="workspace-config-grid rail-config-grid">
-                            <div class="workspace-config-field workspace-config-field-wide">
-                                <label for="paper-size-select" class="workspace-config-label">Paper</label>
-                                <select id="paper-size-select" class="workspace-config-input">
-                                    <!-- Populated by JS -->
-                                </select>
-                            </div>
-
-                            <div class="workspace-config-field workspace-config-field-wide">
-                                <span class="workspace-config-label" id="orientation-label">Orientation</span>
-                                <div id="orientation-toggle" class="orientation-seg" role="group" aria-labelledby="orientation-label">
-                                    <button type="button" class="orientation-seg-btn is-active" data-value="landscape" aria-pressed="true">
-                                        <svg width="15" height="11" viewBox="0 0 15 11" fill="none" aria-hidden="true"><rect x="0.75" y="0.75" width="13.5" height="9.5" rx="1.75" stroke="currentColor" stroke-width="1.5"/></svg>
-                                        Landscape
-                                    </button>
-                                    <button type="button" class="orientation-seg-btn" data-value="portrait" aria-pressed="false">
-                                        <svg width="11" height="15" viewBox="0 0 11 15" fill="none" aria-hidden="true"><rect x="0.75" y="0.75" width="9.5" height="13.5" rx="1.75" stroke="currentColor" stroke-width="1.5"/></svg>
-                                        Portrait
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="workspace-config-field workspace-config-field-wide" role="group" aria-labelledby="grid-layout-label">
-                                <div class="workspace-config-label-row">
-                                    <label id="grid-layout-label" class="workspace-config-label">Grid</label>
-                                    <span id="grid-total" class="grid-total-chip">8 slots</span>
-                                </div>
-                                <div class="workspace-config-split">
-                                    <div class="stepper">
-                                        <button type="button" class="stepper-btn" data-target="grid-rows" data-delta="-1" aria-label="Fewer rows">−</button>
-                                        <input type="number" id="grid-rows" min="1" max="10" value="2" aria-label="Rows" class="stepper-input workspace-config-number">
-                                        <button type="button" class="stepper-btn" data-target="grid-rows" data-delta="1" aria-label="More rows">+</button>
-                                    </div>
-                                    <span class="workspace-config-times" aria-hidden="true">×</span>
-                                    <div class="stepper">
-                                        <button type="button" class="stepper-btn" data-target="grid-cols" data-delta="-1" aria-label="Fewer columns">−</button>
-                                        <input type="number" id="grid-cols" min="1" max="10" value="4" aria-label="Columns" class="stepper-input workspace-config-number">
-                                        <button type="button" class="stepper-btn" data-target="grid-cols" data-delta="1" aria-label="More columns">+</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="workspace-config-field workspace-config-field-wide" role="group" aria-labelledby="margin-label">
-                                <label id="margin-label" for="margin-input" class="workspace-config-label">Margin (mm)</label>
-                                <div class="stepper">
-                                    <button type="button" class="stepper-btn" data-target="margin-input" data-delta="-1" aria-label="Decrease margin">−</button>
-                                    <input type="number" id="margin-input" min="0" max="25" value="0" aria-label="Margin in mm" class="stepper-input workspace-config-number">
-                                    <button type="button" class="stepper-btn" data-target="margin-input" data-delta="1" aria-label="Increase margin">+</button>
-                                </div>
-                            </div>
-
-                            <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
-                                <span class="workspace-config-toggle-copy">Page Numbers</span>
-                                <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
-                                <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                    <span class="workspace-config-toggle-knob"></span>
-                                </span>
-                            </label>
-                            <p class="workspace-config-hint workspace-config-field-wide">Preview only — page numbers won’t print or export.</p>
-                            <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
-                                <span class="workspace-config-toggle-copy">Page Controls</span>
-                                <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
-                                <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                    <span class="workspace-config-toggle-knob"></span>
-                                </span>
-                            </label>
+                        <div id="smart-sheet-config-container">
+                            <!-- SmartSheetConfig renders here -->
                         </div>
+
+                        <!-- Hidden inputs for compatibility with existing code -->
+                        <input type="hidden" id="paper-size-select" value="letter">
+                        <input type="hidden" id="orientation-toggle" value="landscape">
+                        <input type="hidden" id="grid-rows" value="2">
+                        <input type="hidden" id="grid-cols" value="4">
+                        <input type="hidden" id="margin-input" value="0">
+
+                        <div class="workspace-config-field workspace-config-field-wide" style="display: none;">
+                            <span id="grid-total" class="grid-total-chip">8 slots</span>
+                        </div>
+
+                        <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
+                            <span class="workspace-config-toggle-copy">Page Numbers</span>
+                            <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
+                            <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                <span class="workspace-config-toggle-knob"></span>
+                            </span>
+                        </label>
+                        <p class="workspace-config-hint workspace-config-field-wide">Preview only — page numbers won’t print or export.</p>
+                        <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
+                            <span class="workspace-config-toggle-copy">Page Controls</span>
+                            <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
+                            <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                <span class="workspace-config-toggle-knob"></span>
+                            </span>
+                        </label>
                     </section>
 
                     <section id="uploaded-files-list" class="hidden">
