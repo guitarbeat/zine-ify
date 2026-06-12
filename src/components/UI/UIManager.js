@@ -235,6 +235,12 @@ export class UIManager {
     if (this.elements.clearAllBtn) {
       this.elements.clearAllBtn.style.display = hasPagesLoaded ? '' : 'none';
     }
+    if (this.elements.exportPdfBtn) {
+      this.elements.exportPdfBtn.disabled = !hasPagesLoaded;
+    }
+    if (this.elements.view3dBtn) {
+      this.elements.view3dBtn.disabled = !hasPagesLoaded;
+    }
   }
 
   renderPaperSizeOptions() {
@@ -369,7 +375,9 @@ export class UIManager {
       bookletPrevBtn: $('#booklet-prev-btn'),
       bookletNextBtn: $('#booklet-next-btn'),
       bookletStatus: $('#booklet-status'),
-      clearAllBtn: $('#clear-all-btn')
+      clearAllBtn: $('#clear-all-btn'),
+      exportPdfBtn: $('#exportPdfBtn'),
+      view3dBtn: $('#view3dBtn')
     };
   }
 

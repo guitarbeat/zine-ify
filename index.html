@@ -185,6 +185,18 @@
 
     </div>
 
+    <!-- Global Action Dock - Fixed Bottom -->
+    <div id="global-action-dock" class="global-action-dock" role="toolbar" aria-label="Main actions">
+        <button id="exportPdfBtn" type="button" class="workspace-action-button action-button flex items-center justify-center gap-2" disabled aria-label="Export PDF" title="Export your zine as a printable PDF">
+            <span class="material-symbols-outlined" aria-hidden="true">print</span>
+            <span class="text-sm font-semibold">Export PDF</span>
+        </button>
+        <button id="view3dBtn" type="button" class="workspace-action-button workspace-action-button-secondary action-button flex items-center justify-center gap-2" disabled aria-label="Preview fold" title="Preview how your zine folds together">
+            <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
+            <span class="text-sm font-semibold">Preview Fold</span>
+        </button>
+    </div>
+
     <!-- Progress Overlay -->
     <div id="progress-container"
         class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 hidden bg-black/30 backdrop-blur-sm"

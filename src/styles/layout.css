@@ -92,7 +92,8 @@
 }
 
 .workspace-actions,
-.workspace-action-tray {
+.workspace-action-tray,
+.global-action-dock {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.6rem;
@@ -102,15 +103,28 @@
   border: 1px solid var(--border-color);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-lg);
-  margin-top: 1rem;
   transition: background-color 0.25s ease;
 }
 
-.workspace-action-button { min-height: 3rem; }
+.workspace-action-button {
+  min-height: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  background: var(--accent-dark);
+  color: var(--surface-bg);
+}
+
+.workspace-action-button .material-symbols-outlined {
+  font-size: 1.25rem;
+}
 
 .workspace-action-button-secondary {
   background: var(--surface-bg);
   color: var(--accent-dark);
+  border: 1px solid var(--border-color) !important;
 }
 
 .workspace-action-button:disabled {
