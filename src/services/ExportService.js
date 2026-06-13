@@ -1,4 +1,5 @@
 import { PAPER_SIZES, ZINE_TEMPLATES } from '../utils/config.js';
+import { mediaProcessor } from './MediaProcessor.js';
 
 const MM_TO_PX_300DPI = 300 / 25.4;
 
@@ -40,11 +41,10 @@ export class ExportService {
     const cellW = drawW / cols;
     const cellH = drawH / rows;
 
-    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
-      const offscreen = document.createElement('canvas');
-      offscreen.width = canvasW;
-      offscreen.height = canvasH;
-      const ctx = offscreen.getContext('2d');
+    const sheetPromises = Array.from({ length: sheetCount }, async (_, sheetIndex) => {
+      // ⚡️ Bolt: Using mediaProcessor.createRenderCanvas for OffscreenCanvas support to avoid main thread blocking
+      const { canvas: offscreen, context: ctx } = mediaProcessor.createRenderCanvas(canvasW, canvasH);
+
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvasW, canvasH);
 
@@ -79,7 +79,25 @@ export class ExportService {
         )
       );
 
-      const imgData = offscreen.toDataURL('image/jpeg', 0.92);
+      // ⚡️ Bolt: Using convertToBlob for OffscreenCanvas since it doesn't support synchronous toDataURL
+      if (offscreen.convertToBlob) {
+        const blob = await offscreen.convertToBlob({ type: 'image/jpeg', quality: 0.92 });
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      }
+
+      return offscreen.toDataURL('image/jpeg', 0.92);
+    });
+
+    // ⚡️ Bolt: Processing offscreen sheet canvases concurrently before sequentially adding to jsPDF
+    const sheetImageData = await Promise.all(sheetPromises);
+
+    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
+      const imgData = sheetImageData[sheetIndex];
       if (sheetIndex > 0) {
         doc.addPage([dims.width, dims.height], isLandscape ? 'landscape' : 'portrait');
       }
