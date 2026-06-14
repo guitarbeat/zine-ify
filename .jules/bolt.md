@@ -30,3 +30,6 @@
 ## 2024-05-20 - Toast Component Cloning Optimization
 **Learning:** Repetitive UI components like Toast notifications constructed using multiple `document.createElement()` and property assignment calls cause unnecessary DOM processing overhead and memory allocation, especially when an object like `icons` is recreated on every invocation.
 **Action:** Extract static dictionary objects into module-level constants to save memory allocation, and use HTML `<template>` combined with `cloneNode(true)` to build repetitive elements instantly, minimizing layout thrashing and function call overhead.
+## 2024-06-11 - Optimized PDF Export with Async OffscreenCanvas
+**Learning:** The previous implementation used synchronous `offscreen.toDataURL('image/jpeg')` which blocked the main thread during high-resolution canvas conversions, leading to UI freezes, particularly when exporting PDFs containing many high-resolution pages.
+**Action:** Replaced synchronous `toDataURL` with the asynchronous `OffscreenCanvas.convertToBlob()` API and processed all sheets concurrently with `Promise.all` mapping to improve export speed and unblock the UI. We must always prefer asynchronous `convertToBlob` + `FileReader.readAsDataURL` when extracting image data from an `OffscreenCanvas`.
