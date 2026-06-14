@@ -205,12 +205,14 @@ export class BookletPreview {
 
     if (this.prevButton) {
       this.prevButton.disabled = disablePrev;
+      this.prevButton.setAttribute('aria-disabled', String(disablePrev));
       this.prevButton.classList.toggle('opacity-50', disablePrev);
       this.prevButton.classList.toggle('cursor-not-allowed', disablePrev);
     }
 
     if (this.nextButton) {
       this.nextButton.disabled = disableNext;
+      this.nextButton.setAttribute('aria-disabled', String(disableNext));
       this.nextButton.classList.toggle('opacity-50', disableNext);
       this.nextButton.classList.toggle('cursor-not-allowed', disableNext);
     }
