@@ -206,22 +206,49 @@ export class AppController {
     this.prepareLayoutForTotalPages(startIndex + selectedPages.length);
     this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
 
-    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
-      const targetIndex = startIndex + selectedIndex;
-      const canvas = await this.pdfProcessor.renderPage(pageNumber);
-      const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
-      const existingUrl = this.state.allPageImages[targetIndex];
+    // ⚡ Bolt: Sliding window worker pool for faster page rendering
+    // Process pages concurrently to improve import speed, similar to thumbnails.
+    const CONCURRENCY_LIMIT = 4;
+    const activePromises = new Set();
+    let completedCount = 0;
 
-      if (existingUrl && existingUrl !== this.state._blankPageUrl) {
-        this.pdfProcessor.revokeBlobUrl(existingUrl);
+    const processPage = async (selectedIndex, pageNumber) => {
+      try {
+        const targetIndex = startIndex + selectedIndex;
+        const canvas = await this.pdfProcessor.renderPage(pageNumber);
+        const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
+        const existingUrl = this.state.allPageImages[targetIndex];
+
+        if (existingUrl && existingUrl !== this.state._blankPageUrl) {
+          this.pdfProcessor.revokeBlobUrl(existingUrl);
+        }
+
+        this.state.allPageImages[targetIndex] = pageUrl;
+        this.ui.updatePagePreview(targetIndex, pageUrl);
+
+        completedCount++;
+        const percent = Math.round((completedCount / selectedPages.length) * 100);
+        this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
+        this.ui.modal.updateProgress(percent);
+      } catch (error) {
+        throw error;
+      }
+    };
+
+    try {
+      for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
+        const trackedPromise = processPage(selectedIndex, pageNumber).finally(() => activePromises.delete(trackedPromise));
+        activePromises.add(trackedPromise);
+
+        if (activePromises.size >= CONCURRENCY_LIMIT) {
+          await Promise.race(activePromises);
+        }
       }
 
-      this.state.allPageImages[targetIndex] = pageUrl;
-      this.ui.updatePagePreview(targetIndex, pageUrl);
-
-      const percent = Math.round(((selectedIndex + 1) / selectedPages.length) * 100);
-      this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
-      this.ui.modal.updateProgress(percent);
+      await Promise.all(activePromises);
+    } catch (error) {
+      await Promise.allSettled(Array.from(activePromises));
+      throw error;
     }
 
     this.state.totalPages = this.state.getFilledPageCount();
