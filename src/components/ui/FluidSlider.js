@@ -15,7 +15,7 @@ export function createFluidSlider({
       <span class="fluid-slider__value">${value}${suffix}</span>
     </div>
     <div class="fluid-slider__track">
-      <input type="range" class="fluid-slider__input" min="${min}" max="${max}" value="${value}" step="${step}">
+      <input type="range" class="fluid-slider__input" min="${min}" max="${max}" value="${value}" step="${step}" aria-label="${label}">
       <div class="fluid-slider__fill" style="width:${((value - min) / (max - min)) * 100}%"></div>
     </div>
   `;

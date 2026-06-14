@@ -133,6 +133,7 @@ export class UIManager {
       remove.className = 'uploaded-file-remove';
       remove.type = 'button';
       remove.setAttribute('aria-label', `Remove ${file.name}`);
+      remove.setAttribute('title', `Remove ${file.name}`);
       remove.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;" aria-hidden="true">close</span>';
       remove.addEventListener('click', () => this.emitter.emit('removeUploadedFile', index));
       item.appendChild(icon);
