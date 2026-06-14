@@ -102,6 +102,108 @@ test.describe('PDFProcessor', () => {
     await expect(processor.loadPDF(file)).rejects.toThrow('PDF processing already in progress');
   });
 
+  test('loadPDF throws error if file validation fails', async () => {
+    processor.ensurePdfJs = async () => ({});
+    processor.validateFile = () => ({ valid: false, errors: ['Not a PDF'] });
+    const file = new File([''], 'test.txt', { type: 'text/plain' });
+
+    await expect(processor.loadPDF(file)).rejects.toThrow('Not a PDF');
+  });
+
+  test('loadPDF throws error if file signature is invalid', async () => {
+    processor.ensurePdfJs = async () => ({});
+    processor.validateFile = () => ({ valid: true, errors: [] });
+    processor.validateFileSignature = async () => false;
+    const file = new File(['PK\x03\x04...'], 'test.pdf', { type: 'application/pdf' });
+
+    await expect(processor.loadPDF(file)).rejects.toThrow('Invalid file signature');
+  });
+
+  test('loadPDF cleans up previous resources before loading', async () => {
+    processor.ensurePdfJs = async () => ({
+      getDocument: () => ({ promise: Promise.resolve({ numPages: 1 }), destroy: async () => {} })
+    });
+    processor.validateFile = () => ({ valid: true, errors: [] });
+    processor.validateFileSignature = async () => true;
+
+    if (typeof global !== 'undefined') {
+      global.URL.createObjectURL = () => 'blob:new';
+      global.URL.revokeObjectURL = () => {};
+    }
+
+    processor.fileUrl = 'blob:old';
+    let pdfDestroyCalled = false;
+    processor.pdf = { destroy: () => { pdfDestroyCalled = true; } };
+
+    const file = new File(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' });
+    await processor.loadPDF(file);
+
+    expect(pdfDestroyCalled).toBe(true);
+    // It should have assigned a new object URL (if mock worked) or at least cleared the old one logic
+    expect(processor.fileUrl).toBe('blob:new');
+  });
+
+  test('loadPDF successfully loads PDF and returns metadata', async () => {
+    const mockPdfDocument = { numPages: 5, destroy: async () => {} };
+    processor.ensurePdfJs = async () => ({
+      getDocument: () => ({ promise: Promise.resolve(mockPdfDocument), destroy: async () => {} })
+    });
+    processor.validateFile = () => ({ valid: true, errors: [] });
+    processor.validateFileSignature = async () => true;
+
+    if (typeof global !== 'undefined') {
+      global.URL.createObjectURL = () => 'blob:test';
+    }
+
+    const file = new File(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' });
+    // Object.defineProperty to set read-only properties if needed, but File usually allows passing name
+
+    let progressMessages = [];
+    const onProgress = (msg) => progressMessages.push(msg);
+
+    const result = await processor.loadPDF(file, onProgress);
+
+    expect(result.pdf).toBe(mockPdfDocument);
+    expect(result.numPages).toBe(5);
+    expect(result.fileName).toBe('test.pdf');
+    expect(result.fileSize).toBe(file.size);
+    expect(progressMessages).toContain('Reading PDF file...');
+    expect(progressMessages).toContain('Processing PDF...');
+  });
+
+  test('loadPDF throws error if PDF has 0 pages', async () => {
+    processor.ensurePdfJs = async () => ({
+      getDocument: () => ({ promise: Promise.resolve({ numPages: 0, destroy: async () => {} }), destroy: async () => {} })
+    });
+    processor.validateFile = () => ({ valid: true, errors: [] });
+    processor.validateFileSignature = async () => true;
+
+    if (typeof global !== 'undefined') {
+      global.URL.createObjectURL = () => 'blob:test';
+    }
+
+    const file = new File(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' });
+
+    await expect(processor.loadPDF(file)).rejects.toThrow('The PDF file appears to be corrupted or invalid.');
+  });
+
+  test('loadPDF throws error if PDF has too many pages (>128)', async () => {
+    processor.ensurePdfJs = async () => ({
+      getDocument: () => ({ promise: Promise.resolve({ numPages: 129, destroy: async () => {} }), destroy: async () => {} })
+    });
+    processor.validateFile = () => ({ valid: true, errors: [] });
+    processor.validateFileSignature = async () => true;
+
+    if (typeof global !== 'undefined') {
+      global.URL.createObjectURL = () => 'blob:test';
+    }
+
+    const file = new File(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' });
+
+    await expect(processor.loadPDF(file)).rejects.toThrow('PDF has too many pages');
+  });
+
+
 
   test('renderPage returns canvas and cleans up page', async () => {
     // Mock the PDF object
