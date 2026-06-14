@@ -209,6 +209,36 @@ export class UIManager {
 
   setPageOrder() {}
 
+  setExportLoading(isLoading) {
+    if (!this.elements.exportPdfBtn) { return; }
+
+    if (isLoading) {
+      this.elements.exportPdfBtn.disabled = true;
+      this.elements.exportPdfBtn.setAttribute('aria-busy', 'true');
+      this.elements.exportPdfBtn.title = 'Exporting PDF...';
+      if (this.elements.exportPdfBtnLabel) {
+        this.elements.exportPdfBtnLabel.textContent = 'Exporting...';
+      }
+      const icon = this.elements.exportPdfBtn.querySelector('.material-symbols-outlined');
+      if (icon) {
+        icon.textContent = 'sync';
+        icon.classList.add('animate-spin');
+      }
+    } else {
+      this.elements.exportPdfBtn.disabled = false;
+      this.elements.exportPdfBtn.setAttribute('aria-busy', 'false');
+      this.elements.exportPdfBtn.title = 'Download PDF';
+      if (this.elements.exportPdfBtnLabel) {
+        this.elements.exportPdfBtnLabel.textContent = 'Export PDF';
+      }
+      const icon = this.elements.exportPdfBtn.querySelector('.material-symbols-outlined');
+      if (icon) {
+        icon.textContent = 'download';
+        icon.classList.remove('animate-spin');
+      }
+    }
+  }
+
   renderPaperSizeOptions() {
     if (!this.elements.paperSizeSelect) {
       return;

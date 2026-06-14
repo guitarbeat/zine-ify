@@ -693,6 +693,7 @@ export class AppController {
     }
 
     this.ui.modal.showProgress(true, 'Generating PDF...');
+    this.ui.setExportLoading(true);
     try {
       await this.exportService.handleExport();
       this.state.markExported();
@@ -702,6 +703,7 @@ export class AppController {
       toast.error('Export Failed', error.message);
     } finally {
       this.ui.modal.showProgress(false);
+      this.ui.setExportLoading(false);
     }
   }
 }

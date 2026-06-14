@@ -1,3 +1,3 @@
-## 2024-04-14 - Icon-only modal close buttons missing ARIA labels
-**Learning:** Icon-only modal close buttons (like the 3D preview and page picker close buttons) often miss `aria-label` and `title` attributes, making them inaccessible to screen readers and lacking tooltips for mouse users. Even dynamically generated modals (like the zoom preview modal in `ModalManager.js`) need these attributes explicitly defined in their HTML template strings.
-**Action:** Always ensure that icon-only interactive elements (`<button>`, `<a>`) have clear, descriptive `aria-label` and `title` attributes, regardless of whether they are hardcoded in the main HTML file or generated dynamically via JavaScript.
+## 2026-06-14 - Add loading state to Export PDF button
+**Learning:** For long-running operations like PDF export, providing localized loading states (e.g., `aria-busy="true"`, `disabled=true`, and an inline spinner) directly on the trigger button gives immediate contextual feedback and prevents double submissions better than relying solely on global progress modals.
+**Action:** When adding async actions to buttons, always implement an inline loading state using `aria-busy`, disable the button, and provide visual feedback (like a spinning icon or "Loading..." text) before falling back to global loaders.
