@@ -9,11 +9,7 @@ export class ExportService {
   }
 
   async handleExport() {
-    const { rows, cols } = this.state.gridSize;
-    const slotsPerSheet = rows * cols;
-    const totalSlots = this.state.allPageImages.length;
-    const sheetCount = Math.max(1, Math.ceil(totalSlots / slotsPerSheet));
-    const template = rows === 2 && cols === 4 ? ZINE_TEMPLATES['mini-8'] : null;
+    const { rows, cols, slotsPerSheet, sheetCount, template } = this._getGridConfig();
 
     const filledSlots = this.state.allPageImages.filter(Boolean);
     if (!filledSlots.length) {
@@ -53,15 +49,9 @@ export class ExportService {
       for (let slot = 0; slot < slotsPerSheet; slot++) {
         const { pageNum, upsideDown } = this._resolveSlot(template, slot);
 
-        const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
-        const url = this.state.allPageImages[pageIndex];
-        if (!url) {continue;}
-
-        const isFlipped = !!this.state.pageFlips[pageIndex];
-        const isZoomed = !!this.state.pageZooms[pageIndex];
-        const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
-        const scale = isZoomed ? 1.1 : 1;
-        const objectFit = isZoomed ? 'cover' : 'contain';
+        const renderData = this._getPageRenderData(sheetIndex, slotsPerSheet, pageNum, upsideDown);
+        if (!renderData) {continue;}
+        const { url, rotateDeg, scale, objectFit } = renderData;
 
         const row = Math.floor(slot / cols);
         const col = slot % cols;
@@ -87,6 +77,29 @@ export class ExportService {
     }
 
     doc.save('zine.pdf');
+  }
+
+  _getGridConfig() {
+    const { rows, cols } = this.state.gridSize;
+    const slotsPerSheet = rows * cols;
+    const totalSlots = this.state.allPageImages.length;
+    const sheetCount = Math.max(1, Math.ceil(totalSlots / slotsPerSheet));
+    const template = rows === 2 && cols === 4 ? ZINE_TEMPLATES['mini-8'] : null;
+    return { rows, cols, slotsPerSheet, totalSlots, sheetCount, template };
+  }
+
+  _getPageRenderData(sheetIndex, slotsPerSheet, pageNum, upsideDown) {
+    const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
+    const url = this.state.allPageImages[pageIndex];
+    if (!url) {return null;}
+
+    const isFlipped = !!this.state.pageFlips[pageIndex];
+    const isZoomed = !!this.state.pageZooms[pageIndex];
+    const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
+    const scale = isZoomed ? 1.1 : 1;
+    const objectFit = isZoomed ? 'cover' : 'contain';
+
+    return { pageIndex, url, isFlipped, isZoomed, rotateDeg, scale, objectFit };
   }
 
   _resolveSlot(template, slot) {
@@ -164,12 +177,7 @@ export class ExportService {
   }
 
   buildSheetsHtml() {
-    const { rows, cols } = this.state.gridSize;
-    const slotsPerSheet = rows * cols;
-    const isMini8 = rows === 2 && cols === 4;
-    const template = isMini8 ? ZINE_TEMPLATES['mini-8'] : null;
-    const totalSlots = this.state.allPageImages.length;
-    const sheetCount = Math.max(1, Math.ceil(totalSlots / slotsPerSheet));
+    const { rows, cols, slotsPerSheet, sheetCount, template } = this._getGridConfig();
     const dims = this.getPaperDimensions();
     const marginMm = this.state.margin || 0;
     const gridW = dims.width - 2 * marginMm;
@@ -187,14 +195,11 @@ export class ExportService {
       for (let slot = 0; slot < slotsPerSheet; slot++) {
         const { pageNum, upsideDown } = this._resolveSlot(template, slot);
 
-        const pageIndex = (s * slotsPerSheet) + (pageNum - 1);
-        const url = this.state.allPageImages[pageIndex] || null;
-        const isFlipped = !!this.state.pageFlips[pageIndex];
-        const isZoomed = !!this.state.pageZooms[pageIndex];
-
-        const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
-        const scale = isZoomed ? '1.1' : '1';
-        const objectFit = isZoomed ? 'cover' : 'contain';
+        const renderData = this._getPageRenderData(s, slotsPerSheet, pageNum, upsideDown);
+        const url = renderData ? renderData.url : null;
+        const rotateDeg = renderData ? renderData.rotateDeg : 0;
+        const scale = renderData ? renderData.scale : 1;
+        const objectFit = renderData ? renderData.objectFit : 'contain';
 
         const areaStyle = template?.gridAreas ? `grid-area:page${pageNum};` : '';
         const cellStyle = `position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;${areaStyle}`;
