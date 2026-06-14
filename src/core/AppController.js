@@ -655,23 +655,21 @@ export class AppController {
         requestAnimationFrame(() => requestAnimationFrame(resolve));
       });
 
-      if (!this.viewer3d) {
-        const container = this.ui.elements.zine3dContainer;
-        if (container) {
-          const Zine3DViewer = await this.getZine3DViewerClass();
-          try {
-            this.viewer3d = new Zine3DViewer(container);
-          } catch (_viewerError) {
-            void _viewerError;
-            const fallback = container.querySelector('.zine-3d-fallback-canvas');
-            if (fallback) {
-              fallback.remove();
-            }
-            this.viewer3d = null;
-            this.ui.toggle3DModal(false);
-            toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
-            return;
+      const container = this.ui.elements.zine3dContainer;
+      if (!this.viewer3d && container) {
+        const Zine3DViewer = await this.getZine3DViewerClass();
+        try {
+          this.viewer3d = new Zine3DViewer(container);
+        } catch (_viewerError) {
+          void _viewerError;
+          const fallback = container.querySelector('.zine-3d-fallback-canvas');
+          if (fallback) {
+            fallback.remove();
           }
+          this.viewer3d = null;
+          this.ui.toggle3DModal(false);
+          toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
+          return;
         }
       }
 
