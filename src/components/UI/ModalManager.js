@@ -38,7 +38,7 @@ export class ModalManager {
   /* ── 3D Modal ── */
   toggle3DModal(show) {
     const modal = this.elements.zine3dModal;
-    if (!modal) return;
+    if (!modal) {return;}
     if (show) {
       modal.style.display = 'flex';
       modal.classList.remove('hidden');
