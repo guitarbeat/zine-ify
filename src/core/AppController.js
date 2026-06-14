@@ -231,6 +231,7 @@ export class AppController {
         this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
         this.ui.modal.updateProgress(percent);
       } catch (error) {
+        void error;
         throw error;
       }
     };
