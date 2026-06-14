@@ -61,23 +61,34 @@ class Toast {
    * @param {number} duration - Duration in milliseconds (default: 5000)
    */
   show(type, title, message = '', duration = 5000) {
+    const toast = this._buildToastElement(type, title, message);
+    this.container.appendChild(toast);
+    this._setupAutoClose(toast, duration);
+    this._animateIn(toast);
+    return toast;
+  }
+
+  /**
+   * Build the toast DOM element
+   * @private
+   */
+  _buildToastElement(type, title, message) {
     // ⚡️ Bolt: Optimized toast generation using HTML templates and module-level constants to reduce memory allocation.
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
 
-    // Dynamic role based on type
     const role = type === 'error' ? 'alert' : 'status';
     toast.setAttribute('role', role);
 
     toast.appendChild(this.template.content.cloneNode(true));
 
-    toast.querySelector('.toast-icon').insertAdjacentHTML('beforeend', this.getIcon(type)); // Safe SVGs
+    toast.querySelector('.toast-icon').insertAdjacentHTML('beforeend', this.getIcon(type));
 
-    toast.querySelector('.toast-title').appendChild(sanitizeHTML(title)); // Allow safe HTML but prevent XSS
+    toast.querySelector('.toast-title').appendChild(sanitizeHTML(title));
 
     const messageDiv = toast.querySelector('.toast-message');
     if (message) {
-      messageDiv.appendChild(sanitizeHTML(message)); // Allow safe HTML but prevent XSS
+      messageDiv.appendChild(sanitizeHTML(message));
     } else {
       messageDiv.remove();
     }
@@ -85,9 +96,14 @@ class Toast {
     const closeBtn = toast.querySelector('.toast-close');
     closeBtn.addEventListener('click', () => this.remove(toast));
 
-    this.container.appendChild(toast);
+    return toast;
+  }
 
-    // Auto remove after duration
+  /**
+   * Setup auto removal
+   * @private
+   */
+  _setupAutoClose(toast, duration) {
     if (duration > 0) {
       setTimeout(() => {
         if (toast.parentNode) {
@@ -95,16 +111,18 @@ class Toast {
         }
       }, duration);
     }
+  }
 
-    // Animate in
+  /**
+   * Animate the toast appearance
+   * @private
+   */
+  _animateIn(toast) {
     requestAnimationFrame(() => {
       toast.classList.add('toast-visible');
-      // Add slight random rotation for chaos
       const rotation = Math.random() * 4 - 2;
       toast.style.transform = `translateX(0) rotate(${rotation}deg)`;
     });
-
-    return toast;
   }
 
   /**
