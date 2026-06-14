@@ -80,14 +80,14 @@ export class UIManager {
 
   initSmartSheetConfig() {
     const container = document.getElementById('smart-sheet-config-container');
-    if (!container) return;
+    if (!container) {return;}
 
     this.smartSheetConfig = new SmartSheetConfig(container, {
       initialRows: DEFAULT_GRID_ROWS,
       initialCols: DEFAULT_GRID_COLS,
-      onChange: ({ rows, cols, paperSize, orientation, margin, totalSlots }) => {
-        if (this.elements.gridRows) this.elements.gridRows.value = rows;
-        if (this.elements.gridCols) this.elements.gridCols.value = cols;
+      onChange: ({ rows, cols, paperSize, orientation, margin, _totalSlots }) => {
+        if (this.elements.gridRows) {this.elements.gridRows.value = rows;}
+        if (this.elements.gridCols) {this.elements.gridCols.value = cols;}
         this.updateGridTotalBadge(rows, cols);
         this._syncOrientationVisibility(rows, cols);
         this.emitter.emit('gridSizeChanged', { rows, cols });
@@ -299,7 +299,7 @@ export class UIManager {
   }
 
   _syncOrientationVisibility(rows, cols) {
-    if (this.smartSheetConfig) return;
+    if (this.smartSheetConfig) {return;}
     const isMini8 = rows === 2 && cols === 4;
     const wrapper = this.elements.orientationToggle?.closest('.workspace-config-field');
     if (wrapper) {
@@ -412,6 +412,15 @@ export class UIManager {
   }
 
   setupEventListeners() {
+    this._setupPaperConfigListeners();
+    this._setupActionListeners();
+    this._setupFoldPreviewListeners();
+    this._setupUploadListeners();
+
+    window.addEventListener('resize', () => this.syncResponsiveUI());
+  }
+
+  _setupPaperConfigListeners() {
     if (!this.smartSheetConfig) {
       this.elements.paperSizeSelect?.addEventListener('change', (event) => {
         this.emitter.emit('paperSizeChanged', { paperSize: event.target.value });
@@ -468,23 +477,32 @@ export class UIManager {
       this._applyPageControlsVisibility(event.target.checked);
     });
 
+    if (!this.smartSheetConfig) {
+      const debouncedGridChange = debounce(() => {
+        const { rows, cols } = this.normalizeGridInputs();
+
+        this.updateGridTotalBadge(rows, cols);
+        this._syncOrientationVisibility(rows, cols);
+        this.emitter.emit('gridSizeChanged', { rows, cols });
+      }, 300);
+
+      this.elements.gridRows?.addEventListener('input', debouncedGridChange);
+      this.elements.gridCols?.addEventListener('input', debouncedGridChange);
+    }
+  }
+
+  _setupActionListeners() {
     this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
     this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
     this.elements.clearAllBtn?.addEventListener('click', () => this.emitter.emit('clearAll'));
-
-    this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
-    this.elements.uploadZone?.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        this.triggerFileUpload();
-      }
-    });
 
     this.elements.openRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(true));
     this.elements.closeRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(false));
     this.elements.mobileRailOverlay?.addEventListener('click', () => this.toggleMobileRail(false));
     this.elements.close3dBtn?.addEventListener('click', () => this.toggle3DModal(false));
+  }
 
+  _setupFoldPreviewListeners() {
     this.elements.foldSlider?.addEventListener('input', (event) => {
       const value = parseFloat(event.target.value || '0');
       this.setFoldProgressControl(value);
@@ -514,6 +532,16 @@ export class UIManager {
       event.preventDefault();
       stepButton.click();
     });
+  }
+
+  _setupUploadListeners() {
+    this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
+    this.elements.uploadZone?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        this.triggerFileUpload();
+      }
+    });
 
     this.dnd.setupEventListeners();
     this.emitter.on('filesDropped', (files) => this.handleIncomingFiles(files));
@@ -523,21 +551,6 @@ export class UIManager {
       this.handleIncomingFiles(files);
       event.target.value = '';
     });
-
-    if (!this.smartSheetConfig) {
-      const debouncedGridChange = debounce(() => {
-        const { rows, cols } = this.normalizeGridInputs();
-
-        this.updateGridTotalBadge(rows, cols);
-        this._syncOrientationVisibility(rows, cols);
-        this.emitter.emit('gridSizeChanged', { rows, cols });
-      }, 300);
-
-      this.elements.gridRows?.addEventListener('input', debouncedGridChange);
-      this.elements.gridCols?.addEventListener('input', debouncedGridChange);
-    }
-
-    window.addEventListener('resize', () => this.syncResponsiveUI());
   }
 
   isFoldPreviewOpen() {
