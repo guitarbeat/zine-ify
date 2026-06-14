@@ -109,7 +109,8 @@ export class LayoutRenderer {
     return { page: index + 1, upsideDown: false };
   }
 
-  createSheetGrid({ sheetNumber, template, id, paper }) {
+  createSheetGrid(config) {
+    const { sheetNumber, template, id, paper } = config;
     const sheetWrapper = document.createElement('div');
     sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
     sheetWrapper.setAttribute('data-sheet', sheetNumber);
@@ -179,7 +180,8 @@ export class LayoutRenderer {
     return Math.min(1, usableHeight / height);
   }
 
-  createPageCell({ pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers }) {
+  createPageCell(config) {
+    const { pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers } = config;
     const cell = document.createElement('div');
     cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
     cell.setAttribute('data-page-index', pageIndex);
