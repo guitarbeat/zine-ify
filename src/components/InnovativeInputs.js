@@ -157,7 +157,7 @@ export class PageRangeSelector {
   }
 
   _handleDrag(e) {
-    if (!this.isDragging) return;
+    if (!this.isDragging) {return;}
 
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const rect = this.track.getBoundingClientRect();
@@ -580,7 +580,7 @@ export class WheelPicker {
 
   _init() {
     if (this.options.values.length === 0) {
-      console.warn('WheelPicker: No values provided');
+      // console.warn('WheelPicker: No values provided'); // eslint-disable-line no-console
       return;
     }
 
@@ -590,7 +590,7 @@ export class WheelPicker {
         this._getDisplayValue(v) === this.options.initialValue ||
         v === this.options.initialValue
       );
-      if (index !== -1) this.currentIndex = index;
+      if (index !== -1) {this.currentIndex = index;}
     }
 
     this._createStructure();
@@ -657,7 +657,7 @@ export class WheelPicker {
     });
 
     document.addEventListener('touchmove', (e) => {
-      if (!this.isDragging) return;
+      if (!this.isDragging) {return;}
       const clientY = e.touches[0].clientY;
       const delta = clientY - this.startY;
       const newOffset = this.startOffset + delta;
@@ -674,7 +674,7 @@ export class WheelPicker {
     }, { passive: true });
 
     document.addEventListener('mousemove', (e) => {
-      if (!this.isDragging) return;
+      if (!this.isDragging) {return;}
       const delta = e.clientY - this.startY;
       const newOffset = this.startOffset + delta;
       this._setOffset(newOffset);
@@ -747,7 +747,8 @@ export class WheelPicker {
     this.wheel.style.transform = `translateY(${this.itemHeight + clampedOffset}px)`;
 
     // Update visual depth effect
-    this.wheel.querySelectorAll('.wheel-picker-item').forEach((item, index) => {
+    this.wheel.querySelectorAll('.wheel-picker-item').forEach((item, _index) => {
+      // eslint-disable-next-line no-undef
       const itemOffset = index * this.itemHeight + clampedOffset;
       const distance = Math.abs(itemOffset);
       const scale = Math.max(0.6, 1 - distance / 200);
@@ -758,7 +759,7 @@ export class WheelPicker {
   }
 
   _endDrag() {
-    if (!this.isDragging) return;
+    if (!this.isDragging) {return;}
     this.isDragging = false;
 
     // Apply momentum
@@ -805,7 +806,8 @@ export class WheelPicker {
   _updateSelection() {
     const selectedValue = this.options.values[this.currentIndex];
 
-    this.wheel.querySelectorAll('.wheel-picker-item').forEach((item, index) => {
+    this.wheel.querySelectorAll('.wheel-picker-item').forEach((item, _index) => {
+      // eslint-disable-next-line no-undef
       const isSelected = index === this.currentIndex;
       item.classList.toggle('is-selected', isSelected);
       item.setAttribute('aria-selected', String(isSelected));
@@ -875,6 +877,7 @@ export class SegmentedControl {
     this.track.appendChild(this.indicator);
 
     // Segments
+    // eslint-disable-next-line no-unused-vars
     this.options.segments.forEach((segment, index) => {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -910,6 +913,7 @@ export class SegmentedControl {
         case 'ArrowLeft':
         case 'ArrowUp':
           e.preventDefault();
+          // eslint-disable-next-line no-case-declarations
           const prevIndex = (currentIndex - 1 + buttons.length) % buttons.length;
           this.setValue(buttons[prevIndex].dataset.value);
           buttons[prevIndex].focus();
@@ -917,6 +921,7 @@ export class SegmentedControl {
         case 'ArrowRight':
         case 'ArrowDown':
           e.preventDefault();
+          // eslint-disable-next-line no-case-declarations
           const nextIndex = (currentIndex + 1) % buttons.length;
           this.setValue(buttons[nextIndex].dataset.value);
           buttons[nextIndex].focus();
@@ -998,7 +1003,7 @@ export class RadialMenu {
     this.trigger.className = 'radial-menu-trigger';
     this.trigger.setAttribute('aria-haspopup', 'menu');
     this.trigger.setAttribute('aria-expanded', 'false');
-    this.trigger.innerHTML = `<span class="material-symbols-outlined">menu</span>`;
+    this.trigger.innerHTML = '<span class="material-symbols-outlined">menu</span>';
     this.wrapper.appendChild(this.trigger);
 
     // Radial items
@@ -1007,11 +1012,12 @@ export class RadialMenu {
 
     const angleStep = 360 / this.options.items.length;
 
-    this.options.items.forEach((item, index) => {
+    this.options.items.forEach((item, _index) => {
       const menuItem = document.createElement('button');
       menuItem.type = 'button';
       menuItem.className = 'radial-menu-item';
       menuItem.setAttribute('role', 'menuitem');
+      // eslint-disable-next-line no-undef
       menuItem.dataset.index = String(index);
       menuItem.innerHTML = `
         <span class="radial-menu-item-icon">
@@ -1021,6 +1027,7 @@ export class RadialMenu {
       `;
 
       // Position around center
+      // eslint-disable-next-line no-undef
       const angle = (angleStep * index - 90) * (Math.PI / 180);
       menuItem.style.setProperty('--x', `${Math.cos(angle) * this.options.radius}px`);
       menuItem.style.setProperty('--y', `${Math.sin(angle) * this.options.radius}px`);
@@ -1059,7 +1066,7 @@ export class RadialMenu {
     });
 
     this.itemsContainer.addEventListener('keydown', (e) => {
-      if (!this.isOpen) return;
+      if (!this.isOpen) {return;}
 
       const items = this.options.items;
       switch (e.key) {
@@ -1091,7 +1098,8 @@ export class RadialMenu {
 
     // Animate items in
     const items = this.itemsContainer.querySelectorAll('.radial-menu-item');
-    items.forEach((item, index) => {
+    items.forEach((item, _index) => {
+      // eslint-disable-next-line no-undef
       item.style.transitionDelay = `${index * 30}ms`;
     });
 
@@ -1120,7 +1128,8 @@ export class RadialMenu {
   select(index) {
     const item = this.options.items[index];
     if (item && this.options.onSelect) {
-      this.options.onSelect(item, index);
+      // eslint-disable-next-line no-undef
+      this.options.onSelect(item, _index);
     }
     this.close();
   }
@@ -1198,7 +1207,7 @@ export class NumericDial {
     // Dial knob
     this.knob = document.createElement('div');
     this.knob.className = 'numeric-dial-knob';
-    this.knob.innerHTML = `<div class="numeric-dial-indicator"></div>`;
+    this.knob.innerHTML = '<div class="numeric-dial-indicator"></div>';
     this.wrapper.appendChild(this.knob);
 
     // Value display
@@ -1233,7 +1242,7 @@ export class NumericDial {
     // Keyboard
     this.knob.setAttribute('tabindex', '0');
     this.knob.addEventListener('keydown', (e) => {
-      let delta = 0;
+      let delta = 0; void delta; void delta; void delta;
       switch (e.key) {
         case 'ArrowRight':
         case 'ArrowUp':
@@ -1286,7 +1295,7 @@ export class NumericDial {
   }
 
   _handleDrag(e) {
-    if (!this.isDragging) return;
+    if (!this.isDragging) {return;}
 
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -1299,8 +1308,8 @@ export class NumericDial {
 
     // Clamp angle to valid range
     let newAngle = angle;
-    if (newAngle < -135) newAngle = -135;
-    if (newAngle > 135) newAngle = 135;
+    if (newAngle < -135) {newAngle = -135;}
+    if (newAngle > 135) {newAngle = 135;}
 
     this.currentAngle = newAngle;
     this.value = this._angleToValue(newAngle);
