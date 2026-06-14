@@ -105,4 +105,60 @@ test.describe('UndoManager', () => {
     // Entry 1 and Entry 3 had onPrune callbacks
     expect(pruneCount).toBe(2);
   });
+
+  test('push retains all snapshot properties', () => {
+    const manager = new UndoManager();
+    const entry = {
+      description: 'Test properties',
+      allPageImages: ['img1'],
+      pageFlips: { 0: false },
+      pageZooms: { 0: 2.0 },
+      onPrune: () => {}
+    };
+
+    manager.push(entry);
+    const popped = manager.pop();
+
+    expect(popped.description).toBe('Test properties');
+    expect(popped.allPageImages).toEqual(['img1']);
+    expect(popped.pageFlips).toEqual({ 0: false });
+    expect(popped.pageZooms).toEqual({ 0: 2.0 });
+    expect(popped.onPrune).toBe(entry.onPrune);
+  });
+
+  test('pop does not call onPrune', () => {
+    const manager = new UndoManager();
+    let pruneCalled = false;
+    manager.push({
+      description: 'Test pop',
+      onPrune: () => { pruneCalled = true; }
+    });
+
+    manager.pop();
+    expect(pruneCalled).toBe(false);
+  });
+
+  test('clear does nothing and does not throw on empty stack', () => {
+    const manager = new UndoManager();
+    expect(() => manager.clear()).not.toThrow();
+    expect(manager.size).toBe(0);
+  });
+
+  test('push handles maxHistory of 0 by immediately pruning', () => {
+    const manager = new UndoManager(0);
+    let pruneCalled = false;
+
+    manager.push({
+      description: 'Test max 0',
+      onPrune: () => { pruneCalled = true; }
+    });
+
+    expect(manager.size).toBe(0);
+    expect(pruneCalled).toBe(true);
+  });
+
+  test('push throws TypeError if no arguments are provided', () => {
+    const manager = new UndoManager();
+    expect(() => manager.push()).toThrow(TypeError);
+  });
 });
