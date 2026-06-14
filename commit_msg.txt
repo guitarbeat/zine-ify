@@ -1,0 +1,15 @@
+🧹 [code health improvement description]
+
+🎯 **What:**
+Refactored the highly complex `setupEventListeners` method in `src/components/UI/UIManager.js` by splitting it into smaller, feature-focused private methods (`_setupPaperConfigListeners`, `_setupActionListeners`, `_setupUploadListeners`, `_setupMobileRailListeners`, and `_setupFoldPreviewListeners`).
+
+💡 **Why:**
+The original `setupEventListeners` method was monolithic and handled the event binding for completely unrelated features (paper configuration, file uploading, mobile rail toggling, fold previewing, etc.). This made the method incredibly long, difficult to read, and prone to merge conflicts. By grouping these listeners by component/feature, the code is significantly easier to maintain, test, and understand.
+
+✅ **Verification:**
+1. Verified that the modified code passes all linter checks (`pnpm run lint`), fixing missing curly braces on single-line if-statements and properly naming unused parameters.
+2. Verified that all event listeners from the original method were successfully migrated to their respective groups.
+3. Ran the complete test suite (`pnpm test`); all new regressions were prevented and the existing failing tests remain identical to the unpatched `main` branch state.
+
+✨ **Result:**
+The `UIManager.js` class is cleaner. The `setupEventListeners` method now functions as a high-level orchestrator. Readability is improved, and code health is restored without changing functional behavior.
