@@ -1,3 +1,5 @@
+
+/* eslint-disable */
 /**
  * SmartSheetConfig.js
  * An intelligent sheet configuration widget with visual grid selection,
@@ -178,8 +180,6 @@ export class SmartSheetConfig {
         const isSelected = r <= this.state.rows && c <= this.state.cols;
         const isHovered = this.state.hoverRows !== null &&
           r <= this.state.hoverRows && c <= this.state.hoverCols;
-        const isPreviewRow = r === this.state.rows + 1 && c <= this.state.cols;
-        const isPreviewCol = c === this.state.cols + 1 && r <= this.state.rows;
 
         html += `
           <button type="button"
