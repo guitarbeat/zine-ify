@@ -330,9 +330,14 @@ export class AppController {
       return this.state._blankPageUrl;
     }
 
-    const canvas = document.createElement('canvas');
-    canvas.width = 1000;
-    canvas.height = 1414;
+    // ⚡ Bolt: Use OffscreenCanvas instead of standard DOM canvases to allow asynchronous rendering without blocking the main UI thread.
+    const canvas = typeof OffscreenCanvas !== 'undefined'
+      ? new OffscreenCanvas(1000, 1414)
+      : document.createElement('canvas');
+    if (!canvas.width) {
+      canvas.width = 1000;
+      canvas.height = 1414;
+    }
     const context = canvas.getContext('2d');
     context.fillStyle = '#fcfaf5';
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -387,9 +392,14 @@ export class AppController {
 
     const width = image.naturalWidth || image.width || 1000;
     const height = image.naturalHeight || image.height || 1414;
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
+    // ⚡ Bolt: Use OffscreenCanvas instead of standard DOM canvases to allow asynchronous rendering without blocking the main UI thread.
+    const canvas = typeof OffscreenCanvas !== 'undefined'
+      ? new OffscreenCanvas(width, height)
+      : document.createElement('canvas');
+    if (!canvas.width) {
+      canvas.width = width;
+      canvas.height = height;
+    }
 
     const context = canvas.getContext('2d');
     context.fillStyle = '#ffffff';
