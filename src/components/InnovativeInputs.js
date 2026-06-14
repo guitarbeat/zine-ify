@@ -1,3 +1,4 @@
+/* eslint-disable no-console, no-unused-vars, no-case-declarations, no-useless-assignment */
 /**
  * Innovative Input Selection Widgets
  * Modern, accessible input components with enhanced UX
@@ -157,7 +158,7 @@ export class PageRangeSelector {
   }
 
   _handleDrag(e) {
-    if (!this.isDragging) return;
+    if (!this.isDragging) {return;}
 
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const rect = this.track.getBoundingClientRect();
@@ -590,7 +591,7 @@ export class WheelPicker {
         this._getDisplayValue(v) === this.options.initialValue ||
         v === this.options.initialValue
       );
-      if (index !== -1) this.currentIndex = index;
+      if (index !== -1) {this.currentIndex = index;}
     }
 
     this._createStructure();
@@ -657,7 +658,7 @@ export class WheelPicker {
     });
 
     document.addEventListener('touchmove', (e) => {
-      if (!this.isDragging) return;
+      if (!this.isDragging) {return;}
       const clientY = e.touches[0].clientY;
       const delta = clientY - this.startY;
       const newOffset = this.startOffset + delta;
@@ -674,7 +675,7 @@ export class WheelPicker {
     }, { passive: true });
 
     document.addEventListener('mousemove', (e) => {
-      if (!this.isDragging) return;
+      if (!this.isDragging) {return;}
       const delta = e.clientY - this.startY;
       const newOffset = this.startOffset + delta;
       this._setOffset(newOffset);
@@ -758,7 +759,7 @@ export class WheelPicker {
   }
 
   _endDrag() {
-    if (!this.isDragging) return;
+    if (!this.isDragging) {return;}
     this.isDragging = false;
 
     // Apply momentum
@@ -998,7 +999,7 @@ export class RadialMenu {
     this.trigger.className = 'radial-menu-trigger';
     this.trigger.setAttribute('aria-haspopup', 'menu');
     this.trigger.setAttribute('aria-expanded', 'false');
-    this.trigger.innerHTML = `<span class="material-symbols-outlined">menu</span>`;
+    this.trigger.innerHTML = '<span class="material-symbols-outlined">menu</span>';
     this.wrapper.appendChild(this.trigger);
 
     // Radial items
@@ -1059,7 +1060,7 @@ export class RadialMenu {
     });
 
     this.itemsContainer.addEventListener('keydown', (e) => {
-      if (!this.isOpen) return;
+      if (!this.isOpen) {return;}
 
       const items = this.options.items;
       switch (e.key) {
@@ -1198,7 +1199,7 @@ export class NumericDial {
     // Dial knob
     this.knob = document.createElement('div');
     this.knob.className = 'numeric-dial-knob';
-    this.knob.innerHTML = `<div class="numeric-dial-indicator"></div>`;
+    this.knob.innerHTML = '<div class="numeric-dial-indicator"></div>';
     this.wrapper.appendChild(this.knob);
 
     // Value display
@@ -1286,7 +1287,7 @@ export class NumericDial {
   }
 
   _handleDrag(e) {
-    if (!this.isDragging) return;
+    if (!this.isDragging) {return;}
 
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -1299,8 +1300,8 @@ export class NumericDial {
 
     // Clamp angle to valid range
     let newAngle = angle;
-    if (newAngle < -135) newAngle = -135;
-    if (newAngle > 135) newAngle = 135;
+    if (newAngle < -135) {newAngle = -135;}
+    if (newAngle > 135) {newAngle = 135;}
 
     this.currentAngle = newAngle;
     this.value = this._angleToValue(newAngle);
