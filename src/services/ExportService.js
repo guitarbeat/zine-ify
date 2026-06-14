@@ -57,11 +57,7 @@ export class ExportService {
         const url = this.state.allPageImages[pageIndex];
         if (!url) {continue;}
 
-        const isFlipped = !!this.state.pageFlips[pageIndex];
-        const isZoomed = !!this.state.pageZooms[pageIndex];
-        const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
-        const scale = isZoomed ? 1.1 : 1;
-        const objectFit = isZoomed ? 'cover' : 'contain';
+        const { rotateDeg, scale, objectFit } = this._getPageRenderProps(pageIndex, upsideDown);
 
         const row = Math.floor(slot / cols);
         const col = slot % cols;
@@ -105,6 +101,17 @@ export class ExportService {
     }
 
     return { pageNum, upsideDown };
+  }
+
+  _getPageRenderProps(pageIndex, upsideDown) {
+    const isFlipped = !!this.state.pageFlips[pageIndex];
+    const isZoomed = !!this.state.pageZooms[pageIndex];
+
+    const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
+    const scale = isZoomed ? 1.1 : 1;
+    const objectFit = isZoomed ? 'cover' : 'contain';
+
+    return { isFlipped, isZoomed, rotateDeg, scale, objectFit };
   }
 
   _loadImage(url) {
@@ -189,12 +196,7 @@ export class ExportService {
 
         const pageIndex = (s * slotsPerSheet) + (pageNum - 1);
         const url = this.state.allPageImages[pageIndex] || null;
-        const isFlipped = !!this.state.pageFlips[pageIndex];
-        const isZoomed = !!this.state.pageZooms[pageIndex];
-
-        const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
-        const scale = isZoomed ? '1.1' : '1';
-        const objectFit = isZoomed ? 'cover' : 'contain';
+        const { rotateDeg, scale, objectFit } = this._getPageRenderProps(pageIndex, upsideDown);
 
         const areaStyle = template?.gridAreas ? `grid-area:page${pageNum};` : '';
         const cellStyle = `position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;${areaStyle}`;
