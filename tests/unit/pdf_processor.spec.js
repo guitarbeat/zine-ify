@@ -156,7 +156,6 @@ test.describe('PDFProcessor', () => {
     }
 
     const file = new File(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' });
-    // Object.defineProperty to set read-only properties if needed, but File usually allows passing name
 
     let progressMessages = [];
     const onProgress = (msg) => progressMessages.push(msg);
