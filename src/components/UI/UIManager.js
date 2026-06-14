@@ -8,12 +8,10 @@ import {
 import { debounce, parseBoundedInteger } from '../../utils/helpers.js';
 
 
-
 import { ModalManager } from './ModalManager.js';
 import { DragAndDropHandler } from './DragAndDropHandler.js';
 import { LayoutRenderer } from './LayoutRenderer.js';
 import { PAGE_CELL_TEMPLATE } from './Templates.js';
-
 
 
 const DEFAULT_GRID_ROWS = 2;
