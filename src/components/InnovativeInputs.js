@@ -580,8 +580,7 @@ export class WheelPicker {
 
   _init() {
     if (this.options.values.length === 0) {
-      console.warn('WheelPicker: No values provided');
-      return;
+            return;
     }
 
     // Find initial index
@@ -1236,6 +1235,7 @@ export class NumericDial {
     this.knob.setAttribute('tabindex', '0');
     this.knob.addEventListener('keydown', (e) => {
       let delta = 0;
+      void delta;
       switch (e.key) {
         case 'ArrowRight':
         case 'ArrowUp':

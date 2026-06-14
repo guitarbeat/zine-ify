@@ -25,8 +25,7 @@ export class AccessibleTabs {
       : container;
 
     if (!this.container) {
-      console.error('AccessibleTabs: Container not found');
-      return;
+            return;
     }
 
     this.options = {
@@ -50,8 +49,7 @@ export class AccessibleTabs {
     this._discoverTabs();
 
     if (this.tabs.length === 0) {
-      console.warn('AccessibleTabs: No tabs found');
-      return;
+            return;
     }
 
     this._setupAttributes();
@@ -167,6 +165,7 @@ export class AccessibleTabs {
       const prevKey = isVertical ? 'ArrowUp' : 'ArrowLeft';
 
       let newIndex = currentIndex;
+      void newIndex;
       void newIndex;
 
       switch (e.key) {
@@ -287,8 +286,7 @@ export class AccessibleList {
       : container;
 
     if (!this.container) {
-      console.error('AccessibleList: Container not found');
-      return;
+            return;
     }
 
     this.options = {
@@ -402,9 +400,9 @@ export class AccessibleList {
       // Update UI
       this._updateProgress();
 
-    } catch (error) {
-      console.error('AccessibleList: Load error', error);
-      this.statusRegion.textContent = 'Error loading items. Please try again.';
+    } catch (_error) {
+        void _error;
+            this.statusRegion.textContent = 'Error loading items. Please try again.';
     } finally {
       this.isLoading = false;
       this.loadMoreBtn.disabled = false;
@@ -492,8 +490,7 @@ export class AccessibleCombobox {
       : container;
 
     if (!this.container) {
-      console.error('AccessibleCombobox: Container not found');
-      return;
+            return;
     }
 
     this.options = {
@@ -828,8 +825,7 @@ export class Accordion {
       : container;
 
     if (!this.container) {
-      console.error('Accordion: Container not found');
-      return;
+            return;
     }
 
     this.options = {

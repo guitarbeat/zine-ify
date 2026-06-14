@@ -85,7 +85,7 @@ export class UIManager {
     this.smartSheetConfig = new SmartSheetConfig(container, {
       initialRows: DEFAULT_GRID_ROWS,
       initialCols: DEFAULT_GRID_COLS,
-      onChange: ({ rows, cols, paperSize, orientation, margin, totalSlots }) => {
+      onChange: ({ rows, cols, paperSize, orientation, margin, totalSlots: _totalSlots }) => {
         if (this.elements.gridRows) {this.elements.gridRows.value = rows;}
         if (this.elements.gridCols) {this.elements.gridCols.value = cols;}
         this.updateGridTotalBadge(rows, cols);

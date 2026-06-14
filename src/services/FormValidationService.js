@@ -3,7 +3,7 @@
  * Demonstrates user-friendly validation for existing settings
  */
 
-import { FormValidator, createFieldValidator } from '../components/FormValidator.js';
+import { FormValidator } from '../components/FormValidator.js';
 import { VALIDATION_TIMING, VALIDATION_RULES } from '../utils/formValidation.js';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX, MARGIN_MIN } from './../utils/config.js';
 import { toast } from '../components/Toast.js';
@@ -16,8 +16,7 @@ import { toast } from '../components/Toast.js';
 export function initSettingsValidation(container = document) {
   const form = container.querySelector('#settings-group') || container.querySelector('.rail-settings-panel');
   if (!form) {
-    console.warn('ValidationService: Settings form not found');
-    return null;
+        return null;
   }
 
   const validator = new FormValidator(form, {
