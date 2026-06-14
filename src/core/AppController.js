@@ -206,7 +206,13 @@ export class AppController {
     this.prepareLayoutForTotalPages(startIndex + selectedPages.length);
     this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
 
-    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
+    // ⚡ Bolt: Sliding window worker pool for faster PDF page rendering
+    // Replaced sequential rendering with parallel processing to improve import speeds
+    const CONCURRENCY_LIMIT = 4;
+    const activePromises = new Set();
+    let completedCount = 0;
+
+    const processPage = async (selectedIndex, pageNumber) => {
       const targetIndex = startIndex + selectedIndex;
       const canvas = await this.pdfProcessor.renderPage(pageNumber);
       const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
@@ -217,11 +223,30 @@ export class AppController {
       }
 
       this.state.allPageImages[targetIndex] = pageUrl;
+      // Note: we update the UI synchronously here, but in parallel streams,
+      // the previews will update out of order.
       this.ui.updatePagePreview(targetIndex, pageUrl);
 
-      const percent = Math.round(((selectedIndex + 1) / selectedPages.length) * 100);
+      completedCount++;
+      const percent = Math.round((completedCount / selectedPages.length) * 100);
       this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
       this.ui.modal.updateProgress(percent);
+    };
+
+    try {
+      for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
+        const trackedPromise = processPage(selectedIndex, pageNumber).finally(() => activePromises.delete(trackedPromise));
+        activePromises.add(trackedPromise);
+
+        if (activePromises.size >= CONCURRENCY_LIMIT) {
+          await Promise.race(activePromises);
+        }
+      }
+
+      await Promise.all(activePromises);
+    } catch (error) {
+      await Promise.allSettled(Array.from(activePromises));
+      throw error;
     }
 
     this.state.totalPages = this.state.getFilledPageCount();
