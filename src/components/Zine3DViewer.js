@@ -248,6 +248,25 @@ export class Zine3DViewer {
 
     const previewPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
 
+    this._clearExistingResources();
+    const textureLoader = new THREE.TextureLoader();
+    this._initializeStacks();
+    this._createPageMeshes(previewPages, textureLoader);
+
+    this.createSeams();
+    this.createGuides();
+
+    // Initialize layout flat
+    this.setFoldProgress(0);
+
+    // Automatically adjust camera slightly so the flat sheet fits
+    this.camera.position.set(0, 0, 6);
+    this.controls.target.set(0, 0, 0);
+    this.controls.update();
+    this.refreshLayout();
+  }
+
+  _clearExistingResources() {
     // Clear existing planes
     this.pages.forEach((page) => {
       page.frontMaterial?.map?.dispose?.();
@@ -273,9 +292,9 @@ export class Zine3DViewer {
     this.stacks = [];
     this.seams = [];
     this.guides = [];
+  }
 
-    const textureLoader = new THREE.TextureLoader();
-
+  _initializeStacks() {
     MINI_ZINE_STACKS.forEach((stackDefinition) => {
       const group = new THREE.Group();
       this.scene.add(group);
@@ -284,7 +303,9 @@ export class Zine3DViewer {
         group
       });
     });
-    
+  }
+
+  _createPageMeshes(previewPages, textureLoader) {
     for (let i = 1; i <= 8; i++) {
       const config = this.panelDefinitions[i];
       const pageData = previewPages[i - 1]; // Array is 0-indexed
@@ -351,17 +372,6 @@ export class Zine3DViewer {
       });
     }
 
-    this.createSeams();
-    this.createGuides();
-
-    // Initialize layout flat
-    this.setFoldProgress(0);
-    
-    // Automatically adjust camera slightly so the flat sheet fits
-    this.camera.position.set(0, 0, 4.9);
-    this.controls.target.copy(this.cameraTarget);
-    this.controls.update();
-    this.refreshLayout();
   }
 
   refreshLayout() {
