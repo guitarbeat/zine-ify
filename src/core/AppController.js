@@ -697,6 +697,17 @@ export class AppController {
     }
 
     this.ui.modal.showProgress(true, 'Generating PDF...');
+    const exportBtn = this.ui.elements.exportPdfBtn;
+    const originalHtml = exportBtn ? exportBtn.innerHTML : '';
+    if (exportBtn) {
+      exportBtn.disabled = true;
+      exportBtn.setAttribute('aria-busy', 'true');
+      exportBtn.innerHTML = `
+        <span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>
+        <span class="text-sm font-semibold">Exporting...</span>
+      `;
+    }
+
     try {
       await this.exportService.handleExport();
       this.state.markExported();
@@ -706,6 +717,11 @@ export class AppController {
       toast.error('Export Failed', error.message);
     } finally {
       this.ui.modal.showProgress(false);
+      if (exportBtn) {
+        exportBtn.innerHTML = originalHtml;
+        exportBtn.removeAttribute('aria-busy');
+        this.updateWorkspaceUi();
+      }
     }
   }
 }
