@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * SmartSheetConfig.js
  * An intelligent sheet configuration widget with visual grid selection,

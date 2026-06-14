@@ -1,3 +1,4 @@
+
 /**
  * ProgressOverlay.js
  * Self-contained progress overlay component

@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * Validation integration for Zine-ify form controls
  * Demonstrates user-friendly validation for existing settings

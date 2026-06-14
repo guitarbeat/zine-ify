@@ -1,3 +1,4 @@
+
 export function createMagneticToggle({
   icon = 'check',
   label = 'Toggle',
