@@ -577,12 +577,12 @@ export class UIManager {
     );
     dimensions.margin = paperSettings.margin || 0;
 
-    this.renderer.render(
+    this.renderer.render({
       numPages,
       template,
-      { pageNumbersVisible: this.pageNumbersVisible },
+      options: { pageNumbersVisible: this.pageNumbersVisible },
       handlers,
-      dimensions
-    );
+      paper: dimensions
+    });
   }
 }
