@@ -57,6 +57,7 @@ export class UIManager {
     this.pageNumbersVisible = true;
     this.activePageIndex = null;
 
+    this._pageCellsCache = null;
     this.init();
   }
 
@@ -340,7 +341,23 @@ export class UIManager {
   }
 
   _getPageCell(index) {
-    return this.elements.zineSheetsContainer?.querySelector(`[data-page-index="${index}"]`) || null;
+    // Optimization: Cache page cell DOM elements to avoid repetitive querySelector overhead.
+    // This provides O(1) lookups instead of O(N^2) DOM traversal during layout generation
+    // and rapid UI updates.
+    if (!this._pageCellsCache) {
+      const cells = this.elements.zineSheetsContainer?.querySelectorAll('[data-page-index]');
+      if (!cells || cells.length === 0) {
+        return null;
+      }
+      this._pageCellsCache = new Map();
+      cells.forEach(cell => {
+        const idx = cell.getAttribute('data-page-index');
+        if (idx !== null) {
+          this._pageCellsCache.set(String(idx), cell);
+        }
+      });
+    }
+    return this._pageCellsCache.get(String(index)) || null;
   }
 
   getPaperDimensions(paperSizeKey, orientation) {
@@ -548,6 +565,7 @@ export class UIManager {
   }
 
   generateLayout(numPages, templateType, paperSettings = {}) {
+    this._pageCellsCache = null;
     const template = typeof templateType === 'string'
       ? ZINE_TEMPLATES[templateType || 'mini-8']
       : (templateType || ZINE_TEMPLATES['mini-8']);
