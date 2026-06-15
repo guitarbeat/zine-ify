@@ -300,11 +300,11 @@
                         <div id="booklet-preview-container" class="booklet-preview-container" aria-label="Small booklet preview"></div>
 
                         <div class="grid grid-cols-2 gap-2.5">
-                            <button id="booklet-prev-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-white text-zinc-800 font-medium text-sm" type="button">
+                            <button id="booklet-prev-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-white text-zinc-800 font-medium text-sm" type="button" aria-label="Previous page">
                                 <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>
                                 Prev
                             </button>
-                            <button id="booklet-next-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-zinc-900 text-white font-medium text-sm" type="button">
+                            <button id="booklet-next-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-zinc-900 text-white font-medium text-sm" type="button" aria-label="Next page">
                                 Next
                                 <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
                             </button>
@@ -401,11 +401,11 @@
 
             <div class="page-picker-toolbar px-5 py-3 border-b border-zinc-100 flex flex-col gap-2.5">
                 <div class="page-picker-presets flex flex-wrap items-center gap-1.5">
-                    <button id="page-picker-select-first" type="button" class="page-picker-chip">First 8</button>
-                    <button id="page-picker-select-last" type="button" class="page-picker-chip">Last 8</button>
-                    <button id="page-picker-select-even" type="button" class="page-picker-chip">Even</button>
-                    <button id="page-picker-select-odd" type="button" class="page-picker-chip">Odd</button>
-                    <button id="page-picker-clear" type="button" class="page-picker-chip">Clear</button>
+                    <button id="page-picker-select-first" type="button" class="page-picker-chip" aria-label="Select first 8 pages">First 8</button>
+                    <button id="page-picker-select-last" type="button" class="page-picker-chip" aria-label="Select last 8 pages">Last 8</button>
+                    <button id="page-picker-select-even" type="button" class="page-picker-chip" aria-label="Select even pages">Even</button>
+                    <button id="page-picker-select-odd" type="button" class="page-picker-chip" aria-label="Select odd pages">Odd</button>
+                    <button id="page-picker-clear" type="button" class="page-picker-chip" aria-label="Clear page selection">Clear</button>
                 </div>
                 <div class="page-picker-status flex flex-wrap items-center justify-between gap-2">
                     <p id="page-picker-count" class="text-xs font-semibold text-zinc-500 uppercase tracking-wide">
