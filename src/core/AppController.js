@@ -290,6 +290,9 @@ export class AppController {
       }
     } finally {
       this.ui.modal.showProgress(false);
+      if (this.ui.elements.exportPdfBtn) {
+        this.ui.elements.exportPdfBtn.removeAttribute('aria-busy');
+      }
     }
 
     try {
@@ -697,6 +700,9 @@ export class AppController {
     }
 
     this.ui.modal.showProgress(true, 'Generating PDF...');
+    if (this.ui.elements.exportPdfBtn) {
+      this.ui.elements.exportPdfBtn.setAttribute('aria-busy', 'true');
+    }
     try {
       await this.exportService.handleExport();
       this.state.markExported();
@@ -706,6 +712,9 @@ export class AppController {
       toast.error('Export Failed', error.message);
     } finally {
       this.ui.modal.showProgress(false);
+      if (this.ui.elements.exportPdfBtn) {
+        this.ui.elements.exportPdfBtn.removeAttribute('aria-busy');
+      }
     }
   }
 }

@@ -12,11 +12,13 @@ function syncInstallTrigger() {
   if (installEl.isUnderStandaloneMode) {
     trigger.hidden = true;
     trigger.disabled = true;
+    trigger.setAttribute('aria-disabled', 'true');
     return;
   }
 
   trigger.hidden = false;
   trigger.disabled = false;
+  trigger.setAttribute('aria-disabled', 'false');
 }
 
 function wireInstallTrigger() {
