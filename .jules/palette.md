@@ -1,3 +1,6 @@
 ## 2024-04-14 - Icon-only modal close buttons missing ARIA labels
 **Learning:** Icon-only modal close buttons (like the 3D preview and page picker close buttons) often miss `aria-label` and `title` attributes, making them inaccessible to screen readers and lacking tooltips for mouse users. Even dynamically generated modals (like the zoom preview modal in `ModalManager.js`) need these attributes explicitly defined in their HTML template strings.
 **Action:** Always ensure that icon-only interactive elements (`<button>`, `<a>`) have clear, descriptive `aria-label` and `title` attributes, regardless of whether they are hardcoded in the main HTML file or generated dynamically via JavaScript.
+## 2026-06-15 - Focus Visible and Tooltips for Interactive Elements
+**Learning:** Icon-only interactive elements often lack `title` tooltips for mouse users and properly styled focus outlines (`:focus-visible`) for keyboard navigators, especially across dynamically injected content and custom design system controls.
+**Action:** Audit all `<button>` and `<a>` elements (hardcoded and dynamic) to explicitly assign `title` tooltips where `aria-label`s exist, and implement clear `:focus-visible` outlines (using `outline: 2px solid` or offset rings) to improve accessibility.
