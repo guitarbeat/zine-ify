@@ -80,14 +80,14 @@ export class UIManager {
 
   initSmartSheetConfig() {
     const container = document.getElementById('smart-sheet-config-container');
-    if (!container) return;
+    if (!container) {return;}
 
     this.smartSheetConfig = new SmartSheetConfig(container, {
       initialRows: DEFAULT_GRID_ROWS,
       initialCols: DEFAULT_GRID_COLS,
       onChange: ({ rows, cols, paperSize, orientation, margin, totalSlots }) => {
-        if (this.elements.gridRows) this.elements.gridRows.value = rows;
-        if (this.elements.gridCols) this.elements.gridCols.value = cols;
+        if (this.elements.gridRows) {this.elements.gridRows.value = rows;}
+        if (this.elements.gridCols) {this.elements.gridCols.value = cols;}
         this.updateGridTotalBadge(rows, cols);
         this._syncOrientationVisibility(rows, cols);
         this.emitter.emit('gridSizeChanged', { rows, cols });
@@ -299,7 +299,7 @@ export class UIManager {
   }
 
   _syncOrientationVisibility(rows, cols) {
-    if (this.smartSheetConfig) return;
+    if (this.smartSheetConfig) {return;}
     const isMini8 = rows === 2 && cols === 4;
     const wrapper = this.elements.orientationToggle?.closest('.workspace-config-field');
     if (wrapper) {
@@ -339,7 +339,17 @@ export class UIManager {
   }
 
   _getPageCell(index) {
-    return this.elements.zineSheetsContainer?.querySelector(`[data-page-index="${index}"]`) || null;
+    if (!this._pageCellsCache) {
+      this._pageCellsCache = new Map();
+      const cells = this.elements.zineSheetsContainer?.querySelectorAll('[data-page-index]') || [];
+      cells.forEach(c => {
+        const idx = c.getAttribute('data-page-index');
+        if (idx != null) {
+          this._pageCellsCache.set(Number(idx), c);
+        }
+      });
+    }
+    return this._pageCellsCache.get(Number(index)) || null;
   }
 
   getPaperDimensions(paperSizeKey, orientation) {
@@ -547,6 +557,7 @@ export class UIManager {
   }
 
   generateLayout(numPages, templateType, paperSettings = {}) {
+    this._pageCellsCache = null;
     const template = typeof templateType === 'string'
       ? ZINE_TEMPLATES[templateType || 'mini-8']
       : (templateType || ZINE_TEMPLATES['mini-8']);

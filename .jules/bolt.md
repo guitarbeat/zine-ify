@@ -30,3 +30,7 @@
 ## 2024-05-20 - Toast Component Cloning Optimization
 **Learning:** Repetitive UI components like Toast notifications constructed using multiple `document.createElement()` and property assignment calls cause unnecessary DOM processing overhead and memory allocation, especially when an object like `icons` is recreated on every invocation.
 **Action:** Extract static dictionary objects into module-level constants to save memory allocation, and use HTML `<template>` combined with `cloneNode(true)` to build repetitive elements instantly, minimizing layout thrashing and function call overhead.
+
+## 2026-06-14 - DOM Query Caching for Grid Operations
+**Learning:** O(n^2) DOM querying bottlenecks during grid operations in `src/components/UI/UIManager.js` (e.g., repeatedly calling `querySelector` in `_getPageCell` inside loops like `updatePagePreview` or `setPageFlip`) significantly degrade performance, especially as grid complexity increases.
+**Action:** When repeatedly accessing DOM elements within frequent operations, cache the elements (e.g., caching `.page-cell` lookups in a `_pageCellsCache` Map grouped by `data-page-index`). Ensure to invalidate and rebuild this cache (e.g., setting `this._pageCellsCache = null`) during lifecycle events that regenerate the DOM (like `generateLayout`).
