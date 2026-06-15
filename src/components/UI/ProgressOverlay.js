@@ -17,7 +17,7 @@ export class ProgressOverlay {
   }
 
   show(show, title = 'Processing...', subtext = '') {
-    if (!this.elements.progressContainer) return;
+    if (!this.elements.progressContainer) {return;}
     if (show) {
       const wasHidden = this.elements.progressContainer.classList.contains('hidden');
       this.setCopy(title, subtext);
