@@ -36,3 +36,7 @@
 **Learning:** When requested to optimize `Array.prototype.find()` inside high-frequency animation loops (like in `Zine3DViewer.js`), and the target code has already been previously optimized in the branch state, standard Git diffing will show no changes, blocking PR creation.
 
 **Action:** If instructed by the user to proceed despite the optimization already existing, temporarily revert the specific lines to their unoptimized state (as described in the prompt) and commit them as a baseline. Then, re-apply the optimization with the required persona comments (e.g., `// ⚡️ Bolt: Optimized...`) in a new commit to satisfy the diff requirement for the PR.
+
+## 2026-06-15 - pnpm lockfile format mismatch on CI
+**Learning:** If a CI workflow is upgraded to use pnpm 10.x but the branch's `pnpm-lock.yaml` uses lockfileVersion `6.0` (from pnpm 8.x), the `pnpm install --frozen-lockfile` command will fail with `ERR_PNPM_LOCKFILE_CONFIG_MISMATCH`.
+**Action:** When creating PRs on repositories where the CI environment is using a newer `pnpm` version than the local workspace lockfile, run `pnpm install --no-frozen-lockfile` using the newer `pnpm` version to deliberately update the lockfile version (e.g. to `9.0`), and commit the updated `pnpm-lock.yaml`. In addition, ensure that the branch is freshly rebased against `main` so that any upstream ESLint/linting fixes are brought in and do not cause cascading CI failures.
