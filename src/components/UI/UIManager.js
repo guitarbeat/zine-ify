@@ -12,6 +12,9 @@ import { debounce, parseBoundedInteger } from '../../utils/helpers.js';
 import { ModalManager } from './ModalManager.js';
 import { DragAndDropHandler } from './DragAndDropHandler.js';
 import { LayoutRenderer } from './LayoutRenderer.js';
+import { Stepper } from './controls/Stepper.js';
+import { ToggleSwitch } from './controls/ToggleSwitch.js';
+import { SegmentedControl } from './controls/SegmentedControl.js';
 import { PAGE_CELL_TEMPLATE } from './Templates.js';
 
 
@@ -104,7 +107,18 @@ export class UIManager {
       return;
     }
 
-    this.elements.uploadedFilesList.innerHTML = files.map((file) => `<li>${file.name}</li>`).join('');
+    this.elements.uploadedFilesList.innerHTML = '';
+    files.forEach((file) => {
+      const el = document.createElement('div');
+      el.className = 'uploaded-file-item workspace-overflow-chip flex items-center justify-between text-sm py-2 px-3';
+      el.style.textTransform = 'none'; // Prevent uppercase transformation
+      const span = document.createElement('span');
+      span.className = 'file-name-display truncate';
+      span.textContent = file.name;
+      el.appendChild(span);
+      this.elements.uploadedFilesList.appendChild(el);
+    });
+    this.elements.uploadedFilesList.classList.toggle('hidden', files.length === 0);
   }
 
   updatePagePreview(index, url) {
@@ -359,55 +373,41 @@ export class UIManager {
       this.emitter.emit('paperSizeChanged', { paperSize: event.target.value });
     });
 
-    this.elements.orientationToggle?.querySelectorAll('.orientation-seg-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const value = btn.dataset.value;
-        this.elements.orientationToggle.querySelectorAll('.orientation-seg-btn').forEach((b) => {
-          b.classList.toggle('is-active', b === btn);
-          b.setAttribute('aria-pressed', String(b === btn));
-        });
+    if (this.elements.orientationToggle) {
+      new SegmentedControl(this.elements.orientationToggle, (value) => {
         this.emitter.emit('orientationChanged', { orientation: value });
       });
-    });
+    }
 
-    this.elements.marginInput?.closest('.stepper')?.querySelectorAll('.stepper-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const min = parseInt(this.elements.marginInput.min, 10) || 0;
-        const max = parseInt(this.elements.marginInput.max, 10) || 25;
-        const delta = parseInt(btn.dataset.delta, 10);
-        const next = Math.min(max, Math.max(min, parseInt(this.elements.marginInput.value, 10) + delta));
-        this.elements.marginInput.value = next;
-        this.emitter.emit('marginChanged', { margin: next });
+    if (this.elements.marginInput) {
+      new Stepper(this.elements.marginInput.closest('.stepper'), (val) => {
+        this.emitter.emit('marginChanged', { margin: val });
       });
-    });
+    }
 
-    this.elements.marginInput?.addEventListener('change', (e) => {
-      const val = Math.min(25, Math.max(0, parseInt(e.target.value, 10) || 0));
-      this.elements.marginInput.value = val;
-      this.emitter.emit('marginChanged', { margin: val });
-    });
-
-    this.elements.gridRows?.closest('.workspace-config-split')?.querySelectorAll('.stepper-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const target = document.getElementById(btn.dataset.target);
-        if (!target) { return; }
-        const min = parseInt(target.min, 10) || 1;
-        const max = parseInt(target.max, 10) || 10;
-        const delta = parseInt(btn.dataset.delta, 10);
-        const next = Math.min(max, Math.max(min, parseInt(target.value, 10) + delta));
-        target.value = next;
-        target.dispatchEvent(new Event('change', { bubbles: true }));
+    if (this.elements.gridRows) {
+      new Stepper(this.elements.gridRows.closest('.stepper'), () => {
+        this.elements.gridRows.dispatchEvent(new Event('change', { bubbles: true }));
       });
-    });
+    }
+    if (this.elements.gridCols) {
+      new Stepper(this.elements.gridCols.closest('.stepper'), () => {
+        this.elements.gridCols.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+    }
 
-    this.elements.pageNumbersCheckbox?.addEventListener('change', (event) => {
-      this.pageNumbersVisible = event.target.checked;
-      this.emitter.emit('pageNumbersToggled', this.pageNumbersVisible);
-    });
+    if (this.elements.pageNumbersCheckbox) {
+      new ToggleSwitch(this.elements.pageNumbersCheckbox, (checked) => {
+        this.pageNumbersVisible = checked;
+        this.emitter.emit('pageNumbersToggled', this.pageNumbersVisible);
+      });
+    }
 
-    this.elements.pageControlsCheckbox?.addEventListener('change', (event) => {
-      this._applyPageControlsVisibility(event.target.checked);
-    });
+    if (this.elements.pageControlsCheckbox) {
+      new ToggleSwitch(this.elements.pageControlsCheckbox, (checked) => {
+        this._applyPageControlsVisibility(checked);
+      });
+    }
 
     this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
     this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
