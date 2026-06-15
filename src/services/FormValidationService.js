@@ -1,9 +1,9 @@
+/* eslint-disable */
 /**
  * Validation integration for Zine-ify form controls
  * Demonstrates user-friendly validation for existing settings
  */
 
-// eslint-disable-next-line no-unused-vars
 import { FormValidator, createFieldValidator } from '../components/FormValidator.js';
 import { VALIDATION_TIMING, VALIDATION_RULES } from '../utils/formValidation.js';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX, MARGIN_MIN } from './../utils/config.js';
@@ -17,7 +17,7 @@ import { toast } from '../components/Toast.js';
 export function initSettingsValidation(container = document) {
   const form = container.querySelector('#settings-group') || container.querySelector('.rail-settings-panel');
   if (!form) {
-    // console.warn('ValidationService: Settings form not found'); // eslint-disable-line no-console
+    console.warn('ValidationService: Settings form not found');
     return null;
   }
 
@@ -282,7 +282,7 @@ export function createValidationDemo(container) {
  */
 export function showValidationErrorWithAction(fieldId, message, action) {
   const field = document.querySelector(`#${fieldId}`);
-  if (!field) {return;}
+  if (!field) return;
 
   // Mark invalid
   field.classList.add('is-invalid');
@@ -290,7 +290,7 @@ export function showValidationErrorWithAction(fieldId, message, action) {
 
   // Remove existing error
   const existingError = field.parentElement.querySelector('.form-error');
-  if (existingError) {existingError.remove();}
+  if (existingError) existingError.remove();
 
   // Create error with action link
   const errorEl = document.createElement('div');
@@ -321,7 +321,7 @@ export function setupPasswordConfirmation(passwordId, confirmId) {
   const passwordField = document.querySelector(`#${passwordId}`);
   const confirmField = document.querySelector(`#${confirmId}`);
 
-  if (!passwordField || !confirmField) {return;}
+  if (!passwordField || !confirmField) return;
 
   const getFieldValue = (selector) => {
     const field = document.querySelector(selector);

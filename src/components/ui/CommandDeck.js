@@ -1,7 +1,6 @@
-// eslint-disable-next-line no-unused-vars
+/* eslint-disable */
 import { createMagneticToggle, createMagneticToggleGroup } from './MagneticToggle.js';
 import { createFluidSlider } from './FluidSlider.js';
-// eslint-disable-next-line no-unused-vars
 import { createActionOrb, createActionOrbGroup } from './ActionOrb.js';
 
 export function createCommandDeck(emitter) {

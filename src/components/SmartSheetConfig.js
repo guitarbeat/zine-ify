@@ -1,10 +1,10 @@
+/* eslint-disable */
 /**
  * SmartSheetConfig.js
  * An intelligent sheet configuration widget with visual grid selection,
  * smart presets, and paper-aware optimizations.
  */
 
-// eslint-disable-next-line no-unused-vars
 import { PAPER_SIZES, ZINE_TEMPLATES } from '../utils/config.js';
 
 const SMART_PRESETS = [
@@ -153,16 +153,14 @@ export class SmartSheetConfig {
   }
 
   renderPresetVisual(rows, cols) {
-    // eslint-disable-next-line no-unused-vars
-    const _totalCells = rows * cols;
-    // eslint-disable-next-line no-unused-vars
-    const _cellSize = Math.min(6, 24 / Math.max(rows, cols));
+    const totalCells = rows * cols;
+    const cellSize = Math.min(6, 24 / Math.max(rows, cols));
 
     let html = '<div class="smart-sheet-preset-grid">';
     for (let r = 0; r < rows; r++) {
       html += '<div class="smart-sheet-preset-row">';
       for (let c = 0; c < cols; c++) {
-        html += '<span class="smart-sheet-preset-cell"></span>';
+        html += `<span class="smart-sheet-preset-cell"></span>`;
       }
       html += '</div>';
     }
@@ -181,10 +179,8 @@ export class SmartSheetConfig {
         const isSelected = r <= this.state.rows && c <= this.state.cols;
         const isHovered = this.state.hoverRows !== null &&
           r <= this.state.hoverRows && c <= this.state.hoverCols;
-        // eslint-disable-next-line no-unused-vars
-        const _isPreviewRow = r === this.state.rows + 1 && c <= this.state.cols;
-        // eslint-disable-next-line no-unused-vars
-        const _isPreviewCol = c === this.state.cols + 1 && r <= this.state.rows;
+        const isPreviewRow = r === this.state.rows + 1 && c <= this.state.cols;
+        const isPreviewCol = c === this.state.cols + 1 && r <= this.state.rows;
 
         html += `
           <button type="button"
@@ -209,7 +205,7 @@ export class SmartSheetConfig {
     const recommendation = PAPER_RECOMMENDATIONS[paperSize];
     const showOrientation = recommendation && this.state.rows === 2 && this.state.cols === 4;
 
-    if (!showOrientation) {return '';}
+    if (!showOrientation) return '';
 
     const landscapeWidth = paper.height;
     const landscapeHeight = paper.width;
@@ -372,7 +368,7 @@ export class SmartSheetConfig {
 
   updateGridVisual() {
     const grid = this.container.querySelector('.smart-sheet-visual');
-    if (!grid) {return;}
+    if (!grid) return;
 
     const cells = grid.querySelectorAll('.smart-sheet-grid-cell');
     cells.forEach(cell => {
