@@ -53,9 +53,11 @@ export class PagePicker {
     }
     if (this.elements.pagePickerSelectFirst) {
       this.elements.pagePickerSelectFirst.textContent = `First ${selectionLimit}`;
+      this.elements.pagePickerSelectFirst.setAttribute('aria-label', `Select first ${selectionLimit} pages`);
     }
     if (this.elements.pagePickerSelectLast) {
       this.elements.pagePickerSelectLast.textContent = `Last ${selectionLimit}`;
+      this.elements.pagePickerSelectLast.setAttribute('aria-label', `Select last ${selectionLimit} pages`);
     }
 
     this._renderGrid(thumbnails, initial);
@@ -100,6 +102,7 @@ export class PagePicker {
       btn.className = 'page-picker-thumb';
       btn.dataset.pageNumber = String(pageNumber);
       btn.setAttribute('aria-pressed', initialSelection.includes(pageNumber) ? 'true' : 'false');
+      btn.setAttribute('aria-label', `Toggle selection for page ${pageNumber}`);
 
       const media = document.createElement('div');
       media.className = 'page-picker-thumb-media';
