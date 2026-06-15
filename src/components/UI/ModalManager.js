@@ -38,7 +38,7 @@ export class ModalManager {
   /* ── 3D Modal ── */
   toggle3DModal(show) {
     const modal = this.elements.zine3dModal;
-    if (!modal) return;
+    if (!modal) {return;}
     if (show) {
       modal.style.display = 'flex';
       modal.classList.remove('hidden');
@@ -62,20 +62,53 @@ export class ModalManager {
     if (!modal) {
       modal = document.createElement('div');
       modal.className = 'zoom-modal fixed inset-0 z-[300] flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300';
-      modal.innerHTML = `
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-        <div class="relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white overflow-hidden flex flex-col scale-95 transition-transform duration-300" style="border: 3px solid black; box-shadow: 6px 6px 0px 0px black;">
-          <div class="flex justify-between items-center px-4 py-2 border-b-2 border-black">
-            <h3 class="font-bold uppercase tracking-wider text-sm">Page Preview</h3>
-            <button class="close-modal w-8 h-8 bg-white border-2 border-black text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors focus:outline-none" style="box-shadow: 2px 2px 0px 0px black;" aria-label="Close page preview" title="Close page preview">
-              <span class="material-symbols-outlined font-bold" aria-hidden="true">close</span>
-            </button>
-          </div>
-          <div class="flex-1 overflow-auto p-4 flex items-center justify-center" style="background-color: var(--bg-neutral);">
-            <img class="zoom-img max-w-full max-h-full object-contain" style="border: 2px solid black; box-shadow: 4px 4px 0px 0px black;" src="" alt="Zoomed Page Preview" />
-          </div>
-        </div>
-      `;
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'absolute inset-0 bg-black/80 backdrop-blur-sm';
+      modal.appendChild(backdrop);
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'relative w-11/12 h-11/12 max-w-7xl max-h-[90vh] bg-white overflow-hidden flex flex-col scale-95 transition-transform duration-300';
+      contentDiv.style.border = '3px solid black';
+      contentDiv.style.boxShadow = '6px 6px 0px 0px black';
+
+      const header = document.createElement('div');
+      header.className = 'flex justify-between items-center px-4 py-2 border-b-2 border-black';
+
+      const title = document.createElement('h3');
+      title.className = 'font-bold uppercase tracking-wider text-sm';
+      title.textContent = 'Page Preview';
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'close-modal w-8 h-8 bg-white border-2 border-black text-black flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors focus:outline-none';
+      closeBtn.style.boxShadow = '2px 2px 0px 0px black';
+      closeBtn.setAttribute('aria-label', 'Close page preview');
+      closeBtn.setAttribute('title', 'Close page preview');
+
+      const closeIcon = document.createElement('span');
+      closeIcon.className = 'material-symbols-outlined font-bold';
+      closeIcon.setAttribute('aria-hidden', 'true');
+      closeIcon.textContent = 'close';
+
+      closeBtn.appendChild(closeIcon);
+      header.appendChild(title);
+      header.appendChild(closeBtn);
+
+      const body = document.createElement('div');
+      body.className = 'flex-1 overflow-auto p-4 flex items-center justify-center';
+      body.style.backgroundColor = 'var(--bg-neutral)';
+
+      const img = document.createElement('img');
+      img.className = 'zoom-img max-w-full max-h-full object-contain';
+      img.style.border = '2px solid black';
+      img.style.boxShadow = '4px 4px 0px 0px black';
+      img.alt = 'Zoomed Page Preview';
+
+      body.appendChild(img);
+      contentDiv.appendChild(header);
+      contentDiv.appendChild(body);
+      modal.appendChild(contentDiv);
+
       document.body.appendChild(modal);
       const hide = () => {
         modal.classList.add('opacity-0', 'pointer-events-none');
