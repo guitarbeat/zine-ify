@@ -70,7 +70,7 @@ export class PagePicker {
   }
 
   close(selectedPages = null) {
-    if (!this.state) {return;}
+    if (!this.state) return;
     const { resolve } = this.state;
     this.state = null;
     this.elements.pagePickerModal?.classList.add('hidden');
@@ -81,7 +81,7 @@ export class PagePicker {
   }
 
   confirm() {
-    if (!this.state) {return;}
+    if (!this.state) return;
     const selectedPages = Array.from(this.state.selected).sort((a, b) => a - b);
     if (selectedPages.length === 0) {
       toast.warning('No Pages Selected', 'Choose at least one page to import.');
@@ -92,7 +92,7 @@ export class PagePicker {
 
   _renderGrid(thumbnails, initialSelection = []) {
     const grid = this.elements.pagePickerGrid;
-    if (!grid) {return;}
+    if (!grid) return;
     grid.innerHTML = '';
     thumbnails.forEach(({ pageNumber, thumbnailUrl }) => {
       const btn = document.createElement('button');
@@ -126,7 +126,7 @@ export class PagePicker {
   }
 
   _toggle(pageNumber) {
-    if (!this.state) {return;}
+    if (!this.state) return;
     const { selected, selectionLimit } = this.state;
     if (selected.has(pageNumber)) {
       selected.delete(pageNumber);
@@ -141,7 +141,7 @@ export class PagePicker {
   }
 
   applyPreset(preset) {
-    if (!this.state) {return;}
+    if (!this.state) return;
     const { thumbnails, selectionLimit, selected } = this.state;
     selected.clear();
     let next = [];
@@ -159,7 +159,7 @@ export class PagePicker {
   }
 
   _updateStatus() {
-    if (!this.state) {return;}
+    if (!this.state) return;
     const selectedPages = Array.from(this.state.selected).sort((a, b) => a - b);
     const orderMap = new Map(selectedPages.map((n, i) => [n, i + 1]));
     const hasCapacity = selectedPages.length < this.state.selectionLimit;
@@ -171,7 +171,7 @@ export class PagePicker {
       btn.classList.toggle('is-selected', isSelected);
       btn.classList.toggle('is-disabled', !isSelected && !hasCapacity);
       btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
-      if (order) {order.textContent = isSelected ? String(orderMap.get(pageNum)) : '';}
+      if (order) order.textContent = isSelected ? String(orderMap.get(pageNum)) : '';
     });
 
     if (this.elements.pagePickerCount) {

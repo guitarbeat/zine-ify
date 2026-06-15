@@ -26,9 +26,9 @@ export const FIELD_STATE = {
 export const VALIDATION_RULES = {
   required: {
     validate: (value) => {
-      if (value === null || value === undefined) {return false;}
-      if (typeof value === 'string') {return value.trim().length > 0;}
-      if (Array.isArray(value)) {return value.length > 0;}
+      if (value === null || value === undefined) return false;
+      if (typeof value === 'string') return value.trim().length > 0;
+      if (Array.isArray(value)) return value.length > 0;
       return true;
     },
     getMessage: (fieldName) => `${fieldName} is required`
@@ -36,7 +36,7 @@ export const VALIDATION_RULES = {
 
   email: {
     validate: (value) => {
-      if (!value) {return true;} // Let required handle empty
+      if (!value) return true; // Let required handle empty
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return emailRegex.test(value);
     },
@@ -45,66 +45,66 @@ export const VALIDATION_RULES = {
 
   integer: {
     validate: (value) => {
-      if (!value && value !== 0) {return true;}
+      if (!value && value !== 0) return true;
       return Number.isInteger(Number(value));
     },
     getMessage: () => 'Must be a whole number'
   },
 
   // Factory functions that return rule objects
-  minLength(min) {
+  minLength: function(min) {
     return {
       validate: (value) => {
-        if (!value) {return true;}
+        if (!value) return true;
         return value.length >= min;
       },
       getMessage: () => `Must be at least ${min} characters`
     };
   },
 
-  maxLength(max) {
+  maxLength: function(max) {
     return {
       validate: (value) => {
-        if (!value) {return true;}
+        if (!value) return true;
         return value.length <= max;
       },
       getMessage: () => `Must be no more than ${max} characters`
     };
   },
 
-  min(minValue) {
+  min: function(minValue) {
     return {
       validate: (value) => {
         const num = parseFloat(value);
-        if (isNaN(num)) {return true;}
+        if (isNaN(num)) return true;
         return num >= minValue;
       },
       getMessage: () => `Must be at least ${minValue}`
     };
   },
 
-  max(maxValue) {
+  max: function(maxValue) {
     return {
       validate: (value) => {
         const num = parseFloat(value);
-        if (isNaN(num)) {return true;}
+        if (isNaN(num)) return true;
         return num <= maxValue;
       },
       getMessage: () => `Must be no more than ${maxValue}`
     };
   },
 
-  pattern(regex, message) {
+  pattern: function(regex, message) {
     return {
       validate: (value) => {
-        if (!value) {return true;}
+        if (!value) return true;
         return regex.test(value);
       },
       getMessage: () => message || 'Invalid format'
     };
   },
 
-  match(otherFieldName, getOtherValue) {
+  match: function(otherFieldName, getOtherValue) {
     return {
       validate: (value, formData) => {
         const otherValue = getOtherValue ? getOtherValue() : formData?.[otherFieldName];
@@ -114,7 +114,7 @@ export const VALIDATION_RULES = {
     };
   },
 
-  custom(validator, message) {
+  custom: function(validator, message) {
     return {
       validate: validator,
       getMessage: () => message
@@ -155,7 +155,7 @@ export function validateValue(value, rules, context = {}) {
   for (const rule of rules) {
     const ruleObj = typeof rule === 'function' ? rule() : rule;
 
-    if (!ruleObj) {continue;}
+    if (!ruleObj) continue;
 
     const isValid = ruleObj.validate(value, context);
 
@@ -236,7 +236,7 @@ export class FieldStateManager {
 
   shouldShowErrors(fieldId) {
     const field = this.fields.get(fieldId);
-    if (!field) {return false;}
+    if (!field) return false;
     // Don't show errors for pristine fields
     return field.state !== FIELD_STATE.PRISTINE;
   }
@@ -299,7 +299,9 @@ export function createCharacterCounter(maxLength, options = {}) {
       const percentage = (currentLength / maxLength) * 100;
 
       let status = 'normal';
-      if (percentage >= 100) {status = 'exceeded';} else if (percentage >= warnAt / maxLength * 100) {status = 'warning';} else if (percentage >= showAt / maxLength * 100) {status = 'visible';}
+      if (percentage >= 100) status = 'exceeded';
+      else if (percentage >= warnAt / maxLength * 100) status = 'warning';
+      else if (percentage >= showAt / maxLength * 100) status = 'visible';
 
       return {
         current: currentLength,
@@ -337,8 +339,8 @@ export const InputMasks = {
   phone: {
     format: (value) => {
       const digits = value.replace(/\D/g, '').slice(0, 10);
-      if (digits.length <= 3) {return digits;}
-      if (digits.length <= 6) {return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;}
+      if (digits.length <= 3) return digits;
+      if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
       return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
     },
     hint: 'Format: (555) 123-4567'
