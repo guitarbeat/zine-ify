@@ -50,7 +50,7 @@ class Toast {
 
     // ⚡️ Bolt: Initialize template once to eliminate repetitive DOM node creation overhead
     this.template = document.createElement('template');
-    this.template.innerHTML = '<div class="toast-icon"></div><div class="toast-content"><div class="toast-title"></div><div class="toast-message"></div></div><button class="toast-close w-6 h-6 ml-2 flex items-center justify-center focus:outline-none" aria-label="Close notification">&times;</button>';
+    this.template.innerHTML = '<div class="toast-icon"></div><div class="toast-content"><div class="toast-title"></div><div class="toast-message"></div></div><button class="toast-close w-6 h-6 ml-2 flex items-center justify-center focus:outline-none" aria-label="Close notification" title="Close notification">&times;</button>';
   }
 
   /**
