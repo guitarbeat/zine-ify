@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import mitt from 'mitt';
 import {
   GRID_DIMENSION_MAX,
@@ -81,17 +80,27 @@ export class UIManager {
 
   initSmartSheetConfig() {
     const container = document.getElementById('smart-sheet-config-container');
-    if (!container) {return;}
+    if (!container) return;
+
+    let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
+
+    let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
 
     this.smartSheetConfig = new SmartSheetConfig(container, {
       initialRows: DEFAULT_GRID_ROWS,
       initialCols: DEFAULT_GRID_COLS,
       onChange: ({ rows, cols, paperSize, orientation, margin, totalSlots }) => {
-        if (this.elements.gridRows) {this.elements.gridRows.value = rows;}
-        if (this.elements.gridCols) {this.elements.gridCols.value = cols;}
+        if (this.elements.gridRows) this.elements.gridRows.value = rows;
+        if (this.elements.gridCols) this.elements.gridCols.value = cols;
         this.updateGridTotalBadge(rows, cols);
         this._syncOrientationVisibility(rows, cols);
-        this.emitter.emit('gridSizeChanged', { rows, cols });
+
+        // Only emit gridSizeChanged when grid dimensions actually changed
+        if (lastGridState.rows !== rows || lastGridState.cols !== cols) {
+          lastGridState = { rows, cols };
+          this.emitter.emit('gridSizeChanged', { rows, cols });
+        }
+
         this.emitter.emit('paperSizeChanged', { paperSize });
         this.emitter.emit('orientationChanged', { orientation });
         this.emitter.emit('marginChanged', { margin });
@@ -300,7 +309,7 @@ export class UIManager {
   }
 
   _syncOrientationVisibility(rows, cols) {
-    if (this.smartSheetConfig) {return;}
+    if (this.smartSheetConfig) return;
     const isMini8 = rows === 2 && cols === 4;
     const wrapper = this.elements.orientationToggle?.closest('.workspace-config-field');
     if (wrapper) {
@@ -531,7 +540,13 @@ export class UIManager {
 
         this.updateGridTotalBadge(rows, cols);
         this._syncOrientationVisibility(rows, cols);
-        this.emitter.emit('gridSizeChanged', { rows, cols });
+
+        // Only emit gridSizeChanged when grid dimensions actually changed
+        if (lastGridState.rows !== rows || lastGridState.cols !== cols) {
+          lastGridState = { rows, cols };
+          this.emitter.emit('gridSizeChanged', { rows, cols });
+        }
+
       }, 300);
 
       this.elements.gridRows?.addEventListener('input', debouncedGridChange);
