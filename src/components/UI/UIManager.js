@@ -80,18 +80,16 @@ export class UIManager {
 
   initSmartSheetConfig() {
     const container = document.getElementById('smart-sheet-config-container');
-    if (!container) return;
-
-    let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
+    if (!container) {return;}
 
     let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
 
     this.smartSheetConfig = new SmartSheetConfig(container, {
       initialRows: DEFAULT_GRID_ROWS,
       initialCols: DEFAULT_GRID_COLS,
-      onChange: ({ rows, cols, paperSize, orientation, margin, totalSlots }) => {
-        if (this.elements.gridRows) this.elements.gridRows.value = rows;
-        if (this.elements.gridCols) this.elements.gridCols.value = cols;
+      onChange: ({ rows, cols, paperSize, orientation, margin, _totalSlots }) => {
+        if (this.elements.gridRows) {this.elements.gridRows.value = rows;}
+        if (this.elements.gridCols) {this.elements.gridCols.value = cols;}
         this.updateGridTotalBadge(rows, cols);
         this._syncOrientationVisibility(rows, cols);
 
@@ -309,7 +307,7 @@ export class UIManager {
   }
 
   _syncOrientationVisibility(rows, cols) {
-    if (this.smartSheetConfig) return;
+    if (this.smartSheetConfig) {return;}
     const isMini8 = rows === 2 && cols === 4;
     const wrapper = this.elements.orientationToggle?.closest('.workspace-config-field');
     if (wrapper) {
@@ -349,7 +347,21 @@ export class UIManager {
   }
 
   _getPageCell(index) {
-    return this.elements.zineSheetsContainer?.querySelector(`[data-page-index="${index}"]`) || null;
+    if (!this.pageCellCache) {
+      const cells = this.elements.zineSheetsContainer?.querySelectorAll('.page-cell');
+      if (cells && cells.length > 0) {
+        this.pageCellCache = new Map();
+        cells.forEach(cell => {
+          const idx = parseInt(cell.getAttribute('data-page-index'), 10);
+          if (!isNaN(idx)) {
+            this.pageCellCache.set(idx, cell);
+          }
+        });
+      } else {
+        return this.elements.zineSheetsContainer?.querySelector(`[data-page-index="${index}"]`) || null;
+      }
+    }
+    return this.pageCellCache?.get(parseInt(index, 10)) || null;
   }
 
   getPaperDimensions(paperSizeKey, orientation) {
@@ -535,6 +547,7 @@ export class UIManager {
     });
 
     if (!this.smartSheetConfig) {
+      let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
       const debouncedGridChange = debounce(() => {
         const { rows, cols } = this.normalizeGridInputs();
 
@@ -563,6 +576,8 @@ export class UIManager {
   }
 
   generateLayout(numPages, templateType, paperSettings = {}) {
+    this.pageCellCache = null;
+
     const template = typeof templateType === 'string'
       ? ZINE_TEMPLATES[templateType || 'mini-8']
       : (templateType || ZINE_TEMPLATES['mini-8']);
