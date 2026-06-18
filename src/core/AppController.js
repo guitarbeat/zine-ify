@@ -447,10 +447,11 @@ export class AppController {
       margin: this.state.margin || 0
     });
     for (let index = 0; index < this.state.allPageImages.length; index++) {
-      const url = this.state.allPageImages[index];
-      this.ui.updatePagePreview(index, url);
-      this.ui.setPageFlip(index, !!this.state.pageFlips[index]);
-      this.ui.setPageZoom(index, !!this.state.pageZooms[index]);
+      this.ui.updatePageState(index, {
+        url: this.state.allPageImages[index],
+        flip: !!this.state.pageFlips[index],
+        zoom: !!this.state.pageZooms[index]
+      });
     }
 
     this.updateWorkspaceUi();

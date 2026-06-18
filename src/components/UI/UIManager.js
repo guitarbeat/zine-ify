@@ -84,8 +84,6 @@ export class UIManager {
 
     let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
 
-    let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
-
     this.smartSheetConfig = new SmartSheetConfig(container, {
       initialRows: DEFAULT_GRID_ROWS,
       initialCols: DEFAULT_GRID_COLS,
@@ -196,6 +194,32 @@ export class UIManager {
   setPageZoom(index, enabled) {
     const cell = this._getPageCell(index);
     cell?.classList.toggle('page-zoomed', !!enabled);
+  }
+
+  updatePageState(index, { url, flip, zoom }) {
+    const cell = this._getPageCell(index);
+    if (!cell) { return; }
+
+    if (url !== undefined) {
+      const img = cell.querySelector('.page-content-img');
+      const placeholder = cell.querySelector('.page-placeholder');
+      if (img) {
+        img.src = url || '';
+        img.classList.toggle('hidden', !url);
+      }
+      if (placeholder) {
+        placeholder.classList.toggle('hidden', !!url);
+      }
+      cell.classList.toggle('has-page', !!url);
+    }
+
+    if (flip !== undefined) {
+      cell.classList.toggle('is-flipped', !!flip);
+    }
+
+    if (zoom !== undefined) {
+      cell.classList.toggle('page-zoomed', !!zoom);
+    }
   }
 
   toggle3DModal(show) {
@@ -349,7 +373,17 @@ export class UIManager {
   }
 
   _getPageCell(index) {
-    return this.elements.zineSheetsContainer?.querySelector(`[data-page-index="${index}"]`) || null;
+    if (!this._pageCellsCache) {
+      const cells = this.elements.zineSheetsContainer?.querySelectorAll('.page-cell');
+      if (!cells || cells.length === 0) {
+        return null;
+      }
+      this._pageCellsCache = new Map();
+      cells.forEach((cell) => {
+        this._pageCellsCache.set(parseInt(cell.getAttribute('data-page-index'), 10), cell);
+      });
+    }
+    return this._pageCellsCache.get(parseInt(index, 10)) || null;
   }
 
   getPaperDimensions(paperSizeKey, orientation) {
@@ -563,6 +597,7 @@ export class UIManager {
   }
 
   generateLayout(numPages, templateType, paperSettings = {}) {
+    this._pageCellsCache = null;
     const template = typeof templateType === 'string'
       ? ZINE_TEMPLATES[templateType || 'mini-8']
       : (templateType || ZINE_TEMPLATES['mini-8']);
