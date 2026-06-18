@@ -117,7 +117,10 @@ export class UIManager {
     if (!this.elements.uploadedFilesList) {
       return;
     }
-    this.elements.uploadedFilesList.innerHTML = '';
+
+    // Clear list safely
+    this.elements.uploadedFilesList.textContent = '';
+
     if (files.length === 0) {
       this.elements.uploadedFilesList.classList.add('hidden');
       return;
@@ -129,34 +132,52 @@ export class UIManager {
     header.className = 'rail-section-title';
     header.textContent = `Uploaded Files (${files.length})`;
     wrapper.appendChild(header);
+
     files.forEach((file, index) => {
       const item = document.createElement('div');
       item.className = 'uploaded-file-item';
+
       const icon = document.createElement('span');
       icon.className = 'material-symbols-outlined';
       icon.style.fontSize = '14px';
       icon.textContent = 'description';
       icon.setAttribute('aria-hidden', 'true');
+
       const body = document.createElement('div');
       const name = document.createElement('div');
       name.className = 'uploaded-file-name';
+
+      // Use textContent directly on the element, preventing XSS
       name.textContent = file.name;
+
       const meta = document.createElement('div');
       meta.className = 'uploaded-file-meta';
-      meta.textContent = `${file.kind === 'pdf' ? 'PDF' : 'Image'} \u2022 ${file.size ? (file.size / 1024).toFixed(1) + ' KB' : ''}`;
+      meta.textContent = `${file.kind === 'pdf' ? 'PDF' : 'Image'} • ${file.size ? (file.size / 1024).toFixed(1) + ' KB' : ''}`;
+
       body.appendChild(name);
       body.appendChild(meta);
+
       const remove = document.createElement('button');
       remove.className = 'uploaded-file-remove';
       remove.type = 'button';
       remove.setAttribute('aria-label', `Remove ${file.name}`);
-      remove.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;" aria-hidden="true">close</span>';
+
+      // Removed vulnerable innerHTML and use textContent for the close icon
+      const closeIcon = document.createElement('span');
+      closeIcon.className = 'material-symbols-outlined';
+      closeIcon.style.fontSize = '14px';
+      closeIcon.setAttribute('aria-hidden', 'true');
+      closeIcon.textContent = 'close';
+      remove.appendChild(closeIcon);
+
       remove.addEventListener('click', () => this.emitter.emit('removeUploadedFile', index));
+
       item.appendChild(icon);
       item.appendChild(body);
       item.appendChild(remove);
       wrapper.appendChild(item);
     });
+
     this.elements.uploadedFilesList.appendChild(wrapper);
   }
 
