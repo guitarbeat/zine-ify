@@ -5,7 +5,7 @@ import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
-import { parseBoundedInteger } from '../utils/helpers.js';
+import { parseBoundedInteger, resizeAndFillArray } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
 import { BookletPreview } from '../components/BookletPreview.js';
 
@@ -321,11 +321,7 @@ export class AppController {
     const requiredLength = this.state.getRequiredPageCapacity();
 
     if (this.state.allPageImages.length !== requiredLength) {
-      const nextImages = new Array(requiredLength).fill(null);
-      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
-        nextImages[index] = this.state.allPageImages[index];
-      }
-      this.state.allPageImages = nextImages;
+      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
     }
   }
 
@@ -434,11 +430,7 @@ export class AppController {
   renderCurrentLayout() {
     const requiredLength = this.state.getRequiredPageCapacity();
     if (this.state.allPageImages.length !== requiredLength) {
-      const nextImages = new Array(requiredLength).fill(null);
-      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
-        nextImages[index] = this.state.allPageImages[index];
-      }
-      this.state.allPageImages = nextImages;
+      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
     }
 
     this.ui.generateLayout(requiredLength, this.getCurrentTemplate(), {
