@@ -436,7 +436,8 @@ export class AppController {
     this.ui.generateLayout(requiredLength, this.getCurrentTemplate(), {
       paperSize: this.state.paperSize,
       orientation: this.state.orientation,
-      margin: this.state.margin || 0
+      margin: this.state.margin || 0,
+      customPaper: this.state.customPaper
     });
     for (let index = 0; index < this.state.allPageImages.length; index++) {
       const url = this.state.allPageImages[index];

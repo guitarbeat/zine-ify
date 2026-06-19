@@ -3,7 +3,8 @@ import {
   GRID_DIMENSION_MAX,
   GRID_DIMENSION_MIN,
   PAPER_SIZES,
-  ZINE_TEMPLATES
+  ZINE_TEMPLATES,
+  resolvePaperSize
 } from '../../utils/config.js';
 import { debounce, parseBoundedInteger } from '../../utils/helpers.js';
 
@@ -87,7 +88,7 @@ export class UIManager {
     this.smartSheetConfig = new SmartSheetConfig(container, {
       initialRows: DEFAULT_GRID_ROWS,
       initialCols: DEFAULT_GRID_COLS,
-      onChange: ({ rows, cols, paperSize, orientation, margin, _totalSlots }) => {
+      onChange: ({ rows, cols, paperSize, orientation, margin, customPaper, _totalSlots }) => {
         if (this.elements.gridRows) {this.elements.gridRows.value = rows;}
         if (this.elements.gridCols) {this.elements.gridCols.value = cols;}
         this.updateGridTotalBadge(rows, cols);
@@ -99,7 +100,7 @@ export class UIManager {
           this.emitter.emit('gridSizeChanged', { rows, cols });
         }
 
-        this.emitter.emit('paperSizeChanged', { paperSize });
+        this.emitter.emit('paperSizeChanged', { paperSize, customPaper });
         this.emitter.emit('orientationChanged', { orientation });
         this.emitter.emit('marginChanged', { margin });
       }
@@ -366,8 +367,8 @@ export class UIManager {
     return this.pageCellCache?.get(parseInt(index, 10)) || null;
   }
 
-  getPaperDimensions(paperSizeKey, orientation) {
-    const paper = PAPER_SIZES[paperSizeKey] || PAPER_SIZES.letter;
+  getPaperDimensions(paperSizeKey, orientation, customPaper) {
+    const paper = resolvePaperSize(paperSizeKey, customPaper);
     const landscape = orientation === 'landscape';
     return landscape
       ? { width: paper.height, height: paper.width }
@@ -608,7 +609,8 @@ export class UIManager {
 
     const dimensions = this.getPaperDimensions(
       paperSettings.paperSize || 'letter',
-      paperSettings.orientation || 'landscape'
+      paperSettings.orientation || 'landscape',
+      paperSettings.customPaper
     );
     dimensions.margin = paperSettings.margin || 0;
 
