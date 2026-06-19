@@ -55,7 +55,7 @@ export class AppController {
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
-    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); });
+    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); this.renderCurrentLayout(); });
     this.ui.on('removeUploadedFile', (index) => {
       this.state.uploadedFiles.splice(index, 1);
       this.ui.updateUploadedFilesList(this.state.uploadedFiles);

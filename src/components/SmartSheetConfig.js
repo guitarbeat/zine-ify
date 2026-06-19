@@ -1,4 +1,4 @@
-import { PAPER_SIZES } from '../utils/config.js';
+import { PAPER_SIZES, MARGIN_MIN, MARGIN_MAX } from '../utils/config.js';
 
 const FIXED_ROWS = 2;
 const FIXED_COLS = 4;
@@ -34,7 +34,7 @@ export class SmartSheetConfig {
   }
 
   render() {
-    const { paperSize, orientation } = this.state;
+    const { paperSize, orientation, margin } = this.state;
     const paper = PAPER_SIZES[paperSize] || PAPER_SIZES.letter;
     const recommendation = PAPER_RECOMMENDATIONS[paperSize];
     const isRecommended = orientation === recommendation?.best;
@@ -86,6 +86,36 @@ export class SmartSheetConfig {
             </button>
           </div>
         </div>
+
+        <div class="smart-sheet-section">
+          <div class="smart-sheet-header">
+            <span class="smart-sheet-label">Margin</span>
+            <div class="smart-sheet-margin-stepper">
+              <button type="button" class="smart-sheet-stepper-btn" data-margin-delta="-1" aria-label="Decrease margin" ${margin <= MARGIN_MIN ? 'disabled' : ''}>
+                <span class="material-symbols-outlined">remove</span>
+              </button>
+              <span class="smart-sheet-margin-value">
+                <span data-margin-display>${margin}</span>
+                <span class="smart-sheet-times">mm</span>
+              </span>
+              <button type="button" class="smart-sheet-stepper-btn" data-margin-delta="1" aria-label="Increase margin" ${margin >= MARGIN_MAX ? 'disabled' : ''}>
+                <span class="material-symbols-outlined">add</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="smart-sheet-margin-control">
+            <input
+              type="range"
+              class="smart-sheet-margin-slider"
+              data-field="margin"
+              min="${MARGIN_MIN}"
+              max="${MARGIN_MAX}"
+              step="1"
+              value="${margin}"
+              aria-label="Sheet margin in millimeters" />
+          </div>
+        </div>
       </div>
     `;
   }
@@ -93,12 +123,20 @@ export class SmartSheetConfig {
   attachEventListeners() {
     this.container.addEventListener('click', this.handleClick.bind(this));
     this.container.addEventListener('change', this.handleChange.bind(this));
+    this.container.addEventListener('input', this.handleInput.bind(this));
   }
 
   handleClick(e) {
     const orientBtn = e.target.closest('.smart-sheet-orientation-btn');
     if (orientBtn) {
       this.setOrientation(orientBtn.dataset.value);
+      return;
+    }
+
+    const marginBtn = e.target.closest('[data-margin-delta]');
+    if (marginBtn) {
+      const delta = parseInt(marginBtn.dataset.marginDelta, 10) || 0;
+      this.setMargin(this.state.margin + delta);
     }
   }
 
@@ -106,6 +144,28 @@ export class SmartSheetConfig {
     if (e.target.matches('.smart-sheet-select')) {
       this.setPaperSize(e.target.value);
     }
+  }
+
+  handleInput(e) {
+    if (e.target.matches('.smart-sheet-margin-slider')) {
+      // Live-update the displayed value while dragging without a full re-render.
+      const value = this.clampMargin(parseInt(e.target.value, 10));
+      this.state.margin = value;
+      const display = this.container.querySelector('[data-margin-display]');
+      if (display) {display.textContent = value;}
+      this.emitChange();
+    }
+  }
+
+  clampMargin(value) {
+    if (Number.isNaN(value)) {return MARGIN_MIN;}
+    return Math.min(MARGIN_MAX, Math.max(MARGIN_MIN, value));
+  }
+
+  setMargin(margin) {
+    this.state.margin = this.clampMargin(margin);
+    this.render();
+    this.emitChange();
   }
 
   setPaperSize(paperSize) {
