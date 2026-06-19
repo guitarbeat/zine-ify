@@ -93,6 +93,17 @@
                         </details>
                     </section>
 
+                    <section class="base-panel rail-section space-y-2.5">
+                        <h3 class="rail-section-title">Add pages</h3>
+                        <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer" role="button" tabindex="0" aria-label="Add pages — click to browse, or drop PDF and image files here">
+                            <span class="material-symbols-outlined" style="font-size:26px; color: var(--primary-vibrant);" aria-hidden="true">upload_file</span>
+                            <span class="text-sm font-semibold">Drop files or click to browse</span>
+                            <span class="text-xs text-zinc-500">PDF, PNG, JPG, or WEBP</span>
+                        </div>
+                        <input type="file" id="pdf-upload" class="sr-only" accept="application/pdf,image/png,image/jpeg,image/webp" multiple aria-hidden="true" tabindex="-1" />
+                        <p id="upload-status" class="upload-status text-xs text-zinc-500" aria-live="polite"></p>
+                    </section>
+
                     <section id="uploaded-files-list" class="hidden">
                         <!-- Populated by JS -->
                     </section>

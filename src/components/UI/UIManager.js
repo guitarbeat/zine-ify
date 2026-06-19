@@ -382,6 +382,8 @@ export class UIManager {
 
     this.elements = {
       unifiedDropZone: $('#unified-drop-zone'),
+      uploadZone: $('#upload-zone'),
+      uploadStatus: $('#upload-status'),
       uploadedFilesList: $('#uploaded-files-list'),
       previewArea: $('#preview-area'),
       zineSheetsContainer: $('#zine-sheets-container'),
