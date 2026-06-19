@@ -146,9 +146,11 @@ export class UIManager {
       icon.textContent = 'description';
       icon.setAttribute('aria-hidden', 'true');
       const body = document.createElement('div');
+      body.className = 'uploaded-file-body';
       const name = document.createElement('div');
       name.className = 'uploaded-file-name';
       name.textContent = file.name;
+      name.title = file.name;
       const meta = document.createElement('div');
       meta.className = 'uploaded-file-meta';
       meta.textContent = `${file.kind === 'pdf' ? 'PDF' : 'Image'} \u2022 ${file.size ? (file.size / 1024).toFixed(1) + ' KB' : ''}`;
@@ -382,6 +384,8 @@ export class UIManager {
 
     this.elements = {
       unifiedDropZone: $('#unified-drop-zone'),
+      uploadZone: $('#upload-zone'),
+      uploadStatus: $('#upload-status'),
       uploadedFilesList: $('#uploaded-files-list'),
       previewArea: $('#preview-area'),
       zineSheetsContainer: $('#zine-sheets-container'),

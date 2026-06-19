@@ -70,6 +70,14 @@ export class DragAndDropHandler {
 
   handleDragOver(e, cell) {
     if (e.preventDefault) { e.preventDefault(); }
+
+    // External file drag (no internal page is being dragged): allow dropping files onto the cell.
+    if (!this._draggedItem) {
+      if (e.dataTransfer) { e.dataTransfer.dropEffect = 'copy'; }
+      cell.classList.add('drag-over');
+      return false;
+    }
+
     if (this._draggedItem === cell) { return; }
 
     if (!cell.classList.contains('drag-over')) {
@@ -87,10 +95,20 @@ export class DragAndDropHandler {
 
   handleDrop(e, cell) {
     if (e.stopPropagation) { e.stopPropagation(); }
+    if (e.preventDefault) { e.preventDefault(); }
     cell.classList.remove('drag-over');
     this._removePreview(cell);
 
-    if (this._draggedItem && this._draggedItem !== cell) {
+    // External file drop onto a cell — route to the normal import flow.
+    if (!this._draggedItem) {
+      const files = e.dataTransfer ? Array.from(e.dataTransfer.files) : [];
+      if (files.length > 0) {
+        this.emitter.emit('filesDropped', files);
+      }
+      return false;
+    }
+
+    if (this._draggedItem !== cell) {
       const fromIndex = parseInt(this._draggedItem.getAttribute('data-page-index'));
       const toIndex = parseInt(cell.getAttribute('data-page-index'));
       this.emitter.emit('pagesSwapped', { fromIndex, toIndex });
