@@ -70,29 +70,30 @@
                         <!-- Hidden inputs for compatibility with existing code -->
                         <input type="hidden" id="paper-size-select" value="letter">
                         <input type="hidden" id="orientation-toggle" value="landscape">
-                        <input type="hidden" id="grid-rows" value="2">
-                        <input type="hidden" id="grid-cols" value="4">
-                        <input type="hidden" id="margin-input" value="0">
 
-                        <div class="workspace-config-field workspace-config-field-wide" style="display: none;">
-                            <span id="grid-total" class="grid-total-chip">8 slots</span>
-                        </div>
-
-                        <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
-                            <span class="workspace-config-toggle-copy">Page Numbers</span>
-                            <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
-                            <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                <span class="workspace-config-toggle-knob"></span>
-                            </span>
-                        </label>
-                        <p class="workspace-config-hint workspace-config-field-wide">Preview only — page numbers won’t print or export.</p>
-                        <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
-                            <span class="workspace-config-toggle-copy">Page Controls</span>
-                            <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
-                            <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                <span class="workspace-config-toggle-knob"></span>
-                            </span>
-                        </label>
+                        <details class="display-disclosure">
+                            <summary class="smart-sheet-disclosure display-disclosure-summary">
+                                <span class="material-symbols-outlined smart-sheet-disclosure-icon">expand_more</span>
+                                <span>Display options</span>
+                            </summary>
+                            <div class="display-disclosure-body">
+                                <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
+                                    <span class="workspace-config-toggle-copy">Page Numbers</span>
+                                    <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
+                                    <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                        <span class="workspace-config-toggle-knob"></span>
+                                    </span>
+                                </label>
+                                <p class="workspace-config-hint workspace-config-field-wide">Preview only — won’t print.</p>
+                                <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
+                                    <span class="workspace-config-toggle-copy">Page Controls</span>
+                                    <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
+                                    <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                        <span class="workspace-config-toggle-knob"></span>
+                                    </span>
+                                </label>
+                            </div>
+                        </details>
                     </section>
 
                     <section id="uploaded-files-list" class="hidden">
