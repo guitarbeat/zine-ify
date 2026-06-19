@@ -1,4 +1,4 @@
-import { ZINE_TEMPLATES, resolvePaperSize } from '../utils/config.js';
+import { PAPER_SIZES, ZINE_TEMPLATES } from '../utils/config.js';
 
 const MM_TO_PX_300DPI = 300 / 25.4;
 
@@ -229,7 +229,7 @@ export class ExportService {
   }
 
   getPaperDimensions() {
-    const paper = resolvePaperSize(this.state.paperSize, this.state.customPaper);
+    const paper = PAPER_SIZES[this.state.paperSize] || PAPER_SIZES.letter;
     const isLandscape = this.state.orientation === 'landscape';
     return isLandscape
       ? { width: paper.height, height: paper.width }

@@ -3,7 +3,7 @@
  * Demonstrates user-friendly validation for existing settings
  */
 
-import { FormValidator, createFieldValidator } from '../components/FormValidator.js';
+import { FormValidator } from '../components/FormValidator.js';
 import { VALIDATION_TIMING, VALIDATION_RULES } from '../utils/formValidation.js';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX, MARGIN_MIN } from './../utils/config.js';
 import { toast } from '../components/Toast.js';
@@ -281,7 +281,7 @@ export function createValidationDemo(container) {
  */
 export function showValidationErrorWithAction(fieldId, message, action) {
   const field = document.querySelector(`#${fieldId}`);
-  if (!field) return;
+  if (!field) {return;}
 
   // Mark invalid
   field.classList.add('is-invalid');
@@ -289,7 +289,7 @@ export function showValidationErrorWithAction(fieldId, message, action) {
 
   // Remove existing error
   const existingError = field.parentElement.querySelector('.form-error');
-  if (existingError) existingError.remove();
+  if (existingError) {existingError.remove();}
 
   // Create error with action link
   const errorEl = document.createElement('div');
@@ -320,7 +320,7 @@ export function setupPasswordConfirmation(passwordId, confirmId) {
   const passwordField = document.querySelector(`#${passwordId}`);
   const confirmField = document.querySelector(`#${confirmId}`);
 
-  if (!passwordField || !confirmField) return;
+  if (!passwordField || !confirmField) {return;}
 
   const getFieldValue = (selector) => {
     const field = document.querySelector(selector);
