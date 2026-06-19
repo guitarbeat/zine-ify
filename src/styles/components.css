@@ -2,24 +2,49 @@
 
 .upload-box {
   border: 1.5px dashed var(--border-color);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-button);
   background-color: var(--surface-muted);
-  min-height: 9rem;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  min-height: 8.5rem;
+  color: var(--accent-dark);
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
-.upload-box:hover, .upload-box:focus {
+.upload-box:hover, .upload-box:focus, .upload-box:focus-visible {
   border-color: var(--primary-vibrant);
   background-color: var(--primary-glow);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-glow);
 }
 .upload-box.dragover {
   border-color: var(--primary-vibrant);
   background-color: var(--primary-glow);
+  box-shadow: 0 0 0 3px var(--primary-glow);
 }
 
-.upload-status,
 .grid-total-chip,
 .workspace-description {
   @apply base-chip;
+}
+
+/* Upload status: wrapping caption, never a single-line pill */
+.upload-status {
+  display: block;
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: var(--muted-ink);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.upload-status:empty {
+  display: none;
+}
+.upload-status[data-tone="error"] {
+  color: var(--primary-deep);
+  font-weight: 600;
+}
+.upload-status[data-tone="success"] {
+  color: var(--accent-dark);
+  font-weight: 600;
 }
 
 .workspace-config-stack { display: grid; gap: 0.65rem; }
@@ -41,16 +66,29 @@
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
+.uploaded-file-body {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: grid;
+  gap: 0.15rem;
+}
 .uploaded-file-name {
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--accent-dark);
-  line-height: 1.2;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 .uploaded-file-meta {
   font-size: 0.68rem;
   color: var(--muted-ink);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .uploaded-file-remove {
   width: 1.6rem;
