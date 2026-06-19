@@ -27,8 +27,8 @@ export class SmartSheetConfig {
   constructor(container, options = {}) {
     this.container = container;
     this.options = {
-      maxRows: 10,
-      maxCols: 10,
+      maxRows: 6,
+      maxCols: 8,
       initialRows: 2,
       initialCols: 4,
       initialPaper: 'letter',
