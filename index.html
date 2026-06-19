@@ -48,19 +48,16 @@
 
                 <div class="control-scroll overflow-y-visible lg:overflow-y-auto space-y-3 lg:pr-1 flex-1 pb-6 lg:pb-10">
                     <section id="settings-group" class="base-panel rail-section rail-settings-panel space-y-3">
-                        <div class="rail-section-header">
-                            <h2 class="rail-section-title">Sheet Settings</h2>
-                            <div class="flex items-center gap-2">
-                                <button id="pwa-install-trigger" type="button" class="theme-toggle-btn" aria-label="Install app" title="Install app" hidden>
-                                    <span class="material-symbols-outlined" style="font-size:17px;" aria-hidden="true">install_mobile</span>
-                                </button>
-                                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
-                                    <span class="material-symbols-outlined" style="font-size:17px;" id="theme-icon">dark_mode</span>
-                                </button>
-                                <button id="close-rail-sheet-btn" type="button" class="rail-sheet-close lg:hidden" aria-label="Close panel">
-                                    <span class="material-symbols-outlined text-[16px]" aria-hidden="true">close</span>
-                                </button>
-                            </div>
+                        <div class="rail-section-header justify-end">
+                            <button id="pwa-install-trigger" type="button" class="theme-toggle-btn" aria-label="Install app" title="Install app" hidden>
+                                <span class="material-symbols-outlined" style="font-size:17px;" aria-hidden="true">install_mobile</span>
+                            </button>
+                            <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+                                <span class="material-symbols-outlined" style="font-size:17px;" id="theme-icon">dark_mode</span>
+                            </button>
+                            <button id="close-rail-sheet-btn" type="button" class="rail-sheet-close lg:hidden" aria-label="Close panel">
+                                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">close</span>
+                            </button>
                         </div>
 
                         <div id="smart-sheet-config-container">
@@ -107,19 +104,16 @@
             <section id="preview-area"
                 class="workspace-panel is-empty flex flex-col gap-3">
                 <div class="workspace-header">
-                    <div class="workspace-meta" aria-label="Canvas status">
-                        <span id="preview-count-chip" class="workspace-chip workspace-chip-strong">0/8</span>
-                        <span id="preview-helper-chip" class="workspace-chip workspace-chip-muted">Drop files to add pages</span>
-                    </div>
+                    <span id="preview-helper-chip" class="workspace-chip workspace-chip-muted">Drop files to add pages</span>
                     <div class="flex items-center gap-2">
                         <button id="clear-all-btn" type="button" class="workspace-chip workspace-chip-muted items-center gap-1 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors" style="display:none;" aria-label="Clear all pages" title="Clear all pages">
                             <span class="material-symbols-outlined" style="font-size:14px;" aria-hidden="true">delete_sweep</span>
                             <span class="text-xs font-medium">Clear all</span>
                         </button>
-                    <button id="open-rail-sheet-btn" type="button" class="workspace-mobile-rail-trigger lg:hidden" aria-controls="control-rail" aria-expanded="false">
-                        <span class="material-symbols-outlined text-[16px]" aria-hidden="true">tune</span>
-                        <span>Settings</span>
-                    </button>
+                        <button id="open-rail-sheet-btn" type="button" class="workspace-mobile-rail-trigger lg:hidden" aria-controls="control-rail" aria-expanded="false">
+                            <span class="material-symbols-outlined text-[16px]" aria-hidden="true">tune</span>
+                            <span>Settings</span>
+                        </button>
                     </div>
                 </div>
 

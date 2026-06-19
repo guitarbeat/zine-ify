@@ -316,16 +316,23 @@
   color: var(--muted-ink);
   font-family: 'Inter', monospace;
   font-weight: 600;
-  font-size: 8px;
+  font-size: 7px;
   line-height: 1;
   letter-spacing: 0.04em;
-  padding: 3px 5px;
+  padding: 2px 4px;
   z-index: 20;
   top: 0.3rem;
   left: 0.3rem;
   border: 1px solid var(--border-faint);
   border-radius: 999px;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.page-cell:hover .page-label,
+.page-cell.active .page-label {
+  opacity: 1;
 }
 
 .is-template-upside-down { transform: rotate(180deg); }
@@ -359,7 +366,7 @@
 .sheet-cut-line::before { left: 0; }
 .sheet-cut-line::after  { right: 0; }
 
-.sheet-cut-line-label {
+.sheet-cut-line-label--unused {
   position: absolute;
   left: 50%;
   top: 50%;
