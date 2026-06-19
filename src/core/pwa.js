@@ -24,7 +24,9 @@ function wireInstallTrigger() {
   if (!trigger) {return;}
 
   trigger.addEventListener('click', () => {
-    getPwaInstallElement()?.showDialog();
+    // Force the dialog open (true) so it always appears, even when the browser
+    // hasn't fired a native beforeinstallprompt (e.g. desktop, iOS, or repeat visits).
+    getPwaInstallElement()?.showDialog(true);
   });
 }
 
