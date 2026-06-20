@@ -258,13 +258,34 @@ export class UIManager {
     files.forEach((file) => this.emitter.emit('fileSelected', file));
   }
 
+  setExportLoading(isLoading) {
+    if (!this.elements.exportPdfBtn) { return; }
+
+    if (isLoading) {
+      this.elements.exportPdfBtn.setAttribute('aria-busy', 'true');
+      this.elements.exportPdfBtn.disabled = true;
+      this.elements.exportPdfBtn.innerHTML = `
+            <span class="material-symbols-outlined animate-spin" aria-hidden="true">sync</span>
+            <span class="text-sm font-semibold">Exporting...</span>
+        `;
+    } else {
+      this.elements.exportPdfBtn.removeAttribute('aria-busy');
+      this.elements.exportPdfBtn.innerHTML = `
+            <span class="material-symbols-outlined" aria-hidden="true">print</span>
+            <span class="text-sm font-semibold">Export PDF</span>
+        `;
+      // disabled state will be updated by a subsequent call to updateWorkspaceState
+    }
+  }
+
   updateWorkspaceState({ placedCount = 0 } = {}) {
     const hasPagesLoaded = placedCount > 0;
     if (this.elements.clearAllBtn) {
       this.elements.clearAllBtn.style.display = hasPagesLoaded ? '' : 'none';
     }
     if (this.elements.exportPdfBtn) {
-      this.elements.exportPdfBtn.disabled = !hasPagesLoaded;
+      const isExporting = this.elements.exportPdfBtn.getAttribute('aria-busy') === 'true';
+      this.elements.exportPdfBtn.disabled = !hasPagesLoaded || isExporting;
     }
     if (this.elements.view3dBtn) {
       this.elements.view3dBtn.disabled = !hasPagesLoaded;
