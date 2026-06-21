@@ -33,3 +33,7 @@
 ## 2026-06-18 - Repeated DOM Querying in Event Handlers
 **Learning:** Frequent DOM queries via `querySelector` in event handlers or tight loops (e.g., fetching `.page-cell` elements by index in `UIManager`) can cause unnecessary O(n) performance degradation, especially as grid complexity increases.
 **Action:** Implement DOM Caching using a `Map` during the initial query to transform subsequent lookups from O(n) to O(1). Be sure to invalidate the cache when the DOM structure is rebuilt (e.g., during layout generation).
+
+## 2025-03-01 - O(n) Array Lookups in React Render Loop Bottleneck
+**Learning:** Using `Array.find` or `Array.findIndex` inside React render functions and high-frequency callbacks causes unnecessary O(n) CPU overhead, which degrades performance when state updates trigger frequent re-renders. Even for small static lists, the overhead adds up compared to direct indexing.
+**Action:** When a React component relies on static lists (like an array of step definitions), pre-compute an O(1) hash map or index mapping outside the component to replace O(n) lookups during rendering and state updates.
