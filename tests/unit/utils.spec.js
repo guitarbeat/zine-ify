@@ -78,10 +78,15 @@ test.describe('Utils', () => {
   });
 
   test('classifyFileKind', () => {
-    expect(classifyFileKind({ type: 'application/pdf' })).toBe('pdf');
-    expect(classifyFileKind({ type: 'image/png' })).toBe('image');
-    expect(classifyFileKind({ type: 'image/jpeg' })).toBe('image');
-    expect(classifyFileKind({ type: 'text/plain' })).toBeNull();
+    expect(classifyFileKind({ type: 'application/pdf', name: 'document.pdf' })).toBe('pdf');
+    expect(classifyFileKind({ type: 'image/png', name: 'image.png' })).toBe('image');
+    expect(classifyFileKind({ type: 'image/jpeg', name: 'photo.jpeg' })).toBe('image');
+    expect(classifyFileKind({ type: 'text/plain', name: 'notes.txt' })).toBeNull();
+    // New security test cases
+    expect(classifyFileKind({ type: 'application/pdf', name: 'malicious.exe' })).toBeNull();
+    expect(classifyFileKind({ type: 'image/png', name: 'script.js' })).toBeNull();
+    expect(classifyFileKind({ type: 'application/pdf' })).toBeNull(); // Missing name
+    expect(classifyFileKind({ type: 'image/jpeg', name: 'noextension' })).toBeNull();
   });
 
   test('getFileTypeLabel', () => {
@@ -91,7 +96,7 @@ test.describe('Utils', () => {
   });
 
   test('validateUploadFile: valid PDF', () => {
-    expect(validateUploadFile({ type: 'application/pdf', size: 1024 })).toEqual({
+    expect(validateUploadFile({ type: 'application/pdf', size: 1024, name: 'valid.pdf' })).toEqual({
       valid: true,
       errors: [],
       kind: 'pdf'
@@ -99,7 +104,7 @@ test.describe('Utils', () => {
   });
 
   test('validateUploadFile: valid image', () => {
-    expect(validateUploadFile({ type: 'image/png', size: 2048 })).toEqual({
+    expect(validateUploadFile({ type: 'image/png', size: 2048, name: 'valid.png' })).toEqual({
       valid: true,
       errors: [],
       kind: 'image'
@@ -107,10 +112,15 @@ test.describe('Utils', () => {
   });
 
   test('validateUploadFile: unsupported file type', () => {
-    const invalid = validateUploadFile({ type: 'text/plain', size: 12 });
+    const invalid = validateUploadFile({ type: 'text/plain', size: 12, name: 'test.txt' });
     expect(invalid.valid).toBe(false);
     expect(invalid.kind).toBeNull();
     expect(invalid.errors).toContain('Please select a PDF or image file.');
+
+    // Test spoofed mime type
+    const spoofed = validateUploadFile({ type: 'application/pdf', size: 1024, name: 'exploit.html' });
+    expect(spoofed.valid).toBe(false);
+    expect(spoofed.kind).toBeNull();
   });
 
   test('validateUploadFile: null file', () => {

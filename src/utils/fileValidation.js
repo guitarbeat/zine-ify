@@ -9,15 +9,23 @@ export const SUPPORTED_UPLOAD_MESSAGE = 'Please select a PDF or image file.';
 export const MIXED_UPLOAD_WARNING = 'Some files were skipped. Upload PDFs or image files only.';
 
 export function classifyFileKind(file) {
-  if (!file) {
+  if (!file || typeof file.name !== 'string') {
     return null;
   }
 
-  if (file.type === 'application/pdf') {
+  const lastDotIndex = file.name.lastIndexOf('.');
+  if (lastDotIndex === -1 || lastDotIndex === 0) {
+    return null; // No extension or hidden file without extension
+  }
+
+  const extension = file.name.substring(lastDotIndex + 1).toLowerCase();
+
+  if (file.type === 'application/pdf' && extension === 'pdf') {
     return 'pdf';
   }
 
-  if (typeof file.type === 'string' && file.type.startsWith('image/')) {
+  const allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+  if (typeof file.type === 'string' && file.type.startsWith('image/') && allowedImageExtensions.includes(extension)) {
     return 'image';
   }
 
