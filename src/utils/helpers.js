@@ -117,3 +117,18 @@ export function sanitizeHTML(html) {
 
   return fragment;
 }
+
+/**
+ * Resizes an array to a required length, preserving existing items and filling the rest.
+ * @param {Array} arr - The original array
+ * @param {number} requiredLength - The desired length of the new array
+ * @param {*} fillValue - The value to fill the new slots with (default: null)
+ * @returns {Array} A new array of the required length
+ */
+export function resizeAndFillArray(arr, requiredLength, fillValue = null) {
+  const nextImages = new Array(requiredLength).fill(fillValue);
+  for (let index = 0; index < Math.min(arr.length, nextImages.length); index++) {
+    nextImages[index] = arr[index];
+  }
+  return nextImages;
+}

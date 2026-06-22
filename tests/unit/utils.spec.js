@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger } from '../../src/utils/helpers.js';
+import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray } from '../../src/utils/helpers.js';
 import {
   classifyFileKind,
   getFileTypeLabel,
@@ -8,6 +8,29 @@ import {
 } from '../../src/utils/fileValidation.js';
 
 test.describe('Utils', () => {
+
+  test('resizeAndFillArray', () => {
+    // Should expand array and fill with default null
+    const arr1 = [1, 2, 3];
+    expect(resizeAndFillArray(arr1, 5)).toEqual([1, 2, 3, null, null]);
+
+    // Should expand array and fill with provided value
+    const arr2 = ['a', 'b'];
+    expect(resizeAndFillArray(arr2, 4, 'c')).toEqual(['a', 'b', 'c', 'c']);
+
+    // Should shrink array
+    const arr3 = [10, 20, 30, 40, 50];
+    expect(resizeAndFillArray(arr3, 3)).toEqual([10, 20, 30]);
+
+    // Should handle empty arrays
+    const arr4 = [];
+    expect(resizeAndFillArray(arr4, 2, 'x')).toEqual(['x', 'x']);
+
+    // Should keep array same size if lengths match
+    const arr5 = [1, 2, 3];
+    expect(resizeAndFillArray(arr5, 3)).toEqual([1, 2, 3]);
+  });
+
   test('formatFileSize', () => {
     expect(formatFileSize(0)).toBe('0 B');
     expect(formatFileSize(1024)).toBe('1.0 KB');
@@ -55,10 +78,15 @@ test.describe('Utils', () => {
   });
 
   test('classifyFileKind', () => {
-    expect(classifyFileKind({ type: 'application/pdf' })).toBe('pdf');
-    expect(classifyFileKind({ type: 'image/png' })).toBe('image');
-    expect(classifyFileKind({ type: 'image/jpeg' })).toBe('image');
-    expect(classifyFileKind({ type: 'text/plain' })).toBeNull();
+    expect(classifyFileKind({ type: 'application/pdf', name: 'document.pdf' })).toBe('pdf');
+    expect(classifyFileKind({ type: 'image/png', name: 'image.png' })).toBe('image');
+    expect(classifyFileKind({ type: 'image/jpeg', name: 'photo.jpeg' })).toBe('image');
+    expect(classifyFileKind({ type: 'text/plain', name: 'notes.txt' })).toBeNull();
+    // New security test cases
+    expect(classifyFileKind({ type: 'application/pdf', name: 'malicious.exe' })).toBeNull();
+    expect(classifyFileKind({ type: 'image/png', name: 'script.js' })).toBeNull();
+    expect(classifyFileKind({ type: 'application/pdf' })).toBeNull(); // Missing name
+    expect(classifyFileKind({ type: 'image/jpeg', name: 'noextension' })).toBeNull();
   });
 
   test('getFileTypeLabel', () => {
@@ -68,7 +96,7 @@ test.describe('Utils', () => {
   });
 
   test('validateUploadFile: valid PDF', () => {
-    expect(validateUploadFile({ type: 'application/pdf', size: 1024 })).toEqual({
+    expect(validateUploadFile({ type: 'application/pdf', size: 1024, name: 'valid.pdf' })).toEqual({
       valid: true,
       errors: [],
       kind: 'pdf'
@@ -76,7 +104,7 @@ test.describe('Utils', () => {
   });
 
   test('validateUploadFile: valid image', () => {
-    expect(validateUploadFile({ type: 'image/png', size: 2048 })).toEqual({
+    expect(validateUploadFile({ type: 'image/png', size: 2048, name: 'valid.png' })).toEqual({
       valid: true,
       errors: [],
       kind: 'image'
@@ -84,10 +112,15 @@ test.describe('Utils', () => {
   });
 
   test('validateUploadFile: unsupported file type', () => {
-    const invalid = validateUploadFile({ type: 'text/plain', size: 12 });
+    const invalid = validateUploadFile({ type: 'text/plain', size: 12, name: 'test.txt' });
     expect(invalid.valid).toBe(false);
     expect(invalid.kind).toBeNull();
     expect(invalid.errors).toContain('Please select a PDF or image file.');
+
+    // Test spoofed mime type
+    const spoofed = validateUploadFile({ type: 'application/pdf', size: 1024, name: 'exploit.html' });
+    expect(spoofed.valid).toBe(false);
+    expect(spoofed.kind).toBeNull();
   });
 
   test('validateUploadFile: null file', () => {

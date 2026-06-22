@@ -78,10 +78,6 @@ export class LayoutRenderer {
         cutLine.style.top = `${(afterRow / template.grid.rows) * 100}%`;
         cutLine.style.left = `${fromPct}%`;
         cutLine.style.right = `${100 - toPct}%`;
-        const label = document.createElement('span');
-        label.className = 'sheet-cut-line-label';
-        label.textContent = 'Cut here';
-        cutLine.appendChild(label);
         grid.appendChild(cutLine);
       }
 

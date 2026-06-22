@@ -5,7 +5,7 @@ import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
-import { parseBoundedInteger } from '../utils/helpers.js';
+import { parseBoundedInteger, resizeAndFillArray } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
 import { BookletPreview } from '../components/BookletPreview.js';
 
@@ -55,7 +55,7 @@ export class AppController {
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
-    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); });
+    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); this.renderCurrentLayout(); });
     this.ui.on('removeUploadedFile', (index) => {
       this.state.uploadedFiles.splice(index, 1);
       this.ui.updateUploadedFilesList(this.state.uploadedFiles);
@@ -321,11 +321,7 @@ export class AppController {
     const requiredLength = this.state.getRequiredPageCapacity();
 
     if (this.state.allPageImages.length !== requiredLength) {
-      const nextImages = new Array(requiredLength).fill(null);
-      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
-        nextImages[index] = this.state.allPageImages[index];
-      }
-      this.state.allPageImages = nextImages;
+      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
     }
   }
 
@@ -434,24 +430,20 @@ export class AppController {
   renderCurrentLayout() {
     const requiredLength = this.state.getRequiredPageCapacity();
     if (this.state.allPageImages.length !== requiredLength) {
-      const nextImages = new Array(requiredLength).fill(null);
-      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
-        nextImages[index] = this.state.allPageImages[index];
-      }
-      this.state.allPageImages = nextImages;
+      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
     }
 
     this.ui.generateLayout(requiredLength, this.getCurrentTemplate(), {
       paperSize: this.state.paperSize,
       orientation: this.state.orientation,
-      margin: this.state.margin || 0
+      margin: this.state.margin || 0,
+      customPaper: this.state.customPaper
     });
     for (let index = 0; index < this.state.allPageImages.length; index++) {
-      this.ui.updatePageState(index, {
-        url: this.state.allPageImages[index],
-        flip: !!this.state.pageFlips[index],
-        zoom: !!this.state.pageZooms[index]
-      });
+      const url = this.state.allPageImages[index];
+      this.ui.updatePagePreview(index, url);
+      this.ui.setPageFlip(index, !!this.state.pageFlips[index]);
+      this.ui.setPageZoom(index, !!this.state.pageZooms[index]);
     }
 
     this.updateWorkspaceUi();

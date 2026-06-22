@@ -3,7 +3,8 @@ import {
   GRID_DIMENSION_MAX,
   GRID_DIMENSION_MIN,
   PAPER_SIZES,
-  ZINE_TEMPLATES
+  ZINE_TEMPLATES,
+  resolvePaperSize
 } from '../../utils/config.js';
 import { debounce, parseBoundedInteger } from '../../utils/helpers.js';
 
@@ -80,16 +81,16 @@ export class UIManager {
 
   initSmartSheetConfig() {
     const container = document.getElementById('smart-sheet-config-container');
-    if (!container) return;
+    if (!container) {return;}
 
     let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
 
     this.smartSheetConfig = new SmartSheetConfig(container, {
       initialRows: DEFAULT_GRID_ROWS,
       initialCols: DEFAULT_GRID_COLS,
-      onChange: ({ rows, cols, paperSize, orientation, margin, totalSlots }) => {
-        if (this.elements.gridRows) this.elements.gridRows.value = rows;
-        if (this.elements.gridCols) this.elements.gridCols.value = cols;
+      onChange: ({ rows, cols, paperSize, orientation, margin, customPaper, _totalSlots }) => {
+        if (this.elements.gridRows) {this.elements.gridRows.value = rows;}
+        if (this.elements.gridCols) {this.elements.gridCols.value = cols;}
         this.updateGridTotalBadge(rows, cols);
         this._syncOrientationVisibility(rows, cols);
 
@@ -99,7 +100,7 @@ export class UIManager {
           this.emitter.emit('gridSizeChanged', { rows, cols });
         }
 
-        this.emitter.emit('paperSizeChanged', { paperSize });
+        this.emitter.emit('paperSizeChanged', { paperSize, customPaper });
         this.emitter.emit('orientationChanged', { orientation });
         this.emitter.emit('marginChanged', { margin });
       }
@@ -146,9 +147,11 @@ export class UIManager {
       icon.textContent = 'description';
       icon.setAttribute('aria-hidden', 'true');
       const body = document.createElement('div');
+      body.className = 'uploaded-file-body';
       const name = document.createElement('div');
       name.className = 'uploaded-file-name';
       name.textContent = file.name;
+      name.title = file.name;
       const meta = document.createElement('div');
       meta.className = 'uploaded-file-meta';
       meta.textContent = `${file.kind === 'pdf' ? 'PDF' : 'Image'} \u2022 ${file.size ? (file.size / 1024).toFixed(1) + ' KB' : ''}`;
@@ -194,32 +197,6 @@ export class UIManager {
   setPageZoom(index, enabled) {
     const cell = this._getPageCell(index);
     cell?.classList.toggle('page-zoomed', !!enabled);
-  }
-
-  updatePageState(index, { url, flip, zoom }) {
-    const cell = this._getPageCell(index);
-    if (!cell) { return; }
-
-    if (url !== undefined) {
-      const img = cell.querySelector('.page-content-img');
-      const placeholder = cell.querySelector('.page-placeholder');
-      if (img) {
-        img.src = url || '';
-        img.classList.toggle('hidden', !url);
-      }
-      if (placeholder) {
-        placeholder.classList.toggle('hidden', !!url);
-      }
-      cell.classList.toggle('has-page', !!url);
-    }
-
-    if (flip !== undefined) {
-      cell.classList.toggle('is-flipped', !!flip);
-    }
-
-    if (zoom !== undefined) {
-      cell.classList.toggle('page-zoomed', !!zoom);
-    }
   }
 
   toggle3DModal(show) {
@@ -333,7 +310,7 @@ export class UIManager {
   }
 
   _syncOrientationVisibility(rows, cols) {
-    if (this.smartSheetConfig) return;
+    if (this.smartSheetConfig) {return;}
     const isMini8 = rows === 2 && cols === 4;
     const wrapper = this.elements.orientationToggle?.closest('.workspace-config-field');
     if (wrapper) {
@@ -373,21 +350,25 @@ export class UIManager {
   }
 
   _getPageCell(index) {
-    if (!this._pageCellsCache) {
+    if (!this.pageCellCache) {
       const cells = this.elements.zineSheetsContainer?.querySelectorAll('.page-cell');
-      if (!cells || cells.length === 0) {
-        return null;
+      if (cells && cells.length > 0) {
+        this.pageCellCache = new Map();
+        cells.forEach(cell => {
+          const idx = parseInt(cell.getAttribute('data-page-index'), 10);
+          if (!isNaN(idx)) {
+            this.pageCellCache.set(idx, cell);
+          }
+        });
+      } else {
+        return this.elements.zineSheetsContainer?.querySelector(`[data-page-index="${index}"]`) || null;
       }
-      this._pageCellsCache = new Map();
-      cells.forEach((cell) => {
-        this._pageCellsCache.set(parseInt(cell.getAttribute('data-page-index'), 10), cell);
-      });
     }
-    return this._pageCellsCache.get(parseInt(index, 10)) || null;
+    return this.pageCellCache?.get(parseInt(index, 10)) || null;
   }
 
-  getPaperDimensions(paperSizeKey, orientation) {
-    const paper = PAPER_SIZES[paperSizeKey] || PAPER_SIZES.letter;
+  getPaperDimensions(paperSizeKey, orientation, customPaper) {
+    const paper = resolvePaperSize(paperSizeKey, customPaper);
     const landscape = orientation === 'landscape';
     return landscape
       ? { width: paper.height, height: paper.width }
@@ -404,6 +385,8 @@ export class UIManager {
 
     this.elements = {
       unifiedDropZone: $('#unified-drop-zone'),
+      uploadZone: $('#upload-zone'),
+      uploadStatus: $('#upload-status'),
       uploadedFilesList: $('#uploaded-files-list'),
       previewArea: $('#preview-area'),
       zineSheetsContainer: $('#zine-sheets-container'),
@@ -569,6 +552,7 @@ export class UIManager {
     });
 
     if (!this.smartSheetConfig) {
+      let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
       const debouncedGridChange = debounce(() => {
         const { rows, cols } = this.normalizeGridInputs();
 
@@ -597,7 +581,8 @@ export class UIManager {
   }
 
   generateLayout(numPages, templateType, paperSettings = {}) {
-    this._pageCellsCache = null;
+    this.pageCellCache = null;
+
     const template = typeof templateType === 'string'
       ? ZINE_TEMPLATES[templateType || 'mini-8']
       : (templateType || ZINE_TEMPLATES['mini-8']);
@@ -624,7 +609,8 @@ export class UIManager {
 
     const dimensions = this.getPaperDimensions(
       paperSettings.paperSize || 'letter',
-      paperSettings.orientation || 'landscape'
+      paperSettings.orientation || 'landscape',
+      paperSettings.customPaper
     );
     dimensions.margin = paperSettings.margin || 0;
 

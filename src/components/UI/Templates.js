@@ -18,7 +18,6 @@ PAGE_CELL_TEMPLATE.innerHTML = `
   </div>
   <div class="page-placeholder flex flex-col items-center justify-center gap-2 absolute inset-0">
      <span class="material-symbols-outlined text-3xl">note_stack</span>
-     <span class="text-[10px] font-bold uppercase tracking-[0.18em]">Slot Empty</span>
   </div>
   <div class="page-cell-remove-hint" aria-hidden="true">
     <div class="page-cell-remove-hint-inner">
