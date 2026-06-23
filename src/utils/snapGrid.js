@@ -24,38 +24,63 @@ function applyPos(card, left, top) {
   card.style.transform = 'none';
 }
 
+function rectsOverlap(ax, ay, aw, ah, bx, by, bw, bh) {
+  return ax < bx + bw + GAP && ax + aw + GAP > bx &&
+         ay < by + bh + GAP && ay + ah + GAP > by;
+}
+
+function findNonOverlappingPos(card, left, top, others) {
+  const cw = card.offsetWidth || 200;
+  const ch = card.offsetHeight || 100;
+  const vw = (card.parentElement ? card.parentElement.offsetWidth : window.innerWidth) || window.innerWidth;
+
+  let tryLeft = left;
+  let tryTop  = top;
+
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const blocked = others.some(other => {
+      if (other === card) return false;
+      return rectsOverlap(
+        tryLeft, tryTop, cw, ch,
+        other.offsetLeft, other.offsetTop,
+        other.offsetWidth || 200, other.offsetHeight || 100
+      );
+    });
+
+    if (!blocked) return { left: tryLeft, top: tryTop };
+
+    tryLeft += STEP_X;
+    if (tryLeft + cw > vw - GAP) {
+      tryLeft = GAP;
+      tryTop += STEP_Y;
+    }
+  }
+
+  return { left, top };
+}
+
 function defaultPos(card) {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const w  = card.offsetWidth  || 200;
 
-  // ── Zine card ─────────────────────────────────────
   if (card.id === 'card-zine') return { left: GAP, top: 60 };
 
-  // ── Logo pill ─────────────────────────────────────
   if (card.id === 'card-logo') {
     return { left: vw - (card.offsetWidth || 160) - GAP, top: GAP };
   }
 
-  // Estimate where the zine card's bottom edge is
-  // (handle 42px + body padding 8px + sheet height based on zine card width)
   const zineCardW = Math.min(660, vw - 16);
-  const sheetH    = (zineCardW - 8) * (8.5 / 11); // landscape Letter aspect
-  const zineBottom = 60 + 42 + 8 + sheetH + 12;   // top + handle + pad + sheet + gap
+  const sheetH    = (zineCardW - 8) * (8.5 / 11);
+  const zineBottom = 60 + 42 + 8 + sheetH + 12;
 
-  // Does a sidebar fit to the right of the zine card?
-  // Sidebar start = GAP + zineCardW + GAP
-  // Card right edge = colA + w = (vw - w - GAP) + w = vw - GAP
-  // Sidebar fits if colA > zineCardW + 2*GAP
   const colA = vw - w - GAP;
   const sidebarFits = colA >= (GAP + zineCardW + GAP);
 
-  // Two sidebar columns?
   const colB = vw - (w + GAP) * 2 - GAP;
   const twoSidebarCols = sidebarFits && colB >= GAP + zineCardW + GAP;
 
   if (sidebarFits) {
-    // ── Desktop / wide tablet: sidebar to the right ──
     const cb = twoSidebarCols ? colB : colA;
     const botRow = snapY(Math.min(vh - 130, 460));
 
@@ -67,13 +92,11 @@ function defaultPos(card) {
     }[card.id] || { left: colA, top: 60 };
   }
 
-  // ── Mobile / narrow: stack below the zine card ────
-  // Two columns that fit within the viewport
   const twoFit = (w * 2 + GAP * 3) <= vw;
   const leftCol  = GAP;
   const rightCol = twoFit ? vw - w - GAP : GAP;
   const row0 = snapY(zineBottom);
-  const row1 = row0 + snapY(260); // estimated settings/upload height + gap
+  const row1 = row0 + snapY(260);
 
   return {
     'card-settings':     { left: rightCol, top: row0 },
@@ -83,7 +106,7 @@ function defaultPos(card) {
   }[card.id] || { left: leftCol, top: row0 };
 }
 
-function enableDrag(card, overlay) {
+function enableDrag(card, overlay, cards) {
   const handle = card.querySelector('.snap-card-handle') || card;
   let startX, startY, startLeft, startTop, active = false;
 
@@ -115,7 +138,14 @@ function enableDrag(card, overlay) {
     card.style.zIndex = '';
     if (overlay) overlay.classList.remove('is-visible');
     card.style.transition = '';
-    applyPos(card, snapX(parseFloat(card.style.left)), snapY(parseFloat(card.style.top)));
+
+    const snappedLeft = snapX(parseFloat(card.style.left));
+    const snappedTop  = snapY(parseFloat(card.style.top));
+
+    const others = cards.filter(c => c !== card);
+    const { left, top } = findNonOverlappingPos(card, snappedLeft, snappedTop, others);
+
+    applyPos(card, left, top);
     savePos(card.id, parseFloat(card.style.left), parseFloat(card.style.top));
   }
 
@@ -153,7 +183,7 @@ export function initSnapGrid() {
   requestAnimationFrame(() => {
     cards.forEach(card => {
       placeCard(card);
-      enableDrag(card, overlay);
+      enableDrag(card, overlay, cards);
     });
   });
 
