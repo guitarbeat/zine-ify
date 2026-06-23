@@ -128,9 +128,6 @@ const STEPS = [
   },
 ];
 
-// ⚡ Bolt: Replace O(n) array lookups with O(1) hash map
-const STEP_INDEX_MAP = new Map(STEPS.map((step, index) => [step.id, index]));
-
 // Fold type badge configuration
 const FOLD_TYPE_CONFIG = {
   prepare: { label: 'Prep', className: 'bg-zinc-100 text-zinc-600 border-zinc-200' },
@@ -208,7 +205,7 @@ function StepIconCompact({ icon: Icon, isActive, isCompleted, size = 'md' }) {
 // Sub-component: Desktop Step Detail (compact horizontal layout)
 function StepDetailDesktop({ step, direction, onPrev, onNext }) {
   const prefersReducedMotion = useReducedMotion();
-  const currentIndex = STEP_INDEX_MAP.get(step.id) ?? -1;
+  const currentIndex = STEPS.findIndex((s) => s.id === step.id);
   const canGoPrev = currentIndex > 0;
   const canGoNext = currentIndex < STEPS.length - 1;
 
@@ -325,7 +322,7 @@ function SidebarStepItem({ step, isActive, isCompleted, onClick }) {
 // Sub-component: Mobile Step Card (fixed height, no expansion)
 function MobileStepCard({ step, isActive, direction, onPrev, onNext }) {
   const prefersReducedMotion = useReducedMotion();
-  const currentIndex = STEP_INDEX_MAP.get(step.id) ?? -1;
+  const currentIndex = STEPS.findIndex((s) => s.id === step.id);
   const canGoPrev = currentIndex > 0;
   const canGoNext = currentIndex < STEPS.length - 1;
 
@@ -473,8 +470,8 @@ export function ZineFoldingGuide() {
   }, []);
 
   const handleStepClick = useCallback((stepId) => {
-    const currentIndex = STEP_INDEX_MAP.get(activeStep) ?? -1;
-    const newIndex = STEP_INDEX_MAP.get(stepId);
+    const currentIndex = STEPS.findIndex((s) => s.id === activeStep);
+    const newIndex = STEPS.findIndex((s) => s.id === stepId);
     setDirection(newIndex > currentIndex ? 1 : -1);
     setActiveStep(stepId);
 
@@ -489,12 +486,12 @@ export function ZineFoldingGuide() {
   }, [activeStep]);
 
   const handlePrev = useCallback(() => {
-    const currentIndex = STEP_INDEX_MAP.get(activeStep) ?? -1;
+    const currentIndex = STEPS.findIndex((s) => s.id === activeStep);
     if (currentIndex > 0) handleStepClick(STEPS[currentIndex - 1].id);
   }, [activeStep, handleStepClick]);
 
   const handleNext = useCallback(() => {
-    const currentIndex = STEP_INDEX_MAP.get(activeStep) ?? -1;
+    const currentIndex = STEPS.findIndex((s) => s.id === activeStep);
     if (currentIndex < STEPS.length - 1) handleStepClick(STEPS[currentIndex + 1].id);
   }, [activeStep, handleStepClick]);
 
@@ -513,7 +510,7 @@ export function ZineFoldingGuide() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handlePrev, handleNext]);
 
-  const activeStepData = STEPS[STEP_INDEX_MAP.get(activeStep)];
+  const activeStepData = STEPS.find((s) => s.id === activeStep);
 
   return (
     <section aria-label="How to fold your zine" className="simulation-guide-panel">

@@ -30,7 +30,7 @@ function defaultPos(card) {
   const w  = card.offsetWidth  || 200;
 
   // ── Zine card ─────────────────────────────────────
-  if (card.id === 'card-zine') return { left: GAP, top: 60 };
+  if (card.id === 'card-zine') {return { left: GAP, top: 60 };}
 
   // ── Logo pill ─────────────────────────────────────
   if (card.id === 'card-logo') {
@@ -99,28 +99,28 @@ function enableDrag(card, overlay) {
     card.classList.add('is-dragging');
     document.querySelectorAll('.snap-card').forEach(c => c.style.zIndex = '');
     card.style.zIndex = '200';
-    if (overlay) overlay.classList.add('is-visible');
+    if (overlay) {overlay.classList.add('is-visible');}
   }
 
   function move(px, py) {
-    if (!active) return;
+    if (!active) {return;}
     card.style.left = (startLeft + px - startX) + 'px';
     card.style.top  = (startTop  + py - startY) + 'px';
   }
 
   function settle() {
-    if (!active) return;
+    if (!active) {return;}
     active = false;
     card.classList.remove('is-dragging');
     card.style.zIndex = '';
-    if (overlay) overlay.classList.remove('is-visible');
+    if (overlay) {overlay.classList.remove('is-visible');}
     card.style.transition = '';
     applyPos(card, snapX(parseFloat(card.style.left)), snapY(parseFloat(card.style.top)));
     savePos(card.id, parseFloat(card.style.left), parseFloat(card.style.top));
   }
 
   handle.addEventListener('mousedown', e => {
-    if (e.target.closest('button,input,select,label,details,summary,a')) return;
+    if (e.target.closest('button,input,select,label,details,summary,a')) {return;}
     begin(e.pageX, e.pageY);
     const mm = e2 => move(e2.pageX, e2.pageY);
     const mu = () => { settle(); document.removeEventListener('mousemove', mm); document.removeEventListener('mouseup', mu); };
@@ -130,7 +130,7 @@ function enableDrag(card, overlay) {
   });
 
   handle.addEventListener('touchstart', e => {
-    if (e.target.closest('button,input,select,label,details,summary,a')) return;
+    if (e.target.closest('button,input,select,label,details,summary,a')) {return;}
     const t = e.touches[0];
     begin(t.pageX, t.pageY);
     const tm = e2 => { e2.preventDefault(); const t2 = e2.touches[0]; move(t2.pageX, t2.pageY); };

@@ -24,7 +24,7 @@ export class DragAndDropHandler {
       e.preventDefault();
       this.elements.uploadZone.classList.remove('dragover');
       const files = Array.from(e.dataTransfer.files);
-      if (files.length) this.emitter.emit('filesDropped', files);
+      if (files.length) {this.emitter.emit('filesDropped', files);}
     });
 
     // Unified drop zone (workspace canvas) — external file drops only
@@ -32,13 +32,13 @@ export class DragAndDropHandler {
     if (zone) {
       zone.addEventListener('dragover', (e) => {
         // Ignore drags that originate from page cells (Sortable handles those)
-        if (e.dataTransfer?.types.includes('text/plain')) return;
+        if (e.dataTransfer?.types.includes('text/plain')) {return;}
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
         zone.classList.add('drag-active');
       });
       zone.addEventListener('dragleave', (e) => {
-        if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-active');
+        if (!zone.contains(e.relatedTarget)) {zone.classList.remove('drag-active');}
       });
       zone.addEventListener('drop', (e) => {
         zone.classList.remove('drag-active');
@@ -53,7 +53,7 @@ export class DragAndDropHandler {
    * Call after every render (LayoutRenderer re-creates DOM).
    */
   initSortable(gridEl) {
-    if (!gridEl) return;
+    if (!gridEl) {return;}
 
     let draggedPageIndex = null;
     let targetPageIndex  = null;
