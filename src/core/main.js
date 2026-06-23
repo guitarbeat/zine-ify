@@ -1,11 +1,11 @@
 import '../styles/index.css';
 import { AppController } from './AppController.js';
 import { initPwa } from './pwa.js';
+import { initSnapGrid } from '../utils/snapGrid.js';
 import {
   GRID_DIMENSION_MIN, GRID_DIMENSION_MAX,
   MARGIN_MIN, MARGIN_MAX
 } from '../utils/config.js';
-import Sortable from 'sortablejs';
 
 initPwa();
 window.app = new AppController();
@@ -40,12 +40,6 @@ function initSettingsValidation() {
 
 initSettingsValidation();
 
-const sidebar = document.getElementById('sidebar');
-if (sidebar) {
-  new Sortable(sidebar, {
-    animation: 150,
-    handle: '.snap-card-handle',
-    ghostClass: 'sortable-ghost',
-    dragClass: 'sortable-drag',
-  });
-}
+document.addEventListener('DOMContentLoaded', () => {
+  initSnapGrid();
+});

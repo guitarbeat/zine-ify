@@ -1,117 +1,81 @@
 @reference "./theme.css";
 
-/* ─── App shell ──────────────────────────────────────────── */
+/* ── Canvas surface (the infinite plane) ─────────── */
 html, body {
   width: 100%;
   height: 100%;
-  margin: 0;
-  overflow: hidden;
+  overflow: auto;
 }
 
-.app-shell {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* ─── Header ─────────────────────────────────────────────── */
-.app-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.45rem 0.875rem;
-  background: var(--surface-bg);
-  border-bottom: 1px solid var(--border-faint);
-  flex-shrink: 0;
-  z-index: 10;
-}
-
-.app-brand-mark {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 999px;
-  background: var(--primary-vibrant);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.app-brand-mark .material-symbols-outlined {
-  font-size: 1rem;
-}
-
-.app-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1;
-  white-space: nowrap;
-  color: var(--accent-dark);
-}
-
-.app-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-left: auto;
-}
-
-/* ─── Main grid ──────────────────────────────────────────── */
-.app-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 268px;
-  gap: 10px;
-  padding: 10px;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  align-items: start;
-}
-
-/* ─── Sidebar ────────────────────────────────────────────── */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-}
-
-/* ─── Panel (snap-card) base ─────────────────────────────── */
-.snap-card {
+.canvas-surface {
   position: relative;
+  min-width: 100vw;
+  min-height: max(100dvh, 1600px);
+  /* width/height grow with absolutely-positioned children via overflow:auto on body */
+}
+
+/* ── Snap-grid overlay (fixed, shows during drag) ── */
+.snap-grid-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  background-image:
+    linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size: 168px 64px;
+}
+
+[data-theme="dark"] .snap-grid-overlay {
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px);
+}
+
+.snap-grid-overlay.is-visible { opacity: 1; }
+
+/* ── Snap cards (all absolute on canvas) ─────────── */
+.snap-card {
+  position: absolute;
+  z-index: 100;
   background: var(--surface-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
   overflow: hidden;
-  width: 100%;
-  transition: box-shadow 0.15s ease;
+  transition: box-shadow 0.15s ease, transform 0.12s ease;
 }
 
-/* ─── Card handle ────────────────────────────────────────── */
+/* Per-card widths (ID selector overrides class) */
+#card-logo         { width: auto; }
+#card-zine         { width: 660px; overflow: visible; }
+#card-settings     { width: 240px; }
+#card-upload       { width: 240px; }
+#card-export       { width: 200px; }
+#card-preview-fold { width: 200px; }
+
+.snap-card.is-dragging {
+  box-shadow: 0 20px 50px rgba(0,0,0,0.22), 0 0 0 1.5px var(--primary-vibrant);
+  transform: scale(1.015);
+  z-index: 200;
+}
+
+/* ── Card handle ─────────────────────────────────── */
 .snap-card-handle {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.4rem 0.6rem 0.4rem 0.5rem;
-  cursor: default;
+  padding: 0.4rem 0.5rem 0.4rem 0.35rem;
+  cursor: grab;
   user-select: none;
   background: var(--surface-muted);
   border-bottom: 1px solid var(--border-faint);
-  min-height: 2rem;
+  min-height: 2.1rem;
 }
 
-.sidebar .snap-card-handle {
-  cursor: grab;
-}
-
-.sidebar .snap-card-handle:active {
-  cursor: grabbing;
-}
+.snap-card-handle:active { cursor: grabbing; }
 
 .snap-card-grip {
   font-size: 14px;
@@ -121,26 +85,54 @@ html, body {
 }
 
 .snap-card-label {
-  font-size: 0.64rem;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted-ink);
 }
 
-/* ─── Card body ──────────────────────────────────────────── */
+/* ── Card body ───────────────────────────────────── */
 .snap-card-body {
   padding: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  max-height: 70vh;
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
 }
 
-/* ─── Zine card body ─────────────────────────────────────── */
+/* ── Logo card ───────────────────────────────────── */
+.snap-card--pill {
+  width: auto;
+  border-radius: 999px;
+}
+
+.snap-card--pill .snap-card-handle {
+  border-bottom: none;
+  padding: 0.3rem 0.5rem 0.3rem 0.3rem;
+  border-radius: 999px;
+  gap: 0.5rem;
+}
+
+.snap-card--pill .app-brand-mark {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.snap-card--pill .app-brand-mark .material-symbols-outlined { font-size: 1rem; }
+
+.snap-card--pill .app-title {
+  font-size: 0.85rem;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ── Zine sheet card body ────────────────────────── */
 .zine-card-body {
   padding: 0.5rem;
 }
@@ -150,9 +142,12 @@ html, body {
   width: 100%;
 }
 
-/* ─── Action cards (export / preview fold) ───────────────── */
-.snap-card--action {
-  flex-shrink: 0;
+/* ── Action cards ────────────────────────────────── */
+.snap-card--action { width: 200px; }
+
+.snap-card--action .snap-card-handle {
+  padding: 0.3rem 0.4rem;
+  min-height: 1.6rem;
 }
 
 .snap-card-body--action {
@@ -166,18 +161,7 @@ html, body {
   border-radius: var(--radius-button);
 }
 
-/* ─── Sidebar drag states (SortableJS) ───────────────────── */
-.sidebar .snap-card.sortable-ghost {
-  opacity: 0.35;
-  box-shadow: 0 0 0 2px var(--primary-vibrant);
-}
-
-.sidebar .snap-card.sortable-drag {
-  box-shadow: 0 16px 40px rgba(0,0,0,0.18), 0 0 0 1.5px var(--primary-vibrant);
-  opacity: 1;
-}
-
-/* ─── Status / clear ─────────────────────────────────────── */
+/* ── Status text + clear button (in zine handle) ─── */
 .snap-status-text {
   font-size: 0.68rem;
   font-weight: 500;
@@ -203,13 +187,9 @@ html, body {
   transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
 
-.snap-clear-btn:hover {
-  background: #fef2f2;
-  color: #dc2626;
-  border-color: #fca5a5;
-}
+.snap-clear-btn:hover { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
 
-/* ─── Icon buttons ───────────────────────────────────────── */
+/* ── Icon buttons ────────────────────────────────── */
 .snap-icon-btn {
   display: inline-flex;
   align-items: center;
@@ -225,12 +205,9 @@ html, body {
   flex-shrink: 0;
 }
 
-.snap-icon-btn:hover {
-  background: var(--surface-muted);
-  color: var(--accent-dark);
-}
+.snap-icon-btn:hover { background: var(--surface-muted); color: var(--accent-dark); }
 
-/* ─── Workspace action buttons ───────────────────────────── */
+/* ── Workspace action buttons ────────────────────── */
 .workspace-action-button {
   min-height: 2.5rem;
   display: flex;
@@ -256,24 +233,24 @@ html, body {
 
 .workspace-action-button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ─── Workspace chips ────────────────────────────────────── */
+/* ── Workspace chips (JS compat) ─────────────────── */
 .workspace-chip { @apply base-chip; }
 .workspace-chip-muted { background: transparent; color: var(--muted-ink); border-color: transparent; }
 
-/* ─── Drop zone drag-active state ────────────────────────── */
+/* ── Drop zone drag-active state ─────────────────── */
 #unified-drop-zone.drag-active {
   background: var(--primary-glow);
   box-shadow: inset 0 0 0 2px var(--primary-vibrant);
   border-radius: 0.5rem;
 }
 
+/* ── Misc legacy compat ──────────────────────────── */
 .workspace-stage.drag-active {
   background: var(--primary-glow);
   box-shadow: inset 0 0 0 2px var(--primary-vibrant);
   border-radius: 0.75rem;
 }
 
-/* ─── Legacy compat ──────────────────────────────────────── */
 .rail-section-title, .app-overview-title {
   font-size: 0.68rem; font-weight: 700;
   letter-spacing: 0.08em; text-transform: uppercase;
@@ -283,68 +260,49 @@ html, body {
 .rail-section-header { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
 .mobile-rail-overlay { display: none; }
 
-/* ─── Snap grid overlay (kept for compat, inactive) ─────── */
-.snap-grid-overlay {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 50;
-  opacity: 0;
-}
+/* ── Dark mode ───────────────────────────────────── */
+[data-theme="dark"] .snap-card              { border-color: rgba(255,255,255,0.1); }
+[data-theme="dark"] .snap-clear-btn:hover   { background: rgba(220,38,38,0.15); border-color: rgba(220,38,38,0.4); }
 
-/* ─── Dark mode ──────────────────────────────────────────── */
-[data-theme="dark"] .snap-card          { border-color: rgba(255,255,255,0.1); }
-[data-theme="dark"] .snap-clear-btn:hover { background: rgba(220,38,38,0.15); border-color: rgba(220,38,38,0.4); }
-[data-theme="dark"] .app-header         { border-bottom-color: rgba(255,255,255,0.06); }
-
-/* ─── Print ──────────────────────────────────────────────── */
+/* ── Print ───────────────────────────────────────── */
 @media print {
-  .app-header { display: none !important; }
-  .sidebar    { display: none !important; }
-  .app-grid   { display: block !important; padding: 0 !important; }
-  #card-zine  { box-shadow: none !important; border: none !important; border-radius: 0 !important; }
+  .snap-card:not(#card-zine) { display: none !important; }
+  #card-zine { position: static !important; width: 100% !important; box-shadow: none !important; border: none !important; }
   .snap-card-handle { display: none !important; }
 }
 
-/* ─── Responsive ─────────────────────────────────────────── */
-@media (max-width: 760px) {
-  .app-grid {
-    grid-template-columns: 1fr;
-    padding: 8px;
-    gap: 8px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: auto;
-  }
+/* ── Responsive card widths (same system, all screens) ──
+   Cards shrink on narrow viewports so they always fit.
+   JS positions them — CSS just sets the width budget.    */
 
-  html, body {
-    overflow: auto;
-    height: auto;
-  }
+/* Zine: full-width on small screens, capped at 660px */
+#card-zine         { width: min(660px, calc(100vw - 16px)); overflow: visible; }
 
-  .app-shell {
-    height: auto;
-    min-height: 100%;
-  }
+/* Sidebar cards: two per row on any screen */
+#card-settings,
+#card-upload       { width: min(240px, calc(50vw - 16px)); }
 
-  .snap-card-body {
-    max-height: none;
-  }
-}
+/* Action cards: two per row, slightly narrower */
+#card-export,
+#card-preview-fold { width: min(200px, calc(50vw - 16px)); }
 
-/* ─── Touch ──────────────────────────────────────────────── */
+/* Logo pill: content-sized */
+#card-logo         { width: auto; }
+
+/* ── Touch & scrollability ─────────────────────────── */
 .snap-card-body {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
 
+/* Bigger touch targets on small screens */
 @media (max-width: 600px) {
   .snap-action-btn  { min-height: 2.75rem; }
-  .snap-card-handle { min-height: 2.5rem; }
+  .snap-card-handle { min-height: 2.5rem;  }
 }
 
+/* Prevent iOS zoom on input focus */
 input, select, textarea { touch-action: manipulation; }
-
 @media (max-width: 600px) {
   input, select, textarea { font-size: 16px; }
 }
