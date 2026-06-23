@@ -436,14 +436,11 @@ export class AppController {
     this.ui.generateLayout(requiredLength, this.getCurrentTemplate(), {
       paperSize: this.state.paperSize,
       orientation: this.state.orientation,
-      margin: this.state.margin || 0
+      margin: this.state.margin || 0,
+      pageImages: this.state.allPageImages,
+      pageFlips: this.state.pageFlips,
+      pageZooms: this.state.pageZooms
     });
-    for (let index = 0; index < this.state.allPageImages.length; index++) {
-      const url = this.state.allPageImages[index];
-      this.ui.updatePagePreview(index, url);
-      this.ui.setPageFlip(index, !!this.state.pageFlips[index]);
-      this.ui.setPageZoom(index, !!this.state.pageZooms[index]);
-    }
 
     this.updateWorkspaceUi();
   }

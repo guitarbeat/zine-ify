@@ -194,7 +194,24 @@ export class LayoutRenderer {
     }
 
     const img = cell.querySelector('.page-content-img');
+    const placeholder = cell.querySelector('.page-placeholder');
     img.alt = altText;
+
+    const url = options.pageImages && options.pageImages[pageIndex];
+    if (img) {
+      img.src = url || '';
+      img.classList.toggle('hidden', !url);
+    }
+    if (placeholder) {
+      placeholder.classList.toggle('hidden', !!url);
+    }
+    cell.classList.toggle('has-page', !!url);
+
+    const isFlipped = options.pageFlips && options.pageFlips[pageIndex];
+    cell.classList.toggle('is-flipped', !!isFlipped);
+
+    const isZoomed = options.pageZooms && options.pageZooms[pageIndex];
+    cell.classList.toggle('page-zoomed', !!isZoomed);
 
     cell.addEventListener('dragstart', (e) => handlers.onDragStart(e, cell));
     cell.addEventListener('dragover', (e) => handlers.onDragOver(e, cell));

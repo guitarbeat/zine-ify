@@ -33,3 +33,7 @@
 ## 2026-06-18 - Repeated DOM Querying in Event Handlers
 **Learning:** Frequent DOM queries via `querySelector` in event handlers or tight loops (e.g., fetching `.page-cell` elements by index in `UIManager`) can cause unnecessary O(n) performance degradation, especially as grid complexity increases.
 **Action:** Implement DOM Caching using a `Map` during the initial query to transform subsequent lookups from O(n) to O(1). Be sure to invalidate the cache when the DOM structure is rebuilt (e.g., during layout generation).
+
+## 2026-06-23 - DOM Query Optimization in Grid Generation
+**Learning:** Generating layout grids and subsequently iterating over the state array to find each created `.page-cell` element (via `querySelector` or cached Map lookups) to apply visual states (`src`, `is-flipped`, etc) creates redundant DOM queries and layout thrashing, scaling poorly with grid size.
+**Action:** Pass state collections (`pageImages`, `pageFlips`, `pageZooms`) into the layout generator and apply properties immediately upon `div` creation, avoiding post-generation lookup loops entirely.

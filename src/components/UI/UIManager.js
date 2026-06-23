@@ -611,7 +611,12 @@ export class UIManager {
     this.renderer.render(
       numPages,
       template,
-      { pageNumbersVisible: this.pageNumbersVisible },
+      {
+        pageNumbersVisible: this.pageNumbersVisible,
+        pageImages: paperSettings.pageImages || [],
+        pageFlips: paperSettings.pageFlips || {},
+        pageZooms: paperSettings.pageZooms || {}
+      },
       handlers,
       dimensions
     );
