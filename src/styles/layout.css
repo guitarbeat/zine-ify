@@ -9,10 +9,9 @@ html, body {
 
 .canvas-surface {
   position: relative;
-  width: 3000px;
-  height: 2000px;
   min-width: 100vw;
-  min-height: 100vh;
+  min-height: max(100dvh, 1600px);
+  /* width/height grow with absolutely-positioned children via overflow:auto on body */
 }
 
 /* ── Snap-grid overlay (fixed, shows during drag) ── */
@@ -264,108 +263,46 @@ html, body {
 /* ── Dark mode ───────────────────────────────────── */
 [data-theme="dark"] .snap-card              { border-color: rgba(255,255,255,0.1); }
 [data-theme="dark"] .snap-clear-btn:hover   { background: rgba(220,38,38,0.15); border-color: rgba(220,38,38,0.4); }
-[data-theme="dark"] .snap-card--zine        { border-color: rgba(255,255,255,0.1); }
 
 /* ── Print ───────────────────────────────────────── */
 @media print {
-  .snap-card:not(.snap-card--zine) { display: none !important; }
-  .snap-card--zine { position: static !important; width: 100% !important; box-shadow: none !important; border: none !important; transform: none !important; }
+  .snap-card:not(#card-zine) { display: none !important; }
+  #card-zine { position: static !important; width: 100% !important; box-shadow: none !important; border: none !important; }
   .snap-card-handle { display: none !important; }
 }
 
-/* ═══════════════════════════════════════════════════
-   MOBILE  (<768 px)  — stacked column, no canvas drag
-   ═══════════════════════════════════════════════════ */
-@media (max-width: 767px) {
-  html, body { overflow-x: hidden; overflow-y: auto; }
+/* ── Responsive card widths (same system, all screens) ──
+   Cards shrink on narrow viewports so they always fit.
+   JS positions them — CSS just sets the width budget.    */
 
-  /* Canvas becomes a normal scroll container */
-  .canvas-surface {
-    width: 100%;
-    min-width: 0;
-    height: auto;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding: 0.5rem 0.5rem 5rem; /* bottom pad clears action bar */
-    box-sizing: border-box;
-  }
+/* Zine: full-width on small screens, capped at 660px */
+#card-zine         { width: min(660px, calc(100vw - 16px)); overflow: visible; }
 
-  /* All cards: relative flow, full width */
-  .snap-card {
-    position: relative !important;
-    left: auto !important;
-    top: auto !important;
-    right: auto !important;
-    bottom: auto !important;
-    transform: none !important;
-    width: 100% !important;
-    z-index: auto !important;
-    box-shadow: var(--shadow-sm);
-  }
+/* Sidebar cards: two per row on any screen */
+#card-settings,
+#card-upload       { width: min(240px, calc(50vw - 16px)); }
 
-  /* Explicit stacking order */
-  #card-logo         { order: 0; }
-  #card-zine         { order: 1; }
-  #card-upload       { order: 2; }
-  #card-settings     { order: 3; }
-  #card-export       { order: 4; }
-  #card-preview-fold { order: 5; }
+/* Action cards: two per row, slightly narrower */
+#card-export,
+#card-preview-fold { width: min(200px, calc(50vw - 16px)); }
 
-  /* Logo pill: span full width, pill shape */
-  #card-logo { border-radius: 0.875rem; }
-  #card-logo .snap-card-handle { border-radius: 0.875rem; }
+/* Logo pill: content-sized */
+#card-logo         { width: auto; }
 
-  /* Zine card: full width, natural height */
-  #card-zine { overflow: visible; }
-  .zine-card-body { padding: 0.35rem; }
-
-  /* Hide drag grips on mobile — no drag available */
-  .snap-card-grip { display: none !important; }
-
-  /* Settings: collapse body by default via details */
-  #card-settings .snap-card-body { max-height: none; overflow: visible; }
-
-  /* Action cards: side-by-side row at bottom */
-  #card-export,
-  #card-preview-fold {
-    position: fixed !important;
-    bottom: 0.5rem;
-    left: auto;
-    top: auto;
-    transform: none !important;
-    width: calc(50% - 0.75rem) !important;
-    box-shadow: var(--shadow-lg);
-    z-index: 300 !important;
-    background: var(--surface-bg);
-  }
-
-  #card-export       { left: 0.5rem !important; right: auto !important; }
-  #card-preview-fold { right: 0.5rem !important; left: auto !important; }
-
-  #card-export .snap-card-handle,
-  #card-preview-fold .snap-card-handle { display: none; }
-
-  #card-export .snap-card-body--action,
-  #card-preview-fold .snap-card-body--action { padding: 0.35rem; }
-
-  .snap-action-btn { min-height: 2.75rem; font-size: 0.85rem; border-radius: 0.75rem; }
-
-  /* Readable inputs on iOS (prevents zoom) */
-  input, select, textarea { font-size: 16px !important; }
-
-  /* Scrollable card bodies */
-  .snap-card-body { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-
-  /* Grid overlay not needed on mobile */
-  .snap-grid-overlay { display: none !important; }
+/* ── Touch & scrollability ─────────────────────────── */
+.snap-card-body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
-/* ─────────────────────────────────────────────────
-   TABLET  (768–1023 px)  — narrow desktop canvas
-   ───────────────────────────────────────────────── */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .snap-card-body { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-  #card-zine { width: min(660px, calc(100vw - 2rem)); }
+/* Bigger touch targets on small screens */
+@media (max-width: 600px) {
+  .snap-action-btn  { min-height: 2.75rem; }
+  .snap-card-handle { min-height: 2.5rem;  }
+}
+
+/* Prevent iOS zoom on input focus */
+input, select, textarea { touch-action: manipulation; }
+@media (max-width: 600px) {
+  input, select, textarea { font-size: 16px; }
 }
