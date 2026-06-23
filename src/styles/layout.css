@@ -1,14 +1,338 @@
 @reference "./theme.css";
 
-.app-shell {
-  position: relative;
-  --mobile-safe-top: env(safe-area-inset-top, 0px);
-  --mobile-safe-bottom: env(safe-area-inset-bottom, 0px);
-  --mobile-action-dock-reserve: 0px;
+/* ── Legacy compat (unused in bento layout, kept for safety) ── */
+.app-shell { position: relative; }
+.app-layout { min-height: 0; }
+
+/* ── Full-bleed workspace ─────────────────────────── */
+.zine-workspace-full {
+  position: fixed;
+  inset: 0;
+  overflow: auto;
+  padding: 3.5rem 290px 6.5rem 1.25rem; /* top: clear logo/status, right: clear float panel */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.app-layout { min-height: 0; }
-.control-rail { min-height: 0; }
+@media (max-width: 640px) {
+  .zine-workspace-full {
+    padding: 4rem 1rem 7rem;
+  }
+}
+
+.zine-drop-zone {
+  width: 100%;
+  max-width: 72rem;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* ── Float logo pill ──────────────────────────────── */
+.float-logo {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: var(--surface-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem 0.3rem 0.3rem;
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
+}
+
+.float-logo .app-brand-mark {
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.float-logo .app-brand-mark .material-symbols-outlined {
+  font-size: 1.05rem;
+}
+
+.float-logo .app-title {
+  font-size: 0.88rem;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+/* ── Float status bar (top center) ───────────────── */
+.float-status-bar {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.float-status-text {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--muted-ink);
+  letter-spacing: 0.02em;
+}
+
+.float-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-bg);
+  color: var(--muted-ink);
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.float-clear-btn:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+/* ── Floating settings panel ─────────────────────── */
+.float-panel {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 110;
+  width: 256px;
+  background: var(--surface-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+  max-height: calc(100dvh - 2rem);
+}
+
+[data-theme="dark"] .float-panel {
+  background: var(--surface-bg);
+}
+
+.float-panel-handle {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.45rem 0.45rem 0.35rem;
+  cursor: grab;
+  user-select: none;
+  border-bottom: 1px solid var(--border-faint);
+  flex-shrink: 0;
+  background: var(--surface-muted);
+}
+
+.float-panel-handle:active {
+  cursor: grabbing;
+}
+
+.float-panel-grip {
+  font-size: 15px;
+  color: var(--muted-ink);
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.float-panel-handle-title {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+  flex: 1;
+}
+
+.float-panel-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100dvh - 8rem);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.float-panel.is-collapsed .float-panel-body {
+  display: none;
+}
+
+.float-panel-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ── Theme toggle button ─────────────────────────── */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-color);
+  background: var(--surface-bg);
+  color: var(--muted-ink);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--surface-muted);
+  color: var(--accent-dark);
+}
+
+/* ── Action dock ─────────────────────────────────── */
+.workspace-actions,
+.workspace-action-tray,
+.global-action-dock {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  box-sizing: border-box;
+  padding: 0.75rem;
+  background: var(--surface-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-lg);
+  transition: background-color 0.25s ease;
+  position: fixed;
+  left: 50%;
+  bottom: 1.25rem;
+  transform: translateX(-50%);
+  width: min(calc(100vw - 2rem), 36rem);
+  z-index: 90;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.workspace-action-button {
+  min-height: 2.75rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  border-radius: var(--radius-button);
+  background: var(--primary-vibrant);
+  color: #fff;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.workspace-action-button:not(:disabled):hover { filter: brightness(0.96); }
+.workspace-action-button:not(:disabled):active { transform: translateY(1px); }
+.workspace-action-button .material-symbols-outlined { font-size: 1.2rem; }
+
+.workspace-action-button-secondary {
+  background: var(--surface-bg);
+  color: var(--accent-dark);
+  border: 1px solid var(--border-color) !important;
+}
+
+.workspace-action-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Workspace chip (used by JS for helper text) ─── */
+.workspace-chip { @apply base-chip; }
+
+.workspace-chip-muted {
+  background: transparent;
+  color: var(--muted-ink);
+  border-color: transparent;
+}
+
+/* ── Mobile rail compat (hidden on desktop) ──────── */
+.mobile-rail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  z-index: 70;
+}
+
+/* ── Misc ────────────────────────────────────────── */
+.rail-section-title,
+.app-overview-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.rail-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* ── Print / export overrides ────────────────────── */
+@media print {
+  .float-logo,
+  .float-status-bar,
+  .float-panel,
+  .global-action-dock { display: none !important; }
+}
+
+/* ── Workspace stage (drop zone visual state) ─────── */
+.workspace-stage { border-radius: 0.75rem; transition: background-color 0.2s ease, box-shadow 0.2s ease; }
+.workspace-stage.drag-active,
+.zine-drop-zone.drag-active {
+  background: var(--primary-glow);
+  box-shadow: inset 0 0 0 2px var(--primary-vibrant);
+}
+
+/* ── Mobile (small screens) ──────────────────────── */
+@media (max-width: 640px) {
+  .float-logo .app-title { display: none; }
+  .float-panel { width: calc(100vw - 2rem); right: 1rem; }
+  .float-status-bar { top: auto; bottom: 5.5rem; left: 50%; transform: translateX(-50%); }
+  .global-action-dock { bottom: 0.75rem; }
+}
+
+/* Touch-friendly improvements */
+@media (max-width: 1023px) {
+  .workspace-config-toggle,
+  .orientation-seg-btn {
+    min-height: 44px;
+  }
+  .float-panel-body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  select,
+  textarea { font-size: 16px; }
+}
+
+/* ── Dark mode ───────────────────────────────────── */
+[data-theme="dark"] .float-logo { border-color: rgba(255,255,255,0.1); }
+[data-theme="dark"] .float-panel { border-color: rgba(255,255,255,0.1); }
+[data-theme="dark"] .float-clear-btn:hover { background: rgba(220,38,38,0.15); border-color: rgba(220,38,38,0.4); }
+[data-theme="dark"] .float-panel-handle { background: rgba(255,255,255,0.04); }
 
 /* ── App header / wordmark ─────────────────────────── */
 .app-header {

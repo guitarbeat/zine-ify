@@ -37,128 +37,112 @@
     </style>
 </head>
 
-<body class="min-h-screen mobile-zine-app">
+<body class="mobile-zine-app">
 
-    <div class="app-shell max-w-[1800px] mx-auto px-4 py-4 sm:px-6 sm:py-5">
-
-        <header class="app-header flex items-center justify-between gap-4">
-            <div class="app-brand flex items-center gap-3">
-                <span class="app-brand-mark" aria-hidden="true">
-                    <span class="material-symbols-outlined">menu_book</span>
-                </span>
-                <div class="app-brand-copy">
-                    <h1 class="app-title">Zine-ify</h1>
-                    <p class="app-tagline">Fold one sheet into an 8-page zine</p>
-                </div>
-            </div>
-            <div class="app-header-actions flex items-center gap-2">
-                <button id="pwa-install-trigger" type="button" class="theme-toggle-btn" aria-label="Install app" title="Install app" hidden>
-                    <span class="material-symbols-outlined" style="font-size:18px;" aria-hidden="true">install_mobile</span>
-                </button>
-                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
-                    <span class="material-symbols-outlined" style="font-size:18px;" id="theme-icon">dark_mode</span>
-                </button>
-            </div>
-        </header>
-
-        <main class="app-layout grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4 sm:gap-5 items-start">
-            <!-- Left Column: Sheet Settings -->
-            <div id="mobile-rail-overlay" class="mobile-rail-overlay hidden lg:hidden" aria-hidden="true"></div>
-            <aside id="control-rail" class="control-rail space-y-3 lg:sticky lg:top-4 relative z-20 flex flex-col h-full lg:max-h-[calc(100vh-2rem)]" aria-label="Sheet settings">
-
-                <div class="control-scroll overflow-y-visible lg:overflow-y-auto space-y-3 lg:pr-1 flex-1 pb-6 lg:pb-10">
-                    <section id="settings-group" class="base-panel rail-section rail-settings-panel space-y-3">
-                        <div class="rail-section-header">
-                            <h2 class="rail-section-title">Sheet settings</h2>
-                            <button id="close-rail-sheet-btn" type="button" class="rail-sheet-close lg:hidden" aria-label="Close panel">
-                                <span class="material-symbols-outlined text-[16px]" aria-hidden="true">close</span>
-                            </button>
-                        </div>
-
-                        <div id="smart-sheet-config-container">
-                            <!-- SmartSheetConfig renders here -->
-                        </div>
-
-                        <!-- Hidden inputs for compatibility with existing code -->
-                        <input type="hidden" id="paper-size-select" value="letter">
-                        <input type="hidden" id="orientation-toggle" value="landscape">
-
-                        <details class="display-disclosure">
-                            <summary class="smart-sheet-disclosure display-disclosure-summary">
-                                <span class="material-symbols-outlined smart-sheet-disclosure-icon">expand_more</span>
-                                <span>Display options</span>
-                            </summary>
-                            <div class="display-disclosure-body">
-                                <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
-                                    <span class="workspace-config-toggle-copy">Page Numbers</span>
-                                    <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
-                                    <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                        <span class="workspace-config-toggle-knob"></span>
-                                    </span>
-                                </label>
-                                <p class="workspace-config-hint workspace-config-field-wide">Preview only — won’t print.</p>
-                                <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
-                                    <span class="workspace-config-toggle-copy">Page Controls</span>
-                                    <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
-                                    <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                        <span class="workspace-config-toggle-knob"></span>
-                                    </span>
-                                </label>
-                            </div>
-                        </details>
-                    </section>
-
-                    <section class="base-panel rail-section space-y-2.5">
-                        <h3 class="rail-section-title">Add pages</h3>
-                        <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer" role="button" tabindex="0" aria-label="Add pages — click to browse, or drop PDF and image files here">
-                            <span class="material-symbols-outlined" style="font-size:26px; color: var(--primary-vibrant);" aria-hidden="true">upload_file</span>
-                            <span class="text-sm font-semibold">Drop files or click to browse</span>
-                            <span class="text-xs text-zinc-500">PDF, PNG, JPG, or WEBP</span>
-                        </div>
-                        <input type="file" id="pdf-upload" class="sr-only" accept="application/pdf,image/png,image/jpeg,image/webp" multiple aria-hidden="true" tabindex="-1" />
-                        <p id="upload-status" class="upload-status text-xs text-zinc-500" aria-live="polite"></p>
-                    </section>
-
-                    <section id="uploaded-files-list" class="hidden">
-                        <!-- Populated by JS -->
-                    </section>
-                </div>
-
-            </aside>
-
-            <!-- Right Column: Preview Area -->
-            <section id="preview-area"
-                class="workspace-panel is-empty flex flex-col gap-3">
-                <div class="workspace-header">
-                    <span id="preview-helper-chip" class="workspace-chip workspace-chip-muted">Drop files to add pages</span>
-                    <div class="flex items-center gap-2">
-                        <button id="clear-all-btn" type="button" class="workspace-chip workspace-chip-muted items-center gap-1 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors" style="display:none;" aria-label="Clear all pages" title="Clear all pages">
-                            <span class="material-symbols-outlined" style="font-size:14px;" aria-hidden="true">delete_sweep</span>
-                            <span class="text-xs font-medium">Clear all</span>
-                        </button>
-                        <button id="open-rail-sheet-btn" type="button" class="workspace-mobile-rail-trigger lg:hidden" aria-controls="control-rail" aria-expanded="false">
-                            <span class="material-symbols-outlined text-[16px]" aria-hidden="true">tune</span>
-                            <span>Settings</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="workspace-stage" id="unified-drop-zone"
-                    role="region"
-                    aria-label="Page layout grid - drag to reorder or drop files to add">
-                    <div id="zine-sheets-container" class="workspace-sheet-stack w-full space-y-4">
-                        <!-- Sheets will be injected here -->
-                    </div>
-
-                </div>
-
-                <div id="command-deck" class="command-deck-container hidden"></div>
-            </section>
-        </main>
-
+    <!-- ── Floating logo pill ───────────────────────────── -->
+    <div class="float-logo" aria-label="Zine-ify">
+        <span class="app-brand-mark" aria-hidden="true">
+            <span class="material-symbols-outlined">menu_book</span>
+        </span>
+        <h1 class="app-title">Zine-ify</h1>
     </div>
 
-    <!-- Global Action Dock - Fixed Bottom -->
+    <!-- ── Floating status / clear ─────────────────────── -->
+    <div class="float-status-bar">
+        <span id="preview-helper-chip" class="float-status-text">Drop files to add pages</span>
+        <button id="clear-all-btn" type="button" class="float-clear-btn" style="display:none;" aria-label="Clear all pages" title="Clear all pages">
+            <span class="material-symbols-outlined" style="font-size:14px;" aria-hidden="true">delete_sweep</span>
+            <span>Clear all</span>
+        </button>
+    </div>
+
+    <!-- ── Full-bleed canvas ────────────────────────────── -->
+    <div id="preview-area" class="zine-workspace-full is-empty">
+        <div id="unified-drop-zone" class="zine-drop-zone"
+            role="region"
+            aria-label="Page layout grid - drag to reorder or drop files to add">
+            <div id="zine-sheets-container" class="workspace-sheet-stack w-full space-y-4">
+                <!-- Sheets injected here -->
+            </div>
+            <div id="command-deck" class="command-deck-container hidden"></div>
+        </div>
+    </div>
+
+    <!-- ── Floating settings panel (draggable) ─────────── -->
+    <div id="control-rail" class="float-panel" aria-label="Sheet settings">
+        <div class="float-panel-handle" id="float-panel-handle" title="Drag to move">
+            <span class="material-symbols-outlined float-panel-grip" aria-hidden="true">drag_indicator</span>
+            <span class="float-panel-handle-title">Settings</span>
+            <div class="flex items-center gap-1 ml-auto">
+                <button id="pwa-install-trigger" type="button" class="theme-toggle-btn" aria-label="Install app" title="Install app" hidden>
+                    <span class="material-symbols-outlined" style="font-size:16px;" aria-hidden="true">install_mobile</span>
+                </button>
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <span class="material-symbols-outlined" style="font-size:16px;" id="theme-icon">dark_mode</span>
+                </button>
+                <button id="float-panel-collapse" type="button" class="theme-toggle-btn" aria-label="Collapse panel" title="Collapse">
+                    <span class="material-symbols-outlined" style="font-size:16px;" id="float-panel-collapse-icon">expand_less</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="float-panel-body" id="float-panel-body">
+            <section id="settings-group" class="float-panel-section">
+                <div id="smart-sheet-config-container">
+                    <!-- SmartSheetConfig renders here -->
+                </div>
+                <input type="hidden" id="paper-size-select" value="letter">
+                <input type="hidden" id="orientation-toggle" value="landscape">
+
+                <details class="display-disclosure">
+                    <summary class="smart-sheet-disclosure display-disclosure-summary">
+                        <span class="material-symbols-outlined smart-sheet-disclosure-icon">expand_more</span>
+                        <span>Display options</span>
+                    </summary>
+                    <div class="display-disclosure-body">
+                        <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
+                            <span class="workspace-config-toggle-copy">Page Numbers</span>
+                            <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
+                            <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                <span class="workspace-config-toggle-knob"></span>
+                            </span>
+                        </label>
+                        <p class="workspace-config-hint workspace-config-field-wide">Preview only — won't print.</p>
+                        <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
+                            <span class="workspace-config-toggle-copy">Page Controls</span>
+                            <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
+                            <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                <span class="workspace-config-toggle-knob"></span>
+                            </span>
+                        </label>
+                    </div>
+                </details>
+            </section>
+
+            <section class="float-panel-section">
+                <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer" role="button" tabindex="0" aria-label="Add pages — click to browse, or drop PDF and image files here">
+                    <span class="material-symbols-outlined" style="font-size:24px; color: var(--primary-vibrant);" aria-hidden="true">upload_file</span>
+                    <span class="text-sm font-semibold">Drop files or click to browse</span>
+                    <span class="text-xs text-zinc-500">PDF, PNG, JPG, or WEBP</span>
+                </div>
+                <input type="file" id="pdf-upload" class="sr-only" accept="application/pdf,image/png,image/jpeg,image/webp" multiple aria-hidden="true" tabindex="-1" />
+                <p id="upload-status" class="upload-status text-xs text-zinc-500" aria-live="polite"></p>
+            </section>
+
+            <section id="uploaded-files-list" class="hidden">
+                <!-- Populated by JS -->
+            </section>
+        </div>
+
+        <!-- Hidden mobile compat buttons -->
+        <button id="close-rail-sheet-btn" type="button" class="sr-only" tabindex="-1" aria-hidden="true"></button>
+    </div>
+
+    <!-- Hidden mobile compat elements -->
+    <div id="mobile-rail-overlay" class="mobile-rail-overlay hidden lg:hidden" aria-hidden="true"></div>
+    <button id="open-rail-sheet-btn" type="button" class="sr-only" tabindex="-1" aria-hidden="true"></button>
+
+    <!-- ── Global Action Dock ───────────────────────────── -->
     <div id="global-action-dock" class="global-action-dock" role="toolbar" aria-label="Main actions">
         <button id="exportPdfBtn" type="button" class="workspace-action-button action-button flex items-center justify-center gap-2" disabled aria-label="Export PDF" title="Export your zine as a printable PDF">
             <span class="material-symbols-outlined" aria-hidden="true">print</span>
@@ -170,7 +154,7 @@
         </button>
     </div>
 
-    <!-- Progress Overlay -->
+    <!-- ── Progress Overlay ─────────────────────────────── -->
     <div id="progress-container"
         class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 hidden bg-black/30 backdrop-blur-sm"
         role="dialog" aria-modal="true" aria-label="Processing">
@@ -185,10 +169,10 @@
         </div>
     </div>
 
-    <!-- Toast Container -->
+    <!-- ── Toast Container ──────────────────────────────── -->
     <div id="toast-container" class="toast-container fixed bottom-6 right-6 z-[300] space-y-3" aria-live="polite" aria-atomic="true" role="region" aria-label="Notifications"></div>
 
-    <!-- 3D Modal Container -->
+    <!-- ── 3D Modal ─────────────────────────────────────── -->
     <div id="zine-3d-modal" class="fixed inset-0 z-[200] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 simulation-modal"
         style="display: none;">
         <div class="simulation-modal-shell">
@@ -356,9 +340,9 @@
                             <li>
                                 <div class="fold-guide-step-header">
                                     <span class="fold-guide-num" aria-hidden="true">8</span>
-                                    <span class="fold-guide-text">Press flat. That's your finished zine — 8 pages, no stapling or gluing needed!</span>
+                                    <span class="fold-guide-text">Fold flat and crease. You now have an 8-page booklet.</span>
                                 </div>
-                                <img src="/fold-guide/step-7-done.png" alt="The finished folded 8-page zine booklet" class="fold-guide-img" loading="lazy" />
+                                <img src="/fold-guide/step-7-booklet.png" alt="The finished 8-page booklet" class="fold-guide-img" loading="lazy" />
                             </li>
                         </ol>
                     </section>
@@ -367,85 +351,15 @@
         </div>
     </div>
 
-    <!-- Page Picker Modal -->
-    <div id="page-picker-modal" class="fixed inset-0 z-[220] hidden items-center justify-center p-4 sm:p-6">
-        <div id="page-picker-backdrop" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-        <div class="page-picker-panel relative w-full max-w-6xl max-h-[92dvh] base-panel flex flex-col overflow-hidden p-0">
-            <div class="flex items-center justify-between gap-4 px-5 py-4 border-b border-zinc-100">
-                <div>
-                    <h3 class="text-base font-semibold">Select Pages</h3>
-                    <p id="page-picker-subtitle" class="text-xs text-zinc-500 mt-0.5">
-                        Choose the pages you want to import
-                    </p>
-                </div>
-                <button id="page-picker-close" type="button"
-                    class="action-button w-9 h-9 flex items-center justify-center bg-white text-zinc-700" aria-label="Close page picker" title="Close">
-                    <span class="material-symbols-outlined text-[18px]" aria-hidden="true">close</span>
-                </button>
-            </div>
-
-            <div class="page-picker-toolbar px-5 py-3 border-b border-zinc-100 flex flex-col gap-2.5">
-                <div class="page-picker-presets flex flex-wrap items-center gap-1.5">
-                    <button id="page-picker-select-first" type="button" class="page-picker-chip">First 8</button>
-                    <button id="page-picker-select-last" type="button" class="page-picker-chip">Last 8</button>
-                    <button id="page-picker-select-even" type="button" class="page-picker-chip">Even</button>
-                    <button id="page-picker-select-odd" type="button" class="page-picker-chip">Odd</button>
-                    <button id="page-picker-clear" type="button" class="page-picker-chip">Clear</button>
-                </div>
-                <div class="page-picker-status flex flex-wrap items-center justify-between gap-2">
-                    <p id="page-picker-count" class="text-xs font-semibold text-zinc-500 uppercase tracking-wide">
-                        0 selected
-                    </p>
-                </div>
-            </div>
-
-            <div id="page-picker-grid" class="page-picker-grid flex-1 overflow-y-auto p-4 sm:p-5" style="background:var(--bg-neutral)">
-            </div>
-
-            <div class="page-picker-footer flex items-center justify-end gap-2.5 px-5 py-3 border-t border-zinc-100">
-                <div class="page-picker-footer-actions flex items-center gap-2.5">
-                    <button id="page-picker-cancel" type="button"
-                        class="action-button py-2 px-4 bg-white text-zinc-700 font-medium">
-                        Cancel
-                    </button>
-                    <button id="page-picker-confirm" type="button"
-                        class="action-button py-2 px-4 text-white font-semibold"
-                        style="background-color: var(--primary-vibrant); border-color: rgba(0,0,0,0.1) !important;">
-                        Import Selected
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <pwa-install
-      manifest-url="/manifest.webmanifest"
-      install-description="Install Zine-ify on your device for quick access, a full-screen workspace, and offline use after your first visit."
-      use-local-storage
-      styles='{"--tint-color": "#c45d3e"}'
-    ></pwa-install>
+    <!-- ── PWA Install Banner ────────────────────────────── -->
+    <zineify-install-banner
+        install-title="Install Zine-ify"
+        install-description="Install Zine-ify on your device for quick access, a full-screen workspace, and offline use after your first visit."
+        install-label="Install"
+        dismiss-label="Not now"
+        aria-label="Install Zine-ify app"
+    ></zineify-install-banner>
 
     <script type="module" src="/src/core/main.js"></script>
-    <script>
-      (function() {
-        var btn = document.getElementById('theme-toggle');
-        var icon = document.getElementById('theme-icon');
-        if (!btn || !icon) return;
-        function sync() {
-          var dark = document.documentElement.getAttribute('data-theme') === 'dark';
-          icon.textContent = dark ? 'light_mode' : 'dark_mode';
-          btn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
-        }
-        sync();
-        btn.addEventListener('click', function() {
-          var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-          document.documentElement.setAttribute('data-theme', next);
-          localStorage.setItem('zine-theme', next);
-          sync();
-        });
-      })();
-    </script>
 </body>
-
 </html>
