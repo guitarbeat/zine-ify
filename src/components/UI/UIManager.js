@@ -84,8 +84,6 @@ export class UIManager {
 
     let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
 
-    let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
-
     this.smartSheetConfig = new SmartSheetConfig(container, {
       initialRows: DEFAULT_GRID_ROWS,
       initialCols: DEFAULT_GRID_COLS,
