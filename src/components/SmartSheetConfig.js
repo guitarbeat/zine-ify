@@ -4,7 +4,7 @@ import {
   MARGIN_MAX,
   UNITS,
   toMm,
-  fromMm,
+
   formatDimension,
   resolvePaperSize
 } from '../utils/config.js';
