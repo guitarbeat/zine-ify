@@ -180,8 +180,6 @@ export class LayoutRenderer {
     cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
     cell.setAttribute('data-page-index', pageIndex);
     cell.setAttribute('data-page', pageNumber);
-    cell.setAttribute('draggable', 'true');
-
     if (upsideDown) {
       cell.classList.add('is-template-upside-down');
     }
@@ -196,11 +194,6 @@ export class LayoutRenderer {
     const img = cell.querySelector('.page-content-img');
     img.alt = altText;
 
-    cell.addEventListener('dragstart', (e) => handlers.onDragStart(e, cell));
-    cell.addEventListener('dragover', (e) => handlers.onDragOver(e, cell));
-    cell.addEventListener('dragleave', (e) => handlers.onDragLeave(cell, e));
-    cell.addEventListener('drop', (e) => handlers.onDrop(e, cell));
-    cell.addEventListener('dragend', () => handlers.onDragEnd(cell));
     cell.addEventListener('click', (e) => handlers.onClick(e, pageIndex));
 
     const toolbar = cell.querySelector('.page-toolbar');

@@ -29,6 +29,7 @@
     "pdfjs-dist": "^5.7.284",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "sortablejs": "^1.15.7",
     "tailwind-merge": "^3.6.0",
     "three": "^0.184.0"
   },
@@ -42,10 +43,10 @@
     "autoprefixer": "^10.5.0",
     "eslint": "10.3.0",
     "globals": "^17.6.0",
+    "jsdom": "^29.1.1",
     "postcss": "^8.5.13",
     "tailwindcss": "^4.2.4",
-    "vite": "8.0.10",
-    "jsdom": "^29.1.1"
+    "vite": "8.0.10"
   },
   "engines": {
     "node": ">=18.0.0"

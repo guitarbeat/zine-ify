@@ -588,11 +588,6 @@ export class UIManager {
       : (templateType || ZINE_TEMPLATES['mini-8']);
 
     const handlers = {
-      onDragStart: (event, cell) => this.dnd.handleDragStart(event, cell),
-      onDragOver: (event, cell) => this.dnd.handleDragOver(event, cell),
-      onDragLeave: (cell, e) => this.dnd.handleDragLeave(cell, e),
-      onDrop: (event, cell) => this.dnd.handleDrop(event, cell),
-      onDragEnd: (cell) => this.dnd.handleDragEnd(cell),
       onClick: (_, index) => {
         const cell = this._getPageCell(index);
         const hasPage = cell?.classList.contains('has-page');
@@ -614,6 +609,8 @@ export class UIManager {
     );
     dimensions.margin = paperSettings.margin || 0;
 
+    this.dnd.destroySortables();
+
     this.renderer.render(
       numPages,
       template,
@@ -621,5 +618,10 @@ export class UIManager {
       handlers,
       dimensions
     );
+
+    // Attach Sortable to every rendered grid
+    document.querySelectorAll('.zine-grid').forEach(grid => {
+      this.dnd.initSortable(grid);
+    });
   }
 }

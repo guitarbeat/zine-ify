@@ -146,19 +146,28 @@
   border-color: rgba(255,255,255,0.12);
 }
 
-.page-cell.dragging {
-  opacity: 0.45;
+/* ── SortableJS drag states ───────────────────────── */
+/* Ghost: the placeholder left behind while dragging */
+.page-cell.sortable-ghost {
+  opacity: 0.3;
+  background: var(--primary-glow) !important;
+  border-color: var(--primary-vibrant) !important;
+  border-style: dashed !important;
+}
+
+/* Chosen: the cell being picked up */
+.page-cell.sortable-chosen {
   cursor: grabbing;
-  transform: scale(0.96);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
   z-index: 50;
 }
 
-.page-cell.drag-over {
-  border-color: var(--primary-vibrant) !important;
-  border-style: solid !important;
-  background: var(--primary-glow) !important;
-  box-shadow: inset 0 0 0 1.5px var(--primary-vibrant);
-  z-index: 40;
+/* Drag: the floating clone */
+.page-cell.sortable-drag {
+  opacity: 0.9;
+  transform: scale(1.03);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+  z-index: 200;
 }
 
 .page-cell.active {
