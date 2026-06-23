@@ -37,140 +37,147 @@
 
 <body class="mobile-zine-app">
 
-    <!-- ── Grid snap overlay (shown while dragging) ─── -->
+    <!-- ── Grid overlay (fixed, shown while dragging) ── -->
     <div id="snap-grid-overlay" class="snap-grid-overlay" aria-hidden="true"></div>
 
-    <!-- ── Full-bleed zine canvas ──────────────────── -->
-    <div id="preview-area" class="zine-workspace-full is-empty">
-        <div id="unified-drop-zone" class="zine-drop-zone"
-            role="region"
-            aria-label="Page layout grid — drag to reorder or drop files to add">
-            <div id="zine-sheets-container" class="workspace-sheet-stack w-full space-y-4">
-                <!-- Sheets injected here -->
-            </div>
-            <div id="command-deck" class="command-deck-container hidden"></div>
-        </div>
-    </div>
+    <!-- ── Infinite canvas surface ─────────────────────── -->
+    <div id="canvas-surface" class="canvas-surface">
 
-    <!-- ── CARD: Logo ───────────────────────────────── -->
-    <div class="snap-card snap-card--pill" id="card-logo">
-        <div class="snap-card-handle">
-            <span class="app-brand-mark" aria-hidden="true">
-                <span class="material-symbols-outlined">menu_book</span>
-            </span>
-            <h1 class="app-title">Zine-ify</h1>
-            <div class="flex items-center gap-1 ml-auto">
-                <button id="pwa-install-trigger" type="button" class="snap-icon-btn" aria-label="Install app" title="Install app" hidden>
-                    <span class="material-symbols-outlined" style="font-size:15px;" aria-hidden="true">install_mobile</span>
-                </button>
-                <button id="theme-toggle" class="snap-icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
-                    <span class="material-symbols-outlined" style="font-size:15px;" id="theme-icon">dark_mode</span>
-                </button>
+        <!-- CARD: Logo + controls -->
+        <div class="snap-card snap-card--pill" id="card-logo">
+            <div class="snap-card-handle">
+                <span class="app-brand-mark" aria-hidden="true">
+                    <span class="material-symbols-outlined">menu_book</span>
+                </span>
+                <h1 class="app-title">Zine-ify</h1>
+                <div class="flex items-center gap-1 ml-auto">
+                    <button id="pwa-install-trigger" type="button" class="snap-icon-btn" aria-label="Install app" title="Install app" hidden>
+                        <span class="material-symbols-outlined" style="font-size:15px;" aria-hidden="true">install_mobile</span>
+                    </button>
+                    <button id="theme-toggle" class="snap-icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+                        <span class="material-symbols-outlined" style="font-size:15px;" id="theme-icon">dark_mode</span>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- ── CARD: Status ─────────────────────────────── -->
-    <div class="snap-card snap-card--ghost" id="card-status">
-        <div class="snap-card-handle">
-            <span id="preview-helper-chip" class="snap-status-text">Drop files to add pages</span>
-            <button id="clear-all-btn" type="button" class="snap-clear-btn" style="display:none;" aria-label="Clear all pages" title="Clear all pages">
-                <span class="material-symbols-outlined" style="font-size:13px;" aria-hidden="true">delete_sweep</span>
-                <span>Clear all</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- ── CARD: Settings ───────────────────────────── -->
-    <div class="snap-card" id="card-settings">
-        <div class="snap-card-handle">
-            <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
-            <span class="snap-card-label">Paper</span>
-        </div>
-        <div class="snap-card-body">
-            <section id="settings-group">
-                <div id="smart-sheet-config-container"></div>
-                <input type="hidden" id="paper-size-select" value="letter">
-                <input type="hidden" id="orientation-toggle" value="landscape">
-                <details class="display-disclosure">
-                    <summary class="smart-sheet-disclosure display-disclosure-summary">
-                        <span class="material-symbols-outlined smart-sheet-disclosure-icon">expand_more</span>
-                        <span>Display options</span>
-                    </summary>
-                    <div class="display-disclosure-body">
-                        <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
-                            <span class="workspace-config-toggle-copy">Page Numbers</span>
-                            <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
-                            <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                <span class="workspace-config-toggle-knob"></span>
-                            </span>
-                        </label>
-                        <p class="workspace-config-hint workspace-config-field-wide">Preview only — won't print.</p>
-                        <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
-                            <span class="workspace-config-toggle-copy">Page Controls</span>
-                            <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
-                            <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                <span class="workspace-config-toggle-knob"></span>
-                            </span>
-                        </label>
+        <!-- CARD: Zine sheet (the main canvas) -->
+        <div class="snap-card snap-card--zine" id="card-zine">
+            <div class="snap-card-handle">
+                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                <span class="snap-card-label">Zine layout</span>
+                <span id="preview-helper-chip" class="snap-status-text ml-auto">Drop files to add pages</span>
+                <button id="clear-all-btn" type="button" class="snap-clear-btn ml-2" style="display:none;" aria-label="Clear all pages" title="Clear all pages">
+                    <span class="material-symbols-outlined" style="font-size:13px;" aria-hidden="true">delete_sweep</span>
+                    <span>Clear</span>
+                </button>
+            </div>
+            <div class="zine-card-body">
+                <div id="preview-area" class="is-empty">
+                    <div id="unified-drop-zone"
+                        role="region"
+                        aria-label="Page layout grid — drag to reorder or drop files to add">
+                        <div id="zine-sheets-container" class="workspace-sheet-stack w-full space-y-4">
+                            <!-- Sheets injected here -->
+                        </div>
+                        <div id="command-deck" class="command-deck-container hidden"></div>
                     </div>
-                </details>
-            </section>
-        </div>
-    </div>
-
-    <!-- ── CARD: Upload ─────────────────────────────── -->
-    <div class="snap-card" id="card-upload">
-        <div class="snap-card-handle">
-            <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
-            <span class="snap-card-label">Add pages</span>
-        </div>
-        <div class="snap-card-body">
-            <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer" role="button" tabindex="0" aria-label="Add pages — click to browse, or drop PDF and image files here">
-                <span class="material-symbols-outlined" style="font-size:22px; color: var(--primary-vibrant);" aria-hidden="true">upload_file</span>
-                <span class="text-sm font-semibold">Drop files or click to browse</span>
-                <span class="text-xs text-zinc-500">PDF, PNG, JPG, or WEBP</span>
+                </div>
             </div>
-            <input type="file" id="pdf-upload" class="sr-only" accept="application/pdf,image/png,image/jpeg,image/webp" multiple aria-hidden="true" tabindex="-1" />
-            <p id="upload-status" class="upload-status text-xs text-zinc-500" aria-live="polite"></p>
-            <section id="uploaded-files-list" class="hidden"></section>
         </div>
-    </div>
 
-    <!-- ── CARD: Export PDF ─────────────────────────── -->
-    <div class="snap-card snap-card--action" id="card-export">
-        <div class="snap-card-handle" aria-hidden="true">
-            <span class="material-symbols-outlined snap-card-grip">drag_indicator</span>
+        <!-- CARD: Paper settings -->
+        <div class="snap-card" id="card-settings">
+            <div class="snap-card-handle">
+                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                <span class="snap-card-label">Paper</span>
+            </div>
+            <div class="snap-card-body">
+                <section id="settings-group">
+                    <div id="smart-sheet-config-container"></div>
+                    <input type="hidden" id="paper-size-select" value="letter">
+                    <input type="hidden" id="orientation-toggle" value="landscape">
+                    <details class="display-disclosure">
+                        <summary class="smart-sheet-disclosure display-disclosure-summary">
+                            <span class="material-symbols-outlined smart-sheet-disclosure-icon">expand_more</span>
+                            <span>Display options</span>
+                        </summary>
+                        <div class="display-disclosure-body">
+                            <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
+                                <span class="workspace-config-toggle-copy">Page Numbers</span>
+                                <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
+                                <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                    <span class="workspace-config-toggle-knob"></span>
+                                </span>
+                            </label>
+                            <p class="workspace-config-hint workspace-config-field-wide">Preview only — won't print.</p>
+                            <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
+                                <span class="workspace-config-toggle-copy">Page Controls</span>
+                                <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
+                                <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                    <span class="workspace-config-toggle-knob"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </details>
+                </section>
+            </div>
         </div>
-        <div class="snap-card-body snap-card-body--action">
-            <button id="exportPdfBtn" type="button" class="workspace-action-button action-button snap-action-btn flex items-center justify-center gap-2" disabled aria-label="Export PDF" title="Export your zine as a printable PDF">
-                <span class="material-symbols-outlined" aria-hidden="true">print</span>
-                <span class="font-semibold">Export PDF</span>
-            </button>
-        </div>
-    </div>
 
-    <!-- ── CARD: Preview Fold ───────────────────────── -->
-    <div class="snap-card snap-card--action" id="card-preview-fold">
-        <div class="snap-card-handle" aria-hidden="true">
-            <span class="material-symbols-outlined snap-card-grip">drag_indicator</span>
+        <!-- CARD: Upload -->
+        <div class="snap-card" id="card-upload">
+            <div class="snap-card-handle">
+                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                <span class="snap-card-label">Add pages</span>
+            </div>
+            <div class="snap-card-body">
+                <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer" role="button" tabindex="0" aria-label="Add pages — click to browse, or drop PDF and image files here">
+                    <span class="material-symbols-outlined" style="font-size:22px; color: var(--primary-vibrant);" aria-hidden="true">upload_file</span>
+                    <span class="text-sm font-semibold">Drop files or click to browse</span>
+                    <span class="text-xs text-zinc-500">PDF, PNG, JPG, or WEBP</span>
+                </div>
+                <input type="file" id="pdf-upload" class="sr-only" accept="application/pdf,image/png,image/jpeg,image/webp" multiple aria-hidden="true" tabindex="-1" />
+                <p id="upload-status" class="upload-status text-xs text-zinc-500" aria-live="polite"></p>
+                <section id="uploaded-files-list" class="hidden"></section>
+            </div>
         </div>
-        <div class="snap-card-body snap-card-body--action">
-            <button id="view3dBtn" type="button" class="workspace-action-button workspace-action-button-secondary action-button snap-action-btn flex items-center justify-center gap-2" disabled aria-label="Preview fold" title="Preview how your zine folds together">
-                <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
-                <span class="font-semibold">Preview Fold</span>
-            </button>
-        </div>
-    </div>
 
-    <!-- ── JS-compat stubs (hidden) ─────────────────── -->
-    <div id="control-rail" class="sr-only" aria-hidden="true"></div>
+        <!-- CARD: Export PDF -->
+        <div class="snap-card snap-card--action" id="card-export">
+            <div class="snap-card-handle">
+                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+            </div>
+            <div class="snap-card-body snap-card-body--action">
+                <button id="exportPdfBtn" type="button" class="workspace-action-button action-button snap-action-btn flex items-center justify-center gap-2" disabled aria-label="Export PDF" title="Export your zine as a printable PDF">
+                    <span class="material-symbols-outlined" aria-hidden="true">print</span>
+                    <span class="font-semibold">Export PDF</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- CARD: Preview Fold -->
+        <div class="snap-card snap-card--action" id="card-preview-fold">
+            <div class="snap-card-handle">
+                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+            </div>
+            <div class="snap-card-body snap-card-body--action">
+                <button id="view3dBtn" type="button" class="workspace-action-button workspace-action-button-secondary action-button snap-action-btn flex items-center justify-center gap-2" disabled aria-label="Preview fold" title="Preview how your zine folds together">
+                    <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
+                    <span class="font-semibold">Preview Fold</span>
+                </button>
+            </div>
+        </div>
+
+    </div><!-- /canvas-surface -->
+
+    <!-- ── JS-compat stubs ──────────────────────────────── -->
+    <div id="control-rail"       class="sr-only" aria-hidden="true"></div>
     <div id="global-action-dock" class="sr-only" aria-hidden="true"></div>
     <div id="mobile-rail-overlay" class="sr-only" aria-hidden="true"></div>
-    <button id="open-rail-sheet-btn" class="sr-only" tabindex="-1" aria-hidden="true"></button>
+    <button id="open-rail-sheet-btn"  class="sr-only" tabindex="-1" aria-hidden="true"></button>
     <button id="close-rail-sheet-btn" class="sr-only" tabindex="-1" aria-hidden="true"></button>
 
-    <!-- ── Progress Overlay ─────────────────────────── -->
+    <!-- ── Progress Overlay ─────────────────────────────── -->
     <div id="progress-container"
         class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 hidden bg-black/30 backdrop-blur-sm"
         role="dialog" aria-modal="true" aria-label="Processing">
@@ -184,10 +191,10 @@
         </div>
     </div>
 
-    <!-- ── Toast Container ──────────────────────────── -->
+    <!-- ── Toast ────────────────────────────────────────── -->
     <div id="toast-container" class="toast-container fixed bottom-6 right-6 z-[300] space-y-3" aria-live="polite" aria-atomic="true" role="region" aria-label="Notifications"></div>
 
-    <!-- ── 3D Modal ──────────────────────────────────── -->
+    <!-- ── 3D Modal ──────────────────────────────────────── -->
     <div id="zine-3d-modal" class="fixed inset-0 z-[200] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 simulation-modal" style="display: none;">
         <div class="simulation-modal-shell">
             <div class="simulation-modal-header">
@@ -239,12 +246,12 @@
                         </div>
                         <p id="fold-helper" class="simulation-helper">Export the layout, crease the sheet in half both ways and open flat, then fold and make one short cut through the center before collapsing into a booklet.</p>
                         <div class="simulation-step-grid" aria-label="Fold simulation checkpoints">
-                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="0" data-step-index="1">1. Layout</button>
+                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="0"   data-step-index="1">1. Layout</button>
                             <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="0.5" data-step-index="2">2. Crease</button>
-                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="1" data-step-index="3">3. Strip</button>
+                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="1"   data-step-index="3">3. Strip</button>
                             <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="1.5" data-step-index="4">4. Cut</button>
-                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="2" data-step-index="5">5. Diamond</button>
-                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="3" data-step-index="6">6. Booklet</button>
+                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="2"   data-step-index="5">5. Diamond</button>
+                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="3"   data-step-index="6">6. Booklet</button>
                         </div>
                     </section>
                     <section class="simulation-panel simulation-booklet-panel" aria-label="Booklet preview">
@@ -273,38 +280,14 @@
                             </div>
                         </div>
                         <ol class="simulation-fold-guide" aria-label="Folding steps">
-                            <li>
-                                <div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">1</span><span class="fold-guide-text">Design your zine on one sheet, with the pages in this order and orientation.</span></div>
-                                <img src="/fold-guide/step-0-plan.png" alt="Page layout diagram" class="fold-guide-img" loading="lazy" />
-                            </li>
-                            <li>
-                                <div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">2</span><span class="fold-guide-text">Crease the sheet along both main directions — fold in half each way, then open flat.</span></div>
-                                <img src="/fold-guide/step-1-crease.png" alt="Sheet with crease lines" class="fold-guide-img" loading="lazy" />
-                            </li>
-                            <li>
-                                <div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">3</span><span class="fold-guide-text">Make two more creases to divide the long direction into quarters, then open flat again.</span></div>
-                                <img src="/fold-guide/step-2-quarters.png" alt="Quarter crease marks" class="fold-guide-img" loading="lazy" />
-                            </li>
-                            <li>
-                                <div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">4</span><span class="fold-guide-text">Fold in half, then cut along the center crease — through both layers, but only as far as the quarter-fold marks.</span></div>
-                                <img src="/fold-guide/step-3-cut.png" alt="Center cut" class="fold-guide-img" loading="lazy" />
-                            </li>
-                            <li>
-                                <div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">5</span><span class="fold-guide-text">Open it out flat. You'll see a short slit running through the center of the sheet.</span></div>
-                                <img src="/fold-guide/step-4-open.png" alt="Center slit" class="fold-guide-img" loading="lazy" />
-                            </li>
-                            <li>
-                                <div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">6</span><span class="fold-guide-text">Fold in half along the long direction so all your pages are still on the outside.</span></div>
-                                <img src="/fold-guide/step-5-fold-strip.png" alt="Long strip fold" class="fold-guide-img" loading="lazy" />
-                            </li>
-                            <li>
-                                <div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">7</span><span class="fold-guide-text">Push inward from both short ends — the slit opens into a cross shape. Bring the pages together with the front cover outermost.</span></div>
-                                <img src="/fold-guide/step-6-push-in.png" alt="Diamond cross shape" class="fold-guide-img" loading="lazy" />
-                            </li>
-                            <li>
-                                <div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">8</span><span class="fold-guide-text">Fold flat and crease. You now have an 8-page booklet.</span></div>
-                                <img src="/fold-guide/step-7-booklet.png" alt="Finished booklet" class="fold-guide-img" loading="lazy" />
-                            </li>
+                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">1</span><span class="fold-guide-text">Design your zine on one sheet, with the pages in this order and orientation.</span></div><img src="/fold-guide/step-0-plan.png" alt="Page layout diagram" class="fold-guide-img" loading="lazy" /></li>
+                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">2</span><span class="fold-guide-text">Crease the sheet along both main directions — fold in half each way, then open flat.</span></div><img src="/fold-guide/step-1-crease.png" alt="Sheet with crease lines" class="fold-guide-img" loading="lazy" /></li>
+                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">3</span><span class="fold-guide-text">Make two more creases to divide the long direction into quarters, then open flat again.</span></div><img src="/fold-guide/step-2-quarters.png" alt="Quarter crease marks" class="fold-guide-img" loading="lazy" /></li>
+                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">4</span><span class="fold-guide-text">Fold in half, then cut along the center crease — only as far as the quarter-fold marks.</span></div><img src="/fold-guide/step-3-cut.png" alt="Center cut" class="fold-guide-img" loading="lazy" /></li>
+                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">5</span><span class="fold-guide-text">Open it out flat. You'll see a short slit through the center.</span></div><img src="/fold-guide/step-4-open.png" alt="Center slit" class="fold-guide-img" loading="lazy" /></li>
+                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">6</span><span class="fold-guide-text">Fold in half along the long direction so all pages stay on the outside.</span></div><img src="/fold-guide/step-5-fold-strip.png" alt="Long strip fold" class="fold-guide-img" loading="lazy" /></li>
+                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">7</span><span class="fold-guide-text">Push inward from both ends — the slit opens into a cross. Bring pages together with cover outermost.</span></div><img src="/fold-guide/step-6-push-in.png" alt="Diamond cross" class="fold-guide-img" loading="lazy" /></li>
+                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">8</span><span class="fold-guide-text">Fold flat and crease. You now have an 8-page booklet.</span></div><img src="/fold-guide/step-7-booklet.png" alt="Finished booklet" class="fold-guide-img" loading="lazy" /></li>
                         </ol>
                     </section>
                 </aside>
@@ -312,7 +295,7 @@
         </div>
     </div>
 
-    <!-- ── PWA Install Banner ────────────────────────── -->
+    <!-- ── PWA Install Banner ────────────────────────────── -->
     <zineify-install-banner
         install-title="Install Zine-ify"
         install-description="Install Zine-ify on your device for quick access, a full-screen workspace, and offline use after your first visit."

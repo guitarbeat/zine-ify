@@ -1,19 +1,21 @@
 @reference "./theme.css";
 
-/* ── Full-bleed zine canvas ──────────────────────── */
-.zine-workspace-full {
-  position: fixed;
-  inset: 0;
-  overflow: auto;
-  padding: 1rem;
-}
-
-.zine-drop-zone {
+/* ── Canvas surface (the infinite plane) ─────────── */
+html, body {
   width: 100%;
-  min-height: 100%;
+  height: 100%;
+  overflow: auto;
 }
 
-/* ── Snap-grid overlay ──────────────────────────── */
+.canvas-surface {
+  position: relative;
+  width: 3000px;
+  height: 2000px;
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+/* ── Snap-grid overlay (fixed, shows during drag) ── */
 .snap-grid-overlay {
   position: fixed;
   inset: 0;
@@ -35,26 +37,33 @@
 
 .snap-grid-overlay.is-visible { opacity: 1; }
 
-/* ── Snap cards (base) ───────────────────────────── */
+/* ── Snap cards (all absolute on canvas) ─────────── */
 .snap-card {
-  position: fixed;
+  position: absolute;
   z-index: 100;
   background: var(--surface-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-lg);
-  width: 240px;
   overflow: hidden;
   transition: box-shadow 0.15s ease, transform 0.12s ease;
 }
 
+/* Per-card widths (ID selector overrides class) */
+#card-logo         { width: auto; }
+#card-zine         { width: 660px; overflow: visible; }
+#card-settings     { width: 240px; }
+#card-upload       { width: 240px; }
+#card-export       { width: 200px; }
+#card-preview-fold { width: 200px; }
+
 .snap-card.is-dragging {
   box-shadow: 0 20px 50px rgba(0,0,0,0.22), 0 0 0 1.5px var(--primary-vibrant);
-  transform: scale(1.02);
+  transform: scale(1.015);
   z-index: 200;
 }
 
-/* ── Card handle (drag target) ───────────────────── */
+/* ── Card handle ─────────────────────────────────── */
 .snap-card-handle {
   display: flex;
   align-items: center;
@@ -72,7 +81,7 @@
 .snap-card-grip {
   font-size: 14px;
   color: var(--muted-ink);
-  opacity: 0.45;
+  opacity: 0.4;
   flex-shrink: 0;
 }
 
@@ -82,7 +91,6 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted-ink);
-  flex: 1;
 }
 
 /* ── Card body ───────────────────────────────────── */
@@ -116,9 +124,7 @@
   flex-shrink: 0;
 }
 
-.snap-card--pill .app-brand-mark .material-symbols-outlined {
-  font-size: 1rem;
-}
+.snap-card--pill .app-brand-mark .material-symbols-outlined { font-size: 1rem; }
 
 .snap-card--pill .app-title {
   font-size: 0.85rem;
@@ -127,63 +133,18 @@
   white-space: nowrap;
 }
 
-/* ── Ghost card (status — no border/bg) ─────────── */
-.snap-card--ghost {
-  background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-  width: auto;
+/* ── Zine sheet card body ────────────────────────── */
+.zine-card-body {
+  padding: 0.5rem;
 }
 
-.snap-card--ghost.is-dragging {
-  background: var(--surface-bg);
-  border-color: var(--border-color);
-  box-shadow: var(--shadow-lg);
+#card-zine #preview-area,
+#card-zine #unified-drop-zone {
+  width: 100%;
 }
 
-.snap-card--ghost .snap-card-handle {
-  background: transparent;
-  border-bottom: none;
-}
-
-.snap-card--ghost.is-dragging .snap-card-handle {
-  background: var(--surface-muted);
-  border-bottom: 1px solid var(--border-faint);
-}
-
-.snap-status-text {
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: var(--muted-ink);
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-}
-
-.snap-clear-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.55rem;
-  border-radius: 999px;
-  border: 1px solid var(--border-color);
-  background: var(--surface-bg);
-  color: var(--muted-ink);
-  font-size: 0.68rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
-}
-
-.snap-clear-btn:hover {
-  background: #fef2f2;
-  color: #dc2626;
-  border-color: #fca5a5;
-}
-
-/* ── Action cards (Export / Fold) ─────────────────── */
-.snap-card--action {
-  width: 200px;
-}
+/* ── Action cards ────────────────────────────────── */
+.snap-card--action { width: 200px; }
 
 .snap-card--action .snap-card-handle {
   padding: 0.3rem 0.4rem;
@@ -201,7 +162,35 @@
   border-radius: var(--radius-button);
 }
 
-/* ── Icon buttons (theme, install) ──────────────── */
+/* ── Status text + clear button (in zine handle) ─── */
+.snap-status-text {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--muted-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.snap-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-bg);
+  color: var(--muted-ink);
+  font-size: 0.65rem;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.snap-clear-btn:hover { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
+
+/* ── Icon buttons ────────────────────────────────── */
 .snap-icon-btn {
   display: inline-flex;
   align-items: center;
@@ -217,12 +206,9 @@
   flex-shrink: 0;
 }
 
-.snap-icon-btn:hover {
-  background: var(--surface-muted);
-  color: var(--accent-dark);
-}
+.snap-icon-btn:hover { background: var(--surface-muted); color: var(--accent-dark); }
 
-/* ── Workspace action button ─────────────────────── */
+/* ── Workspace action buttons ────────────────────── */
 .workspace-action-button {
   min-height: 2.5rem;
   display: flex;
@@ -236,7 +222,7 @@
   transition: filter 0.15s, transform 0.1s;
 }
 
-.workspace-action-button:not(:disabled):hover { filter: brightness(0.94); }
+.workspace-action-button:not(:disabled):hover  { filter: brightness(0.94); }
 .workspace-action-button:not(:disabled):active { transform: translateY(1px); }
 .workspace-action-button .material-symbols-outlined { font-size: 1.15rem; }
 
@@ -246,67 +232,50 @@
   border: 1px solid var(--border-color) !important;
 }
 
-.workspace-action-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
+.workspace-action-button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Default positions are computed in snapGrid.js */
-
-/* ── Workspace chips (used by UIManager for JS) ──── */
+/* ── Workspace chips (JS compat) ─────────────────── */
 .workspace-chip { @apply base-chip; }
 .workspace-chip-muted { background: transparent; color: var(--muted-ink); border-color: transparent; }
 
-/* ── Mobile rail compat stubs ────────────────────── */
-.mobile-rail-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.35);
-  backdrop-filter: blur(4px);
-  z-index: 70;
-}
-
-/* ── Misc ────────────────────────────────────────── */
-.rail-section-title,
-.app-overview-title {
-  font-size: 0.68rem; font-weight: 700;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--muted-ink);
-}
-
-.rail-section-header {
-  display: flex; align-items: center;
-  justify-content: space-between; gap: 0.75rem;
-}
-
 /* ── Drop zone drag-active state ─────────────────── */
-.workspace-stage.drag-active,
-.zine-drop-zone.drag-active {
+#unified-drop-zone.drag-active {
+  background: var(--primary-glow);
+  box-shadow: inset 0 0 0 2px var(--primary-vibrant);
+  border-radius: 0.5rem;
+}
+
+/* ── Misc legacy compat ──────────────────────────── */
+.workspace-stage.drag-active {
   background: var(--primary-glow);
   box-shadow: inset 0 0 0 2px var(--primary-vibrant);
   border-radius: 0.75rem;
 }
 
+.rail-section-title, .app-overview-title {
+  font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted-ink);
+}
+
+.rail-section-header { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.mobile-rail-overlay { display: none; }
+
 /* ── Dark mode ───────────────────────────────────── */
-[data-theme="dark"] .snap-card { border-color: rgba(255,255,255,0.1); }
-[data-theme="dark"] .snap-card--ghost { border-color: transparent; background: transparent; }
-[data-theme="dark"] .snap-card--ghost.is-dragging { border-color: rgba(255,255,255,0.1); background: var(--surface-bg); }
-[data-theme="dark"] .snap-clear-btn:hover { background: rgba(220,38,38,0.15); border-color: rgba(220,38,38,0.4); }
+[data-theme="dark"] .snap-card              { border-color: rgba(255,255,255,0.1); }
+[data-theme="dark"] .snap-clear-btn:hover   { background: rgba(220,38,38,0.15); border-color: rgba(220,38,38,0.4); }
+[data-theme="dark"] .snap-card--zine        { border-color: rgba(255,255,255,0.1); }
 
 /* ── Print ───────────────────────────────────────── */
 @media print {
-  .snap-card, .snap-grid-overlay { display: none !important; }
+  .snap-card:not(.snap-card--zine) { display: none !important; }
+  .snap-card--zine { position: static !important; width: 100% !important; box-shadow: none !important; border: none !important; transform: none !important; }
+  .snap-card-handle { display: none !important; }
 }
 
 /* ── Touch ───────────────────────────────────────── */
-@media (max-width: 640px) {
-  #card-status { left: 1rem; transform: none; top: 4rem; right: auto; }
-  #card-preview-fold { top: 43rem; right: 1rem; left: auto; }
-  .snap-card { width: calc(100vw - 2rem); }
-  .snap-card--pill, .snap-card--ghost { width: auto; }
-  .snap-card--action { width: calc(50vw - 1.5rem); }
-}
-
 @media (max-width: 1023px) {
   .snap-card-body { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
   input[type="text"], input[type="number"], input[type="email"], select, textarea { font-size: 16px; }
+  .snap-card--zine { width: calc(100vw - 2rem); }
 }
