@@ -7,10 +7,10 @@ function snapY(v) { return Math.round(v / STEP_Y) * STEP_Y; }
 function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
 
 function savePos(id, left, top) {
-  try { localStorage.setItem('zine-card3-' + id, JSON.stringify({ left, top })); } catch (_) {}
+  try { localStorage.setItem('zine-card3-' + id, JSON.stringify({ left, top })); } catch (_ignored) { void _ignored; }
 }
 function loadPos(id) {
-  try { const r = localStorage.getItem('zine-card3-' + id); return r ? JSON.parse(r) : null; } catch (_) { return null; }
+  try { const r = localStorage.getItem('zine-card3-' + id); return r ? JSON.parse(r) : null; } catch (_ignored) { void _ignored; return null; }
 }
 
 function applyPos(card, left, top) {
