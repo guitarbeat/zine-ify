@@ -132,6 +132,17 @@
             <section id="uploaded-files-list" class="hidden">
                 <!-- Populated by JS -->
             </section>
+
+            <div class="float-panel-actions">
+                <button id="exportPdfBtn" type="button" class="workspace-action-button action-button float-action-btn flex items-center justify-center gap-2" disabled aria-label="Export PDF" title="Export your zine as a printable PDF">
+                    <span class="material-symbols-outlined" aria-hidden="true">print</span>
+                    <span class="text-sm font-semibold">Export PDF</span>
+                </button>
+                <button id="view3dBtn" type="button" class="workspace-action-button workspace-action-button-secondary action-button float-action-btn flex items-center justify-center gap-2" disabled aria-label="Preview fold" title="Preview how your zine folds together">
+                    <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
+                    <span class="text-sm font-semibold">Preview Fold</span>
+                </button>
+            </div>
         </div>
 
         <!-- Hidden mobile compat buttons -->
@@ -142,17 +153,8 @@
     <div id="mobile-rail-overlay" class="mobile-rail-overlay hidden lg:hidden" aria-hidden="true"></div>
     <button id="open-rail-sheet-btn" type="button" class="sr-only" tabindex="-1" aria-hidden="true"></button>
 
-    <!-- ── Global Action Dock ───────────────────────────── -->
-    <div id="global-action-dock" class="global-action-dock" role="toolbar" aria-label="Main actions">
-        <button id="exportPdfBtn" type="button" class="workspace-action-button action-button flex items-center justify-center gap-2" disabled aria-label="Export PDF" title="Export your zine as a printable PDF">
-            <span class="material-symbols-outlined" aria-hidden="true">print</span>
-            <span class="text-sm font-semibold">Export PDF</span>
-        </button>
-        <button id="view3dBtn" type="button" class="workspace-action-button workspace-action-button-secondary action-button flex items-center justify-center gap-2" disabled aria-label="Preview fold" title="Preview how your zine folds together">
-            <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
-            <span class="text-sm font-semibold">Preview Fold</span>
-        </button>
-    </div>
+    <!-- Global action dock kept as invisible anchor for JS compat -->
+    <div id="global-action-dock" class="sr-only" aria-hidden="true"></div>
 
     <!-- ── Progress Overlay ─────────────────────────────── -->
     <div id="progress-container"
