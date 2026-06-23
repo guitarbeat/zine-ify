@@ -161,18 +161,22 @@ export class LayoutRenderer {
       return 1;
     }
 
-    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || width;
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || height;
-    const usableWidth = Math.max(320, viewportWidth - 32);
-    const usableHeight = Math.max(320, viewportHeight - 180);
-    const sheetRatio = width / height;
-    const viewportRatio = usableWidth / usableHeight;
+    const vw = window.innerWidth || document.documentElement.clientWidth || width;
+    const vh = window.innerHeight || document.documentElement.clientHeight || height;
+    const isMobile = vw < 768;
 
-    if (sheetRatio > viewportRatio) {
-      return Math.min(1, usableWidth / width);
+    // On mobile the card is full viewport width; on desktop the zine card is 660px
+    const containerWidth = isMobile ? vw - 16 : Math.min(660, vw - 32);
+    const containerHeight = isMobile ? vh * 0.55 : Math.max(320, vh - 220);
+
+    const sheetRatio = width / height;
+    const containerRatio = containerWidth / containerHeight;
+
+    if (sheetRatio > containerRatio) {
+      return Math.min(1, containerWidth / width);
     }
 
-    return Math.min(1, usableHeight / height);
+    return Math.min(1, containerHeight / height);
   }
 
   createPageCell({ pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers }) {
