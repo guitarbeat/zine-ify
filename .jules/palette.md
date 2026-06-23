@@ -1,3 +1,6 @@
 ## 2024-04-14 - Icon-only modal close buttons missing ARIA labels
 **Learning:** Icon-only modal close buttons (like the 3D preview and page picker close buttons) often miss `aria-label` and `title` attributes, making them inaccessible to screen readers and lacking tooltips for mouse users. Even dynamically generated modals (like the zoom preview modal in `ModalManager.js`) need these attributes explicitly defined in their HTML template strings.
 **Action:** Always ensure that icon-only interactive elements (`<button>`, `<a>`) have clear, descriptive `aria-label` and `title` attributes, regardless of whether they are hardcoded in the main HTML file or generated dynamically via JavaScript.
+## 2024-04-14 - Page picker preset chips missing ARIA labels
+**Learning:** Preset selection buttons (like "First 8", "Last 8" in `index.html`) often consist of short text chips that lack descriptive context for screen readers and tooltips for mouse users. These elements should have explicit `aria-label` and `title` attributes (e.g., `aria-label="Select first 8 pages" title="Select first 8 pages"`) to provide better context and usability.
+**Action:** When inspecting UI components that function as quick-select filters or presets, always verify they contain explicit `aria-label` and `title` attributes that provide full context beyond their visible text.
