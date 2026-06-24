@@ -40,7 +40,8 @@ export class ExportService {
     const cellW = drawW / cols;
     const cellH = drawH / rows;
 
-    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
+        // ⚡ Bolt: Process sheet canvases concurrently to improve export speed
+    const sheetPromises = Array.from({ length: sheetCount }, async (_, sheetIndex) => {
       const offscreen = document.createElement('canvas');
       offscreen.width = canvasW;
       offscreen.height = canvasH;
@@ -91,11 +92,16 @@ export class ExportService {
         )
       );
 
-      const imgData = offscreen.toDataURL('image/jpeg', 0.92);
+      return offscreen.toDataURL('image/jpeg', 0.92);
+    });
+
+    const sheetImages = await Promise.all(sheetPromises);
+
+    for (let sheetIndex = 0; sheetIndex < sheetImages.length; sheetIndex++) {
       if (sheetIndex > 0) {
         doc.addPage([dims.width, dims.height], isLandscape ? 'landscape' : 'portrait');
       }
-      doc.addImage(imgData, 'JPEG', 0, 0, dims.width, dims.height);
+      doc.addImage(sheetImages[sheetIndex], 'JPEG', 0, 0, dims.width, dims.height);
     }
 
     return doc;
