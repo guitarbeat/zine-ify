@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /**
  * FormValidator.js
  * Inline form validation with immediate visual feedback
@@ -26,8 +25,7 @@ export class FormValidator {
       : formElement;
 
     if (!this.form) {
-      // console.error('FormValidator: Form element not found');
-      return;
+            return;
     }
 
     this.options = {
@@ -64,8 +62,7 @@ export class FormValidator {
   register(fieldSelector, config) {
     const field = this.form.querySelector(fieldSelector);
     if (!field) {
-      // console.warn(`FormValidator: Field "${fieldSelector}" not found`);
-      return this;
+            return this;
     }
 
     const fieldId = field.id || field.name || fieldSelector;
@@ -534,8 +531,7 @@ export class FieldValidator {
       : field;
 
     if (!this.field) {
-      // console.error('FieldValidator: Field element not found');
-      return;
+            return;
     }
 
     this.options = {

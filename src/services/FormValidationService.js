@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 /**
  * Validation integration for Zine-ify form controls
  * Demonstrates user-friendly validation for existing settings
@@ -17,8 +16,7 @@ import { toast } from '../components/Toast.js';
 export function initSettingsValidation(container = document) {
   const form = container.querySelector('#settings-group') || container.querySelector('.rail-settings-panel');
   if (!form) {
-    // console.warn('ValidationService: Settings form not found');
-    return null;
+        return null;
   }
 
   const validator = new FormValidator(form, {

@@ -23,7 +23,8 @@ export class LayoutRenderer {
     this.cellTemplate = cellTemplate;
   }
 
-  render(numPages, template, options, handlers, paper = {}) {
+  render(config) {
+    const { numPages, template, options, handlers, paper = {} } = config;
     this.container.innerHTML = '';
     
     // Determine number of sheets needed based on template and pages
@@ -33,9 +34,7 @@ export class LayoutRenderer {
     for (let s = 0; s < sheetCount; s++) {
       const { sheetWrapper, grid } = this.createSheetGrid({
         sheetNumber: s + 1,
-        template: template.label,
-        columns: template.grid.cols,
-        rows: template.grid.rows,
+        template,
         id: `zine-grid-sheet-${s + 1}`,
         paper
       });
@@ -111,11 +110,12 @@ export class LayoutRenderer {
     return { page: index + 1, upsideDown: false };
   }
 
-  createSheetGrid({ sheetNumber, template, columns, rows, id, paper }) {
+  createSheetGrid(config) {
+    const { sheetNumber, template, id, paper } = config;
     const sheetWrapper = document.createElement('div');
     sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
     sheetWrapper.setAttribute('data-sheet', sheetNumber);
-    sheetWrapper.setAttribute('data-template', template);
+    sheetWrapper.setAttribute('data-template', template.label);
 
     if (paper?.paperSize) {
       sheetWrapper.setAttribute('data-paper-size', paper.paperSize);
@@ -139,8 +139,8 @@ export class LayoutRenderer {
     grid.className = 'zine-grid';
     grid.id = id;
     grid.style.display = 'grid';
-    grid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-    grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    grid.style.gridTemplateColumns = `repeat(${template.grid.cols}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${template.grid.rows}, 1fr)`;
 
     if (paper?.margin > 0 && paper?.width && paper?.height) {
       const padX = (paper.margin / paper.width) * 100;
@@ -152,6 +152,9 @@ export class LayoutRenderer {
       grid.style.bottom = `${padY}%`;
       grid.style.width = 'auto';
       grid.style.height = 'auto';
+      sheetWrapper.setAttribute('data-has-margin', 'true');
+      sheetWrapper.style.setProperty('--margin-x', `${padX}%`);
+      sheetWrapper.style.setProperty('--margin-y', `${padY}%`);
     } else {
       grid.style.position = 'relative';
     }
@@ -178,7 +181,8 @@ export class LayoutRenderer {
     return Math.min(1, usableHeight / height);
   }
 
-  createPageCell({ pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers }) {
+  createPageCell(config) {
+    const { pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers } = config;
     const cell = document.createElement('div');
     cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
     cell.setAttribute('data-page-index', pageIndex);

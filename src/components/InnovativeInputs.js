@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-assignment, no-case-declarations, no-unused-vars */
 /**
  * Innovative Input Selection Widgets
  * Modern, accessible input components with enhanced UX
@@ -581,8 +580,7 @@ export class WheelPicker {
 
   _init() {
     if (this.options.values.length === 0) {
-      // console.warn('WheelPicker: No values provided');
-      return;
+            return;
     }
 
     // Find initial index

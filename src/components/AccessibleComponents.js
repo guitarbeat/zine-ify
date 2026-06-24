@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-assignment, no-case-declarations, no-unused-vars */
 /**
  * Accessible UI Components
  * Inclusive design patterns that work across diverse users
@@ -26,8 +25,7 @@ export class AccessibleTabs {
       : container;
 
     if (!this.container) {
-      // console.error('AccessibleTabs: Container not found');
-      return;
+            return;
     }
 
     this.options = {
@@ -51,8 +49,7 @@ export class AccessibleTabs {
     this._discoverTabs();
 
     if (this.tabs.length === 0) {
-      // console.warn('AccessibleTabs: No tabs found');
-      return;
+            return;
     }
 
     this._setupAttributes();
@@ -168,6 +165,7 @@ export class AccessibleTabs {
       const prevKey = isVertical ? 'ArrowUp' : 'ArrowLeft';
 
       let newIndex = currentIndex;
+      void newIndex;
       void newIndex;
 
       switch (e.key) {
@@ -288,8 +286,7 @@ export class AccessibleList {
       : container;
 
     if (!this.container) {
-      // console.error('AccessibleList: Container not found');
-      return;
+            return;
     }
 
     this.options = {
@@ -404,8 +401,8 @@ export class AccessibleList {
       this._updateProgress();
 
     } catch (_error) {
-      // console.error('AccessibleList: Load error', error);
-      this.statusRegion.textContent = 'Error loading items. Please try again.';
+        void _error;
+            this.statusRegion.textContent = 'Error loading items. Please try again.';
     } finally {
       this.isLoading = false;
       this.loadMoreBtn.disabled = false;
@@ -493,8 +490,7 @@ export class AccessibleCombobox {
       : container;
 
     if (!this.container) {
-      // console.error('AccessibleCombobox: Container not found');
-      return;
+            return;
     }
 
     this.options = {
@@ -618,7 +614,6 @@ export class AccessibleCombobox {
   }
 
   _handleBlur(_e) {
-    void _e;
     // Delay to allow click on option
     setTimeout(() => {
       if (!this.wrapper.contains(document.activeElement)) {
@@ -830,8 +825,7 @@ export class Accordion {
       : container;
 
     if (!this.container) {
-      // console.error('Accordion: Container not found');
-      return;
+            return;
     }
 
     this.options = {
@@ -895,7 +889,6 @@ export class Accordion {
 
       // Handle click
       trigger.addEventListener('click', (_e) => {
-        void _e;
         // If allowMultiple is false, close others
         if (!this.options.allowMultiple) {
           this.items.forEach((otherItem, otherIndex) => {
