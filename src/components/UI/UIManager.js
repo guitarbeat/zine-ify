@@ -1,4 +1,3 @@
-/* eslint-disable */
 import mitt from 'mitt';
 import {
   GRID_DIMENSION_MAX,
