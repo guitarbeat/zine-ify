@@ -439,12 +439,8 @@ export class AppController {
       margin: this.state.margin || 0,
       customPaper: this.state.customPaper
     });
-    for (let index = 0; index < this.state.allPageImages.length; index++) {
-      const url = this.state.allPageImages[index];
-      this.ui.updatePagePreview(index, url);
-      this.ui.setPageFlip(index, !!this.state.pageFlips[index]);
-      this.ui.setPageZoom(index, !!this.state.pageZooms[index]);
-    }
+    // ⚡️ Bolt: Consolidate multiple redundant DOM update loops (updatePagePreview, setPageFlip, setPageZoom) into a single optimized method call.
+    this.ui.updateAllPages(this.state.allPageImages, this.state.pageFlips, this.state.pageZooms);
 
     this.updateWorkspaceUi();
   }

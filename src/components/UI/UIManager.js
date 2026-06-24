@@ -171,6 +171,30 @@ export class UIManager {
     this.elements.uploadedFilesList.appendChild(wrapper);
   }
 
+  // ⚡️ Bolt: Batch update all page cells in a single DOM query pass.
+  updateAllPages(urls, flips, zooms) {
+    const cells = this._getAllPageCells();
+    for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i];
+      const index = parseInt(cell.getAttribute('data-page-index'), 10);
+      if (isNaN(index)) { continue; }
+
+      const url = urls[index];
+      const img = cell.querySelector('.page-content-img');
+      const placeholder = cell.querySelector('.page-placeholder');
+      if (img) {
+        img.src = url || '';
+        img.classList.toggle('hidden', !url);
+      }
+      if (placeholder) {
+        placeholder.classList.toggle('hidden', !!url);
+      }
+      cell.classList.toggle('has-page', !!url);
+      cell.classList.toggle('is-flipped', !!flips[index]);
+      cell.classList.toggle('page-zoomed', !!zooms[index]);
+    }
+  }
+
   updatePagePreview(index, url) {
     const cell = this._getPageCell(index);
     if (!cell) {
