@@ -149,7 +149,7 @@ export class FormValidator {
    */
   _validateField(fieldId) {
     const config = this.fieldConfigs.get(fieldId);
-    if (!config) return { isValid: true, errors: [] };
+    if (!config) {return { isValid: true, errors: [] };}
 
     const { field, fieldName, rules } = config;
     const value = this._getFieldValue(field);
@@ -181,11 +181,11 @@ export class FormValidator {
    * Get field value (handles different input types)
    */
   _getFieldValue(field) {
-    if (field.type === 'checkbox') return field.checked;
+    if (field.type === 'checkbox') {return field.checked;}
     if (field.type === 'radio') {
       const radioGroup = this.form.querySelectorAll(`input[name="${field.name}"]`);
       for (const radio of radioGroup) {
-        if (radio.checked) return radio.value;
+        if (radio.checked) {return radio.value;}
       }
       return null;
     }
@@ -211,7 +211,7 @@ export class FormValidator {
    */
   _updateFieldUI(fieldId, result) {
     const config = this.fieldConfigs.get(fieldId);
-    if (!config) return;
+    if (!config) {return;}
 
     const { field, showSuccess } = config;
 
@@ -238,7 +238,7 @@ export class FormValidator {
    */
   _showFieldError(fieldId, error) {
     const config = this.fieldConfigs.get(fieldId);
-    if (!config) return;
+    if (!config) {return;}
 
     const { field } = config;
 
@@ -284,7 +284,7 @@ export class FormValidator {
    */
   _clearFieldError(fieldId) {
     const config = this.fieldConfigs.get(fieldId);
-    if (!config) return;
+    if (!config) {return;}
 
     config.field.classList.remove('is-invalid');
     this._removeErrorElement(fieldId);
@@ -296,12 +296,12 @@ export class FormValidator {
    */
   _showSuccessIndicator(fieldId) {
     const config = this.fieldConfigs.get(fieldId);
-    if (!config) return;
+    if (!config) {return;}
 
     const { field } = config;
 
     // Don't add if already exists
-    if (field.parentElement.querySelector('.form-success-icon')) return;
+    if (field.parentElement.querySelector('.form-success-icon')) {return;}
 
     const successIcon = document.createElement('span');
     successIcon.className = 'form-success-icon';
@@ -322,7 +322,7 @@ export class FormValidator {
    */
   _removeSuccessIndicator(fieldId) {
     const indicator = this.form.querySelector(`.form-success-icon[data-field-id="${fieldId}"]`);
-    if (indicator) indicator.remove();
+    if (indicator) {indicator.remove();}
   }
 
   /**
@@ -330,7 +330,7 @@ export class FormValidator {
    */
   _addConstraintHint(field, constraints) {
     const hint = createConstraintHint(constraints);
-    if (!hint) return;
+    if (!hint) {return;}
 
     const hintElement = document.createElement('span');
     hintElement.className = 'form-constraint-hint';
@@ -397,16 +397,16 @@ export class FormValidator {
       }
 
       // Auto-detect common validation attributes
-      if (field.required) rules.push('required');
-      if (field.type === 'email') rules.push('email');
-      if (field.type === 'number' || field.dataset.type === 'number') rules.push('integer');
+      if (field.required) {rules.push('required');}
+      if (field.type === 'email') {rules.push('email');}
+      if (field.type === 'number' || field.dataset.type === 'number') {rules.push('integer');}
 
       // Auto-detect constraints from attributes
       const constraints = {};
-      if (field.minLength) constraints.minLength = field.minLength;
-      if (field.maxLength) constraints.maxLength = field.maxLength;
-      if (field.min !== null) constraints.min = parseFloat(field.min);
-      if (field.max !== null) constraints.max = parseFloat(field.max);
+      if (field.minLength) {constraints.minLength = field.minLength;}
+      if (field.maxLength) {constraints.maxLength = field.maxLength;}
+      if (field.min !== null) {constraints.min = parseFloat(field.min);}
+      if (field.max !== null) {constraints.max = parseFloat(field.max);}
 
       this.register(`#${field.id || field.name}`, {
         rules,
@@ -588,7 +588,7 @@ export class FieldValidator {
     // Update UI
     this.field.classList.remove('is-valid', 'is-invalid');
     const existingError = this.field.parentElement.querySelector('.form-error');
-    if (existingError) existingError.remove();
+    if (existingError) {existingError.remove();}
 
     if (!result.isValid) {
       this.field.classList.add('is-invalid');
@@ -612,7 +612,7 @@ export class FieldValidator {
     this.field.classList.remove('is-valid', 'is-invalid');
     this.field.removeAttribute('aria-invalid');
     const error = this.field.parentElement.querySelector('.form-error');
-    if (error) error.remove();
+    if (error) {error.remove();}
   }
 }
 
