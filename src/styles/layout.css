@@ -378,24 +378,81 @@ html, body {
   .ui-resizable-handle { display: none !important; }
 }
 
-/* ─── Responsive: tablet (< 1024px, gridstack handles reflow) */
+/* ─── Responsive: tablet (< 1024px) ─────────────────────── */
 @media (max-width: 1023px) {
   .ui-resizable-se { display: none !important; }
 }
 
-/* ─── Responsive: mobile (small screens — horizontal scroll) ─ */
-@media (max-width: 699px) {
+/* ─── Responsive: mobile (single-column stack, no drag) ─── */
+@media (max-width: 767px) {
+  .app-header {
+    height: 2.25rem;
+    padding: 0 0.625rem;
+  }
+
+  .app-title { font-size: 0.82rem; }
+
   .gs-wrapper {
-    overflow-x: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 6px;
     -webkit-overflow-scrolling: touch;
   }
 
-  .snap-card--actions .snap-card-body--actions {
-    flex-direction: column;
+  .grid-stack-item > .ui-resizable-handle {
+    display: none !important;
   }
 
-  .ui-resizable-handle { display: none !important; }
-  .snap-card-handle { cursor: default; }
+  .snap-card {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .snap-card-handle {
+    cursor: default;
+    min-height: 1.75rem;
+    height: auto;
+    padding: 0.45rem 0.65rem 0.35rem;
+    background: transparent;
+    border-bottom: none;
+  }
+
+  .snap-card-grip {
+    display: none;
+  }
+
+  .snap-card-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.07em;
+  }
+
+  .snap-status-chip {
+    max-width: 9rem;
+  }
+
+  .snap-card-body {
+    padding: 0.65rem;
+    gap: 0.5rem;
+  }
+
+  .snap-card-body--canvas {
+    padding: 0.4rem;
+  }
+
+  .snap-card--actions .snap-card-body--actions {
+    flex-direction: row;
+    gap: 0.4rem;
+  }
+}
+
+/* JS toggles drag off; keep handles from intercepting scroll on touch */
+body.layout-mobile .snap-card-handle {
+  cursor: default;
+  touch-action: pan-y;
+}
+
+body.layout-mobile .snap-card-handle .panel-clear-btn,
+body.layout-mobile .snap-card-handle button {
+  touch-action: manipulation;
 }
 
 /* ─── Touch ──────────────────────────────────────────────── */
