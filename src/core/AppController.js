@@ -4,7 +4,6 @@ import { StateStore } from './StateStore.js';
 import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
-
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
 import { parseBoundedInteger } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
@@ -233,50 +232,6 @@ export class AppController {
     toast.success('Import Complete', status);
   }
 
-  async _generateThumbnails(numPages, thumbnails) {
-    // ⚡ Bolt: Sliding window worker pool for faster thumbnail generation
-    // This maintains a constant stream of processing instead of waiting for batched promises,
-    // avoiding UI stuttering and utilizing resources more evenly.
-    const CONCURRENCY_LIMIT = 4;
-    const activePromises = new Set();
-    let completedCount = 0;
-
-    const processPage = async (pageNumber) => {
-      const canvas = await this.pdfProcessor.renderPageThumbnail(pageNumber);
-      const thumbnailUrl = await this.pdfProcessor.canvasToBlob(canvas);
-      thumbnails.push({ pageNumber, thumbnailUrl });
-
-      completedCount++;
-      const percent = Math.round((completedCount / numPages) * 100);
-      this.ui.modal.setProgressCopy('Preparing page picker...', `${percent}%`);
-      this.ui.modal.updateProgress(percent);
-    };
-
-    try {
-      for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
-        // Intentional forward reference: `trackedPromise` is captured by the `.finally()` closure
-        // so that the Set removes the correct (finally-wrapped) promise upon settlement.
-        const trackedPromise = processPage(pageNumber).finally(() => activePromises.delete(trackedPromise));
-        activePromises.add(trackedPromise);
-
-        if (activePromises.size >= CONCURRENCY_LIMIT) {
-          await Promise.race(activePromises);
-        }
-      }
-
-      await Promise.all(activePromises);
-
-      // Ensure thumbnails are sorted by pageNumber since they resolve out of order
-      thumbnails.sort((a, b) => a.pageNumber - b.pageNumber);
-    } catch (error) {
-      await Promise.allSettled(Array.from(activePromises));
-      thumbnails.forEach(({ thumbnailUrl }) => {
-        this.pdfProcessor.revokeBlobUrl(thumbnailUrl);
-      });
-      throw error;
-    }
-  }
-
   async getSelectedPagesForImport(fileName, numPages) {
     const selectionLimit = Math.max(1, this.state.gridSize.rows * this.state.gridSize.cols);
 
@@ -289,7 +244,47 @@ export class AppController {
     this.ui.modal.updateProgress(0);
 
     try {
-      await this._generateThumbnails(numPages, thumbnails);
+      // ⚡ Bolt: Sliding window worker pool for faster thumbnail generation
+      // This maintains a constant stream of processing instead of waiting for batched promises,
+      // avoiding UI stuttering and utilizing resources more evenly.
+      const CONCURRENCY_LIMIT = 4;
+      const activePromises = new Set();
+      let completedCount = 0;
+
+      const processPage = async (pageNumber) => {
+        const canvas = await this.pdfProcessor.renderPageThumbnail(pageNumber);
+        const thumbnailUrl = await this.pdfProcessor.canvasToBlob(canvas);
+        thumbnails.push({ pageNumber, thumbnailUrl });
+
+        completedCount++;
+        const percent = Math.round((completedCount / numPages) * 100);
+        this.ui.modal.setProgressCopy('Preparing page picker...', `${percent}%`);
+        this.ui.modal.updateProgress(percent);
+      };
+
+      try {
+        for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
+          // Intentional forward reference: `trackedPromise` is captured by the `.finally()` closure
+          // so that the Set removes the correct (finally-wrapped) promise upon settlement.
+          const trackedPromise = processPage(pageNumber).finally(() => activePromises.delete(trackedPromise));
+          activePromises.add(trackedPromise);
+
+          if (activePromises.size >= CONCURRENCY_LIMIT) {
+            await Promise.race(activePromises);
+          }
+        }
+
+        await Promise.all(activePromises);
+
+        // Ensure thumbnails are sorted by pageNumber since they resolve out of order
+        thumbnails.sort((a, b) => a.pageNumber - b.pageNumber);
+      } catch (error) {
+        await Promise.allSettled(Array.from(activePromises));
+        thumbnails.forEach(({ thumbnailUrl }) => {
+          this.pdfProcessor.revokeBlobUrl(thumbnailUrl);
+        });
+        throw error;
+      }
     } finally {
       this.ui.modal.showProgress(false);
     }
