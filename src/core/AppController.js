@@ -56,6 +56,10 @@ export class AppController {
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); });
+    this.ui.on('removeUploadedFile', (index) => {
+      this.state.uploadedFiles.splice(index, 1);
+      this.ui.updateUploadedFilesList(this.state.uploadedFiles);
+    });
 
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
@@ -692,9 +696,15 @@ export class AppController {
       return;
     }
 
-    this.ui.setExportLoading(true);
+    const exportBtn = this.ui.elements.exportPdfBtn;
+    const originalContent = exportBtn ? exportBtn.innerHTML : '';
+    if (exportBtn) {
+      exportBtn.disabled = true;
+      exportBtn.setAttribute('aria-busy', 'true');
+      exportBtn.innerHTML = '<span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span><span class="text-sm font-semibold">Exporting...</span>';
+    }
+
     this.ui.modal.showProgress(true, 'Generating PDF...');
-    this.ui.setExportLoadingState(true);
     try {
       await this.exportService.handleExport();
       this.state.markExported();
@@ -703,10 +713,12 @@ export class AppController {
     } catch (error) {
       toast.error('Export Failed', error.message);
     } finally {
-      this.ui.setExportLoading(false);
-      this.ui.updateWorkspaceState({ placedCount: this.state.getFilledPageCount() });
       this.ui.modal.showProgress(false);
-      this.ui.setExportLoadingState(false);
+      if (exportBtn) {
+        exportBtn.disabled = false;
+        exportBtn.removeAttribute('aria-busy');
+        exportBtn.innerHTML = originalContent;
+      }
     }
   }
 }
