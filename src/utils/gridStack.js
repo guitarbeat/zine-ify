@@ -1,17 +1,24 @@
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
 
-const STORAGE_KEY_DESKTOP = 'zine-grid-v1';
-const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v1';
+const STORAGE_KEY_DESKTOP = 'zine-grid-v2';
+const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v2';
 const MOBILE_BREAKPOINT = 768;
 const CELL_HEIGHT = 32;
 
-
+const DEFAULT_LAYOUT = [
+  { id: 'canvas', x: 0, y: 0, w: 8, h: 10 },
+  { id: 'upload', x: 8, y: 0, w: 4, h: 4 },
+  { id: 'settings', x: 8, y: 4, w: 4, h: 4 },
+  { id: 'display', x: 8, y: 8, w: 4, h: 2 },
+  { id: 'export', x: 0, y: 10, w: 8, h: 2 }
+];
 
 let grid = null;
 let gridEl = null;
 let resizeObserver = null;
 let resizeFrame = null;
+let isRelayouting = false;
 
 function isMobile() {
   return window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).matches;
@@ -21,24 +28,61 @@ function storageKey() {
   return isMobile() ? STORAGE_KEY_MOBILE : STORAGE_KEY_DESKTOP;
 }
 
+function nodesOverlap(a, b) {
+  if (a.id === b.id) return false;
+  return !(
+    a.x + a.w <= b.x ||
+    b.x + b.w <= a.x ||
+    a.y + a.h <= b.y ||
+    b.y + b.h <= a.y
+  );
+}
+
+function layoutHasOverlaps() {
+  const nodes = grid?.engine?.nodes ?? [];
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      if (nodesOverlap(nodes[i], nodes[j])) return true;
+    }
+  }
+  return false;
+}
+
 function saveLayout() {
-  if (!grid) return;
+  if (!grid || isRelayouting) return;
   try {
     localStorage.setItem(storageKey(), JSON.stringify(grid.save(false)));
   } catch (_) {}
 }
 
-function resizeAllPanels() {
-  if (!grid) return;
-  grid.batchUpdate(true);
-  grid.getGridItems().forEach((el) => grid.resizeToContent(el));
-  grid.batchUpdate(false);
-}
-
-function applyMobileLayout() {
+function compactLayout() {
   if (!grid) return;
   grid.compact('list');
-  resizeAllPanels();
+}
+
+function relayoutPanels() {
+  if (!grid) return;
+  isRelayouting = true;
+
+  grid.getGridItems().forEach((el) => grid.resizeToContent(el));
+  compactLayout();
+
+  isRelayouting = false;
+}
+
+function resetToDefaults() {
+  if (!grid) return;
+  localStorage.removeItem(storageKey());
+
+  grid.batchUpdate(true);
+  DEFAULT_LAYOUT.forEach(({ id, x, y, w, h }) => {
+    const el = gridEl.querySelector(`[gs-id="${id}"]`);
+    if (el) grid.update(el, { x, y, w, h });
+  });
+  grid.batchUpdate(false);
+
+  if (isMobile()) compactLayout();
+  relayoutPanels();
 }
 
 function loadLayout() {
@@ -47,30 +91,32 @@ function loadLayout() {
   try {
     const raw = localStorage.getItem(storageKey());
     if (!raw) {
-      if (isMobile()) applyMobileLayout();
-      else resizeAllPanels();
+      relayoutPanels();
       return;
     }
 
     const items = JSON.parse(raw);
-    if (Array.isArray(items) && items.length) {
-      grid.load(items);
-      requestAnimationFrame(resizeAllPanels);
-    } else if (isMobile()) {
-      applyMobileLayout();
-    } else {
-      resizeAllPanels();
+    if (!Array.isArray(items) || !items.length) {
+      relayoutPanels();
+      return;
+    }
+
+    grid.load(items);
+    relayoutPanels();
+
+    if (layoutHasOverlaps()) {
+      resetToDefaults();
     }
   } catch (_) {
-    if (isMobile()) applyMobileLayout();
-    else resizeAllPanels();
+    resetToDefaults();
   }
 }
 
-function scheduleResizeAll() {
+function scheduleRelayout() {
   if (resizeFrame) cancelAnimationFrame(resizeFrame);
   resizeFrame = requestAnimationFrame(() => {
-    resizeAllPanels();
+    relayoutPanels();
+    if (layoutHasOverlaps()) compactLayout();
     resizeFrame = null;
   });
 }
@@ -78,7 +124,7 @@ function scheduleResizeAll() {
 function observePanelSizes() {
   if (resizeObserver) resizeObserver.disconnect();
 
-  resizeObserver = new ResizeObserver(() => scheduleResizeAll());
+  resizeObserver = new ResizeObserver(() => scheduleRelayout());
 
   gridEl?.querySelectorAll('.grid-stack-item .snap-card').forEach((card) => {
     resizeObserver.observe(card);
@@ -89,6 +135,7 @@ function syncGridMetrics() {
   if (!grid) return;
   grid.cellHeight(CELL_HEIGHT);
   grid.margin(isMobile() ? 6 : 8);
+  grid.float(false);
 }
 
 function setInteractionMode() {
@@ -116,12 +163,15 @@ export function initGridStack() {
     resizable: { handles: 'se', autoHide: true },
     columnOpts: {
       breakpointForWindow: true,
-      layout: 'compact',
+      layout: 'list',
       breakpoints: [{ w: MOBILE_BREAKPOINT, c: 1, layout: 'list' }]
     }
   }, gridEl);
 
+  grid.float(false);
+
   grid.on('change', saveLayout);
+  grid.on('dragstop resizestop', () => scheduleRelayout());
 
   observePanelSizes();
   setInteractionMode();
@@ -131,8 +181,10 @@ export function initGridStack() {
   window.__resetPanelLayout = () => {
     localStorage.removeItem(STORAGE_KEY_DESKTOP);
     localStorage.removeItem(STORAGE_KEY_MOBILE);
+    localStorage.removeItem('zine-grid-v1');
+    localStorage.removeItem('zine-grid-mobile-v1');
     location.reload();
   };
 
-  window.__resizePanels = resizeAllPanels;
+  window.__resizePanels = relayoutPanels;
 }

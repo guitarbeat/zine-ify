@@ -76,10 +76,15 @@ body::-webkit-scrollbar {
   background: transparent !important;
 }
 
+.grid-stack-item {
+  overflow: hidden;
+}
+
 /* Panels fill their gridstack cell */
 .grid-stack-item-content {
   border-radius: var(--radius-panel);
-  overflow: visible;
+  overflow: hidden;
+  height: 100%;
 }
 
 .grid-stack-item-content .snap-card {
@@ -87,7 +92,8 @@ body::-webkit-scrollbar {
   display: flex;
   flex-direction: column;
   height: auto;
-  overflow: visible;
+  min-height: 100%;
+  overflow: hidden;
 }
 
 /* ─── Resize handle ──────────────────────────────────────── */
