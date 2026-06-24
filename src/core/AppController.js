@@ -206,7 +206,14 @@ export class AppController {
     this.prepareLayoutForTotalPages(startIndex + selectedPages.length);
     this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
 
-    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
+    // ⚡ Bolt: Sliding window worker pool for faster page rendering
+    // Replaces sequential page rendering with a concurrent worker pool (limit 4)
+    // to utilize resources evenly and significantly reduce total rendering time.
+    const CONCURRENCY_LIMIT = 4;
+    const activePromises = new Set();
+    let completedCount = 0;
+
+    const processRenderPage = async (selectedIndex, pageNumber) => {
       const targetIndex = startIndex + selectedIndex;
       const canvas = await this.pdfProcessor.renderPage(pageNumber);
       const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
@@ -219,10 +226,25 @@ export class AppController {
       this.state.allPageImages[targetIndex] = pageUrl;
       this.ui.updatePagePreview(targetIndex, pageUrl);
 
-      const percent = Math.round(((selectedIndex + 1) / selectedPages.length) * 100);
+      completedCount++;
+      const percent = Math.round((completedCount / selectedPages.length) * 100);
       this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
       this.ui.modal.updateProgress(percent);
+    };
+
+    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
+      const trackedPromise = processRenderPage(selectedIndex, pageNumber).finally(() => {
+        activePromises.delete(trackedPromise);
+      });
+
+      activePromises.add(trackedPromise);
+
+      if (activePromises.size >= CONCURRENCY_LIMIT) {
+        await Promise.race(activePromises);
+      }
     }
+
+    await Promise.all(activePromises);
 
     this.state.totalPages = this.state.getFilledPageCount();
     this.state.resetWorkflowStatus();
