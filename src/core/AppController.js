@@ -49,7 +49,6 @@ export class AppController {
     this.ui.on('pageCropToggled', (i) => this.handlePageCropToggled(i));
     this.ui.on('pageRemoved', (i) => this.handlePageRemoved(i));
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
-    this.ui.on('print', () => this.handlePrint());
     this.ui.on('export', () => this.handleExport());
     this.ui.on('view3d', () => this.handleView3d());
     this.ui.on('clearAll', () => this.handleClearAll());
@@ -356,10 +355,9 @@ export class AppController {
     const blankUrl = await this.ensureBlankPageUrl();
     const filledPages = this.state.getFilledPageCount();
 
-    for (let index = filledPages; index < this.state.allPageImages.length; index++) {
-      if (!this.state.allPageImages[index] || this.state.allPageImages[index] === this.state._blankPageUrl) {
-        this.state.allPageImages[index] = blankUrl;
-      }
+    // ⚡ Bolt: Replace manual iteration with bulk fill to significantly optimize memory allocation and slot generation during imports.
+    if (filledPages < this.state.allPageImages.length) {
+      this.state.allPageImages.fill(blankUrl, filledPages);
     }
   }
 
@@ -599,17 +597,6 @@ export class AppController {
     toast.info('Cleared', 'All pages have been removed.');
   }
 
-  handlePrint() {
-    if (!this.state.getFilledPageCount()) {
-      toast.warning('No Content', 'Import pages before printing.');
-      return;
-    }
-
-    this.exportService.handlePrint().catch((error) => {
-      toast.error('Print Failed', error.message || 'Unable to print.');
-    });
-  }
-
   async getZine3DViewerClass() {
     if (!this.zine3dViewerClassPromise) {
       this.zine3dViewerClassPromise = import('../components/Zine3DViewer.js')
@@ -670,7 +657,8 @@ export class AppController {
           const Zine3DViewer = await this.getZine3DViewerClass();
           try {
             this.viewer3d = new Zine3DViewer(container);
-          } catch {
+          } catch (_viewerError) {
+            void _viewerError;
             const fallback = container.querySelector('.zine-3d-fallback-canvas');
             if (fallback) {
               fallback.remove();
@@ -705,17 +693,7 @@ export class AppController {
     }
 
     this.ui.modal.showProgress(true, 'Generating PDF...');
-    const exportBtn = this.ui.elements.exportPdfBtn;
-    const originalHtml = exportBtn ? exportBtn.innerHTML : '';
-    if (exportBtn) {
-      exportBtn.disabled = true;
-      exportBtn.setAttribute('aria-busy', 'true');
-      exportBtn.innerHTML = `
-        <span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>
-        <span class="text-sm font-semibold">Exporting...</span>
-      `;
-    }
-
+    this.ui.setExportLoadingState(true);
     try {
       await this.exportService.handleExport();
       this.state.markExported();
@@ -725,11 +703,7 @@ export class AppController {
       toast.error('Export Failed', error.message);
     } finally {
       this.ui.modal.showProgress(false);
-      if (exportBtn) {
-        exportBtn.innerHTML = originalHtml;
-        exportBtn.removeAttribute('aria-busy');
-        this.updateWorkspaceUi();
-      }
+      this.ui.setExportLoadingState(false);
     }
   }
 }
