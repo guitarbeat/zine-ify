@@ -101,6 +101,7 @@ export class PagePicker {
       btn.className = 'page-picker-thumb';
       btn.dataset.pageNumber = String(pageNumber);
       btn.setAttribute('aria-pressed', initialSelection.includes(pageNumber) ? 'true' : 'false');
+      btn.setAttribute('aria-label', `Select page ${pageNumber}`);
 
       const media = document.createElement('div');
       media.className = 'page-picker-thumb-media';
