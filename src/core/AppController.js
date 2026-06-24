@@ -203,13 +203,7 @@ export class AppController {
     this.prepareLayoutForTotalPages(startIndex + selectedPages.length);
     this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
 
-    // ⚡ Bolt: Sliding window worker pool for faster PDF page rendering
-    // Replaced sequential rendering with parallel processing to improve import speeds
-    const CONCURRENCY_LIMIT = 4;
-    const activePromises = new Set();
-    let completedCount = 0;
-
-    const processPage = async (selectedIndex, pageNumber) => {
+    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
       const targetIndex = startIndex + selectedIndex;
       const canvas = await this.pdfProcessor.renderPage(pageNumber);
       const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
@@ -220,30 +214,11 @@ export class AppController {
       }
 
       this.state.allPageImages[targetIndex] = pageUrl;
-      // Note: we update the UI synchronously here, but in parallel streams,
-      // the previews will update out of order.
       this.ui.updatePagePreview(targetIndex, pageUrl);
 
-      completedCount++;
-      const percent = Math.round((completedCount / selectedPages.length) * 100);
+      const percent = Math.round(((selectedIndex + 1) / selectedPages.length) * 100);
       this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
       this.ui.modal.updateProgress(percent);
-    };
-
-    try {
-      for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
-        const trackedPromise = processPage(selectedIndex, pageNumber).finally(() => activePromises.delete(trackedPromise));
-        activePromises.add(trackedPromise);
-
-        if (activePromises.size >= CONCURRENCY_LIMIT) {
-          await Promise.race(activePromises);
-        }
-      }
-
-      await Promise.all(activePromises);
-    } catch (error) {
-      await Promise.allSettled(Array.from(activePromises));
-      throw error;
     }
 
     this.state.totalPages = this.state.getFilledPageCount();
@@ -691,22 +666,20 @@ export class AppController {
 
       if (!this.viewer3d) {
         const container = this.ui.elements.zine3dContainer;
-        if (!container) {
-          return;
-        }
-
-        const Zine3DViewer = await this.getZine3DViewerClass();
-        try {
-          this.viewer3d = new Zine3DViewer(container);
-        } catch {
-          const fallback = container.querySelector('.zine-3d-fallback-canvas');
-          if (fallback) {
-            fallback.remove();
+        if (container) {
+          const Zine3DViewer = await this.getZine3DViewerClass();
+          try {
+            this.viewer3d = new Zine3DViewer(container);
+          } catch {
+            const fallback = container.querySelector('.zine-3d-fallback-canvas');
+            if (fallback) {
+              fallback.remove();
+            }
+            this.viewer3d = null;
+            this.ui.toggle3DModal(false);
+            toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
+            return;
           }
-          this.viewer3d = null;
-          this.ui.toggle3DModal(false);
-          toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
-          return;
         }
       }
 

@@ -31,65 +31,78 @@ export class LayoutRenderer {
     const sheetCount = Math.max(1, Math.ceil(numPages / slotsPerSheet));
 
     for (let s = 0; s < sheetCount; s++) {
-      const { sheetWrapper, grid } = this.createSheetGrid({
-        sheetNumber: s + 1,
-        template: template.label,
-        columns: template.grid.cols,
-        rows: template.grid.rows,
-        id: `zine-grid-sheet-${s + 1}`,
-        paper
+      const sheetWrapper = this.renderSheet(s, slotsPerSheet, numPages, template, options, handlers, paper);
+      this.container.appendChild(sheetWrapper);
+    }
+  }
+
+  renderSheet(s, slotsPerSheet, numPages, template, options, handlers, paper) {
+    const { sheetWrapper, grid } = this.createSheetGrid({
+      sheetNumber: s + 1,
+      template: template.label,
+      columns: template.grid.cols,
+      rows: template.grid.rows,
+      id: `zine-grid-sheet-${s + 1}`,
+      paper
+    });
+
+    if (template.gridAreas) {
+      grid.style.gridTemplateAreas = template.gridAreas;
+    }
+
+    this.fillGridCells(grid, s, slotsPerSheet, numPages, template, options, handlers);
+    this.addCutLines(grid, template);
+
+    sheetWrapper.appendChild(grid);
+    return sheetWrapper;
+  }
+
+  fillGridCells(grid, sheetIndex, slotsPerSheet, numPages, template, options, handlers) {
+    for (let i = 0; i < slotsPerSheet; i++) {
+      const slotConfig = this.normalizeSlotConfig(template, i);
+      const pageNumberInSheet = slotConfig.page;
+      const pageIndex = (sheetIndex * slotsPerSheet) + (pageNumberInSheet - 1);
+      const overallPageNumber = pageIndex + 1;
+
+      const labelText = getPageLabel(overallPageNumber, numPages, true);
+      const accessibleLabelText = getPageLabel(overallPageNumber, numPages, false);
+
+      const cell = this.createPageCell({
+        pageIndex,
+        pageNumber: pageNumberInSheet,
+        labelText,
+        accessibleLabelText,
+        altText: `${accessibleLabelText} preview`,
+        upsideDown: slotConfig.upsideDown,
+        options,
+        handlers
       });
 
       if (template.gridAreas) {
-        grid.style.gridTemplateAreas = template.gridAreas;
+        cell.style.gridArea = `page${pageNumberInSheet}`;
       }
 
-      // Fill grid based on template layout or sequential order
-      for (let i = 0; i < slotsPerSheet; i++) {
-        const slotConfig = this.normalizeSlotConfig(template, i);
-        const pageNumberInSheet = slotConfig.page;
-        const pageIndex = (s * slotsPerSheet) + (pageNumberInSheet - 1);
-        const overallPageNumber = pageIndex + 1;
-
-        const labelText = getPageLabel(overallPageNumber, numPages, true);
-        const accessibleLabelText = getPageLabel(overallPageNumber, numPages, false);
-
-        const cell = this.createPageCell({
-          pageIndex,
-          pageNumber: pageNumberInSheet,
-          labelText,
-          accessibleLabelText,
-          altText: `${accessibleLabelText} preview`,
-          upsideDown: slotConfig.upsideDown,
-          options,
-          handlers
-        });
-
-        if (template.gridAreas) {
-          cell.style.gridArea = `page${pageNumberInSheet}`;
-        }
-        
-        grid.appendChild(cell);
-      }
-
-      if (template.cutLines?.horizontal) {
-        const { afterRow, fromPct = 0, toPct = 100 } = template.cutLines.horizontal;
-        const cutLine = document.createElement('div');
-        cutLine.className = 'sheet-cut-line sheet-cut-line-h';
-        cutLine.setAttribute('aria-hidden', 'true');
-        cutLine.style.top = `${(afterRow / template.grid.rows) * 100}%`;
-        cutLine.style.left = `${fromPct}%`;
-        cutLine.style.right = `${100 - toPct}%`;
-        const label = document.createElement('span');
-        label.className = 'sheet-cut-line-label';
-        label.textContent = 'Cut here';
-        cutLine.appendChild(label);
-        grid.appendChild(cutLine);
-      }
-
-      sheetWrapper.appendChild(grid);
-      this.container.appendChild(sheetWrapper);
+      grid.appendChild(cell);
     }
+  }
+
+  addCutLines(grid, template) {
+    if (!template.cutLines?.horizontal) {
+      return;
+    }
+
+    const { afterRow, fromPct = 0, toPct = 100 } = template.cutLines.horizontal;
+    const cutLine = document.createElement('div');
+    cutLine.className = 'sheet-cut-line sheet-cut-line-h';
+    cutLine.setAttribute('aria-hidden', 'true');
+    cutLine.style.top = `${(afterRow / template.grid.rows) * 100}%`;
+    cutLine.style.left = `${fromPct}%`;
+    cutLine.style.right = `${100 - toPct}%`;
+    const label = document.createElement('span');
+    label.className = 'sheet-cut-line-label';
+    label.textContent = 'Cut here';
+    cutLine.appendChild(label);
+    grid.appendChild(cutLine);
   }
 
   normalizeSlotConfig(template, index) {
@@ -219,10 +232,10 @@ export class LayoutRenderer {
     });
 
     const flipBtn = toolbar.querySelector('.flip-btn');
-    if (flipBtn) { flipBtn.onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); }; }
+    if (flipBtn) {flipBtn.onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); };}
 
     const cropBtn = toolbar.querySelector('.crop-btn');
-    if (cropBtn) { cropBtn.onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); }; }
+    if (cropBtn) {cropBtn.onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); };}
 
     return cell;
   }
