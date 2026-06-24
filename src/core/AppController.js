@@ -204,7 +204,8 @@ export class AppController {
     this.prepareLayoutForTotalPages(startIndex + selectedPages.length);
     this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
 
-    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
+    let completedCount = 0;
+    const promises = selectedPages.map(async (pageNumber, selectedIndex) => {
       const targetIndex = startIndex + selectedIndex;
       const canvas = await this.pdfProcessor.renderPage(pageNumber);
       const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
@@ -217,10 +218,13 @@ export class AppController {
       this.state.allPageImages[targetIndex] = pageUrl;
       this.ui.updatePagePreview(targetIndex, pageUrl);
 
-      const percent = Math.round(((selectedIndex + 1) / selectedPages.length) * 100);
+      completedCount++;
+      const percent = Math.round((completedCount / selectedPages.length) * 100);
       this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
       this.ui.modal.updateProgress(percent);
-    }
+    });
+
+    await Promise.all(promises);
 
     this.state.totalPages = this.state.getFilledPageCount();
     this.state.resetWorkflowStatus();
