@@ -37,145 +37,184 @@
 
 <body class="mobile-zine-app">
 
-    <!-- ── Grid overlay (fixed, shown while dragging) ── -->
-    <div id="snap-grid-overlay" class="snap-grid-overlay" aria-hidden="true"></div>
+    <!-- ── App shell ─────────────────────────────────── -->
+    <div class="app-shell">
 
-    <!-- ── Infinite canvas surface ─────────────────────── -->
-    <div id="canvas-surface" class="canvas-surface">
-
-        <!-- CARD: Logo + controls -->
-        <div class="snap-card snap-card--pill" id="card-logo">
-            <div class="snap-card-handle">
-                <span class="app-brand-mark" aria-hidden="true">
-                    <span class="material-symbols-outlined">menu_book</span>
-                </span>
-                <h1 class="app-title">Zine-ify</h1>
-                <div class="flex items-center gap-1 ml-auto">
-                    <button id="pwa-install-trigger" type="button" class="snap-icon-btn" aria-label="Install app" title="Install app" hidden>
-                        <span class="material-symbols-outlined" style="font-size:15px;" aria-hidden="true">install_mobile</span>
-                    </button>
-                    <button id="theme-toggle" class="snap-icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
-                        <span class="material-symbols-outlined" style="font-size:15px;" id="theme-icon">dark_mode</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- CARD: Zine sheet (the main canvas) -->
-        <div class="snap-card snap-card--zine" id="card-zine">
-            <div class="snap-card-handle">
-                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
-                <span class="snap-card-label">Zine layout</span>
-                <span id="preview-helper-chip" class="snap-status-text ml-auto">Drop files to add pages</span>
-                <button id="clear-all-btn" type="button" class="snap-clear-btn ml-2" style="display:none;" aria-label="Clear all pages" title="Clear all pages">
-                    <span class="material-symbols-outlined" style="font-size:13px;" aria-hidden="true">delete_sweep</span>
-                    <span>Clear</span>
+        <!-- ── Header ──────────────────────────────────── -->
+        <header class="app-header">
+            <span class="app-brand-mark" aria-hidden="true">
+                <span class="material-symbols-outlined">menu_book</span>
+            </span>
+            <h1 class="app-title">Zine-ify</h1>
+            <div class="app-header-actions">
+                <button id="pwa-install-trigger" type="button" class="panel-icon-btn" aria-label="Install app" title="Install app" hidden>
+                    <span class="material-symbols-outlined" style="font-size:15px;" aria-hidden="true">install_mobile</span>
+                </button>
+                <button id="theme-toggle" class="panel-icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <span class="material-symbols-outlined" style="font-size:15px;" id="theme-icon">dark_mode</span>
                 </button>
             </div>
-            <div class="zine-card-body">
-                <div id="preview-area" class="is-empty">
-                    <div id="unified-drop-zone"
-                        role="region"
-                        aria-label="Page layout grid — drag to reorder or drop files to add">
-                        <div id="zine-sheets-container" class="workspace-sheet-stack w-full space-y-4">
-                            <!-- Sheets injected here -->
+        </header>
+
+        <!-- ── GridStack workspace ──────────────────────── -->
+        <div class="gs-wrapper">
+            <div class="grid-stack">
+
+                <!-- ── PANEL: Canvas preview ──────────────────────────── -->
+                <div class="grid-stack-item"
+                    gs-id="canvas" gs-x="0" gs-y="0" gs-w="8" gs-h="10"
+                    gs-min-w="4" gs-min-h="4">
+                    <div class="grid-stack-item-content">
+                        <div class="snap-card snap-card--canvas" id="card-zine">
+                            <div class="snap-card-handle" title="Drag to move">
+                                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                                <span class="snap-card-label">Zine layout</span>
+                                <span id="preview-helper-chip" class="snap-status-chip ml-auto">Drop files to add pages</span>
+                                <button id="clear-all-btn" type="button" class="panel-clear-btn ml-1" style="display:none;" aria-label="Clear all pages" title="Clear all pages">
+                                    <span class="material-symbols-outlined" style="font-size:13px;" aria-hidden="true">delete_sweep</span>
+                                    <span>Clear</span>
+                                </button>
+                            </div>
+                            <div class="snap-card-body snap-card-body--canvas">
+                                <div id="preview-area" class="is-empty">
+                                    <div id="unified-drop-zone"
+                                        role="region"
+                                        aria-label="Page layout grid — drag to reorder or drop files to add">
+                                        <div id="zine-sheets-container" class="workspace-sheet-stack w-full space-y-4">
+                                            <!-- Sheets injected here -->
+                                        </div>
+                                        <div id="command-deck" class="command-deck-container hidden"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div id="command-deck" class="command-deck-container hidden"></div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- CARD: Paper settings -->
-        <div class="snap-card" id="card-settings">
-            <div class="snap-card-handle">
-                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
-                <span class="snap-card-label">Paper</span>
-            </div>
-            <div class="snap-card-body">
-                <section id="settings-group">
-                    <div id="smart-sheet-config-container"></div>
-                    <input type="hidden" id="paper-size-select" value="letter">
-                    <input type="hidden" id="orientation-toggle" value="landscape">
-                    <details class="display-disclosure">
-                        <summary class="smart-sheet-disclosure display-disclosure-summary">
-                            <span class="material-symbols-outlined smart-sheet-disclosure-icon">expand_more</span>
-                            <span>Display options</span>
-                        </summary>
-                        <div class="display-disclosure-body">
-                            <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
-                                <span class="workspace-config-toggle-copy">Page Numbers</span>
-                                <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
-                                <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                    <span class="workspace-config-toggle-knob"></span>
-                                </span>
-                            </label>
-                            <p class="workspace-config-hint workspace-config-field-wide">Preview only — won't print.</p>
-                            <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
-                                <span class="workspace-config-toggle-copy">Page Controls</span>
-                                <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
-                                <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                    <span class="workspace-config-toggle-knob"></span>
-                                </span>
-                            </label>
+                <!-- ── PANEL: Add pages ──────────────────────────────── -->
+                <div class="grid-stack-item"
+                    gs-id="upload" gs-x="8" gs-y="0" gs-w="4" gs-h="4"
+                    gs-min-w="2" gs-min-h="3">
+                    <div class="grid-stack-item-content">
+                        <div class="snap-card" id="card-upload">
+                            <div class="snap-card-handle" title="Drag to move">
+                                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                                <span class="snap-card-label">Add pages</span>
+                            </div>
+                            <div class="snap-card-body">
+                                <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer"
+                                    role="button" tabindex="0"
+                                    aria-label="Add pages — click to browse, or drop PDF and image files here">
+                                    <span class="material-symbols-outlined" style="font-size:22px; color: var(--primary-vibrant);" aria-hidden="true">upload_file</span>
+                                    <span class="text-sm font-semibold">Drop files or click to browse</span>
+                                    <span class="text-xs" style="color:var(--muted-ink)">PDF, PNG, JPG, or WEBP</span>
+                                </div>
+                                <input type="file" id="pdf-upload" class="sr-only"
+                                    accept="application/pdf,image/png,image/jpeg,image/webp"
+                                    multiple aria-hidden="true" tabindex="-1" />
+                                <p id="upload-status" class="upload-status" aria-live="polite"></p>
+                                <section id="uploaded-files-list" class="hidden"></section>
+                            </div>
                         </div>
-                    </details>
-                </section>
-            </div>
-        </div>
-
-        <!-- CARD: Upload -->
-        <div class="snap-card" id="card-upload">
-            <div class="snap-card-handle">
-                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
-                <span class="snap-card-label">Add pages</span>
-            </div>
-            <div class="snap-card-body">
-                <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer" role="button" tabindex="0" aria-label="Add pages — click to browse, or drop PDF and image files here">
-                    <span class="material-symbols-outlined" style="font-size:22px; color: var(--primary-vibrant);" aria-hidden="true">upload_file</span>
-                    <span class="text-sm font-semibold">Drop files or click to browse</span>
-                    <span class="text-xs text-zinc-500">PDF, PNG, JPG, or WEBP</span>
+                    </div>
                 </div>
-                <input type="file" id="pdf-upload" class="sr-only" accept="application/pdf,image/png,image/jpeg,image/webp" multiple aria-hidden="true" tabindex="-1" />
-                <p id="upload-status" class="upload-status text-xs text-zinc-500" aria-live="polite"></p>
-                <section id="uploaded-files-list" class="hidden"></section>
-            </div>
-        </div>
 
-        <!-- CARD: Export PDF -->
-        <div class="snap-card snap-card--action" id="card-export">
-            <div class="snap-card-handle">
-                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
-            </div>
-            <div class="snap-card-body snap-card-body--action">
-                <button id="exportPdfBtn" type="button" class="workspace-action-button action-button snap-action-btn flex items-center justify-center gap-2" disabled aria-label="Export PDF" title="Export your zine as a printable PDF">
-                    <span class="material-symbols-outlined" aria-hidden="true">print</span>
-                    <span class="font-semibold">Export PDF</span>
-                </button>
-            </div>
-        </div>
+                <!-- ── PANEL: Page settings ──────────────────────────── -->
+                <div class="grid-stack-item"
+                    gs-id="settings" gs-x="8" gs-y="4" gs-w="4" gs-h="4"
+                    gs-min-w="2" gs-min-h="3">
+                    <div class="grid-stack-item-content">
+                        <div class="snap-card" id="card-settings">
+                            <div class="snap-card-handle" title="Drag to move">
+                                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                                <span class="snap-card-label">Paper</span>
+                            </div>
+                            <div class="snap-card-body">
+                                <section id="settings-group">
+                                    <div id="smart-sheet-config-container"></div>
+                                    <input type="hidden" id="paper-size-select" value="letter">
+                                    <input type="hidden" id="orientation-toggle" value="landscape">
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- CARD: Preview Fold -->
-        <div class="snap-card snap-card--action" id="card-preview-fold">
-            <div class="snap-card-handle">
-                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
-            </div>
-            <div class="snap-card-body snap-card-body--action">
-                <button id="view3dBtn" type="button" class="workspace-action-button workspace-action-button-secondary action-button snap-action-btn flex items-center justify-center gap-2" disabled aria-label="Preview fold" title="Preview how your zine folds together">
-                    <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
-                    <span class="font-semibold">Preview Fold</span>
-                </button>
-            </div>
-        </div>
+                <!-- ── PANEL: Display options ────────────────────────── -->
+                <div class="grid-stack-item"
+                    gs-id="display" gs-x="8" gs-y="8" gs-w="4" gs-h="2"
+                    gs-min-w="2" gs-min-h="2">
+                    <div class="grid-stack-item-content">
+                        <div class="snap-card" id="card-display">
+                            <div class="snap-card-handle" title="Drag to move">
+                                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                                <span class="snap-card-label">Display</span>
+                            </div>
+                            <div class="snap-card-body snap-card-body--display">
+                                <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
+                                    <span class="workspace-config-toggle-copy">Page Numbers</span>
+                                    <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
+                                    <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                        <span class="workspace-config-toggle-knob"></span>
+                                    </span>
+                                </label>
+                                <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
+                                    <span class="workspace-config-toggle-copy">Page Controls</span>
+                                    <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
+                                    <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                        <span class="workspace-config-toggle-knob"></span>
+                                    </span>
+                                </label>
+                                <p class="workspace-config-hint">Preview only — won't print.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    </div><!-- /canvas-surface -->
+                <!-- ── PANEL: Export ─────────────────────────────────── -->
+                <div class="grid-stack-item"
+                    gs-id="export" gs-x="0" gs-y="10" gs-w="8" gs-h="2"
+                    gs-min-w="3" gs-min-h="2">
+                    <div class="grid-stack-item-content">
+                        <div class="snap-card snap-card--actions" id="card-actions">
+                            <div class="snap-card-handle" title="Drag to move">
+                                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                                <span class="snap-card-label">Export</span>
+                            </div>
+                            <div class="snap-card-body snap-card-body--actions">
+                                <button id="exportPdfBtn" type="button"
+                                    class="workspace-action-button panel-action-btn flex items-center justify-center gap-2"
+                                    disabled aria-label="Export PDF" title="Export your zine as a printable PDF">
+                                    <span class="material-symbols-outlined" aria-hidden="true">print</span>
+                                    <span class="font-semibold">Export PDF</span>
+                                </button>
+                                <button id="view3dBtn" type="button"
+                                    class="workspace-action-button workspace-action-button-secondary panel-action-btn flex items-center justify-center gap-2"
+                                    disabled aria-label="Preview fold" title="Preview how your zine folds together">
+                                    <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
+                                    <span class="font-semibold">Preview Fold</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /grid-stack -->
+        </div><!-- /gs-wrapper -->
+
+    </div><!-- /app-shell -->
 
     <!-- ── JS-compat stubs ──────────────────────────────── -->
+    <div id="snap-grid-overlay" class="sr-only" aria-hidden="true"></div>
     <div id="control-rail"       class="sr-only" aria-hidden="true"></div>
     <div id="global-action-dock" class="sr-only" aria-hidden="true"></div>
     <div id="mobile-rail-overlay" class="sr-only" aria-hidden="true"></div>
     <button id="open-rail-sheet-btn"  class="sr-only" tabindex="-1" aria-hidden="true"></button>
     <button id="close-rail-sheet-btn" class="sr-only" tabindex="-1" aria-hidden="true"></button>
+    <!-- Legacy card IDs (content moved into merged panels) -->
+    <div id="card-export"       class="sr-only" aria-hidden="true"></div>
+    <div id="card-preview-fold" class="sr-only" aria-hidden="true"></div>
+    <div id="sidebar"           class="sr-only" aria-hidden="true"></div>
 
     <!-- ── Progress Overlay ─────────────────────────────── -->
     <div id="progress-container"

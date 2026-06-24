@@ -19,6 +19,7 @@
     "@khmyznikov/pwa-install": "^0.6.3",
     "clsx": "^2.1.1",
     "dompurify": "3.3.2",
+    "gridstack": "^12.6.0",
     "html2canvas": "^1.4.1",
     "jspdf": "4.2.1",
     "mitt": "^3.0.1",
