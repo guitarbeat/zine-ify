@@ -1,5 +1,4 @@
 import { PAPER_SIZES, ZINE_TEMPLATES } from '../utils/config.js';
-import { mediaProcessor } from './MediaProcessor.js';
 
 const MM_TO_PX_300DPI = 300 / 25.4;
 
@@ -7,6 +6,33 @@ export class ExportService {
   constructor(ui, state) {
     this.ui = ui;
     this.state = state;
+  }
+
+  _getSlotData(slot, template, sheetIndex, slotsPerSheet) {
+    const rawSlot = template?.layout ? template.layout[slot] : null;
+    let pageNum, upsideDown;
+
+    if (typeof rawSlot === 'number') {
+      pageNum = rawSlot;
+      upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
+    } else if (rawSlot && typeof rawSlot === 'object') {
+      pageNum = rawSlot.page;
+      upsideDown = !!rawSlot.upsideDown;
+    } else {
+      pageNum = slot + 1;
+      upsideDown = false;
+    }
+
+    const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
+    const url = this.state.allPageImages[pageIndex] || null;
+    const isFlipped = !!this.state.pageFlips[pageIndex];
+    const isZoomed = !!this.state.pageZooms[pageIndex];
+
+    const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
+    const scale = isZoomed ? 1.1 : 1;
+    const objectFit = isZoomed ? 'cover' : 'contain';
+
+    return { pageNum, upsideDown, pageIndex, url, isFlipped, isZoomed, rotateDeg, scale, objectFit };
   }
 
   async handleExport() {
@@ -41,27 +67,19 @@ export class ExportService {
     const cellW = drawW / cols;
     const cellH = drawH / rows;
 
-    const sheetPromises = Array.from({ length: sheetCount }, async (_, sheetIndex) => {
-      // ⚡️ Bolt: Using mediaProcessor.createRenderCanvas for OffscreenCanvas support to avoid main thread blocking
-      const { canvas: offscreen, context: ctx } = mediaProcessor.createRenderCanvas(canvasW, canvasH);
-
+    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
+      const offscreen = document.createElement('canvas');
+      offscreen.width = canvasW;
+      offscreen.height = canvasH;
+      const ctx = offscreen.getContext('2d');
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvasW, canvasH);
 
       const draws = [];
 
       for (let slot = 0; slot < slotsPerSheet; slot++) {
-        const { pageNum, upsideDown } = this._resolveSlot(template, slot);
-
-        const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
-        const url = this.state.allPageImages[pageIndex];
-        if (!url) {continue;}
-
-        const isFlipped = !!this.state.pageFlips[pageIndex];
-        const isZoomed = !!this.state.pageZooms[pageIndex];
-        const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
-        const scale = isZoomed ? 1.1 : 1;
-        const objectFit = isZoomed ? 'cover' : 'contain';
+        const { url, rotateDeg, scale, objectFit } = this._getSlotData(slot, template, sheetIndex, slotsPerSheet);
+        if (!url) { continue; }
 
         const row = Math.floor(slot / cols);
         const col = slot % cols;
@@ -79,25 +97,7 @@ export class ExportService {
         )
       );
 
-      // ⚡️ Bolt: Using convertToBlob for OffscreenCanvas since it doesn't support synchronous toDataURL
-      if (offscreen.convertToBlob) {
-        const blob = await offscreen.convertToBlob({ type: 'image/jpeg', quality: 0.92 });
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-      }
-
-      return offscreen.toDataURL('image/jpeg', 0.92);
-    });
-
-    // ⚡️ Bolt: Processing offscreen sheet canvases concurrently before sequentially adding to jsPDF
-    const sheetImageData = await Promise.all(sheetPromises);
-
-    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
-      const imgData = sheetImageData[sheetIndex];
+      const imgData = offscreen.toDataURL('image/jpeg', 0.92);
       if (sheetIndex > 0) {
         doc.addPage([dims.width, dims.height], isLandscape ? 'landscape' : 'portrait');
       }
@@ -105,24 +105,6 @@ export class ExportService {
     }
 
     doc.save('zine.pdf');
-  }
-
-  _resolveSlot(template, slot) {
-    const rawSlot = template?.layout ? template.layout[slot] : null;
-    let pageNum, upsideDown;
-
-    if (typeof rawSlot === 'number') {
-      pageNum = rawSlot;
-      upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
-    } else if (rawSlot && typeof rawSlot === 'object') {
-      pageNum = rawSlot.page;
-      upsideDown = !!rawSlot.upsideDown;
-    } else {
-      pageNum = slot + 1;
-      upsideDown = false;
-    }
-
-    return { pageNum, upsideDown };
   }
 
   _loadImage(url) {
@@ -203,16 +185,8 @@ export class ExportService {
       let cells = '';
 
       for (let slot = 0; slot < slotsPerSheet; slot++) {
-        const { pageNum, upsideDown } = this._resolveSlot(template, slot);
-
-        const pageIndex = (s * slotsPerSheet) + (pageNum - 1);
-        const url = this.state.allPageImages[pageIndex] || null;
-        const isFlipped = !!this.state.pageFlips[pageIndex];
-        const isZoomed = !!this.state.pageZooms[pageIndex];
-
-        const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
-        const scale = isZoomed ? '1.1' : '1';
-        const objectFit = isZoomed ? 'cover' : 'contain';
+        const { pageNum, url, rotateDeg, objectFit, scale: numScale } = this._getSlotData(slot, template, s, slotsPerSheet);
+        const scale = String(numScale);
 
         const areaStyle = template?.gridAreas ? `grid-area:page${pageNum};` : '';
         const cellStyle = `position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;${areaStyle}`;
