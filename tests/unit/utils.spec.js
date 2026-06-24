@@ -55,10 +55,10 @@ test.describe('Utils', () => {
   });
 
   test('classifyFileKind', () => {
-    expect(classifyFileKind({ type: 'application/pdf' })).toBe('pdf');
-    expect(classifyFileKind({ type: 'image/png' })).toBe('image');
-    expect(classifyFileKind({ type: 'image/jpeg' })).toBe('image');
-    expect(classifyFileKind({ type: 'text/plain' })).toBeNull();
+    expect(classifyFileKind({ name: 'test.pdf', type: 'application/pdf' })).toBe('pdf');
+    expect(classifyFileKind({ name: 'test.png', type: 'image/png' })).toBe('image');
+    expect(classifyFileKind({ name: 'test.jpeg', type: 'image/jpeg' })).toBe('image');
+    expect(classifyFileKind({ name: 'test.txt', type: 'text/plain' })).toBeNull();
   });
 
   test('getFileTypeLabel', () => {
@@ -68,19 +68,19 @@ test.describe('Utils', () => {
   });
 
   test('validateUploadFile', () => {
-    expect(validateUploadFile({ type: 'application/pdf', size: 1024 })).toEqual({
+    expect(validateUploadFile({ name: 'test.pdf', type: 'application/pdf', size: 1024 })).toEqual({
       valid: true,
       errors: [],
       kind: 'pdf'
     });
 
-    expect(validateUploadFile({ type: 'image/png', size: 2048 })).toEqual({
+    expect(validateUploadFile({ name: 'test.png', type: 'image/png', size: 2048 })).toEqual({
       valid: true,
       errors: [],
       kind: 'image'
     });
 
-    const invalid = validateUploadFile({ type: 'text/plain', size: 12 });
+    const invalid = validateUploadFile({ name: 'test.txt', type: 'text/plain', size: 12 });
     expect(invalid.valid).toBe(false);
     expect(invalid.kind).toBeNull();
     expect(invalid.errors).toContain('Please select a PDF or image file.');
@@ -94,21 +94,21 @@ test.describe('Utils', () => {
     });
 
     // Only accepted files
-    const accepted = [{ type: 'application/pdf' }, { type: 'image/png' }];
+    const accepted = [{ name: 'test.pdf', type: 'application/pdf' }, { name: 'test.png', type: 'image/png' }];
     expect(partitionSupportedFiles(accepted)).toEqual({
       acceptedFiles: accepted,
       rejectedFiles: []
     });
 
     // Only rejected files
-    const rejected = [{ type: 'text/plain' }, { type: 'audio/mp3' }];
+    const rejected = [{ name: 'test.txt', type: 'text/plain' }, { name: 'test.mp3', type: 'audio/mp3' }];
     expect(partitionSupportedFiles(rejected)).toEqual({
       acceptedFiles: [],
       rejectedFiles: rejected
     });
 
     // Mixed array
-    const mixed = [{ type: 'application/pdf' }, { type: 'text/plain' }, { type: 'image/jpeg' }];
+    const mixed = [{ name: '1.pdf', type: 'application/pdf' }, { name: '2.txt', type: 'text/plain' }, { name: '3.jpeg', type: 'image/jpeg' }];
     expect(partitionSupportedFiles(mixed)).toEqual({
       acceptedFiles: [mixed[0], mixed[2]],
       rejectedFiles: [mixed[1]]
