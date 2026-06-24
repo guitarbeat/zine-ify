@@ -909,19 +909,33 @@ export class SegmentedControl {
 
       switch (e.key) {
         case 'ArrowLeft':
-        case 'ArrowUp':
+        case 'ArrowUp': {
+
           e.preventDefault();
+
           const prevIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+
           this.setValue(buttons[prevIndex].dataset.value);
+
           buttons[prevIndex].focus();
+
           break;
+
+        }
         case 'ArrowRight':
-        case 'ArrowDown':
+        case 'ArrowDown': {
+
           e.preventDefault();
+
           const nextIndex = (currentIndex + 1) % buttons.length;
+
           this.setValue(buttons[nextIndex].dataset.value);
+
           buttons[nextIndex].focus();
+
           break;
+
+        }
       }
     });
   }

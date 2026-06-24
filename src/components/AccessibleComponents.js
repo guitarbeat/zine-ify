@@ -907,16 +907,28 @@ export class Accordion {
       // Handle keyboard
       trigger.addEventListener('keydown', (e) => {
         switch (e.key) {
-          case 'ArrowDown':
+          case 'ArrowDown': {
+
             e.preventDefault();
+
             const nextIndex = (index + 1) % this.items.length;
+
             this.items[nextIndex].trigger.focus();
+
             break;
-          case 'ArrowUp':
+
+          }
+          case 'ArrowUp': {
+
             e.preventDefault();
+
             const prevIndex = (index - 1 + this.items.length) % this.items.length;
+
             this.items[prevIndex].trigger.focus();
+
             break;
+
+          }
           case 'Home':
             e.preventDefault();
             this.items[0].trigger.focus();

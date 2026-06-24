@@ -18,8 +18,6 @@ export class StateStore {
     this.paperSize = 'letter';
     this.orientation = 'landscape';
     this.margin = 0;
-    // Custom paper dimensions in mm, used when paperSize === 'custom'.
-    this.customPaper = { width: 215.9, height: 279.4 };
   }
 
   getFilledPageCount() {
@@ -56,15 +54,12 @@ export class StateStore {
     this.workflowExported = false;
   }
 
-  updatePaperSettings({ paperSize, orientation, customPaper }) {
+  updatePaperSettings({ paperSize, orientation }) {
     if (paperSize) {
       this.paperSize = paperSize;
     }
     if (orientation) {
       this.orientation = orientation;
-    }
-    if (customPaper && customPaper.width > 0 && customPaper.height > 0) {
-      this.customPaper = { width: customPaper.width, height: customPaper.height };
     }
   }
 }

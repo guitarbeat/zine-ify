@@ -1,110 +1,139 @@
-import Sortable from 'sortablejs';
-
 /**
  * DragAndDropHandler.js
- * File-drop handling + SortableJS page reordering
+ * Manages drag and drop interactions for the UI
  */
 export class DragAndDropHandler {
   constructor(elements, emitter) {
     this.elements = elements;
     this.emitter = emitter;
-    this._sortables = [];
+    this._draggedItem = null;
+    this._draggedSrc = null;
+    this._draggedHasPage = false;
   }
 
   setupEventListeners() {
-    // Upload zone
+    // Upload zone in sidebar
     this.elements.uploadZone?.addEventListener('dragover', (e) => {
       e.preventDefault();
       this.elements.uploadZone.classList.add('dragover');
     });
-    this.elements.uploadZone?.addEventListener('dragleave', () => {
+    this.elements.uploadZone?.addEventListener('dragleave', (e) => {
+      e.preventDefault();
       this.elements.uploadZone.classList.remove('dragover');
     });
     this.elements.uploadZone?.addEventListener('drop', (e) => {
       e.preventDefault();
       this.elements.uploadZone.classList.remove('dragover');
       const files = Array.from(e.dataTransfer.files);
-      if (files.length) {this.emitter.emit('filesDropped', files);}
+      if (files.length > 0) {
+        this.emitter.emit('filesDropped', files);
+      }
     });
 
-    // Unified drop zone (workspace canvas) — external file drops only
-    const zone = document.getElementById('unified-drop-zone');
-    if (zone) {
-      zone.addEventListener('dragover', (e) => {
-        // Ignore drags that originate from page cells (Sortable handles those)
-        if (e.dataTransfer?.types.includes('text/plain')) {return;}
+    // Unified drop zone (workspace stage)
+    const unifiedDropZone = document.getElementById('unified-drop-zone');
+    if (unifiedDropZone) {
+      unifiedDropZone.addEventListener('dragover', (e) => {
+        if (this._draggedItem) { return; }
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
-        zone.classList.add('drag-active');
+        unifiedDropZone.classList.add('drag-active');
       });
-      zone.addEventListener('dragleave', (e) => {
-        if (!zone.contains(e.relatedTarget)) {zone.classList.remove('drag-active');}
+
+      unifiedDropZone.addEventListener('dragleave', (e) => {
+        if (!unifiedDropZone.contains(e.relatedTarget)) {
+          unifiedDropZone.classList.remove('drag-active');
+        }
       });
-      zone.addEventListener('drop', (e) => {
-        zone.classList.remove('drag-active');
-        const files = Array.from(e.dataTransfer?.files ?? []);
-        if (files.length) { e.preventDefault(); this.emitter.emit('filesDropped', files); }
+
+      unifiedDropZone.addEventListener('drop', (e) => {
+        if (this._draggedItem) { return; }
+        e.preventDefault();
+        unifiedDropZone.classList.remove('drag-active');
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0) {
+          this.emitter.emit('filesDropped', files);
+        }
       });
     }
   }
 
-  /**
-   * Attach a Sortable instance to one zine grid.
-   * Call after every render (LayoutRenderer re-creates DOM).
-   */
-  initSortable(gridEl) {
-    if (!gridEl) {return;}
+  handleDragStart(e, cell) {
+    this._draggedItem = cell;
+    this._draggedHasPage = cell.classList.contains('has-page');
+    this._draggedSrc = cell.querySelector('.page-content-img')?.src || null;
 
-    let draggedPageIndex = null;
-    let targetPageIndex  = null;
-
-    const s = new Sortable(gridEl, {
-      animation: 160,
-      ghostClass:  'sortable-ghost',
-      chosenClass: 'sortable-chosen',
-      dragClass:   'sortable-drag',
-
-      // Don't start a sort drag when clicking toolbar buttons
-      filter: '.page-toolbar, button',
-      preventOnFilter: false,
-
-      onStart: ({ item }) => {
-        draggedPageIndex = parseInt(item.dataset.pageIndex, 10);
-        targetPageIndex  = null;
-      },
-
-      // Track the last cell the ghost hovered over
-      onMove: (evt) => {
-        const rel = evt.related;
-        if (rel?.classList.contains('page-cell')) {
-          targetPageIndex = parseInt(rel.dataset.pageIndex, 10);
-        }
-        return true;
-      },
-
-      onEnd: () => {
-        if (
-          draggedPageIndex !== null &&
-          targetPageIndex  !== null &&
-          draggedPageIndex !== targetPageIndex
-        ) {
-          this.emitter.emit('pagesSwapped', {
-            fromIndex: draggedPageIndex,
-            toIndex:   targetPageIndex,
-          });
-        }
-        draggedPageIndex = null;
-        targetPageIndex  = null;
-      },
-    });
-
-    this._sortables.push(s);
-    return s;
+    // Use the cell itself as the drag image so the ghost follows the cursor naturally
+    e.dataTransfer.effectAllowed = 'move';
+    cell.classList.add('dragging');
   }
 
-  /** Destroy all Sortable instances (call before re-render) */
-  destroySortables() {
-    this._sortables.forEach(s => s.destroy());
-    this._sortables = [];
+  handleDragOver(e, cell) {
+    if (e.preventDefault) { e.preventDefault(); }
+    if (this._draggedItem === cell) { return; }
+
+    if (!cell.classList.contains('drag-over')) {
+      cell.classList.add('drag-over');
+      this._injectPreview(cell);
+    }
+    return false;
+  }
+
+  handleDragLeave(cell, e) {
+    if (e && cell.contains(e.relatedTarget)) { return; }
+    cell.classList.remove('drag-over');
+    this._removePreview(cell);
+  }
+
+  handleDrop(e, cell) {
+    if (e.stopPropagation) { e.stopPropagation(); }
+    cell.classList.remove('drag-over');
+    this._removePreview(cell);
+
+    if (this._draggedItem && this._draggedItem !== cell) {
+      const fromIndex = parseInt(this._draggedItem.getAttribute('data-page-index'));
+      const toIndex = parseInt(cell.getAttribute('data-page-index'));
+      this.emitter.emit('pagesSwapped', { fromIndex, toIndex });
+    }
+    return false;
+  }
+
+  handleDragEnd(cell) {
+    this._draggedItem = null;
+    this._draggedSrc = null;
+    this._draggedHasPage = false;
+    cell.classList.remove('dragging');
+    document.querySelectorAll('.page-cell').forEach(c => {
+      c.classList.remove('drag-over');
+      this._removePreview(c);
+    });
+  }
+
+  _injectPreview(targetCell) {
+    this._removePreview(targetCell);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'drag-drop-preview';
+
+    // Ghost thumbnail of the dragged page
+    if (this._draggedHasPage && this._draggedSrc) {
+      const img = document.createElement('img');
+      img.src = this._draggedSrc;
+      img.className = 'drag-drop-preview-img';
+      img.alt = '';
+      overlay.appendChild(img);
+    }
+
+    // Swap badge
+    const badge = document.createElement('div');
+    badge.className = 'drag-drop-preview-badge';
+    badge.innerHTML = '<span class="material-symbols-outlined">swap_horiz</span>';
+    overlay.appendChild(badge);
+
+    targetCell.appendChild(overlay);
+  }
+
+  _removePreview(cell) {
+    cell.querySelector('.drag-drop-preview')?.remove();
   }
 }

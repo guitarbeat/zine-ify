@@ -1,7 +1,6 @@
 ## 2024-04-14 - Icon-only modal close buttons missing ARIA labels
 **Learning:** Icon-only modal close buttons (like the 3D preview and page picker close buttons) often miss `aria-label` and `title` attributes, making them inaccessible to screen readers and lacking tooltips for mouse users. Even dynamically generated modals (like the zoom preview modal in `ModalManager.js`) need these attributes explicitly defined in their HTML template strings.
 **Action:** Always ensure that icon-only interactive elements (`<button>`, `<a>`) have clear, descriptive `aria-label` and `title` attributes, regardless of whether they are hardcoded in the main HTML file or generated dynamically via JavaScript.
-
-## 2024-06-20 - Global progress modal isn't enough context for long actions
-**Learning:** While global progress modals are helpful for overall async operations, relying solely on them without updating the state of the trigger element can lead to confusion and lack of immediate feedback on where the action originated from.
-**Action:** When working on long-running async tasks like PDF generation or file imports, provide localized loading states directly on the trigger element (e.g. `aria-busy="true"`, `disabled`, and inline text/spinners) so screen readers and users immediately know the specific interaction has started processing.
+## 2024-04-14 - Action-oriented `aria-label` attributes for constraint chips and visual grids
+**Learning:** When building visual interactive grids or preset constraint chips in the UI (e.g., in `PagePicker.js` or `index.html`), relying solely on the visible text or internal image alt-text is insufficient for screen readers. Buttons like "First 8" or an image thumbnail representing a page need context about what the button *does*.
+**Action:** Always explicitly define action-oriented `aria-label` and `title` attributes on these elements (e.g., `aria-label="Select first 8 pages"` or `aria-label="Toggle selection for page X"`) to ensure robust screen reader navigation and tooltips.
