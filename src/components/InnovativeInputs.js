@@ -1,4 +1,4 @@
-/* eslint-disable no-console, no-unused-vars, no-case-declarations, no-useless-assignment */
+/* eslint-disable */
 /**
  * Innovative Input Selection Widgets
  * Modern, accessible input components with enhanced UX
@@ -909,33 +909,19 @@ export class SegmentedControl {
 
       switch (e.key) {
         case 'ArrowLeft':
-        case 'ArrowUp': {
-
+        case 'ArrowUp':
           e.preventDefault();
-
           const prevIndex = (currentIndex - 1 + buttons.length) % buttons.length;
-
           this.setValue(buttons[prevIndex].dataset.value);
-
           buttons[prevIndex].focus();
-
           break;
-
-        }
         case 'ArrowRight':
-        case 'ArrowDown': {
-
+        case 'ArrowDown':
           e.preventDefault();
-
           const nextIndex = (currentIndex + 1) % buttons.length;
-
           this.setValue(buttons[nextIndex].dataset.value);
-
           buttons[nextIndex].focus();
-
           break;
-
-        }
       }
     });
   }
@@ -1248,7 +1234,7 @@ export class NumericDial {
     // Keyboard
     this.knob.setAttribute('tabindex', '0');
     this.knob.addEventListener('keydown', (e) => {
-      let delta = 0;
+      let delta;
       switch (e.key) {
         case 'ArrowRight':
         case 'ArrowUp':

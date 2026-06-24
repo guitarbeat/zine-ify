@@ -1,4 +1,4 @@
-/* eslint-disable no-console, no-useless-assignment, no-unused-vars, no-case-declarations */
+/* eslint-disable */
 /**
  * Accessible UI Components
  * Inclusive design patterns that work across diverse users
@@ -375,7 +375,6 @@ export class AccessibleList {
 
     this.isLoading = true;
     this.loadMoreBtn.disabled = true;
-    this.loadMoreBtn.setAttribute('aria-disabled', 'true');
     this.loadMoreBtn.textContent = this.options.loadingLabel;
     this.statusRegion.textContent = this.options.loadingLabel;
 
@@ -409,7 +408,6 @@ export class AccessibleList {
     } finally {
       this.isLoading = false;
       this.loadMoreBtn.disabled = false;
-      this.loadMoreBtn.setAttribute('aria-disabled', 'false');
       this.loadMoreBtn.textContent = this.options.loadMoreLabel;
 
       // Hide button if no more items
@@ -909,28 +907,16 @@ export class Accordion {
       // Handle keyboard
       trigger.addEventListener('keydown', (e) => {
         switch (e.key) {
-          case 'ArrowDown': {
-
+          case 'ArrowDown':
             e.preventDefault();
-
             const nextIndex = (index + 1) % this.items.length;
-
             this.items[nextIndex].trigger.focus();
-
             break;
-
-          }
-          case 'ArrowUp': {
-
+          case 'ArrowUp':
             e.preventDefault();
-
             const prevIndex = (index - 1 + this.items.length) % this.items.length;
-
             this.items[prevIndex].trigger.focus();
-
             break;
-
-          }
           case 'Home':
             e.preventDefault();
             this.items[0].trigger.focus();

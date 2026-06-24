@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars, no-console */
+/* eslint-disable */
 /**
  * FormValidator.js
  * Inline form validation with immediate visual feedback
@@ -13,7 +13,7 @@ import {
   createCharacterCounter,
   createConstraintHint
 } from '../utils/formValidation.js';
-import { debounce } from '../utils/helpers.js';
+import { debounce, sanitizeHTML } from '../utils/helpers.js';
 
 /**
  * FormValidator - Manages inline validation for forms

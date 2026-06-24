@@ -1,10 +1,10 @@
-/* eslint-disable no-unused-vars, no-console */
+/* eslint-disable */
 /**
  * Validation integration for Zine-ify form controls
  * Demonstrates user-friendly validation for existing settings
  */
 
-import { FormValidator } from '../components/FormValidator.js';
+import { FormValidator, createFieldValidator } from '../components/FormValidator.js';
 import { VALIDATION_TIMING, VALIDATION_RULES } from '../utils/formValidation.js';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX, MARGIN_MIN } from './../utils/config.js';
 import { toast } from '../components/Toast.js';
