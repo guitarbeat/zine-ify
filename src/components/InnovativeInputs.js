@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Innovative Input Selection Widgets
  * Modern, accessible input components with enhanced UX
@@ -876,7 +875,7 @@ export class SegmentedControl {
     this.track.appendChild(this.indicator);
 
     // Segments
-    this.options.segments.forEach((segment, index) => {
+    this.options.segments.forEach((segment, _index) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'segmented-control-btn';
@@ -909,19 +908,21 @@ export class SegmentedControl {
 
       switch (e.key) {
         case 'ArrowLeft':
-        case 'ArrowUp':
+        case 'ArrowUp': {
           e.preventDefault();
           const prevIndex = (currentIndex - 1 + buttons.length) % buttons.length;
           this.setValue(buttons[prevIndex].dataset.value);
           buttons[prevIndex].focus();
           break;
+        }
         case 'ArrowRight':
-        case 'ArrowDown':
+        case 'ArrowDown': {
           e.preventDefault();
           const nextIndex = (currentIndex + 1) % buttons.length;
           this.setValue(buttons[nextIndex].dataset.value);
           buttons[nextIndex].focus();
           break;
+        }
       }
     });
   }
@@ -1234,38 +1235,38 @@ export class NumericDial {
     // Keyboard
     this.knob.setAttribute('tabindex', '0');
     this.knob.addEventListener('keydown', (e) => {
-      let delta;
       switch (e.key) {
         case 'ArrowRight':
         case 'ArrowUp':
-          delta = this.options.step;
+          this.value = Math.min(this.options.max, Math.max(this.options.min, this.value + this.options.step));
+          this._updateDisplay();
           break;
         case 'ArrowLeft':
         case 'ArrowDown':
-          delta = -this.options.step;
+          this.value = Math.min(this.options.max, Math.max(this.options.min, this.value - this.options.step));
+          this._updateDisplay();
           break;
         case 'PageUp':
-          delta = this.options.step * 10;
+          this.value = Math.min(this.options.max, Math.max(this.options.min, this.value + (this.options.step * 10)));
+          this._updateDisplay();
           break;
         case 'PageDown':
-          delta = -this.options.step * 10;
+          this.value = Math.min(this.options.max, Math.max(this.options.min, this.value - (this.options.step * 10)));
+          this._updateDisplay();
           break;
         case 'Home':
           this.value = this.options.min;
           this._updateDisplay();
-          return;
+          break;
         case 'End':
           this.value = this.options.max;
           this._updateDisplay();
-          return;
+          break;
         default:
           return;
       }
 
       e.preventDefault();
-      this.value = Math.max(this.options.min, Math.min(this.options.max, this.value + delta));
-      this._updateDisplay();
-
       if (this.options.onChange) {
         this.options.onChange(this.value);
       }

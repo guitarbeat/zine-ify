@@ -19,11 +19,11 @@ PAGE_CELL_TEMPLATE.innerHTML = `
   <div class="page-placeholder flex flex-col items-center justify-center gap-2 absolute inset-0">
      <span class="material-symbols-outlined text-3xl">note_stack</span>
   </div>
-  <div class="page-cell-remove-hint" aria-hidden="true">
+  <button type="button" class="page-cell-remove-hint" aria-label="Remove page">
     <div class="page-cell-remove-hint-inner">
       <span class="material-symbols-outlined">remove_circle</span>
       <span>Remove</span>
     </div>
-  </div>
+  </button>
   <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-200 ease-in-out relative z-[5]" draggable="false" />
 `;
