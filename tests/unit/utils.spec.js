@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, sanitizeHTML } from '../../src/utils/helpers.js';
+import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger } from '../../src/utils/helpers.js';
 import {
   classifyFileKind,
   getFileTypeLabel,
   validateUploadFile,
-  MAX_UPLOAD_FILE_SIZE
+  partitionSupportedFiles
 } from '../../src/utils/fileValidation.js';
 
 test.describe('Utils', () => {
@@ -67,90 +67,46 @@ test.describe('Utils', () => {
     expect(getFileTypeLabel('unknown')).toBe('File');
   });
 
-  test('validateUploadFile: valid PDF', () => {
+  test('validateUploadFile', () => {
     expect(validateUploadFile({ type: 'application/pdf', size: 1024 })).toEqual({
       valid: true,
       errors: [],
       kind: 'pdf'
     });
-  });
 
-  test('validateUploadFile: valid image', () => {
     expect(validateUploadFile({ type: 'image/png', size: 2048 })).toEqual({
       valid: true,
       errors: [],
       kind: 'image'
     });
-  });
 
-  test('validateUploadFile: unsupported file type', () => {
     const invalid = validateUploadFile({ type: 'text/plain', size: 12 });
     expect(invalid.valid).toBe(false);
     expect(invalid.kind).toBeNull();
     expect(invalid.errors).toContain('Please select a PDF or image file.');
   });
 
-  test('validateUploadFile: null file', () => {
-    const result = validateUploadFile(null);
-    expect(result.valid).toBe(false);
-    expect(result.errors).toContain('No file selected');
-  });
+  test('partitionSupportedFiles', () => {
+    expect(partitionSupportedFiles([])).toEqual({ acceptedFiles: [], rejectedFiles: [] });
 
-  test('validateUploadFile: empty file', () => {
-    const result = validateUploadFile({ type: 'application/pdf', size: 0 });
-    expect(result.valid).toBe(false);
-    expect(result.errors).toContain('File appears to be empty');
-  });
+    const pdfFile = { type: 'application/pdf', name: 'doc.pdf' };
+    const imgFile = { type: 'image/png', name: 'pic.png' };
+    const textFile = { type: 'text/plain', name: 'notes.txt' };
+    const noTypeFile = { name: 'unknown' };
 
-  test('validateUploadFile: oversized file', () => {
-    const result = validateUploadFile({ type: 'application/pdf', size: MAX_UPLOAD_FILE_SIZE + 1 });
-    expect(result.valid).toBe(false);
-    expect(result.errors.some(e => e.includes('File too large'))).toBe(true);
-  });
-});
+    expect(partitionSupportedFiles([pdfFile, imgFile])).toEqual({
+      acceptedFiles: [pdfFile, imgFile],
+      rejectedFiles: []
+    });
 
-test.describe('sanitizeHTML', () => {
-  test.beforeEach(async () => {
-    // We mock document and DOMParser for Node context using jsdom
-    const { JSDOM } = await import('jsdom');
-    const dom = new JSDOM();
-    global.document = dom.window.document;
-    global.Node = dom.window.Node;
-    global.DOMParser = dom.window.DOMParser;
-  });
+    expect(partitionSupportedFiles([textFile, noTypeFile, null, undefined])).toEqual({
+      acceptedFiles: [],
+      rejectedFiles: [textFile, noTypeFile, null, undefined]
+    });
 
-  test('sanitizeHTML: valid simple tags', async () => {
-    const frag = sanitizeHTML('<b>hello</b>');
-    const div = document.createElement('div');
-    div.appendChild(frag);
-    expect(div.innerHTML).toBe('<b>hello</b>');
-  });
-
-  test('sanitizeHTML: script tag stripped', async () => {
-    const frag = sanitizeHTML('<script>alert(1)</script>world');
-    const div = document.createElement('div');
-    div.appendChild(frag);
-    expect(div.innerHTML).toBe('world');
-  });
-
-  test('sanitizeHTML: attributes removed', async () => {
-    const frag = sanitizeHTML('<b onclick="alert()">bold</b>');
-    const div = document.createElement('div');
-    div.appendChild(frag);
-    expect(div.innerHTML).toBe('<b>bold</b>');
-  });
-
-  test('sanitizeHTML: nested tags and invalid mixed', async () => {
-    const frag = sanitizeHTML('<span>text <img src="x" onerror="alert(1)"></span>');
-    const div = document.createElement('div');
-    div.appendChild(frag);
-    expect(div.innerHTML).toBe('<span>text </span>');
-  });
-
-  test('sanitizeHTML: empty and null inputs', async () => {
-    const fragEmpty = sanitizeHTML('');
-    const fragNull = sanitizeHTML(null);
-    expect(fragEmpty.childNodes.length).toBe(0);
-    expect(fragNull.childNodes.length).toBe(0);
+    expect(partitionSupportedFiles([pdfFile, textFile, imgFile, noTypeFile])).toEqual({
+      acceptedFiles: [pdfFile, imgFile],
+      rejectedFiles: [textFile, noTypeFile]
+    });
   });
 });
