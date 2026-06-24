@@ -876,7 +876,7 @@ export class SegmentedControl {
     this.track.appendChild(this.indicator);
 
     // Segments
-    this.options.segments.forEach((segment, index) => {
+    this.options.segments.forEach((segment, _index) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'segmented-control-btn';
@@ -909,19 +909,21 @@ export class SegmentedControl {
 
       switch (e.key) {
         case 'ArrowLeft':
-        case 'ArrowUp':
+        case 'ArrowUp': {
           e.preventDefault();
           const prevIndex = (currentIndex - 1 + buttons.length) % buttons.length;
           this.setValue(buttons[prevIndex].dataset.value);
           buttons[prevIndex].focus();
           break;
+        }
         case 'ArrowRight':
-        case 'ArrowDown':
+        case 'ArrowDown': {
           e.preventDefault();
           const nextIndex = (currentIndex + 1) % buttons.length;
           this.setValue(buttons[nextIndex].dataset.value);
           buttons[nextIndex].focus();
           break;
+        }
       }
     });
   }
@@ -1235,6 +1237,7 @@ export class NumericDial {
     this.knob.setAttribute('tabindex', '0');
     this.knob.addEventListener('keydown', (e) => {
       let delta = 0;
+      void delta;
       switch (e.key) {
         case 'ArrowRight':
         case 'ArrowUp':

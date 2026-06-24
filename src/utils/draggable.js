@@ -6,7 +6,7 @@ export function makeDraggable(panel, handle) {
   handle.addEventListener('touchstart', onTouchStart, { passive: true });
 
   function onMouseDown(e) {
-    if (e.target.closest('button')) return;
+    if (e.target.closest('button')) {return;}
     isDragging = true;
     startX = e.clientX;
     startY = e.clientY;
@@ -20,7 +20,7 @@ export function makeDraggable(panel, handle) {
   }
 
   function onMouseMove(e) {
-    if (!isDragging) return;
+    if (!isDragging) {return;}
     setPos(startLeft + (e.clientX - startX), startTop + (e.clientY - startY));
   }
 
@@ -32,7 +32,7 @@ export function makeDraggable(panel, handle) {
   }
 
   function onTouchStart(e) {
-    if (e.target.closest('button')) return;
+    if (e.target.closest('button')) {return;}
     const t = e.touches[0];
     startX = t.clientX;
     startY = t.clientY;

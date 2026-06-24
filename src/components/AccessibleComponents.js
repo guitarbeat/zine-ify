@@ -168,6 +168,7 @@ export class AccessibleTabs {
       const prevKey = isVertical ? 'ArrowUp' : 'ArrowLeft';
 
       let newIndex = currentIndex;
+      void newIndex;
 
       switch (e.key) {
         case nextKey:
@@ -616,7 +617,8 @@ export class AccessibleCombobox {
     this._open();
   }
 
-  _handleBlur(e) {
+  _handleBlur(_e) {
+    void _e;
     // Delay to allow click on option
     setTimeout(() => {
       if (!this.wrapper.contains(document.activeElement)) {
@@ -892,7 +894,8 @@ export class Accordion {
       const { section, trigger } = item;
 
       // Handle click
-      trigger.addEventListener('click', (e) => {
+      trigger.addEventListener('click', (_e) => {
+        void _e;
         // If allowMultiple is false, close others
         if (!this.options.allowMultiple) {
           this.items.forEach((otherItem, otherIndex) => {
@@ -907,16 +910,18 @@ export class Accordion {
       // Handle keyboard
       trigger.addEventListener('keydown', (e) => {
         switch (e.key) {
-          case 'ArrowDown':
+          case 'ArrowDown': {
             e.preventDefault();
             const nextIndex = (index + 1) % this.items.length;
             this.items[nextIndex].trigger.focus();
             break;
-          case 'ArrowUp':
+          }
+          case 'ArrowUp': {
             e.preventDefault();
             const prevIndex = (index - 1 + this.items.length) % this.items.length;
             this.items[prevIndex].trigger.focus();
             break;
+          }
           case 'Home':
             e.preventDefault();
             this.items[0].trigger.focus();

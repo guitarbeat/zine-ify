@@ -13,7 +13,7 @@ import {
   createCharacterCounter,
   createConstraintHint
 } from '../utils/formValidation.js';
-import { debounce, sanitizeHTML } from '../utils/helpers.js';
+import { debounce } from '../utils/helpers.js';
 
 /**
  * FormValidator - Manages inline validation for forms
