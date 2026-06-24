@@ -178,8 +178,7 @@ function computeBounds(pageStates, dimensions) {
   return { min, max };
 }
 
-
-function computeStackStates(stackAngles, stackOrigins) {
+function computeStackStates(stackOrigins, stackAngles) {
   return MINI_ZINE_STACKS.map((stack, index) => ({
     ...stack,
     pose: {
@@ -197,7 +196,7 @@ function computeStackStates(stackAngles, stackOrigins) {
   }));
 }
 
-function computePageStates(stackStates, h, topFoldAngle) {
+function computePages(stackStates, topFoldAngle, h) {
   const pages = {};
   stackStates.forEach((stackState) => {
     pages[stackState.bottomPage] = buildPageState({
@@ -255,8 +254,8 @@ export function computeMiniZineFoldState(progress, dimensions = {}) {
   ];
   const stackOrigins = computeStackOrigins(stackAngles, w, stackDepthStep, bookletClose);
 
-  const stackStates = computeStackStates(stackAngles, stackOrigins);
-  const pages = computePageStates(stackStates, h, topFoldAngle);
+  const stackStates = computeStackStates(stackOrigins, stackAngles);
+  const pages = computePages(stackStates, topFoldAngle, h);
   const seamGaps = computeSeamGaps(pages, w, h);
 
   return {
