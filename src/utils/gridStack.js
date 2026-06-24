@@ -1,8 +1,8 @@
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
 
-const STORAGE_KEY_DESKTOP = 'zine-grid-v2';
-const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v2';
+const STORAGE_KEY_DESKTOP = 'zine-grid-v3';
+const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v3';
 const MOBILE_BREAKPOINT = 768;
 const CELL_HEIGHT = 32;
 
@@ -11,7 +11,8 @@ const DEFAULT_LAYOUT = [
   { id: 'upload', x: 8, y: 0, w: 4, h: 4 },
   { id: 'settings', x: 8, y: 4, w: 4, h: 4 },
   { id: 'display', x: 8, y: 8, w: 4, h: 2 },
-  { id: 'export', x: 0, y: 10, w: 8, h: 2 }
+  { id: 'export', x: 0, y: 10, w: 4, h: 2 },
+  { id: 'preview-fold', x: 4, y: 10, w: 4, h: 2 }
 ];
 
 let grid = null;
@@ -183,6 +184,8 @@ export function initGridStack() {
     localStorage.removeItem(STORAGE_KEY_MOBILE);
     localStorage.removeItem('zine-grid-v1');
     localStorage.removeItem('zine-grid-mobile-v1');
+    localStorage.removeItem('zine-grid-v2');
+    localStorage.removeItem('zine-grid-mobile-v2');
     location.reload();
   };
 
