@@ -571,7 +571,6 @@ export class Zine3DViewer {
   }
 
   updateSeams() {
-
     const getAverageNormal = (pageA, pageB) => {
       const normalA = this.tmpVecC.set(0, 0, 1).applyQuaternion(pageA.group.quaternion);
       const normalB = this.tmpVecD.set(0, 0, 1).applyQuaternion(pageB.group.quaternion);
