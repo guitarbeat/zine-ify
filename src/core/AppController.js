@@ -670,7 +670,7 @@ export class AppController {
           const Zine3DViewer = await this.getZine3DViewerClass();
           try {
             this.viewer3d = new Zine3DViewer(container);
-          } catch (viewerError) { // eslint-disable-line no-unused-vars
+          } catch {
             const fallback = container.querySelector('.zine-3d-fallback-canvas');
             if (fallback) {
               fallback.remove();

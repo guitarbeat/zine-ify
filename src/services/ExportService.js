@@ -8,7 +8,7 @@ export class ExportService {
     this.state = state;
   }
 
-  async _generatePdf() {
+  async handleExport() {
     const { rows, cols } = this.state.gridSize;
     const slotsPerSheet = rows * cols;
     const totalSlots = this.state.allPageImages.length;
@@ -40,8 +40,7 @@ export class ExportService {
     const cellW = drawW / cols;
     const cellH = drawH / rows;
 
-        // ⚡ Bolt: Process sheet canvases concurrently to improve export speed
-    const sheetPromises = Array.from({ length: sheetCount }, async (_, sheetIndex) => {
+    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
       const offscreen = document.createElement('canvas');
       offscreen.width = canvasW;
       offscreen.height = canvasH;
@@ -68,7 +67,7 @@ export class ExportService {
 
         const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
         const url = this.state.allPageImages[pageIndex];
-        if (!url) { continue; }
+        if (!url) {continue;}
 
         const isFlipped = !!this.state.pageFlips[pageIndex];
         const isZoomed = !!this.state.pageZooms[pageIndex];
@@ -87,28 +86,18 @@ export class ExportService {
       await Promise.all(
         draws.map(({ url, cellX, cellY, rotateDeg, scale, objectFit }) =>
           this._loadImage(url).then((img) => {
-            this._drawCell(ctx, img, { cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit });
+            this._drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit);
           })
         )
       );
 
-      return offscreen.toDataURL('image/jpeg', 0.92);
-    });
-
-    const sheetImages = await Promise.all(sheetPromises);
-
-    for (let sheetIndex = 0; sheetIndex < sheetImages.length; sheetIndex++) {
+      const imgData = offscreen.toDataURL('image/jpeg', 0.92);
       if (sheetIndex > 0) {
         doc.addPage([dims.width, dims.height], isLandscape ? 'landscape' : 'portrait');
       }
-      doc.addImage(sheetImages[sheetIndex], 'JPEG', 0, 0, dims.width, dims.height);
+      doc.addImage(imgData, 'JPEG', 0, 0, dims.width, dims.height);
     }
 
-    return doc;
-  }
-
-  async handleExport() {
-    const doc = await this._generatePdf();
     doc.save('zine.pdf');
   }
 
@@ -121,8 +110,7 @@ export class ExportService {
     });
   }
 
-  _drawCell(ctx, img, config) {
-    const { cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit } = config;
+  _drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit) {
     ctx.save();
     ctx.beginPath();
     ctx.rect(cellX, cellY, cellW, cellH);
@@ -163,10 +151,87 @@ export class ExportService {
   }
 
   async handlePrint() {
-    const doc = await this._generatePdf();
-    doc.autoPrint();
-    const blobUrl = doc.output('bloburl');
-    await this.openPrintWindow(blobUrl);
+    const dims = this.getPaperDimensions();
+    const sheetsHtml = this.buildSheetsHtml();
+    const html = this.buildPrintHtml(sheetsHtml, dims);
+    await this.openPrintWindow(html);
+  }
+
+  buildSheetsHtml() {
+    const { rows, cols } = this.state.gridSize;
+    const slotsPerSheet = rows * cols;
+    const isMini8 = rows === 2 && cols === 4;
+    const template = isMini8 ? ZINE_TEMPLATES['mini-8'] : null;
+    const totalSlots = this.state.allPageImages.length;
+    const sheetCount = Math.max(1, Math.ceil(totalSlots / slotsPerSheet));
+    const dims = this.getPaperDimensions();
+    const marginMm = this.state.margin || 0;
+    const gridW = dims.width - 2 * marginMm;
+    const gridH = dims.height - 2 * marginMm;
+
+    const gridStyle = template?.gridAreas
+      ? `display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);grid-template-areas:${template.gridAreas.trim().split('\n').map((l) => l.trim()).join(' ')};width:${gridW}mm;height:${gridH}mm;`
+      : `display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);width:${gridW}mm;height:${gridH}mm;`;
+
+    let html = '';
+
+    for (let s = 0; s < sheetCount; s++) {
+      let cells = '';
+
+      for (let slot = 0; slot < slotsPerSheet; slot++) {
+        const rawSlot = template?.layout ? template.layout[slot] : null;
+        let pageNum, upsideDown;
+
+        if (typeof rawSlot === 'number') {
+          pageNum = rawSlot;
+          upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
+        } else if (rawSlot && typeof rawSlot === 'object') {
+          pageNum = rawSlot.page;
+          upsideDown = !!rawSlot.upsideDown;
+        } else {
+          pageNum = slot + 1;
+          upsideDown = false;
+        }
+
+        const pageIndex = (s * slotsPerSheet) + (pageNum - 1);
+        const url = this.state.allPageImages[pageIndex] || null;
+        const isFlipped = !!this.state.pageFlips[pageIndex];
+        const isZoomed = !!this.state.pageZooms[pageIndex];
+
+        const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
+        const scale = isZoomed ? '1.1' : '1';
+        const objectFit = isZoomed ? 'cover' : 'contain';
+
+        const areaStyle = template?.gridAreas ? `grid-area:page${pageNum};` : '';
+        const cellStyle = `position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;${areaStyle}`;
+        const imgStyle = `width:100%;height:100%;object-fit:${objectFit};transform:rotate(${rotateDeg}deg) scale(${scale});`;
+
+        cells += url
+          ? `<div style="${cellStyle}"><img src="${url}" style="${imgStyle}" alt="Page ${pageNum}"></div>`
+          : `<div style="${cellStyle};background:#f0f0f0;"></div>`;
+      }
+
+      html += `<div class="sheet" style="width:${dims.width}mm;height:${dims.height}mm;overflow:hidden;page-break-after:always;display:flex;align-items:center;justify-content:center;"><div style="${gridStyle}">${cells}</div></div>`;
+    }
+
+    return html;
+  }
+
+  buildPrintHtml(sheetsHtml, dims) {
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Print Zine</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @page { size: ${dims.width}mm ${dims.height}mm; margin: 0; }
+    body { background: white; }
+    .sheet { page-break-after: always; }
+  </style>
+</head>
+<body>${sheetsHtml}</body>
+</html>`;
   }
 
   getPaperDimensions() {
@@ -177,7 +242,18 @@ export class ExportService {
       : { width: paper.width, height: paper.height };
   }
 
-  async openPrintWindow(blobUrl) {
+  async openPrintWindow(html) {
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      win.print();
+      return;
+    }
+
     const printFrame = document.createElement('iframe');
     printFrame.style.position = 'fixed';
     printFrame.style.right = '0';
@@ -186,30 +262,23 @@ export class ExportService {
     printFrame.style.height = '0';
     printFrame.style.border = '0';
     printFrame.setAttribute('aria-hidden', 'true');
-    printFrame.src = blobUrl;
     document.body.appendChild(printFrame);
+
+    const frameDoc = printFrame.contentDocument;
+    frameDoc.open();
+    frameDoc.write(html);
+    frameDoc.close();
 
     await new Promise((resolve) => {
       printFrame.onload = resolve;
-      // Also resolve after a timeout just in case
-      setTimeout(resolve, 1000);
+      setTimeout(resolve, 300);
     });
 
-    // We don't need to manually call .print() because doc.autoPrint() was used,
-    // which injects JS into the PDF to trigger print automatically when opened.
-    // However, for iframes sometimes it's necessary, but we'll try without,
-    // or just let the PDF handle it if supported. Some browsers require manual trigger.
-    try {
-      printFrame.contentWindow?.focus();
-      printFrame.contentWindow?.print();
-    } catch (e) { // eslint-disable-line no-unused-vars
-      // Ignored: cross-origin frame access might throw depending on blob handling
-    }
+    printFrame.contentWindow?.focus();
+    printFrame.contentWindow?.print();
 
-    // Give it time to open the print dialog before removing the iframe
     setTimeout(() => {
       printFrame.remove();
-      URL.revokeObjectURL(blobUrl);
-    }, 5000);
+    }, 1000);
   }
 }

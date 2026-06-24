@@ -197,7 +197,7 @@ function computeStackStates(stackAngles, stackOrigins) {
   }));
 }
 
-function computePagesState(stackStates, h, topFoldAngle) {
+function computePageStates(stackStates, h, topFoldAngle) {
   const pages = {};
   stackStates.forEach((stackState) => {
     pages[stackState.bottomPage] = buildPageState({
@@ -218,9 +218,7 @@ function computePagesState(stackStates, h, topFoldAngle) {
   return pages;
 }
 
-function computeSeamGaps(pages, dimensions) {
-  const w = dimensions.w;
-  const h = dimensions.h;
+function computeSeamGaps(pages, w, h) {
   return CONNECTIONS.map((connection) => {
     const pageA = pages[connection.from];
     const pageB = pages[connection.to];
@@ -255,11 +253,11 @@ export function computeMiniZineFoldState(progress, dimensions = {}) {
     (Math.PI / 2) * diamondOpen,
     (Math.PI / 2) * bookletClose
   ];
-
   const stackOrigins = computeStackOrigins(stackAngles, w, stackDepthStep, bookletClose);
+
   const stackStates = computeStackStates(stackAngles, stackOrigins);
-  const pages = computePagesState(stackStates, h, topFoldAngle);
-  const seamGaps = computeSeamGaps(pages, { w, h });
+  const pages = computePageStates(stackStates, h, topFoldAngle);
+  const seamGaps = computeSeamGaps(pages, w, h);
 
   return {
     progress,
