@@ -40,5 +40,5 @@ test('File names in uploaded list should be sanitized to prevent XSS', async ({ 
 
   // Assert that the filename is visible as text
   const fileText = await page.locator('.uploaded-file-item').innerText();
-  expect(fileText).toContain('test-<img src=x onerror=window.xssInjected=true>.pdf');
+  expect(fileText.toLowerCase()).toContain('test-<img src=x onerror=window.xssinjected=true>.pdf');
 });

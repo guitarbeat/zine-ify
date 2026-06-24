@@ -1,6 +1,6 @@
-import { createMagneticToggle, createMagneticToggleGroup } from './MagneticToggle.js';
+import {  createMagneticToggleGroup } from './MagneticToggle.js';
 import { createFluidSlider } from './FluidSlider.js';
-import { createActionOrb, createActionOrbGroup } from './ActionOrb.js';
+import {  createActionOrbGroup } from './ActionOrb.js';
 
 export function createCommandDeck(emitter) {
   const deck = document.createElement('div');

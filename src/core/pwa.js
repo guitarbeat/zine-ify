@@ -12,11 +12,13 @@ function syncInstallTrigger() {
   if (installEl.isUnderStandaloneMode) {
     trigger.hidden = true;
     trigger.disabled = true;
+    trigger.setAttribute('aria-disabled', 'true');
     return;
   }
 
   trigger.hidden = false;
   trigger.disabled = false;
+  trigger.setAttribute('aria-disabled', 'false');
 }
 
 function wireInstallTrigger() {
@@ -24,9 +26,7 @@ function wireInstallTrigger() {
   if (!trigger) {return;}
 
   trigger.addEventListener('click', () => {
-    // Force the dialog open (true) so it always appears, even when the browser
-    // hasn't fired a native beforeinstallprompt (e.g. desktop, iOS, or repeat visits).
-    getPwaInstallElement()?.showDialog(true);
+    getPwaInstallElement()?.showDialog();
   });
 }
 

@@ -7,19 +7,20 @@ import { normalizePreviewPage } from '../utils/previewHelpers.js';
 export class Zine3DViewer {
   constructor(containerElement) {
     this.container = containerElement;
+
+    this._initCoreProperties();
+    this._initVisualConfig();
+    this._initStructuralDefinitions();
+
+    this.initScene();
+  }
+
+  _initCoreProperties() {
     this.pages = [];
     this.stacks = [];
     this.seams = [];
     this.guides = [];
     this.environmentMeshes = [];
-    this.w = 1.0;
-    this.h = 1.414; // A-series proportion
-    this.panelThickness = 0.002;
-    this.stackDepthStep = 0.008;
-    this.seamWidth = 0.035;
-    this.guideWidth = 0.015;
-    this.cutGuideWidth = 0.028;
-    this.cutGuideCapHeight = 0.14;
     this.isFallbackMode = false;
     this.fallbackCanvas = null;
     this.fallbackContext = null;
@@ -28,11 +29,26 @@ export class Zine3DViewer {
     this.tmpVecC = new THREE.Vector3();
     this.tmpVecD = new THREE.Vector3();
     this.tmpMat = new THREE.Matrix4();
+    this.cameraTarget = new THREE.Vector3(0, 0, 0);
+    this.debugFoldState = null;
+    this.currentFoldProgress = 0;
+  }
+
+  _initVisualConfig() {
+    this.w = 1.0;
+    this.h = 1.414; // A-series proportion
+    this.panelThickness = 0.002;
+    this.stackDepthStep = 0.008;
+    this.seamWidth = 0.035;
+    this.guideWidth = 0.015;
+    this.cutGuideWidth = 0.028;
+    this.cutGuideCapHeight = 0.14;
     this.sheetMaterialColor = 0xf4f1ea;
     this.foldGuideColor = 0xb8b8b8;
     this.slitGuideColor = 0xd32f2f;
-    this.cameraTarget = new THREE.Vector3(0, 0, 0);
-    
+  }
+
+  _initStructuralDefinitions() {
     this.panelDefinitions = {
       1: { stackIndex: 3, isTop: false }, // Cover
       2: { stackIndex: 3, isTop: true }, // Inside cover
@@ -61,10 +77,6 @@ export class Zine3DViewer {
       { type: 'fold', orientation: 'horizontal', x: 1.5 * this.w, y: 0, length: this.w },
       { type: 'slit', orientation: 'horizontal', x: 0, y: 0, length: this.w * 2 }
     ];
-    this.debugFoldState = null;
-    this.currentFoldProgress = 0;
-    
-    this.initScene();
   }
 
   initScene() {
@@ -248,25 +260,6 @@ export class Zine3DViewer {
 
     const previewPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
 
-    this._clearExistingResources();
-    const textureLoader = new THREE.TextureLoader();
-    this._initializeStacks();
-    this._createPageMeshes(previewPages, textureLoader);
-
-    this.createSeams();
-    this.createGuides();
-
-    // Initialize layout flat
-    this.setFoldProgress(0);
-
-    // Automatically adjust camera slightly so the flat sheet fits
-    this.camera.position.set(0, 0, 6);
-    this.controls.target.set(0, 0, 0);
-    this.controls.update();
-    this.refreshLayout();
-  }
-
-  _clearExistingResources() {
     // Clear existing planes
     this.pages.forEach((page) => {
       page.frontMaterial?.map?.dispose?.();
@@ -292,9 +285,9 @@ export class Zine3DViewer {
     this.stacks = [];
     this.seams = [];
     this.guides = [];
-  }
 
-  _initializeStacks() {
+    const textureLoader = new THREE.TextureLoader();
+
     MINI_ZINE_STACKS.forEach((stackDefinition) => {
       const group = new THREE.Group();
       this.scene.add(group);
@@ -303,9 +296,7 @@ export class Zine3DViewer {
         group
       });
     });
-  }
-
-  _createPageMeshes(previewPages, textureLoader) {
+    
     for (let i = 1; i <= 8; i++) {
       const config = this.panelDefinitions[i];
       const pageData = previewPages[i - 1]; // Array is 0-indexed
@@ -372,6 +363,17 @@ export class Zine3DViewer {
       });
     }
 
+    this.createSeams();
+    this.createGuides();
+
+    // Initialize layout flat
+    this.setFoldProgress(0);
+    
+    // Automatically adjust camera slightly so the flat sheet fits
+    this.camera.position.set(0, 0, 4.9);
+    this.controls.target.copy(this.cameraTarget);
+    this.controls.update();
+    this.refreshLayout();
   }
 
   refreshLayout() {
@@ -501,7 +503,9 @@ export class Zine3DViewer {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       this.scene.add(mesh);
-      this.seams.push({ from, to, orientation, mesh, geometry, material });
+      const pageA = this.pages.find((page) => page.id === from);
+      const pageB = this.pages.find((page) => page.id === to);
+      this.seams.push({ from, to, orientation, mesh, geometry, material, pageA, pageB });
     });
   }
 
@@ -579,7 +583,7 @@ export class Zine3DViewer {
   }
 
   updateSeams() {
-    const getPage = (id) => this.pages[id - 1]; // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
+    // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
 
     const getAverageNormal = (pageA, pageB) => {
       const normalA = this.tmpVecC.set(0, 0, 1).applyQuaternion(pageA.group.quaternion);
@@ -588,8 +592,8 @@ export class Zine3DViewer {
     };
 
     this.seams.forEach((seam) => {
-      const pageA = getPage(seam.from);
-      const pageB = getPage(seam.to);
+      const pageA = seam.pageA;
+      const pageB = seam.pageB;
       if (!pageA || !pageB) { return; }
 
       const startLocal = seam.orientation === 'horizontal'

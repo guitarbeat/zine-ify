@@ -1,4 +1,4 @@
-import { ZINE_TEMPLATES, resolvePaperSize } from '../utils/config.js';
+import { PAPER_SIZES, ZINE_TEMPLATES } from '../utils/config.js';
 
 const MM_TO_PX_300DPI = 300 / 25.4;
 
@@ -51,7 +51,19 @@ export class ExportService {
       const draws = [];
 
       for (let slot = 0; slot < slotsPerSheet; slot++) {
-        const { pageNum, upsideDown } = this._resolveSlot(template, slot);
+        const rawSlot = template?.layout ? template.layout[slot] : null;
+        let pageNum, upsideDown;
+
+        if (typeof rawSlot === 'number') {
+          pageNum = rawSlot;
+          upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
+        } else if (rawSlot && typeof rawSlot === 'object') {
+          pageNum = rawSlot.page;
+          upsideDown = !!rawSlot.upsideDown;
+        } else {
+          pageNum = slot + 1;
+          upsideDown = false;
+        }
 
         const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
         const url = this.state.allPageImages[pageIndex];
@@ -87,24 +99,6 @@ export class ExportService {
     }
 
     doc.save('zine.pdf');
-  }
-
-  _resolveSlot(template, slot) {
-    const rawSlot = template?.layout ? template.layout[slot] : null;
-    let pageNum, upsideDown;
-
-    if (typeof rawSlot === 'number') {
-      pageNum = rawSlot;
-      upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
-    } else if (rawSlot && typeof rawSlot === 'object') {
-      pageNum = rawSlot.page;
-      upsideDown = !!rawSlot.upsideDown;
-    } else {
-      pageNum = slot + 1;
-      upsideDown = false;
-    }
-
-    return { pageNum, upsideDown };
   }
 
   _loadImage(url) {
@@ -185,7 +179,19 @@ export class ExportService {
       let cells = '';
 
       for (let slot = 0; slot < slotsPerSheet; slot++) {
-        const { pageNum, upsideDown } = this._resolveSlot(template, slot);
+        const rawSlot = template?.layout ? template.layout[slot] : null;
+        let pageNum, upsideDown;
+
+        if (typeof rawSlot === 'number') {
+          pageNum = rawSlot;
+          upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
+        } else if (rawSlot && typeof rawSlot === 'object') {
+          pageNum = rawSlot.page;
+          upsideDown = !!rawSlot.upsideDown;
+        } else {
+          pageNum = slot + 1;
+          upsideDown = false;
+        }
 
         const pageIndex = (s * slotsPerSheet) + (pageNum - 1);
         const url = this.state.allPageImages[pageIndex] || null;
@@ -229,7 +235,7 @@ export class ExportService {
   }
 
   getPaperDimensions() {
-    const paper = resolvePaperSize(this.state.paperSize, this.state.customPaper);
+    const paper = PAPER_SIZES[this.state.paperSize] || PAPER_SIZES.letter;
     const isLandscape = this.state.orientation === 'landscape';
     return isLandscape
       ? { width: paper.height, height: paper.width }

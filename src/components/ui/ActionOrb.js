@@ -8,6 +8,7 @@ export function createActionOrb({
   const btn = document.createElement('button');
   btn.className = `action-orb action-orb--${variant}`;
   btn.disabled = disabled;
+  btn.setAttribute('aria-disabled', String(disabled));
   btn.innerHTML = `
     <span class="material-symbols-outlined action-orb__icon">${icon}</span>
     <span class="action-orb__label">${label}</span>

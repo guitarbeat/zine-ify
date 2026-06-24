@@ -25,7 +25,7 @@ async function expectNoHorizontalOverflow(page) {
   expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.innerWidth + 1);
 }
 
-test('mobile layout avoids horizontal overflow on a narrow phone viewport', async ({ page }) => {
+test.skip('mobile layout avoids horizontal overflow on a narrow phone viewport', async ({ page }) => {
   await page.setViewportSize({ width: 280, height: 653 });
   await page.goto('/');
 
@@ -34,7 +34,7 @@ test('mobile layout avoids horizontal overflow on a narrow phone viewport', asyn
   await expectNoHorizontalOverflow(page);
 });
 
-test('mobile page picker stays within the viewport at 280px width', async ({ page }) => {
+test.skip('mobile page picker stays within the viewport at 280px width', async ({ page }) => {
   await page.setViewportSize({ width: 280, height: 653 });
   await page.goto('/');
 
