@@ -31,78 +31,63 @@ export class LayoutRenderer {
     const sheetCount = Math.max(1, Math.ceil(numPages / slotsPerSheet));
 
     for (let s = 0; s < sheetCount; s++) {
-      const sheetWrapper = this.renderSheet(s, slotsPerSheet, numPages, template, options, handlers, paper);
-      this.container.appendChild(sheetWrapper);
-    }
-  }
-
-  renderSheet(s, slotsPerSheet, numPages, template, options, handlers, paper) {
-    const { sheetWrapper, grid } = this.createSheetGrid({
-      sheetNumber: s + 1,
-      template: template.label,
-      columns: template.grid.cols,
-      rows: template.grid.rows,
-      id: `zine-grid-sheet-${s + 1}`,
-      paper
-    });
-
-    if (template.gridAreas) {
-      grid.style.gridTemplateAreas = template.gridAreas;
-    }
-
-    this.fillGridCells(grid, s, slotsPerSheet, numPages, template, options, handlers);
-    this.addCutLines(grid, template);
-
-    sheetWrapper.appendChild(grid);
-    return sheetWrapper;
-  }
-
-  fillGridCells(grid, sheetIndex, slotsPerSheet, numPages, template, options, handlers) {
-    for (let i = 0; i < slotsPerSheet; i++) {
-      const slotConfig = this.normalizeSlotConfig(template, i);
-      const pageNumberInSheet = slotConfig.page;
-      const pageIndex = (sheetIndex * slotsPerSheet) + (pageNumberInSheet - 1);
-      const overallPageNumber = pageIndex + 1;
-
-      const labelText = getPageLabel(overallPageNumber, numPages, true);
-      const accessibleLabelText = getPageLabel(overallPageNumber, numPages, false);
-
-      const cell = this.createPageCell({
-        pageIndex,
-        pageNumber: pageNumberInSheet,
-        labelText,
-        accessibleLabelText,
-        altText: `${accessibleLabelText} preview`,
-        upsideDown: slotConfig.upsideDown,
-        options,
-        handlers
+      const { sheetWrapper, grid } = this.createSheetGrid({
+        sheetNumber: s + 1,
+        template,
+        id: `zine-grid-sheet-${s + 1}`,
+        paper
       });
 
       if (template.gridAreas) {
-        cell.style.gridArea = `page${pageNumberInSheet}`;
+        grid.style.gridTemplateAreas = template.gridAreas;
       }
 
-      grid.appendChild(cell);
-    }
-  }
+      // Fill grid based on template layout or sequential order
+      for (let i = 0; i < slotsPerSheet; i++) {
+        const slotConfig = this.normalizeSlotConfig(template, i);
+        const pageNumberInSheet = slotConfig.page;
+        const pageIndex = (s * slotsPerSheet) + (pageNumberInSheet - 1);
+        const overallPageNumber = pageIndex + 1;
 
-  addCutLines(grid, template) {
-    if (!template.cutLines?.horizontal) {
-      return;
-    }
+        const labelText = getPageLabel(overallPageNumber, numPages, true);
+        const accessibleLabelText = getPageLabel(overallPageNumber, numPages, false);
 
-    const { afterRow, fromPct = 0, toPct = 100 } = template.cutLines.horizontal;
-    const cutLine = document.createElement('div');
-    cutLine.className = 'sheet-cut-line sheet-cut-line-h';
-    cutLine.setAttribute('aria-hidden', 'true');
-    cutLine.style.top = `${(afterRow / template.grid.rows) * 100}%`;
-    cutLine.style.left = `${fromPct}%`;
-    cutLine.style.right = `${100 - toPct}%`;
-    const label = document.createElement('span');
-    label.className = 'sheet-cut-line-label';
-    label.textContent = 'Cut here';
-    cutLine.appendChild(label);
-    grid.appendChild(cutLine);
+        const cell = this.createPageCell({
+          pageIndex,
+          pageNumber: pageNumberInSheet,
+          labelText,
+          accessibleLabelText,
+          altText: `${accessibleLabelText} preview`,
+          upsideDown: slotConfig.upsideDown,
+          options,
+          handlers
+        });
+
+        if (template.gridAreas) {
+          cell.style.gridArea = `page${pageNumberInSheet}`;
+        }
+        
+        grid.appendChild(cell);
+      }
+
+      if (template.cutLines?.horizontal) {
+        const { afterRow, fromPct = 0, toPct = 100 } = template.cutLines.horizontal;
+        const cutLine = document.createElement('div');
+        cutLine.className = 'sheet-cut-line sheet-cut-line-h';
+        cutLine.setAttribute('aria-hidden', 'true');
+        cutLine.style.top = `${(afterRow / template.grid.rows) * 100}%`;
+        cutLine.style.left = `${fromPct}%`;
+        cutLine.style.right = `${100 - toPct}%`;
+        const label = document.createElement('span');
+        label.className = 'sheet-cut-line-label';
+        label.textContent = 'Cut here';
+        cutLine.appendChild(label);
+        grid.appendChild(cutLine);
+      }
+
+      sheetWrapper.appendChild(grid);
+      this.container.appendChild(sheetWrapper);
+    }
   }
 
   normalizeSlotConfig(template, index) {
@@ -124,11 +109,12 @@ export class LayoutRenderer {
     return { page: index + 1, upsideDown: false };
   }
 
-  createSheetGrid({ sheetNumber, template, columns, rows, id, paper }) {
+  createSheetGrid(config) {
+    const { sheetNumber, template, id, paper } = config;
     const sheetWrapper = document.createElement('div');
     sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
     sheetWrapper.setAttribute('data-sheet', sheetNumber);
-    sheetWrapper.setAttribute('data-template', template);
+    sheetWrapper.setAttribute('data-template', template.label);
 
     if (paper?.paperSize) {
       sheetWrapper.setAttribute('data-paper-size', paper.paperSize);
@@ -152,8 +138,8 @@ export class LayoutRenderer {
     grid.className = 'zine-grid';
     grid.id = id;
     grid.style.display = 'grid';
-    grid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-    grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+    grid.style.gridTemplateColumns = `repeat(${template.grid.cols}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${template.grid.rows}, 1fr)`;
 
     if (paper?.margin > 0 && paper?.width && paper?.height) {
       const padX = (paper.margin / paper.width) * 100;
@@ -165,6 +151,9 @@ export class LayoutRenderer {
       grid.style.bottom = `${padY}%`;
       grid.style.width = 'auto';
       grid.style.height = 'auto';
+      sheetWrapper.setAttribute('data-has-margin', 'true');
+      sheetWrapper.style.setProperty('--margin-x', `${padX}%`);
+      sheetWrapper.style.setProperty('--margin-y', `${padY}%`);
     } else {
       grid.style.position = 'relative';
     }
@@ -191,7 +180,8 @@ export class LayoutRenderer {
     return Math.min(1, usableHeight / height);
   }
 
-  createPageCell({ pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers }) {
+  createPageCell(config) {
+    const { pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers } = config;
     const cell = document.createElement('div');
     cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
     cell.setAttribute('data-page-index', pageIndex);
