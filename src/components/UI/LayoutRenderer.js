@@ -161,22 +161,18 @@ export class LayoutRenderer {
       return 1;
     }
 
-    const vw = window.innerWidth || document.documentElement.clientWidth || width;
-    const vh = window.innerHeight || document.documentElement.clientHeight || height;
-    const isMobile = vw < 768;
-
-    // On mobile the card is full viewport width; on desktop the zine card is 660px
-    const containerWidth = isMobile ? vw - 16 : Math.min(660, vw - 32);
-    const containerHeight = isMobile ? vh * 0.55 : Math.max(320, vh - 220);
-
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || width;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || height;
+    const usableWidth = Math.max(320, viewportWidth - 32);
+    const usableHeight = Math.max(320, viewportHeight - 180);
     const sheetRatio = width / height;
-    const containerRatio = containerWidth / containerHeight;
+    const viewportRatio = usableWidth / usableHeight;
 
-    if (sheetRatio > containerRatio) {
-      return Math.min(1, containerWidth / width);
+    if (sheetRatio > viewportRatio) {
+      return Math.min(1, usableWidth / width);
     }
 
-    return Math.min(1, containerHeight / height);
+    return Math.min(1, usableHeight / height);
   }
 
   createPageCell({ pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers }) {
@@ -184,6 +180,8 @@ export class LayoutRenderer {
     cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
     cell.setAttribute('data-page-index', pageIndex);
     cell.setAttribute('data-page', pageNumber);
+    cell.setAttribute('draggable', 'true');
+
     if (upsideDown) {
       cell.classList.add('is-template-upside-down');
     }
@@ -196,8 +194,30 @@ export class LayoutRenderer {
     }
 
     const img = cell.querySelector('.page-content-img');
+    const placeholder = cell.querySelector('.page-placeholder');
     img.alt = altText;
 
+    const url = options.pageImages && options.pageImages[pageIndex];
+    if (img) {
+      img.src = url || '';
+      img.classList.toggle('hidden', !url);
+    }
+    if (placeholder) {
+      placeholder.classList.toggle('hidden', !!url);
+    }
+    cell.classList.toggle('has-page', !!url);
+
+    const isFlipped = options.pageFlips && options.pageFlips[pageIndex];
+    cell.classList.toggle('is-flipped', !!isFlipped);
+
+    const isZoomed = options.pageZooms && options.pageZooms[pageIndex];
+    cell.classList.toggle('page-zoomed', !!isZoomed);
+
+    cell.addEventListener('dragstart', (e) => handlers.onDragStart(e, cell));
+    cell.addEventListener('dragover', (e) => handlers.onDragOver(e, cell));
+    cell.addEventListener('dragleave', (e) => handlers.onDragLeave(cell, e));
+    cell.addEventListener('drop', (e) => handlers.onDrop(e, cell));
+    cell.addEventListener('dragend', () => handlers.onDragEnd(cell));
     cell.addEventListener('click', (e) => handlers.onClick(e, pageIndex));
 
     const toolbar = cell.querySelector('.page-toolbar');

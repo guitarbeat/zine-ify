@@ -5,7 +5,7 @@ import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
-import { parseBoundedInteger } from '../utils/helpers.js';
+import { parseBoundedInteger, resizeAndFillArray } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
 import { BookletPreview } from '../components/BookletPreview.js';
 
@@ -49,14 +49,13 @@ export class AppController {
     this.ui.on('pageCropToggled', (i) => this.handlePageCropToggled(i));
     this.ui.on('pageRemoved', (i) => this.handlePageRemoved(i));
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
-    this.ui.on('print', () => this.handlePrint());
     this.ui.on('export', () => this.handleExport());
     this.ui.on('view3d', () => this.handleView3d());
     this.ui.on('clearAll', () => this.handleClearAll());
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
-    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); this.renderCurrentLayout(); });
+    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); });
     this.ui.on('removeUploadedFile', (index) => {
       this.state.uploadedFiles.splice(index, 1);
       this.ui.updateUploadedFilesList(this.state.uploadedFiles);
@@ -207,50 +206,22 @@ export class AppController {
     this.prepareLayoutForTotalPages(startIndex + selectedPages.length);
     this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
 
-    // ⚡ Bolt: Sliding window worker pool for faster page rendering
-    // Process pages concurrently to improve import speed, similar to thumbnails.
-    const CONCURRENCY_LIMIT = 4;
-    const activePromises = new Set();
-    let completedCount = 0;
+    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
+      const targetIndex = startIndex + selectedIndex;
+      const canvas = await this.pdfProcessor.renderPage(pageNumber);
+      const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
+      const existingUrl = this.state.allPageImages[targetIndex];
 
-    const processPage = async (selectedIndex, pageNumber) => {
-      try {
-        const targetIndex = startIndex + selectedIndex;
-        const canvas = await this.pdfProcessor.renderPage(pageNumber);
-        const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
-        const existingUrl = this.state.allPageImages[targetIndex];
-
-        if (existingUrl && existingUrl !== this.state._blankPageUrl) {
-          this.pdfProcessor.revokeBlobUrl(existingUrl);
-        }
-
-        this.state.allPageImages[targetIndex] = pageUrl;
-        this.ui.updatePagePreview(targetIndex, pageUrl);
-
-        completedCount++;
-        const percent = Math.round((completedCount / selectedPages.length) * 100);
-        this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
-        this.ui.modal.updateProgress(percent);
-      } catch (error) {
-        void error;
-        throw error;
-      }
-    };
-
-    try {
-      for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
-        const trackedPromise = processPage(selectedIndex, pageNumber).finally(() => activePromises.delete(trackedPromise));
-        activePromises.add(trackedPromise);
-
-        if (activePromises.size >= CONCURRENCY_LIMIT) {
-          await Promise.race(activePromises);
-        }
+      if (existingUrl && existingUrl !== this.state._blankPageUrl) {
+        this.pdfProcessor.revokeBlobUrl(existingUrl);
       }
 
-      await Promise.all(activePromises);
-    } catch (error) {
-      await Promise.allSettled(Array.from(activePromises));
-      throw error;
+      this.state.allPageImages[targetIndex] = pageUrl;
+      this.ui.updatePagePreview(targetIndex, pageUrl);
+
+      const percent = Math.round(((selectedIndex + 1) / selectedPages.length) * 100);
+      this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
+      this.ui.modal.updateProgress(percent);
     }
 
     this.state.totalPages = this.state.getFilledPageCount();
@@ -350,11 +321,7 @@ export class AppController {
     const requiredLength = this.state.getRequiredPageCapacity();
 
     if (this.state.allPageImages.length !== requiredLength) {
-      const nextImages = new Array(requiredLength).fill(null);
-      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
-        nextImages[index] = this.state.allPageImages[index];
-      }
-      this.state.allPageImages = nextImages;
+      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
     }
   }
 
@@ -388,10 +355,9 @@ export class AppController {
     const blankUrl = await this.ensureBlankPageUrl();
     const filledPages = this.state.getFilledPageCount();
 
-    for (let index = filledPages; index < this.state.allPageImages.length; index++) {
-      if (!this.state.allPageImages[index] || this.state.allPageImages[index] === this.state._blankPageUrl) {
-        this.state.allPageImages[index] = blankUrl;
-      }
+    // ⚡ Bolt: Replace manual iteration with bulk fill to significantly optimize memory allocation and slot generation during imports.
+    if (filledPages < this.state.allPageImages.length) {
+      this.state.allPageImages.fill(blankUrl, filledPages);
     }
   }
 
@@ -464,25 +430,17 @@ export class AppController {
   renderCurrentLayout() {
     const requiredLength = this.state.getRequiredPageCapacity();
     if (this.state.allPageImages.length !== requiredLength) {
-      const nextImages = new Array(requiredLength).fill(null);
-      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
-        nextImages[index] = this.state.allPageImages[index];
-      }
-      this.state.allPageImages = nextImages;
+      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
     }
 
     this.ui.generateLayout(requiredLength, this.getCurrentTemplate(), {
       paperSize: this.state.paperSize,
       orientation: this.state.orientation,
       margin: this.state.margin || 0,
-      customPaper: this.state.customPaper
+      pageImages: this.state.allPageImages,
+      pageFlips: this.state.pageFlips,
+      pageZooms: this.state.pageZooms
     });
-    for (let index = 0; index < this.state.allPageImages.length; index++) {
-      const url = this.state.allPageImages[index];
-      this.ui.updatePagePreview(index, url);
-      this.ui.setPageFlip(index, !!this.state.pageFlips[index]);
-      this.ui.setPageZoom(index, !!this.state.pageZooms[index]);
-    }
 
     this.updateWorkspaceUi();
   }
@@ -632,17 +590,6 @@ export class AppController {
     toast.info('Cleared', 'All pages have been removed.');
   }
 
-  handlePrint() {
-    if (!this.state.getFilledPageCount()) {
-      toast.warning('No Content', 'Import pages before printing.');
-      return;
-    }
-
-    this.exportService.handlePrint().catch((error) => {
-      toast.error('Print Failed', error.message || 'Unable to print.');
-    });
-  }
-
   async getZine3DViewerClass() {
     if (!this.zine3dViewerClassPromise) {
       this.zine3dViewerClassPromise = import('../components/Zine3DViewer.js')
@@ -703,7 +650,8 @@ export class AppController {
           const Zine3DViewer = await this.getZine3DViewerClass();
           try {
             this.viewer3d = new Zine3DViewer(container);
-          } catch {
+          } catch (_viewerError) {
+            void _viewerError;
             const fallback = container.querySelector('.zine-3d-fallback-canvas');
             if (fallback) {
               fallback.remove();
