@@ -30,10 +30,6 @@
 ## 2024-05-20 - Toast Component Cloning Optimization
 **Learning:** Repetitive UI components like Toast notifications constructed using multiple `document.createElement()` and property assignment calls cause unnecessary DOM processing overhead and memory allocation, especially when an object like `icons` is recreated on every invocation.
 **Action:** Extract static dictionary objects into module-level constants to save memory allocation, and use HTML `<template>` combined with `cloneNode(true)` to build repetitive elements instantly, minimizing layout thrashing and function call overhead.
-## 2026-06-18 - Repeated DOM Querying in Event Handlers
-**Learning:** Frequent DOM queries via `querySelector` in event handlers or tight loops (e.g., fetching `.page-cell` elements by index in `UIManager`) can cause unnecessary O(n) performance degradation, especially as grid complexity increases.
-**Action:** Implement DOM Caching using a `Map` during the initial query to transform subsequent lookups from O(n) to O(1). Be sure to invalidate the cache when the DOM structure is rebuilt (e.g., during layout generation).
-
-## 2026-06-22 - Optimize Array Searches in React Render Loops
-**Learning:** In `ZineFoldingGuide.jsx`, `STEPS.findIndex()` and `STEPS.find()` were repeatedly called during re-renders, causing O(N) array scans inside rendering loops. Even with small arrays, avoiding this overhead leads to smoother animations.
-**Action:** Replace `O(N)` array lookups inside React render logic with a pre-computed `Map` (e.g., `STEP_INDEX_MAP.get(id)`) to enforce `O(1)` performance for static collections.
+## 2024-06-11 - Optimized PDF Export with Async OffscreenCanvas
+**Learning:** The previous implementation used synchronous `offscreen.toDataURL('image/jpeg')` which blocked the main thread during high-resolution canvas conversions, leading to UI freezes, particularly when exporting PDFs containing many high-resolution pages.
+**Action:** Replaced synchronous `toDataURL` with the asynchronous `OffscreenCanvas.convertToBlob()` API and processed all sheets concurrently with `Promise.all` mapping to improve export speed and unblock the UI. We must always prefer asynchronous `convertToBlob` + `FileReader.readAsDataURL` when extracting image data from an `OffscreenCanvas`.
