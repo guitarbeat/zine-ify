@@ -1,4 +1,3 @@
-
 /* eslint-disable */
 /**
  * Accessible UI Components
@@ -169,10 +168,6 @@ export class AccessibleTabs {
       const prevKey = isVertical ? 'ArrowUp' : 'ArrowLeft';
 
       let newIndex = currentIndex;
-      void newIndex;
-      void newIndex;
-      void newIndex;
-      void newIndex;
 
       switch (e.key) {
         case nextKey:

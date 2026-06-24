@@ -1,4 +1,4 @@
-/* eslint-disable */
+
 /**
  * ProgressOverlay.js
  * Self-contained progress overlay component

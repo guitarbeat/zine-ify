@@ -1,4 +1,3 @@
-
 /* eslint-disable */
 /**
  * SmartSheetConfig.js
@@ -161,7 +160,7 @@ export class SmartSheetConfig {
     for (let r = 0; r < rows; r++) {
       html += '<div class="smart-sheet-preset-row">';
       for (let c = 0; c < cols; c++) {
-        html += `<span class="smart-sheet-preset-cell"></span>`;
+        html += '<span class="smart-sheet-preset-cell"></span>';
       }
       html += '</div>';
     }
@@ -180,6 +179,8 @@ export class SmartSheetConfig {
         const isSelected = r <= this.state.rows && c <= this.state.cols;
         const isHovered = this.state.hoverRows !== null &&
           r <= this.state.hoverRows && c <= this.state.hoverCols;
+        const isPreviewRow = r === this.state.rows + 1 && c <= this.state.cols;
+        const isPreviewCol = c === this.state.cols + 1 && r <= this.state.rows;
 
         html += `
           <button type="button"
@@ -204,7 +205,7 @@ export class SmartSheetConfig {
     const recommendation = PAPER_RECOMMENDATIONS[paperSize];
     const showOrientation = recommendation && this.state.rows === 2 && this.state.cols === 4;
 
-    if (!showOrientation) return '';
+    if (!showOrientation) {return '';}
 
     const landscapeWidth = paper.height;
     const landscapeHeight = paper.width;
@@ -367,7 +368,7 @@ export class SmartSheetConfig {
 
   updateGridVisual() {
     const grid = this.container.querySelector('.smart-sheet-visual');
-    if (!grid) return;
+    if (!grid) {return;}
 
     const cells = grid.querySelectorAll('.smart-sheet-grid-cell');
     cells.forEach(cell => {
