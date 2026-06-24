@@ -33,7 +33,9 @@ export class LayoutRenderer {
     for (let s = 0; s < sheetCount; s++) {
       const { sheetWrapper, grid } = this.createSheetGrid({
         sheetNumber: s + 1,
-        template,
+        template: template.label,
+        columns: template.grid.cols,
+        rows: template.grid.rows,
         id: `zine-grid-sheet-${s + 1}`,
         paper
       });
@@ -78,6 +80,10 @@ export class LayoutRenderer {
         cutLine.style.top = `${(afterRow / template.grid.rows) * 100}%`;
         cutLine.style.left = `${fromPct}%`;
         cutLine.style.right = `${100 - toPct}%`;
+        const label = document.createElement('span');
+        label.className = 'sheet-cut-line-label';
+        label.textContent = 'Cut here';
+        cutLine.appendChild(label);
         grid.appendChild(cutLine);
       }
 
@@ -105,11 +111,11 @@ export class LayoutRenderer {
     return { page: index + 1, upsideDown: false };
   }
 
-  createSheetGrid({ sheetNumber, template, id, paper }) {
+  createSheetGrid({ sheetNumber, template, columns, rows, id, paper }) {
     const sheetWrapper = document.createElement('div');
     sheetWrapper.className = 'print-sheet w-full p-0 relative overflow-hidden rounded-sm';
     sheetWrapper.setAttribute('data-sheet', sheetNumber);
-    sheetWrapper.setAttribute('data-template', template.label);
+    sheetWrapper.setAttribute('data-template', template);
 
     if (paper?.paperSize) {
       sheetWrapper.setAttribute('data-paper-size', paper.paperSize);
@@ -133,8 +139,8 @@ export class LayoutRenderer {
     grid.className = 'zine-grid';
     grid.id = id;
     grid.style.display = 'grid';
-    grid.style.gridTemplateColumns = `repeat(${template.grid.cols}, 1fr)`;
-    grid.style.gridTemplateRows = `repeat(${template.grid.rows}, 1fr)`;
+    grid.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+    grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
 
     if (paper?.margin > 0 && paper?.width && paper?.height) {
       const padX = (paper.margin / paper.width) * 100;
@@ -146,9 +152,6 @@ export class LayoutRenderer {
       grid.style.bottom = `${padY}%`;
       grid.style.width = 'auto';
       grid.style.height = 'auto';
-      sheetWrapper.setAttribute('data-has-margin', 'true');
-      sheetWrapper.style.setProperty('--margin-x', `${padX}%`);
-      sheetWrapper.style.setProperty('--margin-y', `${padY}%`);
     } else {
       grid.style.position = 'relative';
     }
@@ -175,7 +178,8 @@ export class LayoutRenderer {
     return Math.min(1, usableHeight / height);
   }
 
-  createPageCell({ pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers }) {
+  createPageCell(config) {
+    const { pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers } = config;
     const cell = document.createElement('div');
     cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
     cell.setAttribute('data-page-index', pageIndex);
@@ -194,24 +198,7 @@ export class LayoutRenderer {
     }
 
     const img = cell.querySelector('.page-content-img');
-    const placeholder = cell.querySelector('.page-placeholder');
     img.alt = altText;
-
-    const url = options.pageImages && options.pageImages[pageIndex];
-    if (img) {
-      img.src = url || '';
-      img.classList.toggle('hidden', !url);
-    }
-    if (placeholder) {
-      placeholder.classList.toggle('hidden', !!url);
-    }
-    cell.classList.toggle('has-page', !!url);
-
-    const isFlipped = options.pageFlips && options.pageFlips[pageIndex];
-    cell.classList.toggle('is-flipped', !!isFlipped);
-
-    const isZoomed = options.pageZooms && options.pageZooms[pageIndex];
-    cell.classList.toggle('page-zoomed', !!isZoomed);
 
     cell.addEventListener('dragstart', (e) => handlers.onDragStart(e, cell));
     cell.addEventListener('dragover', (e) => handlers.onDragOver(e, cell));
@@ -233,10 +220,10 @@ export class LayoutRenderer {
     });
 
     const flipBtn = toolbar.querySelector('.flip-btn');
-    if (flipBtn) {flipBtn.onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); };}
+    if (flipBtn) { flipBtn.onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); }; }
 
     const cropBtn = toolbar.querySelector('.crop-btn');
-    if (cropBtn) {cropBtn.onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); };}
+    if (cropBtn) { cropBtn.onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); }; }
 
     return cell;
   }
