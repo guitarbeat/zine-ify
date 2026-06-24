@@ -248,25 +248,6 @@ export class Zine3DViewer {
 
     const previewPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
 
-    this._clearExistingResources();
-    const textureLoader = new THREE.TextureLoader();
-    this._initializeStacks();
-    this._createPageMeshes(previewPages, textureLoader);
-
-    this.createSeams();
-    this.createGuides();
-
-    // Initialize layout flat
-    this.setFoldProgress(0);
-
-    // Automatically adjust camera slightly so the flat sheet fits
-    this.camera.position.set(0, 0, 6);
-    this.controls.target.set(0, 0, 0);
-    this.controls.update();
-    this.refreshLayout();
-  }
-
-  _clearExistingResources() {
     // Clear existing planes
     this.pages.forEach((page) => {
       page.frontMaterial?.map?.dispose?.();
@@ -292,9 +273,9 @@ export class Zine3DViewer {
     this.stacks = [];
     this.seams = [];
     this.guides = [];
-  }
 
-  _initializeStacks() {
+    const textureLoader = new THREE.TextureLoader();
+
     MINI_ZINE_STACKS.forEach((stackDefinition) => {
       const group = new THREE.Group();
       this.scene.add(group);
@@ -303,9 +284,7 @@ export class Zine3DViewer {
         group
       });
     });
-  }
-
-  _createPageMeshes(previewPages, textureLoader) {
+    
     for (let i = 1; i <= 8; i++) {
       const config = this.panelDefinitions[i];
       const pageData = previewPages[i - 1]; // Array is 0-indexed
@@ -372,6 +351,17 @@ export class Zine3DViewer {
       });
     }
 
+    this.createSeams();
+    this.createGuides();
+
+    // Initialize layout flat
+    this.setFoldProgress(0);
+    
+    // Automatically adjust camera slightly so the flat sheet fits
+    this.camera.position.set(0, 0, 4.9);
+    this.controls.target.copy(this.cameraTarget);
+    this.controls.update();
+    this.refreshLayout();
   }
 
   refreshLayout() {
@@ -419,7 +409,7 @@ export class Zine3DViewer {
     this.debugFoldState = state;
 
     this.stacks.forEach((stack) => {
-      const stackState = state.stacks[stack.index]; // ⚡️ Bolt: Optimized O(N) array search inside high-frequency animation loop using direct index lookup.
+      const stackState = state.stacks[stack.index]; // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
       if (!stackState) {
         return;
       }
@@ -501,7 +491,9 @@ export class Zine3DViewer {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       this.scene.add(mesh);
-      this.seams.push({ from, to, orientation, mesh, geometry, material });
+      const pageA = this.pages.find((page) => page.id === from);
+      const pageB = this.pages.find((page) => page.id === to);
+      this.seams.push({ from, to, orientation, mesh, geometry, material, pageA, pageB });
     });
   }
 
@@ -579,7 +571,7 @@ export class Zine3DViewer {
   }
 
   updateSeams() {
-    // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
+    // getPage is no longer needed since seams store resolved page references directly.
 
     const getAverageNormal = (pageA, pageB) => {
       const normalA = this.tmpVecC.set(0, 0, 1).applyQuaternion(pageA.group.quaternion);
@@ -588,8 +580,8 @@ export class Zine3DViewer {
     };
 
     this.seams.forEach((seam) => {
-      const pageA = getPage(seam.from);
-      const pageB = getPage(seam.to);
+      const pageA = seam.pageA;
+      const pageB = seam.pageB;
       if (!pageA || !pageB) { return; }
 
       const startLocal = seam.orientation === 'horizontal'
