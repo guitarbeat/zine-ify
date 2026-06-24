@@ -14,6 +14,43 @@ export const PAPER_SIZES = {
     a5: { label: 'A5', width: 148, height: 210 }
 };
 
+// All paper/margin values are stored internally in millimeters. Units below
+// only control how values are displayed and entered in the UI.
+export const MM_PER_INCH = 25.4;
+
+export const UNITS = {
+    in: { label: 'in', decimals: 2, marginStep: 0.05, inputStep: 0.01 },
+    mm: { label: 'mm', decimals: 0, marginStep: 1, inputStep: 1 }
+};
+
+export function toMm(value, unit) {
+    const v = Number(value) || 0;
+    return unit === 'in' ? v * MM_PER_INCH : v;
+}
+
+export function fromMm(mm, unit) {
+    const v = Number(mm) || 0;
+    return unit === 'in' ? v / MM_PER_INCH : v;
+}
+
+// Convert an internal mm value to a display string in the given unit,
+// trimming trailing zeros (e.g. 215.9mm -> "8.5" in inches).
+export function formatDimension(mm, unit) {
+    const u = UNITS[unit] || UNITS.mm;
+    const value = fromMm(mm, unit);
+    const rounded = Number(value.toFixed(u.decimals));
+    return String(rounded);
+}
+
+// Resolve the active paper dimensions (in mm), supporting a 'custom' size
+// whose dimensions are carried separately.
+export function resolvePaperSize(paperSize, customPaper) {
+    if (paperSize === 'custom' && customPaper && customPaper.width > 0 && customPaper.height > 0) {
+        return { label: 'Custom', width: customPaper.width, height: customPaper.height };
+    }
+    return PAPER_SIZES[paperSize] || PAPER_SIZES.letter;
+}
+
 /**
  * Zine template definitions
  * layout: Array of [pageNumber, isUpsideDown] tuples in grid order (row by row)
