@@ -8,21 +8,7 @@
 **Learning:** Raw Error objects passed to console.error() expose deep application stack traces to users and potential attackers, revealing application internals.
 **Prevention:** Only log error.message or a safe generic string, rather than the raw Error object in production-facing client code.
 
-## 2026-04-23 - Prevent DOM Clobbering/XSS in Sanitizer
-**Vulnerability:** Safe HTML sanitization using `template.innerHTML` could potentially trigger execution of payload (e.g. `img` `onerror`) before sanitization takes place if assigned directly.
-**Learning:** Assigning unsafe strings to `innerHTML`, even on detached template tags, has inherent risks. Using `DOMParser` parses the string into a safe document object model without evaluating executing elements.
-**Prevention:** Use `new DOMParser().parseFromString(html, 'text/html')` for safe DOM element creation during sanitization instead of `innerHTML` assignment.
-
 ## 2026-05-12 - Prevent DOM-based XSS via innerHTML
-**Vulnerability:** DOM-based XSS through assignment of interpolated strings to innerHTML in dynamic UI elements.
-**Learning:** Assigning unsafe or dynamically constructed strings containing variables directly to innerHTML is a primary vector for XSS vulnerabilities.
-**Prevention:** Use programmatic DOM construction (`document.createElement`, `textContent`, and safe attribute assignment) instead of `innerHTML` for UI components containing variable data.
-## 2026-05-12 - [Test Dependency Added]
-**Learning:** Testing DOM manipulation in Node using JSDOM is effective but introduces `jsdom` dependency.
-**Action:** Monitored package updates carefully, added it cleanly without compromising build artifacts.
-## 2024-05-12 - [Insecure File Extension Validation]
-**Learning:** Relying solely on the  MIME string for client-side file validation is inherently insecure as it is easily spoofed by malicious actors renaming a script or executable to have a  extension.
-**Action:** Always implement defense-in-depth by enforcing a strict file extension allowlist via  parsing to complement any primary MIME type checks, ensuring consistency between stated type and extension.
-## 2026-05-12 - [Insecure File Extension Validation]
-**Learning:** Relying solely on the `file.type` MIME string for client-side file validation is inherently insecure as it is easily spoofed by malicious actors renaming a script or executable.
-**Action:** Always implement defense-in-depth by enforcing a strict file extension allowlist via `file.name` parsing to complement any primary MIME type checks, ensuring consistency between stated type and extension.
+**Vulnerability:** DOM-based Cross-Site Scripting (XSS) via insecure use of `.innerHTML` for creating dynamic DOM elements.
+**Learning:** Using `.innerHTML` to insert user-controlled or dynamically generated content is risky and easily leads to XSS.
+**Prevention:** Always use secure programmatic DOM manipulation methods (`document.createElement`, `textContent`, and safe attribute assignment) instead of `.innerHTML` when handling dynamic content.
