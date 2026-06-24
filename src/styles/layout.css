@@ -10,8 +10,8 @@ html, body {
 .canvas-surface {
   position: relative;
   min-width: 100vw;
-  min-height: max(100dvh, 1600px);
-  /* width/height grow with absolutely-positioned children via overflow:auto on body */
+  min-height: 100dvh;
+  /* min-height grows via JS when snap cards need more vertical space */
 }
 
 /* ── Snap-grid overlay (fixed, shows during drag) ── */
