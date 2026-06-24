@@ -10,6 +10,10 @@ LAYOUT_FILES=(
 
 restore_layout() {
   git checkout replit-layout -- "${LAYOUT_FILES[@]}" 2>/dev/null || true
+  if ! git diff --quiet HEAD -- "${LAYOUT_FILES[@]}" 2>/dev/null; then
+    git add "${LAYOUT_FILES[@]}"
+    git commit -m "Restore replit layout files"
+  fi
 }
 
 log() {
@@ -35,19 +39,27 @@ while IFS= read -r branch; do
     continue
   fi
 
+  restore_layout
+
   log "merging $short ..."
   if git merge "$branch" --no-edit -m "Merge branch '$short' into merge-all-branches"; then
     restore_layout
-    if ! git diff --quiet -- "${LAYOUT_FILES[@]}"; then
-      git add "${LAYOUT_FILES[@]}"
-      git commit --amend --no-edit
-    fi
     merged=$((merged + 1))
     continue
   fi
 
   log "conflicts in $short — auto-resolving"
-  conflicted=($(git diff --name-only --diff-filter=U))
+  conflicted=()
+  while IFS= read -r file; do
+    [[ -n "$file" ]] && conflicted+=("$file")
+  done < <(git diff --name-only --diff-filter=U)
+
+  if ((${#conflicted[@]} == 0)); then
+    log "no conflicted files listed for $short — aborting"
+    git merge --abort 2>/dev/null || true
+    failed=$((failed + 1))
+    continue
+  fi
 
   for file in "${conflicted[@]}"; do
     is_layout=false
