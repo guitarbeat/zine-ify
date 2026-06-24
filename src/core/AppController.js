@@ -290,6 +290,9 @@ export class AppController {
       }
     } finally {
       this.ui.modal.showProgress(false);
+      if (this.ui.elements.exportPdfBtn) {
+        this.ui.elements.exportPdfBtn.removeAttribute('aria-busy');
+      }
     }
 
     try {
@@ -696,15 +699,10 @@ export class AppController {
       return;
     }
 
-    const exportBtn = this.ui.elements.exportPdfBtn;
-    const originalContent = exportBtn ? exportBtn.innerHTML : '';
-    if (exportBtn) {
-      exportBtn.disabled = true;
-      exportBtn.setAttribute('aria-busy', 'true');
-      exportBtn.innerHTML = '<span class="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span><span class="text-sm font-semibold">Exporting...</span>';
-    }
-
     this.ui.modal.showProgress(true, 'Generating PDF...');
+    if (this.ui.elements.exportPdfBtn) {
+      this.ui.elements.exportPdfBtn.setAttribute('aria-busy', 'true');
+    }
     try {
       await this.exportService.handleExport();
       this.state.markExported();
@@ -714,10 +712,8 @@ export class AppController {
       toast.error('Export Failed', error.message);
     } finally {
       this.ui.modal.showProgress(false);
-      if (exportBtn) {
-        exportBtn.disabled = false;
-        exportBtn.removeAttribute('aria-busy');
-        exportBtn.innerHTML = originalContent;
+      if (this.ui.elements.exportPdfBtn) {
+        this.ui.elements.exportPdfBtn.removeAttribute('aria-busy');
       }
     }
   }

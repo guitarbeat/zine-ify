@@ -375,6 +375,7 @@ export class AccessibleList {
 
     this.isLoading = true;
     this.loadMoreBtn.disabled = true;
+    this.loadMoreBtn.setAttribute('aria-disabled', 'true');
     this.loadMoreBtn.textContent = this.options.loadingLabel;
     this.statusRegion.textContent = this.options.loadingLabel;
 
@@ -408,6 +409,7 @@ export class AccessibleList {
     } finally {
       this.isLoading = false;
       this.loadMoreBtn.disabled = false;
+      this.loadMoreBtn.setAttribute('aria-disabled', 'false');
       this.loadMoreBtn.textContent = this.options.loadMoreLabel;
 
       // Hide button if no more items
