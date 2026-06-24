@@ -692,6 +692,7 @@ export class AppController {
       return;
     }
 
+    this.ui.setExportLoading(true);
     this.ui.modal.showProgress(true, 'Generating PDF...');
     this.ui.setExportLoadingState(true);
     try {
@@ -702,6 +703,8 @@ export class AppController {
     } catch (error) {
       toast.error('Export Failed', error.message);
     } finally {
+      this.ui.setExportLoading(false);
+      this.ui.updateWorkspaceState({ placedCount: this.state.getFilledPageCount() });
       this.ui.modal.showProgress(false);
       this.ui.setExportLoadingState(false);
     }
