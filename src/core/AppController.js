@@ -4,6 +4,7 @@ import { StateStore } from './StateStore.js';
 import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
+
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
 import { parseBoundedInteger } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
@@ -331,14 +332,9 @@ export class AppController {
       return this.state._blankPageUrl;
     }
 
-    // ⚡ Bolt: Use OffscreenCanvas instead of standard DOM canvases to allow asynchronous rendering without blocking the main UI thread.
-    const canvas = typeof OffscreenCanvas !== 'undefined'
-      ? new OffscreenCanvas(1000, 1414)
-      : document.createElement('canvas');
-    if (!canvas.width) {
-      canvas.width = 1000;
-      canvas.height = 1414;
-    }
+    const canvas = document.createElement('canvas');
+    canvas.width = 1000;
+    canvas.height = 1414;
     const context = canvas.getContext('2d');
     context.fillStyle = '#fcfaf5';
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -394,14 +390,9 @@ export class AppController {
 
     const width = image.naturalWidth || image.width || 1000;
     const height = image.naturalHeight || image.height || 1414;
-    // ⚡ Bolt: Use OffscreenCanvas instead of standard DOM canvases to allow asynchronous rendering without blocking the main UI thread.
-    const canvas = typeof OffscreenCanvas !== 'undefined'
-      ? new OffscreenCanvas(width, height)
-      : document.createElement('canvas');
-    if (!canvas.width) {
-      canvas.width = width;
-      canvas.height = height;
-    }
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
 
     const context = canvas.getContext('2d');
     context.fillStyle = '#ffffff';
