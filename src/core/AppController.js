@@ -4,6 +4,7 @@ import { StateStore } from './StateStore.js';
 import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
+
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
 import { parseBoundedInteger } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
@@ -49,6 +50,7 @@ export class AppController {
     this.ui.on('pageCropToggled', (i) => this.handlePageCropToggled(i));
     this.ui.on('pageRemoved', (i) => this.handlePageRemoved(i));
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
+    this.ui.on('print', () => this.handlePrint());
     this.ui.on('export', () => this.handleExport());
     this.ui.on('view3d', () => this.handleView3d());
     this.ui.on('clearAll', () => this.handleClearAll());
@@ -231,7 +233,13 @@ export class AppController {
     toast.success('Import Complete', status);
   }
 
-  async _generateThumbnails(numPages) {
+  async getSelectedPagesForImport(fileName, numPages) {
+    const selectionLimit = Math.max(1, this.state.gridSize.rows * this.state.gridSize.cols);
+
+    if (numPages <= selectionLimit) {
+      return Array.from({ length: numPages }, (_, index) => index + 1);
+    }
+
     const thumbnails = [];
     this.ui.modal.showProgress(true, 'Preparing page picker...', '0%');
     this.ui.modal.updateProgress(0);
@@ -281,17 +289,6 @@ export class AppController {
     } finally {
       this.ui.modal.showProgress(false);
     }
-    return thumbnails;
-  }
-
-  async getSelectedPagesForImport(fileName, numPages) {
-    const selectionLimit = Math.max(1, this.state.gridSize.rows * this.state.gridSize.cols);
-
-    if (numPages <= selectionLimit) {
-      return Array.from({ length: numPages }, (_, index) => index + 1);
-    }
-
-    const thumbnails = await this._generateThumbnails(numPages);
 
     try {
       return await this.ui.modal.showPagePicker({
@@ -360,9 +357,10 @@ export class AppController {
     const blankUrl = await this.ensureBlankPageUrl();
     const filledPages = this.state.getFilledPageCount();
 
-    // ⚡ Bolt: Replace manual iteration with bulk fill to significantly optimize memory allocation and slot generation during imports.
-    if (filledPages < this.state.allPageImages.length) {
-      this.state.allPageImages.fill(blankUrl, filledPages);
+    for (let index = filledPages; index < this.state.allPageImages.length; index++) {
+      if (!this.state.allPageImages[index] || this.state.allPageImages[index] === this.state._blankPageUrl) {
+        this.state.allPageImages[index] = blankUrl;
+      }
     }
   }
 
@@ -602,6 +600,17 @@ export class AppController {
     toast.info('Cleared', 'All pages have been removed.');
   }
 
+  handlePrint() {
+    if (!this.state.getFilledPageCount()) {
+      toast.warning('No Content', 'Import pages before printing.');
+      return;
+    }
+
+    this.exportService.handlePrint().catch((error) => {
+      toast.error('Print Failed', error.message || 'Unable to print.');
+    });
+  }
+
   async getZine3DViewerClass() {
     if (!this.zine3dViewerClassPromise) {
       this.zine3dViewerClassPromise = import('../components/Zine3DViewer.js')
@@ -656,18 +665,22 @@ export class AppController {
         requestAnimationFrame(() => requestAnimationFrame(resolve));
       });
 
-      const container = this.ui.elements.zine3dContainer;
-      if (!this.viewer3d && container) {
-        const Zine3DViewer = await this.getZine3DViewerClass();
-        try {
-          this.viewer3d = new Zine3DViewer(container);
-        } catch (e) {
-          void e;
-          container.querySelector('.zine-3d-fallback-canvas')?.remove();
-          this.viewer3d = null;
-          this.ui.toggle3DModal(false);
-          toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
-          return;
+      if (!this.viewer3d) {
+        const container = this.ui.elements.zine3dContainer;
+        if (container) {
+          const Zine3DViewer = await this.getZine3DViewerClass();
+          try {
+            this.viewer3d = new Zine3DViewer(container);
+          } catch {
+            const fallback = container.querySelector('.zine-3d-fallback-canvas');
+            if (fallback) {
+              fallback.remove();
+            }
+            this.viewer3d = null;
+            this.ui.toggle3DModal(false);
+            toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
+            return;
+          }
         }
       }
 

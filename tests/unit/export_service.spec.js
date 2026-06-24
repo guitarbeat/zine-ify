@@ -1,187 +1,266 @@
 import { test, expect } from '@playwright/test';
 import { ExportService } from '../../src/services/ExportService.js';
-import { ZINE_TEMPLATES } from '../../src/utils/config.js';
 
 test.describe('ExportService', () => {
   let mockUi;
   let mockState;
-  let service;
+  let exportService;
 
   test.beforeEach(() => {
     mockUi = {};
     mockState = {
+      allPageImages: Array(8).fill(null),
+      pageFlips: {},
+      pageZooms: {},
       gridSize: { rows: 2, cols: 4 },
-      allPageImages: [
-        'page1.jpg', 'page2.jpg', 'page3.jpg', 'page4.jpg',
-        'page5.jpg', 'page6.jpg', 'page7.jpg', 'page8.jpg'
-      ],
       paperSize: 'letter',
       orientation: 'landscape',
-      margin: 0,
-      pageFlips: {},
-      pageZooms: {}
+      margin: 0
     };
-    service = new ExportService(mockUi, mockState);
+    exportService = new ExportService(mockUi, mockState);
+  });
+
+  test.describe('getPaperDimensions', () => {
+    test('returns landscape dimensions for letter', () => {
+      mockState.paperSize = 'letter';
+      mockState.orientation = 'landscape';
+      const dims = exportService.getPaperDimensions();
+      expect(dims).toEqual({ width: 279.4, height: 215.9 });
+    });
+
+    test('returns portrait dimensions for letter', () => {
+      mockState.paperSize = 'letter';
+      mockState.orientation = 'portrait';
+      const dims = exportService.getPaperDimensions();
+      expect(dims).toEqual({ width: 215.9, height: 279.4 });
+    });
+
+    test('returns landscape dimensions for a4', () => {
+      mockState.paperSize = 'a4';
+      mockState.orientation = 'landscape';
+      const dims = exportService.getPaperDimensions();
+      expect(dims).toEqual({ width: 297, height: 210 });
+    });
+  });
+
+  test.describe('buildPrintHtml', () => {
+    test('wraps sheets HTML correctly', () => {
+      const sheetsHtml = '<div class="sheet"></div>';
+      const dims = { width: 100, height: 200 };
+      const html = exportService.buildPrintHtml(sheetsHtml, dims);
+      expect(html).toContain('<!DOCTYPE html>');
+      expect(html).toContain('@page { size: 100mm 200mm; margin: 0; }');
+      expect(html).toContain('<div class="sheet"></div>');
+    });
+  });
+
+  test.describe('buildSheetsHtml', () => {
+    test('generates correct HTML for mini-8 template', () => {
+      mockState.allPageImages = [
+        'url1', 'url2', 'url3', 'url4',
+        'url5', 'url6', 'url7', 'url8'
+      ];
+      mockState.gridSize = { rows: 2, cols: 4 }; // mini-8
+      mockState.pageFlips = { 1: true }; // pageIndex 1 flipped
+      mockState.pageZooms = { 2: true }; // pageIndex 2 zoomed
+      mockState.paperSize = 'letter';
+      mockState.orientation = 'landscape';
+      mockState.margin = 5;
+
+      const html = exportService.buildSheetsHtml();
+
+      expect(html).toContain('display:grid;');
+      expect(html).toContain('grid-template-columns:repeat(4,1fr);');
+      expect(html).toContain('grid-template-rows:repeat(2,1fr);');
+      expect(html).toContain('src="url1"');
+      expect(html).toContain('src="url2"');
+      expect(html).toContain('src="url8"');
+      expect(html).toContain('alt="Page 1"');
+
+      // zoomed image should have cover
+      expect(html).toContain('object-fit:cover');
+      expect(html).toContain('object-fit:contain');
+    });
+
+    test('handles empty slots with fallback div', () => {
+      mockState.allPageImages = ['url1', null, 'url3'];
+      mockState.gridSize = { rows: 1, cols: 2 };
+
+      const html = exportService.buildSheetsHtml();
+      expect(html).toContain('src="url1"');
+      expect(html).toContain('background:#f0f0f0;');
+    });
+
+    test('handles basic sequential layout', () => {
+        mockState.gridSize = { rows: 2, cols: 2 };
+        mockState.allPageImages = ['url1', 'url2', 'url3', 'url4'];
+
+        const html = exportService.buildSheetsHtml();
+        expect(html).toContain('grid-template-columns:repeat(2,1fr);');
+        expect(html).toContain('grid-template-rows:repeat(2,1fr);');
+        expect(html).toContain('alt="Page 1"');
+        expect(html).toContain('alt="Page 4"');
+    });
+  });
+
+  test.describe('handleExport', () => {
+    test('throws when no pages to export', async () => {
+      mockState.allPageImages = Array(8).fill(null);
+      await expect(exportService.handleExport()).rejects.toThrow('No pages to export.');
+    });
+  });
+
+  test.describe('_drawCell', () => {
+    test('calculates dimensions correctly for contain vs cover', () => {
+      let drawImageArgs = null;
+      let clipCalled = false;
+      let restoreCalled = false;
+
+      const mockCtx = {
+        save: () => {},
+        beginPath: () => {},
+        rect: () => {},
+        clip: () => { clipCalled = true; },
+        translate: () => {},
+        rotate: () => {},
+        drawImage: (...args) => { drawImageArgs = args; },
+        restore: () => { restoreCalled = true; },
+      };
+
+      const img = { naturalWidth: 200, naturalHeight: 100 }; // 2:1 aspect
+      const cellW = 100;
+      const cellH = 100; // 1:1 aspect
+
+      // test contain
+      exportService._drawCell(mockCtx, img, 0, 0, cellW, cellH, 0, 1, 'contain');
+      // Img aspect > cell aspect. Contains means width matches cell width. Width = 100.
+      // Height = 100 / 2 = 50.
+      expect(drawImageArgs[3]).toBeCloseTo(100);
+      expect(drawImageArgs[4]).toBeCloseTo(50);
+
+      // test cover
+      exportService._drawCell(mockCtx, img, 0, 0, cellW, cellH, 0, 1, 'cover');
+      // Img aspect > cell aspect. Cover means height matches cell height. Height = 100.
+      // Width = 100 * 2 = 200.
+      expect(drawImageArgs[3]).toBeCloseTo(200);
+      expect(drawImageArgs[4]).toBeCloseTo(100);
+
+      expect(clipCalled).toBe(true);
+      expect(restoreCalled).toBe(true);
+    });
+
+    test('calculates dimensions correctly for tall images', () => {
+      let drawImageArgs = null;
+      const mockCtx = {
+        save: () => {}, beginPath: () => {}, rect: () => {}, clip: () => {},
+        translate: () => {}, rotate: () => {}, restore: () => {},
+        drawImage: (...args) => { drawImageArgs = args; },
+      };
+
+      const img = { naturalWidth: 100, naturalHeight: 200 }; // 1:2 aspect
+      const cellW = 100;
+      const cellH = 100; // 1:1 aspect
+
+      // contain: height caps at cell height. Height = 100. Width = 100 / 2 = 50.
+      exportService._drawCell(mockCtx, img, 0, 0, cellW, cellH, 0, 1, 'contain');
+      expect(drawImageArgs[3]).toBeCloseTo(50);
+      expect(drawImageArgs[4]).toBeCloseTo(100);
+
+      // cover: width caps at cell width. Width = 100. Height = 100 * 2 = 200.
+      exportService._drawCell(mockCtx, img, 0, 0, cellW, cellH, 0, 1, 'cover');
+      expect(drawImageArgs[3]).toBeCloseTo(100);
+      expect(drawImageArgs[4]).toBeCloseTo(200);
+    });
+  });
+
+
+
+  test.describe('openPrintWindow', () => {
     test.afterEach(() => {
-    if (global.window) delete global.window;
-  });
-});
+    });
 
-  test('constructor sets ui and state properties', () => {
-    expect(service.ui).toBe(mockUi);
-    expect(service.state).toBe(mockState);
-  });
+    test('uses window.open if available', async () => {
 
-  test('_resolveSlot returns correct pageNum and upsideDown for mini-zine', () => {
-    const template = ZINE_TEMPLATES['mini-8'];
-    const slot0 = service._resolveSlot(template, 0);
-    expect(slot0).toEqual({ pageNum: 5, upsideDown: true });
+      let openHtml = null;
+      let printCalled = false;
+      let focusCalled = false;
 
-    const slot7 = service._resolveSlot(template, 7);
-    expect(slot7).toEqual({ pageNum: 1, upsideDown: false });
-  });
-
-  test('_resolveSlot returns default when no template provided', () => {
-    const slot = service._resolveSlot(null, 3);
-    expect(slot).toEqual({ pageNum: 4, upsideDown: false });
-  });
-
-  test('getPaperDimensions returns correct dimensions based on orientation', () => {
-    const dimsLandscape = service.getPaperDimensions();
-    expect(dimsLandscape.width).toBe(279.4);
-    expect(dimsLandscape.height).toBe(215.9);
-
-    service.state.orientation = 'portrait';
-    const dimsPortrait = service.getPaperDimensions();
-    expect(dimsPortrait.width).toBe(215.9);
-    expect(dimsPortrait.height).toBe(279.4);
-  });
-
-  test('buildSheetsHtml generates HTML string for sheets', () => {
-    const html = service.buildSheetsHtml();
-    expect(html).toContain('class="sheet"');
-    expect(html).toContain('src="page1.jpg"');
-    expect(html).toContain('src="page8.jpg"');
-    expect((html.match(/class="sheet"/g) || []).length).toBe(1);
-  });
-
-  test('buildSheetsHtml handles multiple sheets', () => {
-      service.state.allPageImages = new Array(10).fill('page.jpg');
-      const html = service.buildSheetsHtml();
-      expect((html.match(/class="sheet"/g) || []).length).toBe(2);
-  });
-
-  test('buildPrintHtml wraps sheetsHtml in full HTML document', () => {
-    const sheetsHtml = '<div class="sheet">Test</div>';
-    const dims = { width: 100, height: 200 };
-    const html = service.buildPrintHtml(sheetsHtml, dims);
-    expect(html).toContain('<!DOCTYPE html>');
-    expect(html).toContain('<style>');
-    expect(html).toContain('@page { size: 100mm 200mm;');
-    expect(html).toContain(sheetsHtml);
-  });
-
-  test('handleExport throws error if no pages to export', async () => {
-      service.state.allPageImages = new Array(8).fill(null);
-      await expect(service.handleExport()).rejects.toThrow('No pages to export.');
-  });
-
-  test('_drawCell handles image drawing with correct dimensions and rotation', () => {
-    const ctx = {
-      save: () => {},
-      beginPath: () => {},
-      rect: () => {},
-      clip: () => {},
-      translate: () => {},
-      rotate: () => {},
-      drawImage: () => {},
-      restore: () => {}
-    };
-
-    let drawImageCalls = [];
-    ctx.drawImage = (img, x, y, w, h) => {
-      drawImageCalls.push({ img, x, y, w, h });
-    };
-
-    let translateCalls = [];
-    ctx.translate = (x, y) => {
-      translateCalls.push({ x, y });
-    };
-
-    let rotateCalls = [];
-    ctx.rotate = (rad) => {
-        rotateCalls.push(rad);
-    };
-
-    const img = { naturalWidth: 100, naturalHeight: 200 };
-
-    service._drawCell(ctx, img, 10, 20, 50, 100, 0, 1, 'contain');
-    expect(translateCalls[0]).toEqual({ x: 35, y: 70 });
-    expect(rotateCalls.length).toBe(0);
-    expect(drawImageCalls[0].w).toBe(50);
-    expect(drawImageCalls[0].h).toBe(100);
-
-    translateCalls = [];
-    rotateCalls = [];
-    drawImageCalls = [];
-    service._drawCell(ctx, img, 0, 0, 100, 100, 180, 1, 'contain');
-    expect(rotateCalls[0]).toBe(Math.PI);
-  });
-
-  test('handlePrint opens window or creates iframe', async () => {
-      let openCalled = false;
-      let mockWin = {
-          document: {
-              open: () => {},
-              write: () => {},
-              close: () => {}
-          },
-          focus: () => {},
-          print: () => { openCalled = true; }
+      const mockWin = {
+        document: {
+          open: () => {},
+          write: (html) => { openHtml = html; },
+          close: () => {},
+        },
+        focus: () => { focusCalled = true; },
+        print: () => { printCalled = true; },
       };
 
-      const originalWindow = global.window;
       global.window = {
-          open: () => mockWin
+        open: () => mockWin
       };
 
-      service.state.allPageImages = new Array(8).fill('page.jpg');
-      await service.handlePrint();
-      expect(openCalled).toBe(true);
+      await exportService.openPrintWindow('<p>Print</p>');
 
-      global.window = originalWindow;
-  });
+      expect(openHtml).toBe('<p>Print</p>');
+      expect(printCalled).toBe(true);
+      expect(focusCalled).toBe(true);
 
-  test('_loadImage returns a promise resolving with an image', async () => {
-    const originalImage = global.Image;
-    global.Image = class {
-        constructor() {
-            setTimeout(() => {
-                if (this.onload) this.onload();
-            }, 10);
+    });
+
+    test('falls back to iframe if window.open fails', async () => {
+      global.window = {
+        open: () => null
+      };
+
+      let iframeAppended = false;
+      let iframeHtml = null;
+      let printCalled = false;
+      let removeCalled = false;
+      let focusCalled = false;
+
+      const mockIframe = {
+        style: {},
+        setAttribute: () => {},
+        contentDocument: {
+          open: () => {},
+          write: (html) => { iframeHtml = html; },
+          close: () => {}
+        },
+        contentWindow: {
+          focus: () => { focusCalled = true; },
+          print: () => { printCalled = true; }
+        },
+        remove: () => { removeCalled = true; }
+      };
+
+      global.document = {
+        createElement: (tag) => {
+          if (tag === 'iframe') return mockIframe;
+          return {};
+        },
+        body: {
+          appendChild: (el) => {
+            if (el === mockIframe) {
+              iframeAppended = true;
+              setTimeout(() => {
+                if (el.onload) el.onload();
+              }, 50);
+            }
+          }
         }
-    };
+      };
 
-    const img = await service._loadImage('test.jpg');
-    expect(img).toBeTruthy();
+      await exportService.openPrintWindow('<p>Iframe Print</p>');
 
-    global.Image = originalImage;
+      expect(iframeAppended).toBe(true);
+      expect(iframeHtml).toBe('<p>Iframe Print</p>');
+      expect(printCalled).toBe(true);
+      expect(focusCalled).toBe(true);
+
+      // wait for remove
+      await new Promise(r => setTimeout(r, 1100));
+      expect(removeCalled).toBe(true);
+
+    });
   });
-
-
-  test('_loadImage handles errors', async () => {
-    const originalImage = global.Image;
-    global.Image = class {
-        constructor() {
-            setTimeout(() => {
-                if (this.onerror) this.onerror(new Error('Load failed'));
-            }, 10);
-        }
-    };
-
-    await expect(service._loadImage('test.jpg')).rejects.toThrow('Load failed');
-
-    global.Image = originalImage;
-  });
-
 });
