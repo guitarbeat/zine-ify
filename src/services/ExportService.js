@@ -9,11 +9,8 @@ export class ExportService {
   }
 
   async handleExport() {
-    const { rows, cols } = this.state.gridSize;
-    const slotsPerSheet = rows * cols;
-    const totalSlots = this.state.allPageImages.length;
-    const sheetCount = Math.max(1, Math.ceil(totalSlots / slotsPerSheet));
-    const template = rows === 2 && cols === 4 ? ZINE_TEMPLATES['mini-8'] : null;
+    const layoutConfig = this._getLayoutConfig();
+    const { sheetCount, dims, isLandscape } = layoutConfig;
 
     const filledSlots = this.state.allPageImages.filter(Boolean);
     if (!filledSlots.length) {
@@ -22,14 +19,32 @@ export class ExportService {
 
     const { jsPDF } = await import('jspdf').then((m) => m);
 
-    const dims = this.getPaperDimensions();
-    const isLandscape = this.state.orientation === 'landscape';
-
     const doc = new jsPDF({
       orientation: isLandscape ? 'landscape' : 'portrait',
       unit: 'mm',
       format: [dims.width, dims.height]
     });
+
+    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
+      const imgData = await this._renderSheetToDataUrl(sheetIndex, layoutConfig);
+      if (sheetIndex > 0) {
+        doc.addPage([dims.width, dims.height], isLandscape ? 'landscape' : 'portrait');
+      }
+      doc.addImage(imgData, 'JPEG', 0, 0, dims.width, dims.height);
+    }
+
+    doc.save('zine.pdf');
+  }
+
+  _getLayoutConfig() {
+    const { rows, cols } = this.state.gridSize;
+    const slotsPerSheet = rows * cols;
+    const totalSlots = this.state.allPageImages.length;
+    const sheetCount = Math.max(1, Math.ceil(totalSlots / slotsPerSheet));
+    const template = rows === 2 && cols === 4 ? ZINE_TEMPLATES['mini-8'] : null;
+
+    const dims = this.getPaperDimensions();
+    const isLandscape = this.state.orientation === 'landscape';
 
     const marginMm = this.state.margin || 0;
     const marginPx = Math.round(marginMm * MM_TO_PX_300DPI);
@@ -40,65 +55,74 @@ export class ExportService {
     const cellW = drawW / cols;
     const cellH = drawH / rows;
 
-    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
-      const offscreen = document.createElement('canvas');
-      offscreen.width = canvasW;
-      offscreen.height = canvasH;
-      const ctx = offscreen.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvasW, canvasH);
+    return {
+      rows, cols, slotsPerSheet, sheetCount, template, dims, isLandscape,
+      marginPx, canvasW, canvasH, cellW, cellH
+    };
+  }
 
-      const draws = [];
+  async _renderSheetToDataUrl(sheetIndex, layoutConfig) {
+    const { cols, slotsPerSheet, template, canvasW, canvasH, marginPx, cellW, cellH } = layoutConfig;
+    const offscreen = document.createElement('canvas');
+    offscreen.width = canvasW;
+    offscreen.height = canvasH;
+    const ctx = offscreen.getContext('2d');
 
-      for (let slot = 0; slot < slotsPerSheet; slot++) {
-        const rawSlot = template?.layout ? template.layout[slot] : null;
-        let pageNum, upsideDown;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvasW, canvasH);
 
-        if (typeof rawSlot === 'number') {
-          pageNum = rawSlot;
-          upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
-        } else if (rawSlot && typeof rawSlot === 'object') {
-          pageNum = rawSlot.page;
-          upsideDown = !!rawSlot.upsideDown;
-        } else {
-          pageNum = slot + 1;
-          upsideDown = false;
-        }
+    const draws = [];
 
-        const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
-        const url = this.state.allPageImages[pageIndex];
-        if (!url) {continue;}
+    for (let slot = 0; slot < slotsPerSheet; slot++) {
+      const { pageNum, upsideDown } = this._resolveSlot(template, slot);
 
-        const isFlipped = !!this.state.pageFlips[pageIndex];
-        const isZoomed = !!this.state.pageZooms[pageIndex];
-        const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
-        const scale = isZoomed ? 1.1 : 1;
-        const objectFit = isZoomed ? 'cover' : 'contain';
-
-        const row = Math.floor(slot / cols);
-        const col = slot % cols;
-        const cellX = marginPx + col * cellW;
-        const cellY = marginPx + row * cellH;
-
-        draws.push({ url, cellX, cellY, rotateDeg, scale, objectFit });
+      const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
+      const url = this.state.allPageImages[pageIndex];
+      if (!url) {
+        continue;
       }
 
-      await Promise.all(
-        draws.map(({ url, cellX, cellY, rotateDeg, scale, objectFit }) =>
-          this._loadImage(url).then((img) => {
-            this._drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit);
-          })
-        )
-      );
+      const isFlipped = !!this.state.pageFlips[pageIndex];
+      const isZoomed = !!this.state.pageZooms[pageIndex];
+      const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
+      const scale = isZoomed ? 1.1 : 1;
+      const objectFit = isZoomed ? 'cover' : 'contain';
 
-      const imgData = offscreen.toDataURL('image/jpeg', 0.92);
-      if (sheetIndex > 0) {
-        doc.addPage([dims.width, dims.height], isLandscape ? 'landscape' : 'portrait');
-      }
-      doc.addImage(imgData, 'JPEG', 0, 0, dims.width, dims.height);
+      const row = Math.floor(slot / cols);
+      const col = slot % cols;
+      const cellX = marginPx + col * cellW;
+      const cellY = marginPx + row * cellH;
+
+      draws.push({ url, cellX, cellY, rotateDeg, scale, objectFit });
     }
 
-    doc.save('zine.pdf');
+    await Promise.all(
+      draws.map(({ url, cellX, cellY, rotateDeg, scale, objectFit }) =>
+        this._loadImage(url).then((img) => {
+          this._drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit);
+        })
+      )
+    );
+
+    return offscreen.toDataURL('image/jpeg', 0.92);
+  }
+
+  _resolveSlot(template, slot) {
+    const rawSlot = template?.layout ? template.layout[slot] : null;
+    let pageNum, upsideDown;
+
+    if (typeof rawSlot === 'number') {
+      pageNum = rawSlot;
+      upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
+    } else if (rawSlot && typeof rawSlot === 'object') {
+      pageNum = rawSlot.page;
+      upsideDown = !!rawSlot.upsideDown;
+    } else {
+      pageNum = slot + 1;
+      upsideDown = false;
+    }
+
+    return { pageNum, upsideDown };
   }
 
   _loadImage(url) {
@@ -179,19 +203,7 @@ export class ExportService {
       let cells = '';
 
       for (let slot = 0; slot < slotsPerSheet; slot++) {
-        const rawSlot = template?.layout ? template.layout[slot] : null;
-        let pageNum, upsideDown;
-
-        if (typeof rawSlot === 'number') {
-          pageNum = rawSlot;
-          upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
-        } else if (rawSlot && typeof rawSlot === 'object') {
-          pageNum = rawSlot.page;
-          upsideDown = !!rawSlot.upsideDown;
-        } else {
-          pageNum = slot + 1;
-          upsideDown = false;
-        }
+        const { pageNum, upsideDown } = this._resolveSlot(template, slot);
 
         const pageIndex = (s * slotsPerSheet) + (pageNum - 1);
         const url = this.state.allPageImages[pageIndex] || null;
