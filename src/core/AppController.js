@@ -4,6 +4,7 @@ import { StateStore } from './StateStore.js';
 import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
+
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
 import { parseBoundedInteger } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
@@ -704,13 +705,6 @@ export class AppController {
       return;
     }
 
-    // Provide localized loading state directly on the button per memory instructions
-    if (this.ui.elements.exportPdfBtn) {
-      this.ui.elements.exportPdfBtn.setAttribute('aria-busy', 'true');
-      this.ui.elements.exportPdfBtn.disabled = true;
-      this.ui.elements.exportPdfBtn.innerHTML = '<span class="material-symbols-outlined animate-spin" aria-hidden="true">sync</span><span class="text-sm font-semibold">Generating PDF...</span>';
-    }
-
     this.ui.modal.showProgress(true, 'Generating PDF...');
     try {
       await this.exportService.handleExport();
@@ -721,13 +715,6 @@ export class AppController {
       toast.error('Export Failed', error.message);
     } finally {
       this.ui.modal.showProgress(false);
-
-      // Restore button state
-      if (this.ui.elements.exportPdfBtn) {
-        this.ui.elements.exportPdfBtn.removeAttribute('aria-busy');
-        this.ui.elements.exportPdfBtn.disabled = false;
-        this.ui.elements.exportPdfBtn.innerHTML = '<span class="material-symbols-outlined" aria-hidden="true">print</span><span class="text-sm font-semibold">Export PDF</span>';
-      }
     }
   }
 }

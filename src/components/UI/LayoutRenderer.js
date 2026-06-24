@@ -219,10 +219,14 @@ export class LayoutRenderer {
     });
 
     const flipBtn = toolbar.querySelector('.flip-btn');
-    if (flipBtn) {flipBtn.onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); };}
+    if (flipBtn) {
+      flipBtn.onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); };
+    }
 
     const cropBtn = toolbar.querySelector('.crop-btn');
-    if (cropBtn) {cropBtn.onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); };}
+    if (cropBtn) {
+      cropBtn.onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); };
+    }
 
     return cell;
   }
