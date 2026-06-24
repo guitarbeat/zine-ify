@@ -383,7 +383,7 @@ html, body {
   .ui-resizable-se { display: none !important; }
 }
 
-/* ─── Responsive: mobile (single-column stack, no drag) ─── */
+/* ─── Responsive: mobile (single-column stack, drag to reorder) ─ */
 @media (max-width: 767px) {
   .app-header {
     height: 2.25rem;
@@ -408,16 +408,8 @@ html, body {
   }
 
   .snap-card-handle {
-    cursor: default;
-    min-height: 1.75rem;
-    height: auto;
-    padding: 0.45rem 0.65rem 0.35rem;
-    background: transparent;
-    border-bottom: none;
-  }
-
-  .snap-card-grip {
-    display: none;
+    min-height: 1.875rem;
+    padding: 0 0.5rem 0 0.35rem;
   }
 
   .snap-card-label {
@@ -442,12 +434,6 @@ html, body {
     flex-direction: row;
     gap: 0.4rem;
   }
-}
-
-/* JS toggles drag off; keep handles from intercepting scroll on touch */
-body.layout-mobile .snap-card-handle {
-  cursor: default;
-  touch-action: pan-y;
 }
 
 body.layout-mobile .snap-card-handle .panel-clear-btn,

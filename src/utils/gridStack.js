@@ -1,10 +1,11 @@
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
 
-const STORAGE_KEY = 'zine-grid-v1';
+const STORAGE_KEY_DESKTOP = 'zine-grid-v1';
+const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v1';
 const MOBILE_BREAKPOINT = 768;
 
-/** Fixed stack order for narrow viewports (full-width, no overlap). */
+/** Default stack order when no mobile layout is saved yet. */
 const MOBILE_LAYOUT = [
   { id: 'canvas', x: 0, y: 0, w: 1, h: 9 },
   { id: 'upload', x: 0, y: 9, w: 1, h: 4 },
@@ -20,22 +21,14 @@ function isMobile() {
   return window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).matches;
 }
 
-function saveLayout() {
-  if (!grid || isMobile()) return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(grid.save(false)));
-  } catch (_) {}
+function storageKey() {
+  return isMobile() ? STORAGE_KEY_MOBILE : STORAGE_KEY_DESKTOP;
 }
 
-function loadLayout() {
-  if (!grid || isMobile()) return;
+function saveLayout() {
+  if (!grid) return;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const items = JSON.parse(raw);
-    if (Array.isArray(items) && items.length) {
-      grid.load(items);
-    }
+    localStorage.setItem(storageKey(), JSON.stringify(grid.save(false)));
   } catch (_) {}
 }
 
@@ -51,6 +44,27 @@ function applyMobileLayout() {
   });
 }
 
+function loadLayout() {
+  if (!grid) return;
+
+  try {
+    const raw = localStorage.getItem(storageKey());
+    if (!raw) {
+      if (isMobile()) applyMobileLayout();
+      return;
+    }
+
+    const items = JSON.parse(raw);
+    if (Array.isArray(items) && items.length) {
+      grid.load(items);
+    } else if (isMobile()) {
+      applyMobileLayout();
+    }
+  } catch (_) {
+    if (isMobile()) applyMobileLayout();
+  }
+}
+
 function syncGridMetrics() {
   if (!grid) return;
   const mobile = isMobile();
@@ -63,14 +77,9 @@ function setInteractionMode() {
   const mobile = isMobile();
   document.body.classList.toggle('layout-mobile', mobile);
   syncGridMetrics();
-
-  if (mobile) {
-    grid.disable();
-    applyMobileLayout();
-  } else {
-    grid.enable();
-    loadLayout();
-  }
+  grid.enableMove(true);
+  grid.enableResize(!mobile);
+  loadLayout();
 }
 
 export function initGridStack() {
@@ -85,7 +94,7 @@ export function initGridStack() {
     margin: mobile ? 6 : 8,
     handle: '.snap-card-handle',
     float: false,
-    animate: !mobile,
+    animate: true,
     resizable: { handles: 'se', autoHide: true },
     columnOpts: {
       breakpointForWindow: true,
@@ -101,7 +110,8 @@ export function initGridStack() {
   window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).addEventListener('change', setInteractionMode);
 
   window.__resetPanelLayout = () => {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY_DESKTOP);
+    localStorage.removeItem(STORAGE_KEY_MOBILE);
     location.reload();
   };
 }
