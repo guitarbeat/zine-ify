@@ -83,13 +83,10 @@ export class ExportService {
         draws.push({ url, cellX, cellY, rotateDeg, scale, objectFit });
       }
 
-      await Promise.all(
-        draws.map(({ url, cellX, cellY, rotateDeg, scale, objectFit }) =>
-          this._loadImage(url).then((img) => {
-            this._drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit);
-          })
-        )
-      );
+      for (const { url, cellX, cellY, rotateDeg, scale, objectFit } of draws) {
+        const img = await this._loadImage(url);
+        this._drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit);
+      }
 
       const imgData = offscreen.toDataURL('image/jpeg', 0.92);
       if (sheetIndex > 0) {
