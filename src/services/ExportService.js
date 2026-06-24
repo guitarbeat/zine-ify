@@ -1,4 +1,5 @@
-import { ZINE_TEMPLATES, resolvePaperSize } from '../utils/config.js';
+import { PAPER_SIZES, ZINE_TEMPLATES } from '../utils/config.js';
+import { mediaProcessor } from './MediaProcessor.js';
 
 const MM_TO_PX_300DPI = 300 / 25.4;
 
@@ -41,10 +42,7 @@ export class ExportService {
     const cellH = drawH / rows;
 
     for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
-      const offscreen = document.createElement('canvas');
-      offscreen.width = canvasW;
-      offscreen.height = canvasH;
-      const ctx = offscreen.getContext('2d');
+      const { canvas: offscreen, context: ctx } = mediaProcessor.createRenderCanvas(canvasW, canvasH);
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvasW, canvasH);
 
@@ -79,7 +77,22 @@ export class ExportService {
         )
       );
 
-      const imgData = offscreen.toDataURL('image/jpeg', 0.92);
+      // ⚡ Bolt: Offload base64 image encoding to background threads asynchronously via `convertToBlob`.
+      // This prevents the UI main thread from freezing while processing multiple high-resolution (300 DPI)
+      // canvas sheets, drastically improving perceived performance during large exports.
+      let imgData;
+      if (offscreen.convertToBlob) {
+        const blob = await offscreen.convertToBlob({ type: 'image/jpeg', quality: 0.92 });
+        imgData = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = () => reject(new Error('Failed to read canvas blob.'));
+          reader.readAsDataURL(blob);
+        });
+      } else {
+        imgData = offscreen.toDataURL('image/jpeg', 0.92);
+      }
+
       if (sheetIndex > 0) {
         doc.addPage([dims.width, dims.height], isLandscape ? 'landscape' : 'portrait');
       }
@@ -229,7 +242,7 @@ export class ExportService {
   }
 
   getPaperDimensions() {
-    const paper = resolvePaperSize(this.state.paperSize, this.state.customPaper);
+    const paper = PAPER_SIZES[this.state.paperSize] || PAPER_SIZES.letter;
     const isLandscape = this.state.orientation === 'landscape';
     return isLandscape
       ? { width: paper.height, height: paper.width }
