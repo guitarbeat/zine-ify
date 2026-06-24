@@ -1,47 +1,51 @@
-import {
-  PAPER_SIZES,
-  MARGIN_MIN,
-  MARGIN_MAX,
-  UNITS,
-  toMm,
-  fromMm,
-  formatDimension,
-  resolvePaperSize
-} from '../utils/config.js';
+/* eslint-disable no-unused-vars */
+/**
+ * SmartSheetConfig.js
+ * An intelligent sheet configuration widget with visual grid selection,
+ * smart presets, and paper-aware optimizations.
+ */
 
-const FIXED_ROWS = 2;
-const FIXED_COLS = 4;
+import { PAPER_SIZES, ZINE_TEMPLATES } from '../utils/config.js';
+
+const SMART_PRESETS = [
+  { id: 'mini-8', rows: 2, cols: 4, label: 'Mini Zine', desc: '8 pages, 1 cut', pages: 8, popular: true },
+  { id: 'mini-16', rows: 4, cols: 4, label: 'Double Mini', desc: '16 pages, 2 sheets', pages: 16 },
+  { id: 'accordion', rows: 4, cols: 4, label: 'Accordion', desc: '16 pages, folded', pages: 16 },
+  { id: 'single-6', rows: 2, cols: 3, label: 'Small Zine', desc: '6 pages, simple', pages: 6 },
+  { id: 'poster-3x3', rows: 3, cols: 3, label: 'Poster', desc: '9 panels', pages: 9 },
+  { id: 'card-2x2', rows: 2, cols: 2, label: 'Card', desc: '4 panels', pages: 4 }
+];
 
 const PAPER_RECOMMENDATIONS = {
-  'a4': { best: 'portrait', reason: 'Optimal for mini-zine folding' },
-  'letter': { best: 'landscape', reason: 'Standard US format, good margins' },
-  'a3': { best: 'landscape', reason: 'Great for double-mini format' },
-  'legal': { best: 'landscape', reason: 'Extra height for longer content' },
-  'a5': { best: 'landscape', reason: 'Compact format, great for cards' }
+  'a4': { best: 'portrait', slots: 8, reason: 'Optimal for mini-zine folding' },
+  'letter': { best: 'landscape', slots: 8, reason: 'Standard US format, good margins' },
+  'a3': { best: 'landscape', slots: 16, reason: 'Great for double-mini format' },
+  'legal': { best: 'landscape', slots: 8, reason: 'Extra height for longer content' },
+  'a5': { best: 'landscape', slots: 4, reason: 'Compact format, great for cards' }
 };
 
 export class SmartSheetConfig {
   constructor(container, options = {}) {
     this.container = container;
     this.options = {
+      maxRows: 10,
+      maxCols: 10,
+      initialRows: 2,
+      initialCols: 4,
       initialPaper: 'letter',
       initialOrientation: 'landscape',
-      initialUnit: 'in',
       onChange: () => {},
       ...options
     };
 
-    const seedPaper = PAPER_SIZES[this.options.initialPaper] || PAPER_SIZES.letter;
-
     this.state = {
-      rows: FIXED_ROWS,
-      cols: FIXED_COLS,
+      rows: this.options.initialRows,
+      cols: this.options.initialCols,
       paperSize: this.options.initialPaper,
       orientation: this.options.initialOrientation,
       margin: 0,
-      unit: UNITS[this.options.initialUnit] ? this.options.initialUnit : 'in',
-      // Custom paper dimensions stored in mm; seeded from the initial paper.
-      customPaper: { width: seedPaper.width, height: seedPaper.height }
+      hoverRows: null,
+      hoverCols: null
     };
 
     this.render();
@@ -49,121 +53,189 @@ export class SmartSheetConfig {
   }
 
   render() {
-    const { paperSize, orientation, margin, unit } = this.state;
-    const unitDef = UNITS[unit] || UNITS.mm;
-    const paper = resolvePaperSize(paperSize, this.state.customPaper);
-    const recommendation = PAPER_RECOMMENDATIONS[paperSize];
-    const isRecommended = orientation === recommendation?.best;
-    const isCustom = paperSize === 'custom';
-
-    const fmt = (mm) => formatDimension(mm, unit);
-    const landscapeW = fmt(paper.height);
-    const landscapeH = fmt(paper.width);
-    const portraitW = fmt(paper.width);
-    const portraitH = fmt(paper.height);
+    const totalSlots = this.state.rows * this.state.cols;
+    const recommendation = PAPER_RECOMMENDATIONS[this.state.paperSize];
+    const isRecommended = this.state.orientation === recommendation?.best && totalSlots <= recommendation?.slots;
 
     this.container.innerHTML = `
       <div class="smart-sheet-config">
         <div class="smart-sheet-section">
           <div class="smart-sheet-header">
-            <span class="smart-sheet-label">Paper Size</span>
-            <div class="smart-sheet-unit-seg" role="group" aria-label="Measurement units">
-              ${Object.entries(UNITS).map(([key, u]) => `
-                <button type="button"
-                  class="smart-sheet-unit-btn ${unit === key ? 'is-active' : ''}"
-                  data-unit="${key}"
-                  aria-pressed="${unit === key}">${u.label}</button>
-              `).join('')}
-            </div>
+            <span class="smart-sheet-label">Grid Layout</span>
+            <span class="smart-sheet-status ${totalSlots > 16 ? 'is-warning' : ''}">${totalSlots} slots</span>
           </div>
 
-          <span class="smart-sheet-paper-recommend ${isRecommended && !isCustom ? 'is-visible' : ''}">
-            <span class="material-symbols-outlined">check_circle</span>
-            ${recommendation?.reason || ''}
-          </span>
-
-          <select class="smart-sheet-select" data-field="paperSize">
-            ${Object.entries(PAPER_SIZES).map(([key, p]) => `
-              <option value="${key}" ${paperSize === key ? 'selected' : ''}>
-                ${p.label} (${fmt(p.width)}×${fmt(p.height)}${unitDef.label})
-              </option>
+          <div class="smart-sheet-presets">
+            ${SMART_PRESETS.map(preset => `
+              <button type="button"
+                class="smart-sheet-preset ${this.state.rows === preset.rows && this.state.cols === preset.cols ? 'is-active' : ''}"
+                data-rows="${preset.rows}"
+                data-cols="${preset.cols}"
+                title="${preset.desc}">
+                <span class="smart-sheet-preset-visual">
+                  ${this.renderPresetVisual(preset.rows, preset.cols)}
+                </span>
+                <span class="smart-sheet-preset-name">${preset.label}</span>
+                <span class="smart-sheet-preset-size">${preset.rows}×${preset.cols}</span>
+                ${preset.popular ? '<span class="smart-sheet-preset-badge">Popular</span>' : ''}
+              </button>
             `).join('')}
-            <option value="custom" ${isCustom ? 'selected' : ''}>Custom size…</option>
-          </select>
-
-          ${isCustom ? `
-          <div class="smart-sheet-custom-size">
-            <label class="smart-sheet-custom-field">
-              <span class="smart-sheet-custom-caption">Width</span>
-              <input type="number" class="smart-sheet-custom-input" data-field="customWidth"
-                min="1" step="${unitDef.inputStep}"
-                value="${formatDimension(this.state.customPaper.width, unit)}"
-                aria-label="Custom width in ${unitDef.label}" />
-            </label>
-            <span class="smart-sheet-custom-x">×</span>
-            <label class="smart-sheet-custom-field">
-              <span class="smart-sheet-custom-caption">Height</span>
-              <input type="number" class="smart-sheet-custom-input" data-field="customHeight"
-                min="1" step="${unitDef.inputStep}"
-                value="${formatDimension(this.state.customPaper.height, unit)}"
-                aria-label="Custom height in ${unitDef.label}" />
-            </label>
-            <span class="smart-sheet-custom-unit">${unitDef.label}</span>
           </div>
-          ` : ''}
 
-          <div class="smart-sheet-orientation-seg">
-            <button type="button"
-              class="smart-sheet-orientation-btn ${orientation === 'landscape' ? 'is-active' : ''}"
-              data-value="landscape"
-              aria-pressed="${orientation === 'landscape'}">
-              <svg class="smart-sheet-orientation-icon" width="24" height="18" viewBox="0 0 24 18">
-                <rect x="1" y="1" width="22" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              <span>Landscape</span>
-              <span class="smart-sheet-orientation-dims">${landscapeW}×${landscapeH}</span>
-            </button>
-            <button type="button"
-              class="smart-sheet-orientation-btn ${orientation === 'portrait' ? 'is-active' : ''}"
-              data-value="portrait"
-              aria-pressed="${orientation === 'portrait'}">
-              <svg class="smart-sheet-orientation-icon" width="18" height="24" viewBox="0 0 18 24">
-                <rect x="1" y="1" width="16" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              <span>Portrait</span>
-              <span class="smart-sheet-orientation-dims">${portraitW}×${portraitH}</span>
-            </button>
+          <div class="smart-sheet-visual" role="grid" aria-label="Select grid dimensions">
+            ${this.renderGridVisual()}
+          </div>
+
+          <div class="smart-sheet-manual">
+            <div class="smart-sheet-stepper-group">
+              <button type="button" class="smart-sheet-stepper-btn" data-action="decrease-rows" aria-label="Fewer rows">−</button>
+              <div class="smart-sheet-stepper-value">
+                <span class="smart-sheet-value">${this.state.rows}</span>
+                <span class="smart-sheet-value-label">Rows</span>
+              </div>
+              <button type="button" class="smart-sheet-stepper-btn" data-action="increase-rows" aria-label="More rows">+</button>
+            </div>
+            <span class="smart-sheet-times">×</span>
+            <div class="smart-sheet-stepper-group">
+              <button type="button" class="smart-sheet-stepper-btn" data-action="decrease-cols" aria-label="Fewer columns">−</button>
+              <div class="smart-sheet-stepper-value">
+                <span class="smart-sheet-value">${this.state.cols}</span>
+                <span class="smart-sheet-value-label">Cols</span>
+              </div>
+              <button type="button" class="smart-sheet-stepper-btn" data-action="increase-cols" aria-label="More columns">+</button>
+            </div>
           </div>
         </div>
 
         <div class="smart-sheet-section">
           <div class="smart-sheet-header">
-            <span class="smart-sheet-label">Margin</span>
-            <div class="smart-sheet-margin-stepper">
-              <button type="button" class="smart-sheet-stepper-btn" data-margin-delta="-1" aria-label="Decrease margin" ${margin <= MARGIN_MIN ? 'disabled' : ''}>
-                <span class="material-symbols-outlined">remove</span>
-              </button>
-              <span class="smart-sheet-margin-value">
-                <span data-margin-display>${formatDimension(margin, unit)}</span>
-                <span class="smart-sheet-times">${unitDef.label}</span>
-              </span>
-              <button type="button" class="smart-sheet-stepper-btn" data-margin-delta="1" aria-label="Increase margin" ${margin >= MARGIN_MAX ? 'disabled' : ''}>
-                <span class="material-symbols-outlined">add</span>
-              </button>
-            </div>
+            <span class="smart-sheet-label">Paper Size</span>
+            <label class="smart-sheet-paper-recommend ${isRecommended ? 'is-visible' : ''}">
+              <span class="material-symbols-outlined">check_circle</span>
+              ${recommendation?.reason || ''}
+            </label>
           </div>
 
+          <select class="smart-sheet-select" data-field="paperSize">
+            ${Object.entries(PAPER_SIZES).map(([key, paper]) => `
+              <option value="${key}" ${this.state.paperSize === key ? 'selected' : ''}>
+                ${paper.label} (${paper.width}×${paper.height}mm)
+              </option>
+            `).join('')}
+          </select>
+
+          ${this.renderOrientationControl()}
+
           <div class="smart-sheet-margin-control">
-            <input
-              type="range"
-              class="smart-sheet-margin-slider"
-              data-field="margin"
-              min="${MARGIN_MIN}"
-              max="${MARGIN_MAX}"
-              step="0.5"
-              value="${margin}"
-              aria-label="Sheet margin in ${unitDef.label}" />
+            <span class="smart-sheet-label">Margin</span>
+            <div class="smart-sheet-margin-stepper">
+              <button type="button" class="smart-sheet-stepper-btn" data-action="decrease-margin" aria-label="Decrease margin">−</button>
+              <div class="smart-sheet-margin-value">
+                <span class="smart-sheet-value">${this.state.margin}</span>
+                <span class="smart-sheet-value-label">mm</span>
+              </div>
+              <button type="button" class="smart-sheet-stepper-btn" data-action="increase-margin" aria-label="Increase margin">+</button>
+            </div>
+            <input type="range" class="smart-sheet-margin-slider"
+              min="0" max="25" value="${this.state.margin}"
+              aria-label="Margin in millimeters">
           </div>
+        </div>
+
+        ${totalSlots > 16 ? `
+          <div class="smart-sheet-warning">
+            <span class="material-symbols-outlined">info</span>
+            <span>Large grids may require multiple sheets or complex folding.</span>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  renderPresetVisual(rows, cols) {
+    const totalCells = rows * cols;
+    const cellSize = Math.min(6, 24 / Math.max(rows, cols));
+
+    let html = '<div class="smart-sheet-preset-grid">';
+    for (let r = 0; r < rows; r++) {
+      html += '<div class="smart-sheet-preset-row">';
+      for (let c = 0; c < cols; c++) {
+        html += '<span class="smart-sheet-preset-cell"></span>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  renderGridVisual() {
+    const maxRows = this.options.maxRows;
+    const maxCols = this.options.maxCols;
+
+    let html = '';
+    for (let r = 1; r <= maxRows; r++) {
+      html += '<div class="smart-sheet-grid-row">';
+      for (let c = 1; c <= maxCols; c++) {
+        const isSelected = r <= this.state.rows && c <= this.state.cols;
+        const isHovered = this.state.hoverRows !== null &&
+          r <= this.state.hoverRows && c <= this.state.hoverCols;
+        const isPreviewRow = r === this.state.rows + 1 && c <= this.state.cols;
+        const isPreviewCol = c === this.state.cols + 1 && r <= this.state.rows;
+
+        html += `
+          <button type="button"
+            class="smart-sheet-grid-cell
+              ${isSelected ? 'is-selected' : ''}
+              ${isHovered ? 'is-hovered' : ''}"
+            data-rows="${r}"
+            data-cols="${c}"
+            aria-label="${r}×${c} grid"
+            aria-pressed="${isSelected && r === this.state.rows && c === this.state.cols}">
+          </button>
+        `;
+      }
+      html += '</div>';
+    }
+    return html;
+  }
+
+  renderOrientationControl() {
+    const { orientation, paperSize } = this.state;
+    const paper = PAPER_SIZES[paperSize] || PAPER_SIZES.letter;
+    const recommendation = PAPER_RECOMMENDATIONS[paperSize];
+    const showOrientation = recommendation && this.state.rows === 2 && this.state.cols === 4;
+
+    if (!showOrientation) {return '';}
+
+    const landscapeWidth = paper.height;
+    const landscapeHeight = paper.width;
+    const portraitWidth = paper.width;
+    const portraitHeight = paper.height;
+
+    return `
+      <div class="smart-sheet-orientation">
+        <span class="smart-sheet-label">Orientation</span>
+        <div class="smart-sheet-orientation-seg">
+          <button type="button"
+            class="smart-sheet-orientation-btn ${orientation === 'landscape' ? 'is-active' : ''}"
+            data-value="landscape"
+            aria-pressed="${orientation === 'landscape'}">
+            <svg class="smart-sheet-orientation-icon" width="24" height="18" viewBox="0 0 24 18">
+              <rect x="1" y="1" width="22" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>Landscape</span>
+            <span class="smart-sheet-orientation-dims">${landscapeWidth}×${landscapeHeight}</span>
+          </button>
+          <button type="button"
+            class="smart-sheet-orientation-btn ${orientation === 'portrait' ? 'is-active' : ''}"
+            data-value="portrait"
+            aria-pressed="${orientation === 'portrait'}">
+            <svg class="smart-sheet-orientation-icon" width="18" height="24" viewBox="0 0 18 24">
+              <rect x="1" y="1" width="16" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>Portrait</span>
+            <span class="smart-sheet-orientation-dims">${portraitWidth}×${portraitHeight}</span>
+          </button>
         </div>
       </div>
     `;
@@ -171,14 +243,33 @@ export class SmartSheetConfig {
 
   attachEventListeners() {
     this.container.addEventListener('click', this.handleClick.bind(this));
+    this.container.addEventListener('mouseover', this.handleMouseOver.bind(this));
+    this.container.addEventListener('mouseout', this.handleMouseOut.bind(this));
     this.container.addEventListener('change', this.handleChange.bind(this));
     this.container.addEventListener('input', this.handleInput.bind(this));
   }
 
   handleClick(e) {
-    const unitBtn = e.target.closest('.smart-sheet-unit-btn');
-    if (unitBtn) {
-      this.setUnit(unitBtn.dataset.unit);
+    const cell = e.target.closest('.smart-sheet-grid-cell');
+    if (cell) {
+      const rows = parseInt(cell.dataset.rows, 10);
+      const cols = parseInt(cell.dataset.cols, 10);
+      this.setGrid(rows, cols);
+      return;
+    }
+
+    const preset = e.target.closest('.smart-sheet-preset');
+    if (preset) {
+      const rows = parseInt(preset.dataset.rows, 10);
+      const cols = parseInt(preset.dataset.cols, 10);
+      this.setGrid(rows, cols);
+      return;
+    }
+
+    const stepperBtn = e.target.closest('.smart-sheet-stepper-btn');
+    if (stepperBtn) {
+      const action = stepperBtn.dataset.action;
+      this.handleStepperAction(action);
       return;
     }
 
@@ -187,88 +278,119 @@ export class SmartSheetConfig {
       this.setOrientation(orientBtn.dataset.value);
       return;
     }
+  }
 
-    const marginBtn = e.target.closest('[data-margin-delta]');
-    if (marginBtn) {
-      const sign = parseInt(marginBtn.dataset.marginDelta, 10) || 0;
-      const unitDef = UNITS[this.state.unit] || UNITS.mm;
-      const stepMm = toMm(unitDef.marginStep, this.state.unit);
-      this.setMargin(this.state.margin + sign * stepMm);
+  handleMouseOver(e) {
+    const cell = e.target.closest('.smart-sheet-grid-cell');
+    if (cell) {
+      this.state.hoverRows = parseInt(cell.dataset.rows, 10);
+      this.state.hoverCols = parseInt(cell.dataset.cols, 10);
+      this.updateGridVisual();
+    }
+  }
+
+  handleMouseOut(e) {
+    const grid = e.target.closest('.smart-sheet-visual');
+    if (grid && !grid.contains(e.relatedTarget)) {
+      this.state.hoverRows = null;
+      this.state.hoverCols = null;
+      this.updateGridVisual();
     }
   }
 
   handleChange(e) {
     if (e.target.matches('.smart-sheet-select')) {
       this.setPaperSize(e.target.value);
-      return;
-    }
-
-    if (e.target.matches('[data-field="customWidth"], [data-field="customHeight"]')) {
-      this.setCustomDimension(e.target.dataset.field, e.target.value);
     }
   }
 
   handleInput(e) {
     if (e.target.matches('.smart-sheet-margin-slider')) {
-      // Live-update the displayed value while dragging without a full re-render.
-      const value = this.clampMargin(parseFloat(e.target.value));
-      this.state.margin = value;
-      const display = this.container.querySelector('[data-margin-display]');
-      if (display) {display.textContent = formatDimension(value, this.state.unit);}
-      this.emitChange();
+      this.setMargin(parseInt(e.target.value, 10));
     }
   }
 
-  clampMargin(value) {
-    if (Number.isNaN(value)) {return MARGIN_MIN;}
-    return Math.min(MARGIN_MAX, Math.max(MARGIN_MIN, value));
-  }
-
-  setMargin(margin) {
-    this.state.margin = this.clampMargin(margin);
-    this.render();
-    this.emitChange();
-  }
-
-  setUnit(unit) {
-    if (!UNITS[unit] || unit === this.state.unit) {return;}
-    this.state.unit = unit;
-    // Units only affect display; internal mm values are unchanged.
-    this.render();
-    this.emitChange();
-  }
-
-  setCustomDimension(field, rawValue) {
-    const mm = toMm(rawValue, this.state.unit);
-    const clamped = Math.max(1, Number.isFinite(mm) ? mm : 1);
-    if (field === 'customWidth') {
-      this.state.customPaper = { ...this.state.customPaper, width: clamped };
-    } else {
-      this.state.customPaper = { ...this.state.customPaper, height: clamped };
+  handleStepperAction(action) {
+    switch (action) {
+      case 'increase-rows':
+        this.setGrid(Math.min(this.state.rows + 1, this.options.maxRows), this.state.cols);
+        break;
+      case 'decrease-rows':
+        this.setGrid(Math.max(this.state.rows - 1, 1), this.state.cols);
+        break;
+      case 'increase-cols':
+        this.setGrid(this.state.rows, Math.min(this.state.cols + 1, this.options.maxCols));
+        break;
+      case 'decrease-cols':
+        this.setGrid(this.state.rows, Math.max(this.state.cols - 1, 1));
+        break;
+      case 'increase-margin':
+        this.setMargin(Math.min(this.state.margin + 1, 25));
+        break;
+      case 'decrease-margin':
+        this.setMargin(Math.max(this.state.margin - 1, 0));
+        break;
     }
-    this.render();
+  }
+
+  setGrid(rows, cols) {
+    this.state.rows = rows;
+    this.state.cols = cols;
+    this.updateUI();
     this.emitChange();
   }
 
   setPaperSize(paperSize) {
-    // When switching to custom, seed dimensions from the currently shown paper.
-    if (paperSize === 'custom') {
-      const current = resolvePaperSize(this.state.paperSize, this.state.customPaper);
-      this.state.customPaper = { width: current.width, height: current.height };
-    }
     this.state.paperSize = paperSize;
     const recommendation = PAPER_RECOMMENDATIONS[paperSize];
     if (recommendation) {
       this.state.orientation = recommendation.best;
     }
-    this.render();
+    this.updateUI();
     this.emitChange();
   }
 
   setOrientation(orientation) {
     this.state.orientation = orientation;
-    this.render();
+    this.updateUI();
     this.emitChange();
+  }
+
+  setMargin(margin) {
+    this.state.margin = margin;
+    this.updateUI();
+    this.emitChange();
+  }
+
+  updateUI() {
+    this.render();
+  }
+
+  updateGridVisual() {
+    const grid = this.container.querySelector('.smart-sheet-visual');
+    if (!grid) {return;}
+
+    const cells = grid.querySelectorAll('.smart-sheet-grid-cell');
+    cells.forEach(cell => {
+      const r = parseInt(cell.dataset.rows, 10);
+      const c = parseInt(cell.dataset.cols, 10);
+
+      const isSelected = r <= this.state.rows && c <= this.state.cols;
+      const isHovered = this.state.hoverRows !== null &&
+        r <= this.state.hoverRows && c <= this.state.hoverCols;
+
+      cell.classList.toggle('is-selected', isSelected);
+      cell.classList.toggle('is-hovered', isHovered);
+    });
+
+    const statusEl = this.container.querySelector('.smart-sheet-status');
+    if (statusEl) {
+      const hoverTotal = this.state.hoverRows && this.state.hoverCols
+        ? this.state.hoverRows * this.state.hoverCols
+        : null;
+      statusEl.textContent = `${hoverTotal || this.state.rows * this.state.cols} slots`;
+      statusEl.classList.toggle('is-warning', (hoverTotal || this.state.rows * this.state.cols) > 16);
+    }
   }
 
   emitChange() {
@@ -278,8 +400,6 @@ export class SmartSheetConfig {
       paperSize: this.state.paperSize,
       orientation: this.state.orientation,
       margin: this.state.margin,
-      unit: this.state.unit,
-      customPaper: { ...this.state.customPaper },
       totalSlots: this.state.rows * this.state.cols
     });
   }
@@ -290,7 +410,7 @@ export class SmartSheetConfig {
 
   setState(newState) {
     Object.assign(this.state, newState);
-    this.render();
+    this.updateUI();
     this.emitChange();
   }
 
