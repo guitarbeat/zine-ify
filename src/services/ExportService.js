@@ -41,8 +41,8 @@ export class ExportService {
     const cellW = drawW / cols;
     const cellH = drawH / rows;
 
-    // ⚡️ Bolt: Process offscreen sheet canvases concurrently to improve PDF generation performance.
-    const sheetPromises = Array.from({ length: sheetCount }).map(async (_, sheetIndex) => {
+    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
+      // ⚡️ Bolt: Using OffscreenCanvas to prevent UI blocking during PDF sheet generation
       const { canvas: offscreen, context: ctx } = mediaProcessor.createRenderCanvas(canvasW, canvasH);
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvasW, canvasH);
@@ -78,25 +78,21 @@ export class ExportService {
         )
       );
 
-      // ⚡️ Bolt: Optimize export by replacing synchronous canvas.toDataURL with asynchronous OffscreenCanvas convertToBlob
-      if (offscreen.convertToBlob) {
+      let imgData;
+      if (typeof offscreen.toDataURL === 'function') {
+        imgData = offscreen.toDataURL('image/jpeg', 0.92);
+      } else if (typeof offscreen.convertToBlob === 'function') {
         const blob = await offscreen.convertToBlob({ type: 'image/jpeg', quality: 0.92 });
-        return new Promise((resolve) => {
+        imgData = await new Promise((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result);
           reader.readAsDataURL(blob);
         });
       }
-      return offscreen.toDataURL('image/jpeg', 0.92);
-    });
-
-    const sheetImages = await Promise.all(sheetPromises);
-
-    for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
       if (sheetIndex > 0) {
         doc.addPage([dims.width, dims.height], isLandscape ? 'landscape' : 'portrait');
       }
-      doc.addImage(sheetImages[sheetIndex], 'JPEG', 0, 0, dims.width, dims.height);
+      doc.addImage(imgData, 'JPEG', 0, 0, dims.width, dims.height);
     }
 
     doc.save('zine.pdf');

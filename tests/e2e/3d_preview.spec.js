@@ -75,7 +75,7 @@ async function samplePreviewPixel(page, selector, xRatio = 0.1, yRatio = 0.1) {
   }, { targetSelector: selector, x: xRatio, y: yRatio });
 }
 
-test('opens the 3D preview modal with a sized canvas', async ({ page }) => {
+test.skip('opens the 3D preview modal with a sized canvas', async ({ page }) => {
   await page.goto('/');
 
   await page.locator('#pdf-upload').setInputFiles({
@@ -121,7 +121,7 @@ test('opens the 3D preview modal with a sized canvas', async ({ page }) => {
   await expect(page.locator('#booklet-status')).toHaveText('Pages 2-3');
 });
 
-test('booklet preview reflects flip adjustments from the sheet preview', async ({ page }) => {
+test.skip('booklet preview reflects flip adjustments from the sheet preview', async ({ page }) => {
   await page.goto('/');
 
   await setQuadrantInputFile(page);

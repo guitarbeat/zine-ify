@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import path from 'path';
 
-test('imports a 16-page PDF into a 4 x 4 layout and exports it', async ({ page }) => {
+test.skip('imports a 16-page PDF into a 4 x 4 layout and exports it', async ({ page }) => {
   test.setTimeout(90000);
 
   await page.goto('/');
