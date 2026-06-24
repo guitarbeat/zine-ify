@@ -56,7 +56,11 @@ export class AppController {
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
-    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); });
+    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); this.renderCurrentLayout(); });
+    this.ui.on('removeUploadedFile', (index) => {
+      this.state.uploadedFiles.splice(index, 1);
+      this.ui.updateUploadedFilesList(this.state.uploadedFiles);
+    });
 
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
@@ -442,7 +446,8 @@ export class AppController {
     this.ui.generateLayout(requiredLength, this.getCurrentTemplate(), {
       paperSize: this.state.paperSize,
       orientation: this.state.orientation,
-      margin: this.state.margin || 0
+      margin: this.state.margin || 0,
+      customPaper: this.state.customPaper
     });
     for (let index = 0; index < this.state.allPageImages.length; index++) {
       const url = this.state.allPageImages[index];
