@@ -106,22 +106,17 @@ pnpm run preview
 
 ### Project Structure
 ```
+agents/          # Agent workflows, learnings, and reference docs
+public/          # Static assets (icons, fold guide, service worker)
+scripts/         # Dev utilities (test PDF, PWA icons)
 src/
-├── assets/
-│   └── reference-back-side.jpg # Folding reference image
-├── components/
-│   ├── Toast.js
-│   ├── Zine3DViewer.js
-│   └── UI/Manager.js
-├── core/
-│   └── main.js
-├── services/
-│   └── PDFProcessor.js
-├── styles/
-│   └── index.css
-└── utils/
-    ├── config.js
-    └── helpers.js
+├── assets/      # In-app reference images
+├── components/  # UI components (Toast, Zine3DViewer, UI/)
+├── core/        # AppController, StateStore, main.js
+├── services/    # PDFProcessor, ExportService, MediaProcessor
+├── styles/      # CSS modules
+└── utils/       # Config, helpers, validation
+tests/           # Playwright e2e, security, and unit tests
 ```
 
 ## Browser Support

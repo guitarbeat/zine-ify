@@ -4,7 +4,7 @@
 @import "./components.css";
 @import "./zine-editor.css";
 @import "./simulation.css";
-@import "../components/ui/CommandDeck.css";
+
 
 /* Tailwind v4 scanning sources must come after all @imports to satisfy CSS rules */
 @source "../../index.html";

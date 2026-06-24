@@ -1,18 +1,24 @@
 # Agents
 
-Agent configs, workflows, and accumulated learnings for automated contributors (Bolt, Palette, Sentinel, Testing).
+Configs, workflows, learnings, and reference docs for automated contributors.
 
-## Layout
+## Learnings
 
-| Path | Purpose |
-|------|---------|
-| `bolt.md` | Performance optimization agent learnings |
-| `palette.md` | UX and accessibility agent learnings |
-| `sentinel.md` | Security agent learnings |
-| `testing.md` | Test authoring agent learnings |
-| `mcp.json` | MCP server config (GitHub integration) |
-| `workflows/` | Repeatable agent workflows |
+| Agent | File | Focus |
+|-------|------|-------|
+| Bolt | [`bolt.md`](bolt.md) | Performance optimization |
+| Palette | [`palette.md`](palette.md) | UX and accessibility |
+| Sentinel | [`sentinel.md`](sentinel.md) | Security |
+| Testing | [`testing.md`](testing.md) | Test authoring |
 
 ## Workflows
 
-- [`workflows/lint-before-push.md`](workflows/lint-before-push.md) — run lint before pushing changes
+- [`workflows/lint-before-push.md`](workflows/lint-before-push.md) — run lint before pushing
+
+## Reference docs
+
+Component and utility documentation lives in [`docs/`](docs/README.md).
+
+## MCP
+
+GitHub MCP integration config: [`mcp.json`](mcp.json)
