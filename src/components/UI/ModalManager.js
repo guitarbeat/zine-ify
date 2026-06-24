@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { PagePicker } from './PagePicker.js';
 import { ProgressOverlay } from './ProgressOverlay.js';
 

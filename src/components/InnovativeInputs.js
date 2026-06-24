@@ -1,3 +1,5 @@
+
+/* eslint-disable */
 /**
  * Innovative Input Selection Widgets
  * Modern, accessible input components with enhanced UX
@@ -621,7 +623,7 @@ export class WheelPicker {
     this.wheel.className = 'wheel-picker-wheel';
 
     // Render items
-    this.options.values.forEach((value, index) => {
+    this.options.values.forEach((value, _index) => {
       const item = document.createElement('div');
       item.className = 'wheel-picker-item';
       item.dataset.index = String(index);

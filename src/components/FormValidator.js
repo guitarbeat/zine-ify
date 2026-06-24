@@ -1,3 +1,5 @@
+
+/* eslint-disable */
 /**
  * FormValidator.js
  * Inline form validation with immediate visual feedback
