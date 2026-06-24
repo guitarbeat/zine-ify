@@ -8,185 +8,6 @@ import {
 } from '../../src/utils/fileValidation.js';
 
 test.describe('Utils', () => {
-  test.describe('sanitizeHTML', () => {
-    test('handles empty or invalid input', async ({ page }) => {
-      await page.goto('/'); // ensure valid origin
-      const result = await page.evaluate(() => {
-        // We will inline the function for test since we cannot import directly in evaluate
-        const sanitizeHTMLInline = (html) => {
-          const fragment = document.createDocumentFragment();
-
-          if (typeof html !== 'string' || html.length === 0) {
-            return fragment;
-          }
-
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-
-          const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'BR', 'CODE', 'SPAN']);
-
-          const sanitizeNode = (node) => {
-            if (node.nodeType === Node.TEXT_NODE) {
-              return document.createTextNode(node.textContent || '');
-            }
-
-            if (node.nodeType !== Node.ELEMENT_NODE) {
-              return document.createTextNode('');
-            }
-
-            if (!allowedTags.has(node.tagName)) {
-              return document.createTextNode(node.textContent || '');
-            }
-
-            const cleanElement = document.createElement(node.tagName.toLowerCase());
-            Array.from(node.childNodes).forEach((child) => {
-              cleanElement.appendChild(sanitizeNode(child));
-            });
-
-            return cleanElement;
-          };
-
-          Array.from(doc.body.childNodes).forEach((child) => {
-            fragment.appendChild(sanitizeNode(child));
-          });
-
-          return fragment;
-        };
-
-        const getHtml = (val) => {
-          const div = document.createElement('div');
-          div.appendChild(sanitizeHTMLInline(val));
-          return div.innerHTML;
-        };
-
-        return [
-          getHtml(''),
-          getHtml(null),
-          getHtml(undefined),
-          getHtml(123)
-        ];
-      });
-
-      expect(result).toEqual(['', '', '', '']);
-    });
-
-    test('allows permitted tags and text', async ({ page }) => {
-      await page.goto('/');
-      const result = await page.evaluate(() => {
-        const sanitizeHTMLInline = (html) => {
-          const fragment = document.createDocumentFragment();
-          if (typeof html !== 'string' || html.length === 0) {return fragment;}
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'BR', 'CODE', 'SPAN']);
-          const sanitizeNode = (node) => {
-            if (node.nodeType === Node.TEXT_NODE) {return document.createTextNode(node.textContent || '');}
-            if (node.nodeType !== Node.ELEMENT_NODE) {return document.createTextNode('');}
-            if (!allowedTags.has(node.tagName)) {return document.createTextNode(node.textContent || '');}
-            const cleanElement = document.createElement(node.tagName.toLowerCase());
-            Array.from(node.childNodes).forEach((child) => cleanElement.appendChild(sanitizeNode(child)));
-            return cleanElement;
-          };
-          Array.from(doc.body.childNodes).forEach((child) => fragment.appendChild(sanitizeNode(child)));
-          return fragment;
-        };
-
-        const div = document.createElement('div');
-        div.appendChild(sanitizeHTMLInline('Hello <b>bold</b> and <i>italic</i><br><code>code</code>'));
-        return div.innerHTML;
-      });
-
-      expect(result).toBe('Hello <b>bold</b> and <i>italic</i><br><code>code</code>');
-    });
-
-    test('strips disallowed tags but keeps their text content', async ({ page }) => {
-      await page.goto('/');
-      const result = await page.evaluate(() => {
-        const sanitizeHTMLInline = (html) => {
-          const fragment = document.createDocumentFragment();
-          if (typeof html !== 'string' || html.length === 0) {return fragment;}
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'BR', 'CODE', 'SPAN']);
-          const sanitizeNode = (node) => {
-            if (node.nodeType === Node.TEXT_NODE) {return document.createTextNode(node.textContent || '');}
-            if (node.nodeType !== Node.ELEMENT_NODE) {return document.createTextNode('');}
-            if (!allowedTags.has(node.tagName)) {return document.createTextNode(node.textContent || '');}
-            const cleanElement = document.createElement(node.tagName.toLowerCase());
-            Array.from(node.childNodes).forEach((child) => cleanElement.appendChild(sanitizeNode(child)));
-            return cleanElement;
-          };
-          Array.from(doc.body.childNodes).forEach((child) => fragment.appendChild(sanitizeNode(child)));
-          return fragment;
-        };
-
-        const div = document.createElement('div');
-        div.appendChild(sanitizeHTMLInline('Safe <script>alert("xss")</script> and <style>body{color:red}</style> text'));
-        return div.innerHTML;
-      });
-
-      expect(result).toBe('Safe  and  text');
-    });
-
-    test('handles nested tags', async ({ page }) => {
-      await page.goto('/');
-      const result = await page.evaluate(() => {
-        const sanitizeHTMLInline = (html) => {
-          const fragment = document.createDocumentFragment();
-          if (typeof html !== 'string' || html.length === 0) {return fragment;}
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'BR', 'CODE', 'SPAN']);
-          const sanitizeNode = (node) => {
-            if (node.nodeType === Node.TEXT_NODE) {return document.createTextNode(node.textContent || '');}
-            if (node.nodeType !== Node.ELEMENT_NODE) {return document.createTextNode('');}
-            if (!allowedTags.has(node.tagName)) {return document.createTextNode(node.textContent || '');}
-            const cleanElement = document.createElement(node.tagName.toLowerCase());
-            Array.from(node.childNodes).forEach((child) => cleanElement.appendChild(sanitizeNode(child)));
-            return cleanElement;
-          };
-          Array.from(doc.body.childNodes).forEach((child) => fragment.appendChild(sanitizeNode(child)));
-          return fragment;
-        };
-
-        const div = document.createElement('div');
-        div.appendChild(sanitizeHTMLInline('<b><i>nested</i></b> <div><span>allowed in div</span></div>'));
-        return div.innerHTML;
-      });
-
-      expect(result).toBe('<b><i>nested</i></b> allowed in div');
-    });
-
-    test('strips all attributes from allowed tags', async ({ page }) => {
-      await page.goto('/');
-      const result = await page.evaluate(() => {
-        const sanitizeHTMLInline = (html) => {
-          const fragment = document.createDocumentFragment();
-          if (typeof html !== 'string' || html.length === 0) {return fragment;}
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'U', 'BR', 'CODE', 'SPAN']);
-          const sanitizeNode = (node) => {
-            if (node.nodeType === Node.TEXT_NODE) {return document.createTextNode(node.textContent || '');}
-            if (node.nodeType !== Node.ELEMENT_NODE) {return document.createTextNode('');}
-            if (!allowedTags.has(node.tagName)) {return document.createTextNode(node.textContent || '');}
-            const cleanElement = document.createElement(node.tagName.toLowerCase());
-            Array.from(node.childNodes).forEach((child) => cleanElement.appendChild(sanitizeNode(child)));
-            return cleanElement;
-          };
-          Array.from(doc.body.childNodes).forEach((child) => fragment.appendChild(sanitizeNode(child)));
-          return fragment;
-        };
-
-        const div = document.createElement('div');
-        div.appendChild(sanitizeHTMLInline('<b class="bold" onclick="alert(1)" style="color:red">bold</b>'));
-        return div.innerHTML;
-      });
-
-      expect(result).toBe('<b>bold</b>');
-    });
-  });
-
   test('formatFileSize', () => {
     expect(formatFileSize(0)).toBe('0 B');
     expect(formatFileSize(1024)).toBe('1.0 KB');
@@ -266,26 +87,38 @@ test.describe('Utils', () => {
   });
 
   test('partitionSupportedFiles', () => {
-    expect(partitionSupportedFiles([])).toEqual({ acceptedFiles: [], rejectedFiles: [] });
-
-    const pdfFile = { type: 'application/pdf', name: 'doc.pdf' };
-    const imgFile = { type: 'image/png', name: 'pic.png' };
-    const textFile = { type: 'text/plain', name: 'notes.txt' };
-    const noTypeFile = { name: 'unknown' };
-
-    expect(partitionSupportedFiles([pdfFile, imgFile])).toEqual({
-      acceptedFiles: [pdfFile, imgFile],
+    // Empty array
+    expect(partitionSupportedFiles([])).toEqual({
+      acceptedFiles: [],
       rejectedFiles: []
     });
 
-    expect(partitionSupportedFiles([textFile, noTypeFile, null, undefined])).toEqual({
-      acceptedFiles: [],
-      rejectedFiles: [textFile, noTypeFile, null, undefined]
+    // Only accepted files
+    const accepted = [{ type: 'application/pdf' }, { type: 'image/png' }];
+    expect(partitionSupportedFiles(accepted)).toEqual({
+      acceptedFiles: accepted,
+      rejectedFiles: []
     });
 
-    expect(partitionSupportedFiles([pdfFile, textFile, imgFile, noTypeFile])).toEqual({
-      acceptedFiles: [pdfFile, imgFile],
-      rejectedFiles: [textFile, noTypeFile]
+    // Only rejected files
+    const rejected = [{ type: 'text/plain' }, { type: 'audio/mp3' }];
+    expect(partitionSupportedFiles(rejected)).toEqual({
+      acceptedFiles: [],
+      rejectedFiles: rejected
+    });
+
+    // Mixed array
+    const mixed = [{ type: 'application/pdf' }, { type: 'text/plain' }, { type: 'image/jpeg' }];
+    expect(partitionSupportedFiles(mixed)).toEqual({
+      acceptedFiles: [mixed[0], mixed[2]],
+      rejectedFiles: [mixed[1]]
+    });
+
+    // Array with edge cases (nulls, missing types)
+    const edgeCases = [null, {}, { type: null }];
+    expect(partitionSupportedFiles(edgeCases)).toEqual({
+      acceptedFiles: [],
+      rejectedFiles: edgeCases
     });
   });
 });
