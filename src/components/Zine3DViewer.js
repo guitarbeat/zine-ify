@@ -7,19 +7,20 @@ import { normalizePreviewPage } from '../utils/previewHelpers.js';
 export class Zine3DViewer {
   constructor(containerElement) {
     this.container = containerElement;
+
+    this._initCoreProperties();
+    this._initVisualConfig();
+    this._initStructuralDefinitions();
+
+    this.initScene();
+  }
+
+  _initCoreProperties() {
     this.pages = [];
     this.stacks = [];
     this.seams = [];
     this.guides = [];
     this.environmentMeshes = [];
-    this.w = 1.0;
-    this.h = 1.414; // A-series proportion
-    this.panelThickness = 0.002;
-    this.stackDepthStep = 0.008;
-    this.seamWidth = 0.035;
-    this.guideWidth = 0.015;
-    this.cutGuideWidth = 0.028;
-    this.cutGuideCapHeight = 0.14;
     this.isFallbackMode = false;
     this.fallbackCanvas = null;
     this.fallbackContext = null;
@@ -28,11 +29,26 @@ export class Zine3DViewer {
     this.tmpVecC = new THREE.Vector3();
     this.tmpVecD = new THREE.Vector3();
     this.tmpMat = new THREE.Matrix4();
+    this.cameraTarget = new THREE.Vector3(0, 0, 0);
+    this.debugFoldState = null;
+    this.currentFoldProgress = 0;
+  }
+
+  _initVisualConfig() {
+    this.w = 1.0;
+    this.h = 1.414; // A-series proportion
+    this.panelThickness = 0.002;
+    this.stackDepthStep = 0.008;
+    this.seamWidth = 0.035;
+    this.guideWidth = 0.015;
+    this.cutGuideWidth = 0.028;
+    this.cutGuideCapHeight = 0.14;
     this.sheetMaterialColor = 0xf4f1ea;
     this.foldGuideColor = 0xb8b8b8;
     this.slitGuideColor = 0xd32f2f;
-    this.cameraTarget = new THREE.Vector3(0, 0, 0);
-    
+  }
+
+  _initStructuralDefinitions() {
     this.panelDefinitions = {
       1: { stackIndex: 3, isTop: false }, // Cover
       2: { stackIndex: 3, isTop: true }, // Inside cover
@@ -61,10 +77,6 @@ export class Zine3DViewer {
       { type: 'fold', orientation: 'horizontal', x: 1.5 * this.w, y: 0, length: this.w },
       { type: 'slit', orientation: 'horizontal', x: 0, y: 0, length: this.w * 2 }
     ];
-    this.debugFoldState = null;
-    this.currentFoldProgress = 0;
-    
-    this.initScene();
   }
 
   initScene() {
