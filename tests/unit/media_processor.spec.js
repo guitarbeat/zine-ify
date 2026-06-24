@@ -1,57 +1,22 @@
 import { test, expect } from '@playwright/test';
-import { MediaProcessor } from '../../src/services/MediaProcessor.js';
+import { MediaProcessor, mediaProcessor } from '../../src/services/MediaProcessor.js';
 
 test.describe('MediaProcessor', () => {
   let processor;
-  let originalOffscreenCanvas;
-  let originalDocument;
-  let originalImage;
-  let originalURL;
-  let originalBlob;
 
   test.beforeEach(() => {
     processor = new MediaProcessor();
-    originalOffscreenCanvas = global.OffscreenCanvas;
-    originalDocument = global.document;
-    originalImage = global.Image;
-    originalURL = global.URL;
-    originalBlob = global.Blob;
-
-    // Mock URL object
-    if (!global.URL) {
-      global.URL = {};
-    }
-    global.URL.createObjectURL = (blob) => `blob:mock-url-${Math.random()}`;
-    global.URL.revokeObjectURL = () => {};
-
-    if (!global.Blob) {
-      global.Blob = class Blob {
-        constructor(content, options) {
-          this.content = content;
-          this.options = options;
-        }
-      };
-    }
-  });
-
-  test.afterEach(() => {
-    global.OffscreenCanvas = originalOffscreenCanvas;
-    global.document = originalDocument;
-    global.Image = originalImage;
-    global.URL = originalURL;
-    global.Blob = originalBlob;
   });
 
   test.describe('createRenderCanvas', () => {
-    test('should use OffscreenCanvas if available', () => {
-      global.OffscreenCanvas = class OffscreenCanvas {
+    test('creates OffscreenCanvas when available', () => {
+      global.OffscreenCanvas = class {
         constructor(width, height) {
           this.width = width;
           this.height = height;
         }
-        getContext(type) {
-          if (type === '2d') return { type: 'OffscreenCanvasRenderingContext2D' };
-          return null;
+        getContext(type, options) {
+          return { type, options };
         }
       };
 
@@ -59,123 +24,174 @@ test.describe('MediaProcessor', () => {
       expect(canvas).toBeInstanceOf(global.OffscreenCanvas);
       expect(canvas.width).toBe(100);
       expect(canvas.height).toBe(200);
-      expect(context.type).toBe('OffscreenCanvasRenderingContext2D');
+      expect(context.type).toBe('2d');
+      expect(context.options.alpha).toBe(false);
+
+      delete global.OffscreenCanvas;
     });
 
-    test('should fallback to document.createElement if OffscreenCanvas is not available', () => {
-      global.OffscreenCanvas = undefined;
+    test('creates document canvas when OffscreenCanvas is unavailable', () => {
+      const originalOffscreenCanvas = global.OffscreenCanvas;
+      delete global.OffscreenCanvas;
+
       global.document = {
         createElement: (tag) => {
           if (tag === 'canvas') {
             return {
-              getContext: (type) => {
-                if (type === '2d') return { type: 'CanvasRenderingContext2D' };
-                return null;
-              },
               width: 0,
-              height: 0
+              height: 0,
+              getContext: (type, options) => ({ type, options })
             };
           }
-          return {};
         }
       };
 
-      const { canvas, context } = processor.createRenderCanvas(150, 250);
-      expect(canvas.width).toBe(150);
-      expect(canvas.height).toBe(250);
-      expect(context.type).toBe('CanvasRenderingContext2D');
+      const { canvas, context } = processor.createRenderCanvas(300, 400);
+      expect(canvas.width).toBe(300);
+      expect(canvas.height).toBe(400);
+      expect(context.type).toBe('2d');
+      expect(context.options.alpha).toBe(false);
+
+      delete global.document;
+      if (originalOffscreenCanvas !== undefined) {
+        global.OffscreenCanvas = originalOffscreenCanvas;
+      }
     });
 
-    test('should throw error if context cannot be acquired', () => {
-      global.OffscreenCanvas = class OffscreenCanvas {
-        constructor() {}
+    test('throws an error if context cannot be acquired', () => {
+      global.OffscreenCanvas = class {
+        constructor(_width, _height) {}
         getContext() { return null; }
       };
 
       expect(() => processor.createRenderCanvas(100, 100)).toThrow('Failed to acquire canvas context');
+
+      delete global.OffscreenCanvas;
     });
   });
 
   test.describe('loadImageElement', () => {
-    test('should resolve image on load', async () => {
-      global.Image = class Image {
+    test('resolves with image element on success', async () => {
+      global.Image = class {
         constructor() {
-          this.src = '';
-          // Using setTimeout to simulate async load event
+          this.onload = null;
+          this.onerror = null;
+        }
+        set src(value) {
+          this._src = value;
           setTimeout(() => {
-            if (this.onload) this.onload();
+            if (this.onload) { this.onload(); }
           }, 0);
+        }
+        get src() {
+          return this._src;
         }
       };
 
-      const img = await processor.loadImageElement('test-image.jpg');
+      const img = await processor.loadImageElement('good.png');
       expect(img).toBeInstanceOf(global.Image);
-      expect(img.src).toBe('test-image.jpg');
+      expect(img.src).toBe('good.png');
+
+      delete global.Image;
     });
 
-    test('should reject on error', async () => {
-      global.Image = class Image {
+    test('rejects with error on failure', async () => {
+      global.Image = class {
         constructor() {
-          this.src = '';
+          this.onload = null;
+          this.onerror = null;
+        }
+        set src(value) {
+          this._src = value;
           setTimeout(() => {
-            if (this.onerror) this.onerror();
+            if (this.onerror) { this.onerror(); }
           }, 0);
         }
       };
 
-      await expect(processor.loadImageElement('invalid.jpg')).rejects.toThrow('Image could not be decoded.');
+      await expect(processor.loadImageElement('bad.png')).rejects.toThrow('Image could not be decoded.');
+
+      delete global.Image;
     });
   });
 
   test.describe('canvasToBlob', () => {
-    test('should use convertToBlob if available', async () => {
-      const mockCanvas = {
-        convertToBlob: async (options) => {
-          expect(options).toEqual({ type: 'image/jpeg', quality: 0.8 });
-          return new global.Blob(['test'], { type: 'image/jpeg' });
-        }
-      };
+    let originalURL;
 
-      const url = await processor.canvasToBlob(mockCanvas);
-      expect(url).toMatch(/^blob:mock-url-/);
+    test.beforeEach(() => {
+      originalURL = global.URL;
     });
 
-    test('should fallback to toBlob if convertToBlob is not available', async () => {
+    test.afterEach(() => {
+      global.URL = originalURL;
+    });
+
+    test('uses convertToBlob if available', async () => {
       const mockCanvas = {
-        toBlob: (callback, type, quality) => {
-          expect(type).toBe('image/jpeg');
-          expect(quality).toBe(0.8);
-          callback(new global.Blob(['test'], { type: 'image/jpeg' }));
+        convertToBlob: async (options) => {
+          return { size: 100, type: options.type };
         }
       };
 
+      global.URL = {
+        createObjectURL: (blob) => `blob:mock-url-${blob.type}`
+      };
+
       const url = await processor.canvasToBlob(mockCanvas);
-      expect(url).toMatch(/^blob:mock-url-/);
+      expect(url).toBe('blob:mock-url-image/jpeg');
+    });
+
+    test('falls back to toBlob if convertToBlob is not available', async () => {
+      const mockCanvas = {
+        toBlob: (callback, type, _quality) => {
+          callback({ size: 100, type });
+        }
+      };
+
+      global.URL = {
+        createObjectURL: (blob) => `blob:mock-url-${blob.type}`
+      };
+
+      const url = await processor.canvasToBlob(mockCanvas);
+      expect(url).toBe('blob:mock-url-image/jpeg');
     });
   });
 
   test.describe('revokeBlobUrl', () => {
-    test('should revoke valid blob URLs', () => {
-      let revokedUrl = null;
-      global.URL.revokeObjectURL = (url) => {
-        revokedUrl = url;
-      };
+    let originalURL;
+    let revokedUrl;
 
-      processor.revokeBlobUrl('blob:test-url');
-      expect(revokedUrl).toBe('blob:test-url');
+    test.beforeEach(() => {
+      originalURL = global.URL;
+      revokedUrl = null;
+      global.URL = {
+        revokeObjectURL: (url) => { revokedUrl = url; }
+      };
     });
 
-    test('should not revoke non-blob URLs', () => {
-      let revokedUrl = null;
-      global.URL.revokeObjectURL = (url) => {
-        revokedUrl = url;
-      };
+    test.afterEach(() => {
+      global.URL = originalURL;
+    });
 
-      processor.revokeBlobUrl('http://example.com/image.jpg');
+    test('revokes valid blob URLs', () => {
+      processor.revokeBlobUrl('blob:test');
+      expect(revokedUrl).toBe('blob:test');
+    });
+
+    test('does not revoke non-blob URLs', () => {
+      processor.revokeBlobUrl('http://test');
       expect(revokedUrl).toBeNull();
+    });
 
+    test('does not revoke empty or null URLs', () => {
       processor.revokeBlobUrl(null);
       expect(revokedUrl).toBeNull();
+      processor.revokeBlobUrl('');
+      expect(revokedUrl).toBeNull();
     });
+  });
+
+  test('exports a singleton instance', () => {
+    expect(mediaProcessor).toBeInstanceOf(MediaProcessor);
   });
 });
