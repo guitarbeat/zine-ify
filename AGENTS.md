@@ -2,6 +2,16 @@
 
 A client-side PWA that converts PDFs into printable 8-page mini zine layouts. No backend services or databases.
 
+## Agent configs
+
+Automated agent workflows and learnings live in [`agents/`](agents/README.md):
+
+- **Bolt** — performance (`agents/bolt.md`)
+- **Palette** — UX/a11y (`agents/palette.md`)
+- **Sentinel** — security (`agents/sentinel.md`)
+- **Testing** — test authoring (`agents/testing.md`)
+- **Workflows** — repeatable procedures (`agents/workflows/`)
+
 ## Cursor Cloud specific instructions
 
 ### Services

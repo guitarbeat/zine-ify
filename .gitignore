@@ -127,9 +127,11 @@ dist
 # Playwright
 playwright-report/
 test-results/
+.playwright-cli/
 invalid.txt
 
 # Local verification scratch files
+zine-output.pdf
 verification/
 create_verify_pdf.js
 test-verify.pdf
