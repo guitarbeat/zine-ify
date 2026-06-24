@@ -1,9 +1,9 @@
 import { PDFProcessor } from '../services/PDFProcessor.js';
 import { UIManager } from '../components/UI/UIManager.js';
 import { StateStore } from './StateStore.js';
-import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
+import referenceImageUrl from '../assets/reference-back-side.jpg';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
 import { parseBoundedInteger } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
@@ -12,7 +12,6 @@ import { BookletPreview } from '../components/BookletPreview.js';
 export class AppController {
   constructor() {
     this.state = new StateStore();
-    this.undoManager = new UndoManager();
     this.pdfProcessor = new PDFProcessor();
     this.ui = new UIManager();
     this.exportService = new ExportService(this.ui, this.state, this.pdfProcessor);
@@ -52,45 +51,9 @@ export class AppController {
     this.ui.on('print', () => this.handlePrint());
     this.ui.on('export', () => this.handleExport());
     this.ui.on('view3d', () => this.handleView3d());
-    this.ui.on('clearAll', () => this.handleClearAll());
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
-    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); });
-
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        this.handleUndo();
-      }
-    });
-  }
-
-  /** Capture a snapshot of page state onto the undo stack. */
-  _pushSnapshot(description, { onPrune = null } = {}) {
-    this.undoManager.push({
-      description,
-      allPageImages: [...this.state.allPageImages],
-      pageFlips: { ...this.state.pageFlips },
-      pageZooms: { ...this.state.pageZooms },
-      onPrune
-    });
-  }
-
-  handleUndo() {
-    if (this.undoManager.isEmpty) {
-      toast.info('Nothing to Undo', 'No recent actions to undo.');
-      return;
-    }
-
-    const snapshot = this.undoManager.pop();
-    this.state.allPageImages = snapshot.allPageImages;
-    this.state.pageFlips = snapshot.pageFlips;
-    this.state.pageZooms = snapshot.pageZooms;
-    this.state.totalPages = this.state.getFilledPageCount();
-    this.state.resetWorkflowStatus();
-    this.renderCurrentLayout();
-    toast.info('Undone', snapshot.description);
   }
 
   handleFileSelected(file) {
@@ -441,12 +404,11 @@ export class AppController {
 
     this.ui.generateLayout(requiredLength, this.getCurrentTemplate(), {
       paperSize: this.state.paperSize,
-      orientation: this.state.orientation,
-      margin: this.state.margin || 0
+      orientation: this.state.orientation
     });
+    // ⚡ Bolt: Combines UI updates into a single loop to avoid double traversal, reducing CPU overhead during layout renders.
     for (let index = 0; index < this.state.allPageImages.length; index++) {
-      const url = this.state.allPageImages[index];
-      this.ui.updatePagePreview(index, url);
+      this.ui.updatePagePreview(index, this.state.allPageImages[index]);
       this.ui.setPageFlip(index, !!this.state.pageFlips[index]);
       this.ui.setPageZoom(index, !!this.state.pageZooms[index]);
     }
@@ -487,11 +449,7 @@ export class AppController {
 
     this.state.gridSize = { rows, cols };
     this.state.resetWorkflowStatus();
-
-    if (this.state.isMiniZineLayout()) {
-      this.state.updatePaperSettings({ orientation: 'landscape' });
-      this.ui.syncPaperSettings({ orientation: 'landscape' });
-    } else {
+    if (!this.state.isMiniZineLayout()) {
       this.ui.toggle3DModal(false);
     }
     this.renderCurrentLayout();
@@ -502,9 +460,7 @@ export class AppController {
       return;
     }
 
-    const wasFlipped = !!this.state.pageFlips[index];
-    this._pushSnapshot(`Page ${index + 1} flip ${wasFlipped ? 'removed' : 'applied'}`);
-    this.state.pageFlips[index] = !wasFlipped;
+    this.state.pageFlips[index] = !this.state.pageFlips[index];
     this.state.resetWorkflowStatus();
     this.ui.setPageFlip(index, this.state.pageFlips[index]);
     this.updateWorkspaceUi();
@@ -527,14 +483,9 @@ export class AppController {
       return;
     }
 
-    // Defer revocation: keep the blob URL alive in the snapshot so undo can restore it.
-    // onPrune fires only when the snapshot is evicted from the undo stack (never restored).
-    const urlToRevoke = (currentUrl !== this.state._blankPageUrl) ? currentUrl : null;
-    this._pushSnapshot(`Page ${index + 1} removed`, {
-      onPrune: () => {
-        if (urlToRevoke) { this.pdfProcessor.revokeBlobUrl(urlToRevoke); }
-      }
-    });
+    if (currentUrl && currentUrl !== this.state._blankPageUrl) {
+      this.pdfProcessor.revokeBlobUrl(currentUrl);
+    }
 
     this.state.allPageImages[index] = null;
     this.state.pageFlips[index] = false;
@@ -550,8 +501,6 @@ export class AppController {
   }
 
   handlePagesSwapped({ fromIndex, toIndex }) {
-    this._pushSnapshot(`Pages ${fromIndex + 1} and ${toIndex + 1} swapped`);
-
     const tempImg = this.state.allPageImages[fromIndex];
     this.state.allPageImages[fromIndex] = this.state.allPageImages[toIndex];
     this.state.allPageImages[toIndex] = tempImg;
@@ -568,46 +517,13 @@ export class AppController {
     this.renderCurrentLayout();
   }
 
-  handleClearAll() {
-    const filledCount = this.state.getFilledPageCount();
-    if (!filledCount) {
-      return;
-    }
-
-    this._pushSnapshot('All pages cleared', {
-      onPrune: () => {
-        this.state.allPageImages.forEach((url) => {
-          if (url && url !== this.state._blankPageUrl) {
-            this.pdfProcessor.revokeBlobUrl(url);
-          }
-        });
-      }
-    });
-
-    for (let index = 0; index < this.state.allPageImages.length; index++) {
-      this.state.allPageImages[index] = null;
-      this.state.pageFlips[index] = false;
-      this.state.pageZooms[index] = false;
-    }
-
-    this.state.totalPages = 0;
-    this.state.uploadedFiles = [];
-    this.state.resetWorkflowStatus();
-    this.ui.updateUploadedFilesList([]);
-    this.ui.setStatus('Choose files or drop them here');
-    this.renderCurrentLayout();
-    toast.info('Cleared', 'All pages have been removed.');
-  }
-
   handlePrint() {
     if (!this.state.getFilledPageCount()) {
       toast.warning('No Content', 'Import pages before printing.');
       return;
     }
 
-    this.exportService.handlePrint().catch((error) => {
-      toast.error('Print Failed', error.message || 'Unable to print.');
-    });
+    this.exportService.handlePrint(referenceImageUrl);
   }
 
   async getZine3DViewerClass() {
@@ -668,18 +584,7 @@ export class AppController {
         const container = this.ui.elements.zine3dContainer;
         if (container) {
           const Zine3DViewer = await this.getZine3DViewerClass();
-          try {
-            this.viewer3d = new Zine3DViewer(container);
-          } catch {
-            const fallback = container.querySelector('.zine-3d-fallback-canvas');
-            if (fallback) {
-              fallback.remove();
-            }
-            this.viewer3d = null;
-            this.ui.toggle3DModal(false);
-            toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
-            return;
-          }
+          this.viewer3d = new Zine3DViewer(container);
         }
       }
 
@@ -706,7 +611,7 @@ export class AppController {
 
     this.ui.modal.showProgress(true, 'Generating PDF...');
     try {
-      await this.exportService.handleExport();
+      await this.exportService.handleExport(referenceImageUrl);
       this.state.markExported();
       this.updateWorkspaceUi();
       toast.success('Export Ready', 'Your PDF has been generated.');

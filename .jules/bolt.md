@@ -17,19 +17,6 @@
 ## 2025-02-23 - Main Thread Offloading with OffscreenCanvas
 **Learning:** Rendering complex PDF pages or generating blank layouts using `document.createElement('canvas')` executes on the main thread, leading to potential UI blocking and stuttering, especially when processing multiple pages rapidly in background tasks.
 **Action:** Use `OffscreenCanvas` instead of standard DOM canvases where available (e.g., in PDF.js rendering loops and blank page generation) to allow asynchronous rendering without blocking the main UI thread. Ensure a fallback to `document.createElement('canvas')` for unsupported environments. Use `.convertToBlob()` for OffscreenCanvases in place of standard canvas `.toBlob()`.
-
-## 2026-04-23 - Redundant Array Traversal in Layout Rendering
-**Learning:** Traversing the same array multiple times in succession to update different UI aspects (previews, flips, zooms) increases CPU cycles and overhead, especially as the number of pages grows.
-**Action:** Consolidate multiple loops over the same collection into a single iteration. This reduces traversal overhead and improves cache locality, resulting in a measurable performance boost (approx. 11% in micro-benchmarks).
-
-## 2026-05-15 - Redundant Stack Finding in Loop Optimization
-
-**Learning:** Using `Array.prototype.find()` inside loops that execute frequently (such as on every frame in a 3D animation loop `setFoldProgress` or `updateSeams`) results in O(N*M) time complexity. This causes unnecessary overhead, even when arrays are small. When array indices map perfectly to sequential indexes (0, 1, 2...), the search can be fully replaced by direct array indexing `arr[index]`. A microbenchmark comparing `array.find(obj => obj.index === id)` vs `array[id]` demonstrated a ~34% speed improvement over 10 million iterations.
-
-**Action:** Whenever possible, avoid `Array.prototype.find()` or `filter()` inside high-frequency functions. Pre-calculate mapping using direct indexing, Maps, or object references to ensure O(1) lookups for data that maps sequentially.
-## 2024-05-20 - Toast Component Cloning Optimization
-**Learning:** Repetitive UI components like Toast notifications constructed using multiple `document.createElement()` and property assignment calls cause unnecessary DOM processing overhead and memory allocation, especially when an object like `icons` is recreated on every invocation.
-**Action:** Extract static dictionary objects into module-level constants to save memory allocation, and use HTML `<template>` combined with `cloneNode(true)` to build repetitive elements instantly, minimizing layout thrashing and function call overhead.
-## 2024-05-18 - pnpm version bumps lockfileVersion
-**Learning:** Running `pnpm install` with a newer version of pnpm may unintentionally bump the `pnpm-lock.yaml` lockfileVersion (e.g., from 6.0 to 9.0). This creates a massive, unintended diff that violates the principle of not making architectural/tooling changes without instruction.
-**Action:** Always verify `git status` after running `pnpm install` and revert unintended lockfile changes (`git checkout HEAD -- pnpm-lock.yaml`) before requesting a code review or submitting.
+## 2024-05-13 - Avoid Array Double Traversal during UI Updates
+**Learning:** Running consecutive `forEach` and `for` loops on the same array structure (e.g., `allPageImages`) to update multiple UI properties results in redundant CPU cycles and double traversal, which negatively impacts rendering performance.
+**Action:** Combine these independent array traversals into a single `for` loop to eliminate double traversal and reduce overall iteration overhead, especially during frequent layout updates.
