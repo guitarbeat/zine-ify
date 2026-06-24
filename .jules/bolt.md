@@ -30,6 +30,7 @@
 ## 2024-05-20 - Toast Component Cloning Optimization
 **Learning:** Repetitive UI components like Toast notifications constructed using multiple `document.createElement()` and property assignment calls cause unnecessary DOM processing overhead and memory allocation, especially when an object like `icons` is recreated on every invocation.
 **Action:** Extract static dictionary objects into module-level constants to save memory allocation, and use HTML `<template>` combined with `cloneNode(true)` to build repetitive elements instantly, minimizing layout thrashing and function call overhead.
-## 2026-06-18 - Repeated DOM Querying in Event Handlers
-**Learning:** Frequent DOM queries via `querySelector` in event handlers or tight loops (e.g., fetching `.page-cell` elements by index in `UIManager`) can cause unnecessary O(n) performance degradation, especially as grid complexity increases.
-**Action:** Implement DOM Caching using a `Map` during the initial query to transform subsequent lookups from O(n) to O(1). Be sure to invalidate the cache when the DOM structure is rebuilt (e.g., during layout generation).
+
+## 2026-06-14 - [Concurrent PDF Rendering]
+**Learning:** Sequential processing in synchronous `for` loops inside frontend event handlers significantly blocks or stalls the UI when dealing with heavy workloads (like PDF processing), leading to poor performance. Using a sliding window `Promise.race()` and `Promise.all()` strategy is required to process background tasks concurrently.
+**Action:** When iterating over arrays and doing asynchronous processing inside UI controllers (e.g. `processPdfUpload`), convert `for...await` sequential loops into a worker pool using `Set`, `.finally()`, and `Promise.race()` bounded by a sensible limit (e.g. `CONCURRENCY_LIMIT = 4`) to ensure background utilization without hanging the main thread.
