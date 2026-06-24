@@ -67,9 +67,7 @@ export class ExportService {
 
         const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
         const url = this.state.allPageImages[pageIndex];
-        if (!url) {
-          continue;
-        }
+        if (!url) { continue; }
 
         const isFlipped = !!this.state.pageFlips[pageIndex];
         const isZoomed = !!this.state.pageZooms[pageIndex];
@@ -88,7 +86,7 @@ export class ExportService {
       await Promise.all(
         draws.map(({ url, cellX, cellY, rotateDeg, scale, objectFit }) =>
           this._loadImage(url).then((img) => {
-            this._drawCell(ctx, img, { cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit });
+            this._drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit);
           })
         )
       );
@@ -112,7 +110,7 @@ export class ExportService {
     });
   }
 
-  _drawCell(ctx, img, { cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit }) {
+  _drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit) {
     ctx.save();
     ctx.beginPath();
     ctx.rect(cellX, cellY, cellW, cellH);
