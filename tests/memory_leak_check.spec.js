@@ -45,7 +45,7 @@ test.skip('Verify memory leak fix', async ({ page }) => {
 
   // Get the blob URL of page 1
   const page1Img = page.locator('.page-cell[data-page-index="0"] .page-content-img');
-  await expect(page.locator('#upload-status')).toContainText('Imported 8 of 8 pages from test-leak.pdf', { timeout: 15000 });
+  await expect(page.locator(".toast-success, .toast-info").filter({ hasText: 'Imported 8 of 8 pages from test-leak.pdf' })).toBeVisible( { timeout: 15000 });
   await expect(page1Img).toHaveAttribute('src', /^blob:/);
   const src1 = await page1Img.getAttribute('src');
 

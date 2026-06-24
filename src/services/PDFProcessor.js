@@ -54,6 +54,74 @@ export class PDFProcessor extends MediaProcessor {
   }
 
   /**
+   * Run security and validation checks on a PDF file
+   * @param {File} file - PDF file to check
+   * @private
+   */
+  async _validateAndCheckSignature(file) {
+    const validation = this.validateFile(file);
+    if (!validation.valid) {
+      throw new Error(validation.errors.join('. '));
+    }
+
+    const isValidSignature = await this.validateFileSignature(file);
+    if (!isValidSignature) {
+      throw new Error('Invalid file signature. Please select a valid PDF file.');
+    }
+  }
+
+  /**
+   * Execute the PDF loading task with a timeout
+   * @param {Object} pdfjsLib - PDF.js library instance
+   * @private
+   * @returns {Promise<Object>} PDF loading result
+   */
+  async _executeLoadingTask(pdfjsLib) {
+    this.loadingTask = pdfjsLib.getDocument({
+      url: this.fileUrl,
+      verbosity: 0,
+      enableScripting: false,
+      isEvalSupported: false
+    });
+
+    let timeoutId;
+    try {
+      const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(async () => {
+          try {
+            await this.loadingTask?.destroy();
+          } catch (destroyError) {
+            void destroyError;
+          }
+          reject(new Error('PDF loading timed out'));
+        }, 60000);
+      });
+
+      this.pdf = await Promise.race([this.loadingTask.promise, timeoutPromise]);
+      return this.pdf;
+    } finally {
+      clearTimeout(timeoutId);
+      this.loadingTask = null;
+    }
+  }
+
+  /**
+   * Validate the loaded PDF
+   * @param {number} numPages - Number of pages in the PDF
+   * @private
+   */
+  _validateLoadedPdf(numPages) {
+    if (numPages === 0) {
+      throw new Error('PDF appears to be empty or corrupted');
+    }
+
+    const MAX_PAGES = 128;
+    if (numPages > MAX_PAGES) {
+      throw new Error(`PDF has too many pages (${numPages}). Maximum allowed is ${MAX_PAGES} pages to prevent performance issues.`);
+    }
+  }
+
+  /**
    * Load PDF from file
    * @param {File} file - PDF file to load
    * @param {Function} onProgress - Progress callback
@@ -65,22 +133,12 @@ export class PDFProcessor extends MediaProcessor {
     }
 
     this.isProcessing = true;
-    let timeoutId;
 
     try {
       const pdfjsLib = await this.ensurePdfJs();
-      const validation = this.validateFile(file);
-      if (!validation.valid) {
-        throw new Error(validation.errors.join('. '));
-      }
 
       onProgress?.('Reading PDF file...');
-
-      // Security check: Validate file signature
-      const isValidSignature = await this.validateFileSignature(file);
-      if (!isValidSignature) {
-        throw new Error('Invalid file signature. Please select a valid PDF file.');
-      }
+      await this._validateAndCheckSignature(file);
 
       // Cleanup previous file before loading a new one to prevent memory leaks
       if (this.fileUrl) {
@@ -97,38 +155,10 @@ export class PDFProcessor extends MediaProcessor {
 
       onProgress?.('Processing PDF...');
 
-      this.loadingTask = pdfjsLib.getDocument({
-        url: this.fileUrl,
-        verbosity: 0,
-        enableScripting: false,
-        isEvalSupported: false
-      });
-
-      const timeoutPromise = new Promise((_, reject) => {
-        timeoutId = setTimeout(async () => {
-          try {
-            await this.loadingTask?.destroy();
-          } catch (destroyError) {
-            void destroyError;
-          }
-          reject(new Error('PDF loading timed out'));
-        }, 60000);
-      });
-
-      this.pdf = await Promise.race([this.loadingTask.promise, timeoutPromise]);
-      clearTimeout(timeoutId);
-      this.loadingTask = null;
+      await this._executeLoadingTask(pdfjsLib);
 
       const numPages = this.pdf.numPages;
-
-      if (numPages === 0) {
-        throw new Error('PDF appears to be empty or corrupted');
-      }
-
-      const MAX_PAGES = 128;
-      if (numPages > MAX_PAGES) {
-        throw new Error(`PDF has too many pages (${numPages}). Maximum allowed is ${MAX_PAGES} pages to prevent performance issues.`);
-      }
+      this._validateLoadedPdf(numPages);
 
       return {
         pdf: this.pdf,
@@ -141,7 +171,6 @@ export class PDFProcessor extends MediaProcessor {
       await this.cleanupFailedLoad();
       throw this.handlePDFError(error);
     } finally {
-      clearTimeout(timeoutId);
       this.isProcessing = false;
     }
   }

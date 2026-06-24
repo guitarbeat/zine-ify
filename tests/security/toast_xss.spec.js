@@ -10,7 +10,7 @@ test('Toast should allow safe HTML but sanitize XSS', async ({ page }) => {
   });
 
   // Expect <b> tag to be rendered as an HTML element (sanitizeHTML used)
-  const toastMessage = page.locator('.toast-message').last();
+  const toastMessage = page.locator('.toast-success, .toast-info').last();
   await expect(toastMessage).toBeVisible();
   const boldTag = toastMessage.locator('b');
   await expect(boldTag).toHaveText('bold');
@@ -21,7 +21,7 @@ test('Toast should allow safe HTML but sanitize XSS', async ({ page }) => {
   });
 
   // Script tag should be removed or sanitized
-  const scriptTag = page.locator('.toast-message script');
+  const scriptTag = page.locator('.toast-success, .toast-info script');
   await expect(scriptTag).not.toBeAttached();
 
   // Ensure the script didn't execute
@@ -34,6 +34,6 @@ test('Toast should allow safe HTML but sanitize XSS', async ({ page }) => {
   });
 
   // Img tag should be removed (not in whitelist) or attribute removed
-  const imgTag = page.locator('.toast-message img');
+  const imgTag = page.locator('.toast-success, .toast-info img');
   await expect(imgTag).not.toBeAttached();
 });
