@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable no-unused-vars, no-console */
 /**
  * Validation integration for Zine-ify form controls
  * Demonstrates user-friendly validation for existing settings

@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable no-unused-vars, no-console */
 /**
  * FormValidator.js
  * Inline form validation with immediate visual feedback

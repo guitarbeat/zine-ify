@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable no-console, no-unused-vars, no-case-declarations, no-useless-assignment */
 /**
  * Innovative Input Selection Widgets
  * Modern, accessible input components with enhanced UX
@@ -1234,7 +1234,7 @@ export class NumericDial {
     // Keyboard
     this.knob.setAttribute('tabindex', '0');
     this.knob.addEventListener('keydown', (e) => {
-      let delta = 0; void delta;
+      let delta = 0;
       switch (e.key) {
         case 'ArrowRight':
         case 'ArrowUp':

@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable no-console, no-useless-assignment, no-unused-vars, no-case-declarations */
 /**
  * Accessible UI Components
  * Inclusive design patterns that work across diverse users
