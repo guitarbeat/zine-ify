@@ -1,3 +1,5 @@
-## 2026-05-12 - [Unit testing UI components with Playwright]
-**Learning:** Testing UI components in the vanillajs `tests/unit` environment requires injecting DOM context when components use `innerHTML` and `addEventListener`. Playwright's `page.evaluate` has complexities resolving local dynamic imports on Vite without proper test harness servers.
-**Action:** Used `jsdom` added to Node's `global` scope in a setup hook instead to allow synchronous isolated testing for pure UI orchestrators.
+## 2026-05-15 - E2E Testing for Print Error Handling
+
+**Learning:** E2E testing for functions that show error toasts based on internal mock failures requires exposing the mocked object correctly on `window.app` and successfully triggering the event via UI interactions. Also discovered `jsPDF` usage to construct dummy valid files to bypass early validation guards.
+
+**Action:** Ensure tests that depend on specific validation states (like `getFilledPageCount() > 0`) properly seed those states before mocking the target function.

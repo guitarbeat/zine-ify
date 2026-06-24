@@ -178,8 +178,7 @@ export class LayoutRenderer {
     return Math.min(1, usableHeight / height);
   }
 
-  createPageCell(config) {
-    const { pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers } = config;
+  createPageCell({ pageIndex, pageNumber, labelText, accessibleLabelText, altText, upsideDown, options, handlers }) {
     const cell = document.createElement('div');
     cell.className = 'page-cell h-full w-full bg-white relative flex items-center justify-center overflow-hidden transition-all duration-200 group';
     cell.setAttribute('data-page-index', pageIndex);
@@ -220,10 +219,10 @@ export class LayoutRenderer {
     });
 
     const flipBtn = toolbar.querySelector('.flip-btn');
-    if (flipBtn) { flipBtn.onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); }; }
+    if (flipBtn) {flipBtn.onclick = (e) => { e.stopPropagation(); handlers.onFlip(pageIndex); };}
 
     const cropBtn = toolbar.querySelector('.crop-btn');
-    if (cropBtn) { cropBtn.onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); }; }
+    if (cropBtn) {cropBtn.onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); };}
 
     return cell;
   }
