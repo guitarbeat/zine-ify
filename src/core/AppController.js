@@ -55,7 +55,7 @@ export class AppController {
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
-    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); });
+    this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); this.renderCurrentLayout(); });
     this.ui.on('removeUploadedFile', (index) => {
       this.state.uploadedFiles.splice(index, 1);
       this.ui.updateUploadedFilesList(this.state.uploadedFiles);
@@ -206,14 +206,7 @@ export class AppController {
     this.prepareLayoutForTotalPages(startIndex + selectedPages.length);
     this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
 
-    // ⚡ Bolt: Sliding window worker pool for faster page rendering
-    // Replaces sequential page rendering with a concurrent worker pool (limit 4)
-    // to utilize resources evenly and significantly reduce total rendering time.
-    const CONCURRENCY_LIMIT = 4;
-    const activePromises = new Set();
-    let completedCount = 0;
-
-    const processRenderPage = async (selectedIndex, pageNumber) => {
+    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
       const targetIndex = startIndex + selectedIndex;
       const canvas = await this.pdfProcessor.renderPage(pageNumber);
       const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
@@ -226,25 +219,10 @@ export class AppController {
       this.state.allPageImages[targetIndex] = pageUrl;
       this.ui.updatePagePreview(targetIndex, pageUrl);
 
-      completedCount++;
-      const percent = Math.round((completedCount / selectedPages.length) * 100);
+      const percent = Math.round(((selectedIndex + 1) / selectedPages.length) * 100);
       this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
       this.ui.modal.updateProgress(percent);
-    };
-
-    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
-      const trackedPromise = processRenderPage(selectedIndex, pageNumber).finally(() => {
-        activePromises.delete(trackedPromise);
-      });
-
-      activePromises.add(trackedPromise);
-
-      if (activePromises.size >= CONCURRENCY_LIMIT) {
-        await Promise.race(activePromises);
-      }
     }
-
-    await Promise.all(activePromises);
 
     this.state.totalPages = this.state.getFilledPageCount();
     this.state.resetWorkflowStatus();
@@ -459,10 +437,14 @@ export class AppController {
       paperSize: this.state.paperSize,
       orientation: this.state.orientation,
       margin: this.state.margin || 0,
-      pageImages: this.state.allPageImages,
-      pageFlips: this.state.pageFlips,
-      pageZooms: this.state.pageZooms
+      customPaper: this.state.customPaper
     });
+    for (let index = 0; index < this.state.allPageImages.length; index++) {
+      const url = this.state.allPageImages[index];
+      this.ui.updatePagePreview(index, url);
+      this.ui.setPageFlip(index, !!this.state.pageFlips[index]);
+      this.ui.setPageZoom(index, !!this.state.pageZooms[index]);
+    }
 
     this.updateWorkspaceUi();
   }

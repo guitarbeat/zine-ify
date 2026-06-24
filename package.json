@@ -12,36 +12,40 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "lint": "eslint src",
-    "lint:fix": "eslint src --fix"
+    "lint:fix": "eslint src --fix",
+    "generate:pwa-icons": "node scripts/generate_pwa_icons.js"
   },
   "dependencies": {
+    "@khmyznikov/pwa-install": "^0.6.3",
+    "@radix-ui/react-scroll-area": "^1.2.11",
+    "@radix-ui/react-separator": "^1.1.9",
+    "@radix-ui/react-tooltip": "^1.2.9",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.40.0",
     "html2canvas": "^1.4.1",
     "jspdf": "4.2.1",
     "lucide": "^1.14.0",
-    "lucide-react": "^1.14.0",
     "mitt": "^3.0.1",
     "pdfjs-dist": "^5.7.284",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
     "tailwind-merge": "^3.6.0",
     "three": "^0.184.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@playwright/test": "^1.59.1",
+    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4.2.4",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.5.0",
     "eslint": "10.3.0",
     "globals": "^17.6.0",
     "postcss": "^8.5.13",
     "tailwindcss": "^4.2.4",
-    "typescript": "^6.0.3",
-    "vite": "8.0.10"
+    "vite": "8.0.10",
+    "jsdom": "^29.1.1"
   },
   "engines": {
     "node": ">=18.0.0"
