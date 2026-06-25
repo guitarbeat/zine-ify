@@ -1,5 +1,0 @@
-🧪 [testing improvement] Add missing tests for UndoManager onPrune optional chaining
-
-🎯 **What:** The `UndoManager` class's `onPrune` optional chaining calls (`pruned.onPrune?.()`) during `push` (when capacity exceeded) and `clear` lacked test coverage for null/undefined values.
-📊 **Coverage:** Added two new test cases to specifically exercise `null` and implicit `undefined` (via default) scenarios in the `onPrune` parameter for both `push` (when pruning occurs) and `clear` methods.
-✨ **Result:** Improved test coverage for `UndoManager` to 100% and guarantees no runtime errors when skipping `onPrune` cleanup function callbacks.
