@@ -85,7 +85,17 @@ export function sanitizeHTML(html) {
   }
 
   // Use DOMPurify for secure HTML sanitization instead of template.innerHTML fallback
-  return DOMPurify.sanitize(html, {
+    // In Node.js environment (like Playwright unit tests), DOMPurify might need to be instantiated with a window
+  let purify = DOMPurify;
+  if (typeof DOMPurify === 'function' && !DOMPurify.sanitize) {
+    purify = DOMPurify(window);
+  } else if (DOMPurify.default && typeof DOMPurify.default === 'function' && !DOMPurify.default.sanitize) {
+    purify = DOMPurify.default(window);
+  } else if (DOMPurify.default && DOMPurify.default.sanitize) {
+    purify = DOMPurify.default;
+  }
+
+  return purify.sanitize(html, {
     ALLOWED_TAGS: ['b', 'strong', 'i', 'em', 'u', 'br', 'code', 'span'],
     RETURN_DOM_FRAGMENT: true
   });
