@@ -55,10 +55,10 @@ test.describe('Utils', () => {
   });
 
   test('classifyFileKind', () => {
-    expect(classifyFileKind({ type: 'application/pdf' })).toBe('pdf');
-    expect(classifyFileKind({ type: 'image/png' })).toBe('image');
-    expect(classifyFileKind({ type: 'image/jpeg' })).toBe('image');
-    expect(classifyFileKind({ type: 'text/plain' })).toBeNull();
+    expect(classifyFileKind({ type: 'application/pdf', name: 'test.pdf' })).toBe('pdf');
+    expect(classifyFileKind({ type: 'image/png', name: 'test.png' })).toBe('image');
+    expect(classifyFileKind({ type: 'image/jpeg', name: 'test.jpg' })).toBe('image');
+    expect(classifyFileKind({ type: 'text/plain', name: 'test.txt' })).toBeNull();
   });
 
   test('getFileTypeLabel', () => {
@@ -68,13 +68,13 @@ test.describe('Utils', () => {
   });
 
   test('validateUploadFile', () => {
-    expect(validateUploadFile({ type: 'application/pdf', size: 1024 })).toEqual({
+    expect(validateUploadFile({ type: 'application/pdf', size: 1024, name: 'test.pdf' })).toEqual({
       valid: true,
       errors: [],
       kind: 'pdf'
     });
 
-    expect(validateUploadFile({ type: 'image/png', size: 2048 })).toEqual({
+    expect(validateUploadFile({ type: 'image/png', size: 2048, name: 'test.png' })).toEqual({
       valid: true,
       errors: [],
       kind: 'image'
@@ -94,7 +94,7 @@ test.describe('Utils', () => {
     });
 
     // Only accepted files
-    const accepted = [{ type: 'application/pdf' }, { type: 'image/png' }];
+    const accepted = [{ type: 'application/pdf', name: 'test.pdf' }, { type: 'image/png', name: 'test.png' }];
     expect(partitionSupportedFiles(accepted)).toEqual({
       acceptedFiles: accepted,
       rejectedFiles: []
@@ -108,7 +108,7 @@ test.describe('Utils', () => {
     });
 
     // Mixed array
-    const mixed = [{ type: 'application/pdf' }, { type: 'text/plain' }, { type: 'image/jpeg' }];
+    const mixed = [{ type: 'application/pdf', name: 'test.pdf' }, { type: 'text/plain', name: 'test.txt' }, { type: 'image/jpeg', name: 'test.jpg' }];
     expect(partitionSupportedFiles(mixed)).toEqual({
       acceptedFiles: [mixed[0], mixed[2]],
       rejectedFiles: [mixed[1]]
