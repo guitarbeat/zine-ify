@@ -86,7 +86,7 @@ export class ExportService {
       await Promise.all(
         draws.map(({ url, cellX, cellY, rotateDeg, scale, objectFit }) =>
           this._loadImage(url).then((img) => {
-            this._drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit);
+            this._drawCell({ ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit });
           })
         )
       );
@@ -110,7 +110,7 @@ export class ExportService {
     });
   }
 
-  _drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit) {
+  _drawCell({ ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit }) {
     ctx.save();
     ctx.beginPath();
     ctx.rect(cellX, cellY, cellW, cellH);
