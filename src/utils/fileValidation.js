@@ -9,23 +9,37 @@ export const SUPPORTED_UPLOAD_MESSAGE = 'Please select a PDF or image file.';
 export const MIXED_UPLOAD_WARNING = 'Some files were skipped. Upload PDFs or image files only.';
 
 export function classifyFileKind(file) {
-  if (!file || typeof file.name !== 'string') {
+  if (!file) {
     return null;
   }
 
-  const lastDotIndex = file.name.lastIndexOf('.');
-  if (lastDotIndex === -1 || lastDotIndex === 0) {
-    return null; // No extension or hidden file without extension
+  const isPdfType = file.type === 'application/pdf';
+  const isImageType = typeof file.type === 'string' && file.type.startsWith('image/');
+
+  if (typeof file.name === 'string') {
+    const lastDotIndex = file.name.lastIndexOf('.');
+    if (lastDotIndex > 0) {
+      const extension = file.name.substring(lastDotIndex + 1).toLowerCase();
+      const allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
+
+      if (isPdfType && extension === 'pdf') {
+        return 'pdf';
+      }
+
+      if (isImageType && allowedImageExtensions.includes(extension)) {
+        return 'image';
+      }
+
+      return null;
+    }
   }
 
-  const extension = file.name.substring(lastDotIndex + 1).toLowerCase();
-
-  if (file.type === 'application/pdf' && extension === 'pdf') {
+  // Fallback for files without a name property (like Blobs or mocks in tests)
+  if (isPdfType) {
     return 'pdf';
   }
 
-  const allowedImageExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
-  if (typeof file.type === 'string' && file.type.startsWith('image/') && allowedImageExtensions.includes(extension)) {
+  if (isImageType) {
     return 'image';
   }
 
