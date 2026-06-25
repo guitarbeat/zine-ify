@@ -138,4 +138,18 @@ test.describe('UndoManager', () => {
     const manager = new UndoManager();
     expect(() => manager.push()).toThrow(TypeError);
   });
+
+  test('push handles null onPrune gracefully when pruned', () => {
+    const manager = new UndoManager(0);
+    expect(() => {
+      manager.push({ description: 'no prune', onPrune: null });
+    }).not.toThrow();
+  });
+
+  test('clear handles null onPrune gracefully', () => {
+    const manager = new UndoManager();
+    manager.push({ description: 'no prune', onPrune: null });
+    manager.push({ description: 'no prune 2' }); // implicitly undefined/null due to default
+    expect(() => manager.clear()).not.toThrow();
+  });
 });
