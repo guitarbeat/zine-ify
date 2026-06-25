@@ -109,7 +109,7 @@ function loadLayout() {
       resetToDefaults();
     }
   } catch (_e) {
-    void _e;
+ void _e;
     resetToDefaults();
   }
 }
