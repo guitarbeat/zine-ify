@@ -70,6 +70,7 @@ export class UIManager {
     this.syncPaperSettings({ paperSize: 'letter', orientation: 'landscape' });
     this.setupEventListeners();
     this.syncResponsiveUI();
+    this._syncThemeIcon();
 
     const savedControls = localStorage.getItem('zine-page-controls');
     const showControls = savedControls !== 'false';
@@ -434,7 +435,9 @@ export class UIManager {
       bookletStatus: $('#booklet-status'),
       clearAllBtn: $('#clear-all-btn'),
       exportPdfBtn: $('#exportPdfBtn'),
-      view3dBtn: $('#view3dBtn')
+      view3dBtn: $('#view3dBtn'),
+      themeToggleBtn: $('#theme-toggle'),
+      themeIcon: $('#theme-icon')
     };
   }
 
@@ -498,6 +501,7 @@ export class UIManager {
     this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
     this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
     this.elements.clearAllBtn?.addEventListener('click', () => this.emitter.emit('clearAll'));
+    this.elements.themeToggleBtn?.addEventListener('click', () => this.toggleTheme());
 
     this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
     this.elements.uploadZone?.addEventListener('keydown', (event) => {
@@ -572,6 +576,21 @@ export class UIManager {
     }
 
     window.addEventListener('resize', () => this.syncResponsiveUI());
+  }
+
+  toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('zine-theme', newTheme);
+    this._syncThemeIcon();
+  }
+
+  _syncThemeIcon() {
+    if (this.elements.themeIcon) {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      this.elements.themeIcon.textContent = currentTheme === 'light' ? 'light_mode' : 'dark_mode';
+    }
   }
 
   isFoldPreviewOpen() {
