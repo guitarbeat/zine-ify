@@ -53,7 +53,7 @@ function saveLayout() {
   if (!grid || isRelayouting) { return; }
   try {
     localStorage.setItem(storageKey(), JSON.stringify(grid.save(false)));
-  } catch (_e) { void _e; void _e; }
+  } catch (_e) { void _e; }
 }
 
 function compactLayout() {
@@ -109,7 +109,7 @@ function loadLayout() {
       resetToDefaults();
     }
   } catch (_e) {
- void _e;
+    void _e;
     resetToDefaults();
   }
 }
