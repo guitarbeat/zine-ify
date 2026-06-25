@@ -421,7 +421,7 @@ export class Zine3DViewer {
     this.debugFoldState = state;
 
     this.stacks.forEach((stack) => {
-      const stackState = state.stacks[stack.index]; // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
+      const stackState = state.stacks[stack.index];
       if (!stackState) {
         return;
       }
