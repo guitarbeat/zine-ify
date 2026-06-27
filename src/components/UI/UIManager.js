@@ -70,6 +70,11 @@ export class UIManager {
     this.syncPaperSettings({ paperSize: 'letter', orientation: 'landscape' });
     this.setupEventListeners();
     this.syncResponsiveUI();
+
+    const savedTheme = localStorage.getItem('zine-theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
     this._syncThemeIcon();
 
     const savedControls = localStorage.getItem('zine-page-controls');
@@ -501,7 +506,9 @@ export class UIManager {
     this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
     this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
     this.elements.clearAllBtn?.addEventListener('click', () => this.emitter.emit('clearAll'));
-    this.elements.themeToggleBtn?.addEventListener('click', () => this.toggleTheme());
+    if (this.elements.themeToggleBtn) {
+      this.elements.themeToggleBtn.addEventListener('click', () => this.toggleTheme());
+    }
 
     this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
     this.elements.uploadZone?.addEventListener('keydown', (event) => {
@@ -589,7 +596,7 @@ export class UIManager {
   _syncThemeIcon() {
     if (this.elements.themeIcon) {
       const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-      this.elements.themeIcon.textContent = currentTheme === 'light' ? 'light_mode' : 'dark_mode';
+      this.elements.themeIcon.textContent = currentTheme === 'light' ? 'dark_mode' : 'light_mode';
     }
   }
 
