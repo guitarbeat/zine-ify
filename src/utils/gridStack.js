@@ -30,7 +30,7 @@ function storageKey() {
 }
 
 function nodesOverlap(a, b) {
-  if (a.id === b.id) return false;
+  if (a.id === b.id) { return false; }
   return !(
     a.x + a.w <= b.x ||
     b.x + b.w <= a.x ||
@@ -43,26 +43,28 @@ function layoutHasOverlaps() {
   const nodes = grid?.engine?.nodes ?? [];
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 1; j < nodes.length; j++) {
-      if (nodesOverlap(nodes[i], nodes[j])) return true;
+      if (nodesOverlap(nodes[i], nodes[j])) { return true; }
     }
   }
   return false;
 }
 
 function saveLayout() {
-  if (!grid || isRelayouting) return;
+  if (!grid || isRelayouting) { return; }
   try {
     localStorage.setItem(storageKey(), JSON.stringify(grid.save(false)));
-  } catch (_) {}
+  } catch {
+    // ignore storage errors
+  }
 }
 
 function compactLayout() {
-  if (!grid) return;
+  if (!grid) { return; }
   grid.compact('list');
 }
 
 function relayoutPanels() {
-  if (!grid) return;
+  if (!grid) { return; }
   isRelayouting = true;
 
   grid.getGridItems().forEach((el) => grid.resizeToContent(el));
@@ -72,22 +74,22 @@ function relayoutPanels() {
 }
 
 function resetToDefaults() {
-  if (!grid) return;
+  if (!grid) { return; }
   localStorage.removeItem(storageKey());
 
   grid.batchUpdate(true);
   DEFAULT_LAYOUT.forEach(({ id, x, y, w, h }) => {
     const el = gridEl.querySelector(`[gs-id="${id}"]`);
-    if (el) grid.update(el, { x, y, w, h });
+    if (el) { grid.update(el, { x, y, w, h }); }
   });
   grid.batchUpdate(false);
 
-  if (isMobile()) compactLayout();
+  if (isMobile()) { compactLayout(); }
   relayoutPanels();
 }
 
 function loadLayout() {
-  if (!grid) return;
+  if (!grid) { return; }
 
   try {
     const raw = localStorage.getItem(storageKey());
@@ -108,22 +110,22 @@ function loadLayout() {
     if (layoutHasOverlaps()) {
       resetToDefaults();
     }
-  } catch (_) {
+  } catch {
     resetToDefaults();
   }
 }
 
 function scheduleRelayout() {
-  if (resizeFrame) cancelAnimationFrame(resizeFrame);
+  if (resizeFrame) { cancelAnimationFrame(resizeFrame); }
   resizeFrame = requestAnimationFrame(() => {
     relayoutPanels();
-    if (layoutHasOverlaps()) compactLayout();
+    if (layoutHasOverlaps()) { compactLayout(); }
     resizeFrame = null;
   });
 }
 
 function observePanelSizes() {
-  if (resizeObserver) resizeObserver.disconnect();
+  if (resizeObserver) { resizeObserver.disconnect(); }
 
   resizeObserver = new ResizeObserver(() => scheduleRelayout());
 
@@ -133,14 +135,14 @@ function observePanelSizes() {
 }
 
 function syncGridMetrics() {
-  if (!grid) return;
+  if (!grid) { return; }
   grid.cellHeight(CELL_HEIGHT);
   grid.margin(isMobile() ? 6 : 8);
   grid.float(false);
 }
 
 function setInteractionMode() {
-  if (!grid) return;
+  if (!grid) { return; }
   const mobile = isMobile();
   document.body.classList.toggle('layout-mobile', mobile);
   syncGridMetrics();
@@ -151,7 +153,7 @@ function setInteractionMode() {
 
 export function initGridStack() {
   gridEl = document.querySelector('.grid-stack');
-  if (!gridEl) return;
+  if (!gridEl) { return; }
 
   grid = GridStack.init({
     column: 12,
