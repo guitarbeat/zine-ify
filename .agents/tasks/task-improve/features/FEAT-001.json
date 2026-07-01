@@ -1,0 +1,23 @@
+{
+  "id": "FEAT-001",
+  "type": "chore",
+  "description": "Fix all 18 lint errors in src/utils/gridStack.js, then confirm pnpm build still passes. These are curly-brace and unused-variable errors caught by the ESLint 'curly' and 'no-unused-vars' rules.",
+  "status": "completed",
+  "steps": [
+    "Read src/utils/gridStack.js in full.",
+    "Wrap every single-line if/else body in curly braces (lines 33, 46, 53, 60, 65, 75, 81, 85, 90, 117, 120, 126, 136, 143, 154).",
+    "Remove the two unused '_' catch-clause bindings at lines 56 and 111. Replace 'catch (_) {}' with 'catch { }' (bare catch, supported in modern JS) or rename to catch (e) and add a void e; — whichever passes the lint rule.",
+    "Run 'pnpm lint' and confirm zero errors.",
+    "Run 'pnpm build' and confirm it still passes."
+  ],
+  "acceptance_criteria": [
+    "'pnpm lint' exits with code 0 (zero errors).",
+    "'pnpm build' completes without errors."
+  ],
+  "verification": [
+    "pnpm lint",
+    "pnpm build"
+  ],
+  "blocked_reason": null,
+  "findings": "Fixed all 18 ESLint errors: wrapped 15 single-line if/else bodies in curly braces, and replaced two `catch (_) {}` clauses with bare `catch { }` (ES2019 syntax). Also fixed a no-empty error at line 56 by adding a comment inside the catch block. Both `pnpm lint` and `pnpm build` pass with zero errors."
+}

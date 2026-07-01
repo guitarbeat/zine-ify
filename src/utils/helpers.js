@@ -99,7 +99,7 @@ export function sanitizeHTML(html) {
  * @returns {Array} A new array of the required length
  */
 export function resizeAndFillArray(arr, requiredLength, fillValue = null) {
-  const nextImages = new Array(requiredLength).fill(fillValue);
+  const nextImages = new Array(Math.max(0, requiredLength)).fill(fillValue);
   for (let index = 0; index < Math.min(arr.length, nextImages.length); index++) {
     nextImages[index] = arr[index];
   }

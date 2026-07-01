@@ -6,7 +6,7 @@ import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
 
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
-import { parseBoundedInteger } from '../utils/helpers.js';
+import { parseBoundedInteger, resizeAndFillArray } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
 import { BookletPreview } from '../components/BookletPreview.js';
 
@@ -16,7 +16,7 @@ export class AppController {
     this.undoManager = new UndoManager();
     this.pdfProcessor = new PDFProcessor();
     this.ui = new UIManager();
-    this.exportService = new ExportService(this.ui, this.state, this.pdfProcessor);
+    this.exportService = new ExportService(this.ui, this.state);
     this.viewer3d = null;
     this.bookletPreview = null;
     this.zine3dViewerClassPromise = null;
@@ -204,23 +204,39 @@ export class AppController {
     this.prepareLayoutForTotalPages(startIndex + selectedPages.length);
     this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
 
-    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
+    const CONCURRENCY_LIMIT = 4;
+    const activePromises = new Set();
+    let completedCount = 0;
+
+    const processPage = async (selectedIndex, pageNumber) => {
       const targetIndex = startIndex + selectedIndex;
       const canvas = await this.pdfProcessor.renderPage(pageNumber);
       const pageUrl = await this.pdfProcessor.canvasToBlob(canvas);
       const existingUrl = this.state.allPageImages[targetIndex];
-
       if (existingUrl && existingUrl !== this.state._blankPageUrl) {
         this.pdfProcessor.revokeBlobUrl(existingUrl);
       }
-
       this.state.allPageImages[targetIndex] = pageUrl;
       this.ui.updatePagePreview(targetIndex, pageUrl);
 
-      const percent = Math.round(((selectedIndex + 1) / selectedPages.length) * 100);
+      completedCount++;
+      const percent = Math.round((completedCount / selectedPages.length) * 100);
       this.ui.modal.setProgressCopy('Rendering pages...', `${percent}%`);
       this.ui.modal.updateProgress(percent);
+    };
+
+    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
+      // Intentional forward reference: `trackedPromise` is captured by the `.finally()` closure
+      // so that the Set removes the correct (finally-wrapped) promise upon settlement.
+      const trackedPromise = processPage(selectedIndex, pageNumber).finally(() => activePromises.delete(trackedPromise));
+      activePromises.add(trackedPromise);
+
+      if (activePromises.size >= CONCURRENCY_LIMIT) {
+        await Promise.race(activePromises);
+      }
     }
+
+    await Promise.all(activePromises);
 
     this.state.totalPages = this.state.getFilledPageCount();
     this.state.resetWorkflowStatus();
@@ -319,11 +335,7 @@ export class AppController {
     const requiredLength = this.state.getRequiredPageCapacity();
 
     if (this.state.allPageImages.length !== requiredLength) {
-      const nextImages = new Array(requiredLength).fill(null);
-      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
-        nextImages[index] = this.state.allPageImages[index];
-      }
-      this.state.allPageImages = nextImages;
+      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
     }
   }
 
@@ -433,11 +445,7 @@ export class AppController {
   renderCurrentLayout() {
     const requiredLength = this.state.getRequiredPageCapacity();
     if (this.state.allPageImages.length !== requiredLength) {
-      const nextImages = new Array(requiredLength).fill(null);
-      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
-        nextImages[index] = this.state.allPageImages[index];
-      }
-      this.state.allPageImages = nextImages;
+      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
     }
 
     this.ui.generateLayout(requiredLength, this.getCurrentTemplate(), {
@@ -516,7 +524,9 @@ export class AppController {
       return;
     }
 
-    this.state.pageZooms[index] = !this.state.pageZooms[index];
+    const wasZoomed = !!this.state.pageZooms[index];
+    this._pushSnapshot(`Page ${index + 1} crop ${wasZoomed ? 'removed' : 'applied'}`);
+    this.state.pageZooms[index] = !wasZoomed;
     this.state.resetWorkflowStatus();
     this.ui.setPageZoom(index, this.state.pageZooms[index]);
     this.updateWorkspaceUi();

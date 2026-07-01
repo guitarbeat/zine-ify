@@ -138,4 +138,27 @@ test.describe('UndoManager', () => {
     const manager = new UndoManager();
     expect(() => manager.push()).toThrow(TypeError);
   });
+
+  test('crop-toggle scenario: push snapshot, verify size, pop, verify size and description', () => {
+    // NOTE: This test covers the UndoManager data structure only (push/pop round-trip).
+    // Testing the full AppController.handleUndo path (which restores state.pageZooms)
+    // requires a complete DOM environment (window, document, canvas, PDF.js, etc.) that
+    // is not available in unit tests. The state restoration logic is in
+    // AppController.handleUndo and is not currently covered by automated tests.
+    const manager = new UndoManager();
+
+    manager.push({
+      description: 'Page 1 crop applied',
+      allPageImages: ['img1', 'img2'],
+      pageFlips: { 0: false },
+      pageZooms: { 0: 1.0 }
+    });
+
+    expect(manager.size).toBe(1);
+
+    const popped = manager.pop();
+
+    expect(manager.size).toBe(0);
+    expect(popped.description).toBe('Page 1 crop applied');
+  });
 });

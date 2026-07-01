@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger } from '../../src/utils/helpers.js';
+import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray } from '../../src/utils/helpers.js';
 import {
   classifyFileKind,
   getFileTypeLabel,
@@ -55,10 +55,10 @@ test.describe('Utils', () => {
   });
 
   test('classifyFileKind', () => {
-    expect(classifyFileKind({ type: 'application/pdf' })).toBe('pdf');
-    expect(classifyFileKind({ type: 'image/png' })).toBe('image');
-    expect(classifyFileKind({ type: 'image/jpeg' })).toBe('image');
-    expect(classifyFileKind({ type: 'text/plain' })).toBeNull();
+    expect(classifyFileKind({ type: 'application/pdf', name: 'test.pdf' })).toBe('pdf');
+    expect(classifyFileKind({ type: 'image/png', name: 'test.png' })).toBe('image');
+    expect(classifyFileKind({ type: 'image/jpeg', name: 'test.jpg' })).toBe('image');
+    expect(classifyFileKind({ type: 'text/plain', name: 'test.txt' })).toBeNull();
   });
 
   test('getFileTypeLabel', () => {
@@ -68,19 +68,19 @@ test.describe('Utils', () => {
   });
 
   test('validateUploadFile', () => {
-    expect(validateUploadFile({ type: 'application/pdf', size: 1024 })).toEqual({
+    expect(validateUploadFile({ type: 'application/pdf', name: 'doc.pdf', size: 1024 })).toEqual({
       valid: true,
       errors: [],
       kind: 'pdf'
     });
 
-    expect(validateUploadFile({ type: 'image/png', size: 2048 })).toEqual({
+    expect(validateUploadFile({ type: 'image/png', name: 'photo.png', size: 2048 })).toEqual({
       valid: true,
       errors: [],
       kind: 'image'
     });
 
-    const invalid = validateUploadFile({ type: 'text/plain', size: 12 });
+    const invalid = validateUploadFile({ type: 'text/plain', name: 'doc.txt', size: 12 });
     expect(invalid.valid).toBe(false);
     expect(invalid.kind).toBeNull();
     expect(invalid.errors).toContain('Please select a PDF or image file.');
@@ -94,21 +94,21 @@ test.describe('Utils', () => {
     });
 
     // Only accepted files
-    const accepted = [{ type: 'application/pdf' }, { type: 'image/png' }];
+    const accepted = [{ type: 'application/pdf', name: 'a.pdf' }, { type: 'image/png', name: 'b.png' }];
     expect(partitionSupportedFiles(accepted)).toEqual({
       acceptedFiles: accepted,
       rejectedFiles: []
     });
 
     // Only rejected files
-    const rejected = [{ type: 'text/plain' }, { type: 'audio/mp3' }];
+    const rejected = [{ type: 'text/plain', name: 'c.txt' }, { type: 'audio/mp3', name: 'd.mp3' }];
     expect(partitionSupportedFiles(rejected)).toEqual({
       acceptedFiles: [],
       rejectedFiles: rejected
     });
 
     // Mixed array
-    const mixed = [{ type: 'application/pdf' }, { type: 'text/plain' }, { type: 'image/jpeg' }];
+    const mixed = [{ type: 'application/pdf', name: 'e.pdf' }, { type: 'text/plain', name: 'f.txt' }, { type: 'image/jpeg', name: 'g.jpg' }];
     expect(partitionSupportedFiles(mixed)).toEqual({
       acceptedFiles: [mixed[0], mixed[2]],
       rejectedFiles: [mixed[1]]
@@ -120,5 +120,26 @@ test.describe('Utils', () => {
       acceptedFiles: [],
       rejectedFiles: edgeCases
     });
+  });
+
+  test('resizeAndFillArray', () => {
+    // Growing: fills remainder with null by default
+    expect(resizeAndFillArray([1, 2], 4)).toEqual([1, 2, null, null]);
+
+    // Shrinking: truncates to requested length
+    expect(resizeAndFillArray([1, 2, 3], 2)).toEqual([1, 2]);
+
+    // Same length: returns copy of same values
+    expect(resizeAndFillArray([1, 2, 3], 3)).toEqual([1, 2, 3]);
+
+    // Custom fill value
+    expect(resizeAndFillArray([1], 3, 0)).toEqual([1, 0, 0]);
+
+    // Empty input
+    expect(resizeAndFillArray([], 3)).toEqual([null, null, null]);
+
+    // Negative requiredLength: treated as 0, returns empty array
+    expect(resizeAndFillArray([1, 2], -1)).toEqual([]);
+    expect(resizeAndFillArray([1, 2], 0)).toEqual([]);
   });
 });
