@@ -137,5 +137,9 @@ test.describe('Utils', () => {
 
     // Empty input
     expect(resizeAndFillArray([], 3)).toEqual([null, null, null]);
+
+    // Negative requiredLength: treated as 0, returns empty array
+    expect(resizeAndFillArray([1, 2], -1)).toEqual([]);
+    expect(resizeAndFillArray([1, 2], 0)).toEqual([]);
   });
 });

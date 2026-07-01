@@ -140,6 +140,11 @@ test.describe('UndoManager', () => {
   });
 
   test('crop-toggle scenario: push snapshot, verify size, pop, verify size and description', () => {
+    // NOTE: This test covers the UndoManager data structure only (push/pop round-trip).
+    // Testing the full AppController.handleUndo path (which restores state.pageZooms)
+    // requires a complete DOM environment (window, document, canvas, PDF.js, etc.) that
+    // is not available in unit tests. The end-to-end tests in tests/e2e/ exercise the
+    // full undo flow including crop-toggle state restoration.
     const manager = new UndoManager();
 
     manager.push({
