@@ -349,7 +349,7 @@
   border: 1px solid var(--border-faint);
   border-radius: 999px;
   pointer-events: none;
-  opacity: 0;
+  opacity: 0.75;
   transition: opacity 0.15s ease;
 }
 

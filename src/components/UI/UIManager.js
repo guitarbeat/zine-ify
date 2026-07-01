@@ -6,7 +6,7 @@ import {
   ZINE_TEMPLATES,
   resolvePaperSize
 } from '../../utils/config.js';
-import { debounce, parseBoundedInteger } from '../../utils/helpers.js';
+import { debounce, formatFileSize, parseBoundedInteger } from '../../utils/helpers.js';
 
 import { SmartSheetConfig } from '../SmartSheetConfig.js';
 import { ModalManager } from './ModalManager.js';
@@ -154,7 +154,7 @@ export class UIManager {
       name.title = file.name;
       const meta = document.createElement('div');
       meta.className = 'uploaded-file-meta';
-      meta.textContent = `${file.kind === 'pdf' ? 'PDF' : 'Image'} \u2022 ${file.size ? (file.size / 1024).toFixed(1) + ' KB' : ''}`;
+      meta.textContent = `${file.kind === 'pdf' ? 'PDF' : 'Image'} \u2022 ${formatFileSize(file.size)}`;
       body.appendChild(name);
       body.appendChild(meta);
       const remove = document.createElement('button');
