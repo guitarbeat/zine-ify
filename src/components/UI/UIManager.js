@@ -344,7 +344,7 @@ export class UIManager {
     const isMobile = window.matchMedia('(max-width: 1023px)').matches;
     this.elements.previewArea?.classList.toggle('is-mobile', isMobile);
     // Close mobile rail when resizing to desktop
-    if (!isMobile&& document.body.classList.contains('mobile-rail-open')) {
+    if (!isMobile && document.body.classList.contains('mobile-rail-open')) {
       this.toggleMobileRail(false);
     }
   }

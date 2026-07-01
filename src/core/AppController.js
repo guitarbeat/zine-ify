@@ -6,7 +6,7 @@ import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
 
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
-import { parseBoundedInteger } from '../utils/helpers.js';
+import { parseBoundedInteger, resizeAndFillArray } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
 import { BookletPreview } from '../components/BookletPreview.js';
 
@@ -16,7 +16,7 @@ export class AppController {
     this.undoManager = new UndoManager();
     this.pdfProcessor = new PDFProcessor();
     this.ui = new UIManager();
-    this.exportService = new ExportService(this.ui, this.state, this.pdfProcessor);
+    this.exportService = new ExportService(this.ui, this.state);
     this.viewer3d = null;
     this.bookletPreview = null;
     this.zine3dViewerClassPromise = null;
@@ -319,11 +319,7 @@ export class AppController {
     const requiredLength = this.state.getRequiredPageCapacity();
 
     if (this.state.allPageImages.length !== requiredLength) {
-      const nextImages = new Array(requiredLength).fill(null);
-      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
-        nextImages[index] = this.state.allPageImages[index];
-      }
-      this.state.allPageImages = nextImages;
+      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
     }
   }
 
@@ -433,11 +429,7 @@ export class AppController {
   renderCurrentLayout() {
     const requiredLength = this.state.getRequiredPageCapacity();
     if (this.state.allPageImages.length !== requiredLength) {
-      const nextImages = new Array(requiredLength).fill(null);
-      for (let index = 0; index < Math.min(this.state.allPageImages.length, nextImages.length); index++) {
-        nextImages[index] = this.state.allPageImages[index];
-      }
-      this.state.allPageImages = nextImages;
+      this.state.allPageImages = resizeAndFillArray(this.state.allPageImages, requiredLength);
     }
 
     this.ui.generateLayout(requiredLength, this.getCurrentTemplate(), {
@@ -516,7 +508,9 @@ export class AppController {
       return;
     }
 
-    this.state.pageZooms[index] = !this.state.pageZooms[index];
+    const wasZoomed = !!this.state.pageZooms[index];
+    this._pushSnapshot(`Page ${index + 1} crop ${wasZoomed ? 'removed' : 'applied'}`);
+    this.state.pageZooms[index] = !wasZoomed;
     this.state.resetWorkflowStatus();
     this.ui.setPageZoom(index, this.state.pageZooms[index]);
     this.updateWorkspaceUi();
