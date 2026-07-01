@@ -1,36 +1,39 @@
-.simulation-modal {
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.simulation-modal-shell {
-  width: min(100%, 86rem);
-  height: 100%;
-  max-height: 100dvh;
-  padding: 1rem;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 1rem;
-  overflow: hidden;
-}
-
-.simulation-modal-header {
+/* Panel-specific styles for fold viewer, booklet, and guide */
+.fold-viewer-card,
+.fold-booklet-card,
+.fold-guide-card {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
+  height: 100%;
+}
+
+.fold-viewer-card.hidden,
+.fold-booklet-card.hidden,
+.fold-guide-card.hidden {
+  display: none;
+}
+
+.snap-card-body--fold-viewer,
+.snap-card-body--fold-booklet,
+.snap-card-body--fold-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   min-height: 0;
+  overflow-y: auto;
+}
+
+.fold-viewer-header,
+.fold-booklet-header,
+.fold-guide-header {
+  display: grid;
+  gap: 0.35rem;
   flex-shrink: 0;
 }
 
-.simulation-modal-intro {
-  display: grid;
-  gap: 0.65rem;
-  min-width: 0;
-}
-
-.simulation-modal-kicker,
+.fold-viewer-kicker,
+.fold-booklet-kicker,
+.fold-guide-kicker,
 .simulation-panel-kicker {
   font-size: 0.68rem;
   font-weight: 700;
@@ -39,80 +42,9 @@
   color: var(--muted-ink);
 }
 
-.simulation-modal-summary,
-.simulation-panel-note,
-.simulation-helper {
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--muted-ink);
-}
-
-.simulation-modal-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.simulation-meta-chip,
-.simulation-status-chip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 1.75rem;
-  padding: 0.28rem 0.65rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-pill);
-  background: var(--surface-bg);
-  color: var(--accent-dark);
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.simulation-close-btn {
-  flex: 0 0 auto;
-  width: 2.5rem;
-  height: 2.5rem;
-}
-
-.simulation-modal-body {
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 22rem);
-  gap: 1rem;
-  overflow: hidden;
-  overflow-y: auto;
-}
-
-.simulation-canvas-panel,
-.simulation-panel {
-  min-height: 0;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-panel);
-  background: var(--surface-bg);
-  box-shadow: var(--shadow-md);
-  padding: 1rem;
-}
-
-.simulation-canvas-panel {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 0.75rem;
-}
-
-.simulation-panel {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.simulation-panel-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.85rem;
-}
-
+.fold-viewer-title,
+.fold-booklet-title,
+.fold-guide-title,
 .simulation-panel-title {
   font-weight: 600;
   line-height: 1.3;
@@ -120,22 +52,15 @@
   color: var(--accent-dark);
 }
 
-.simulation-slider-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.75rem;
+.fold-viewer-note,
+.simulation-panel-note {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted-ink);
 }
 
-.simulation-step-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
-}
-
-.simulation-canvas-stage {
-  min-height: 24rem;
-  height: 100%;
+.fold-viewer-stage {
+  min-height: 16rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-button);
   background:
@@ -154,7 +79,7 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -30px 60px rgba(0,0,0,0.24);
 }
 
-.simulation-canvas-stage::after {
+.fold-viewer-stage::after {
   content: "fold simulation";
   position: absolute;
   left: 0.85rem;
@@ -172,67 +97,98 @@
   pointer-events: none;
 }
 
-.zine-3d-canvas,
-.zine-3d-fallback-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.simulation-sidebar {
-  min-height: 0;
+.fold-viewer-controls {
   display: grid;
-  gap: 0.85rem;
-  align-content: start;
-  overflow-y: auto;
-  padding-right: 0.2rem;
-}
-
-.simulation-booklet-panel {
-  position: relative;
-  z-index: 2;
-}
-
-.simulation-guide-panel {
-  position: relative;
-  z-index: 1;
-  overflow: visible;
+  gap: 0.75rem;
   flex-shrink: 0;
 }
 
-/* Compact folding guide - no scrollbars */
-.simulation-fold-guide {
+.fold-viewer-control-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.fold-viewer-control-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--accent-dark);
+}
+
+.fold-viewer-slider-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.fold-viewer-step-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.fold-viewer-helper,
+.simulation-panel-note,
+.simulation-helper {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted-ink);
+}
+
+.fold-booklet-preview-container {
+  min-height: 11rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 10%, rgba(196, 93, 62, 0.1), transparent 35%),
+    linear-gradient(180deg, var(--surface-muted), var(--bg-neutral));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-button);
+  padding: 1.25rem;
+  overflow: hidden;
+  flex: 1;
+}
+
+.fold-guide-header {
+  display: grid;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.fold-guide-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: none;
-  overflow: visible;
+  display: grid;
+  gap: 0.75rem;
+  min-height: 0;
 }
 
-.simulation-fold-guide li {
-  flex: 1 1 calc(50% - 0.25rem);
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.4rem;
-  background: var(--surface-muted);
-  border: 1px solid var(--border-faint);
-  border-radius: var(--radius-button);
-}
-
-.fold-guide-step-header {
-  display: flex;
-  align-items: center;
+.fold-guide-list li {
+  display: grid;
   gap: 0.35rem;
 }
 
+.fold-guide-step-header {
+  display: grid;
+  grid-template-columns: 1.2rem 1fr;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.fold-guide-text {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--accent-dark);
+  padding-top: 0.1rem;
+}
+
 .fold-guide-num {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.2rem;
+  height: 1.2rem;
   border-radius: 50%;
   background: var(--primary-vibrant);
   color: #fff;
@@ -242,29 +198,47 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-}
-
-.fold-guide-text {
-  font-size: 0.68rem;
-  line-height: 1.3;
-  color: var(--accent-dark);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  margin-top: 0.08rem;
 }
 
 .fold-guide-img {
-  display: none;
+  display: block;
+  width: 100%;
+  max-height: 8rem;
+  object-fit: contain;
+  object-position: center;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-button);
+  background: var(--surface-muted);
+  padding: 0.4rem;
+  image-rendering: crisp-edges;
+  pointer-events: none;
+  margin-top: 0.25rem;
 }
 
-/* Prevent scrollbars in folding guide */
-.simulation-guide-panel .scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.simulation-status-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.75rem;
+  padding: 0.28rem 0.65rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
+  background: var(--surface-bg);
+  color: var(--accent-dark);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
 }
-.simulation-guide-panel .scrollbar-hide::-webkit-scrollbar {
-  display: none;
+
+/* 3D canvas elements */
+.zine-3d-canvas,
+.zine-3d-fallback-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .booklet-preview-container {
@@ -564,54 +538,32 @@
   pointer-events: none;
 }
 
+/* Responsive panel styles */
 @media (max-width: 1023px) {
-  .simulation-modal-shell { padding: 0.75rem; gap: 0.75rem; }
-  .simulation-modal-body {
-    grid-template-columns: 1fr;
-    overflow-y: auto;
-    padding-right: 0.1rem;
-  }
-  .simulation-canvas-stage { min-height: 18rem; }
-  .simulation-sidebar { overflow: visible; padding-right: 0; }
+  .fold-viewer-stage { min-height: 14rem; }
+  .fold-viewer-slider-row { grid-template-columns: 1fr; gap: 0.5rem; }
+  .fold-viewer-step-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+  .fold-booklet-preview-container { min-height: 10rem; }
 }
 
 @media (max-width: 767px) {
-  .simulation-modal-shell { padding: 0.5rem; gap: 0.5rem; }
-
-  .simulation-modal-header {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    padding: 0.85rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-panel);
-    background: var(--surface-bg);
-    box-shadow: var(--shadow-md);
+  .fold-viewer-stage { min-height: 12rem; }
+  .fold-viewer-header,
+  .fold-booklet-header,
+  .fold-guide-header {
+    gap: 0.25rem;
   }
-
-  .simulation-modal-summary,
-  .simulation-panel-note,
-  .simulation-helper { font-size: 0.8rem; }
-
-  .simulation-meta-chip,
-  .simulation-status-chip {
-    min-height: 1.6rem;
-    padding: 0.25rem 0.55rem;
-    font-size: 0.6rem;
+  .fold-viewer-kicker,
+  .fold-booklet-kicker,
+  .fold-guide-kicker {
+    font-size: 0.65rem;
   }
-
-  .simulation-canvas-panel,
-  .simulation-panel { padding: 0.85rem; }
-
-  .simulation-panel-top {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.5rem;
+  .fold-viewer-title,
+  .fold-booklet-title,
+  .fold-guide-title {
+    font-size: 0.85rem;
   }
-
-  .simulation-slider-row { grid-template-columns: 1fr; gap: 0.5rem; }
-  .simulation-canvas-stage { min-height: 13rem; }
-  .simulation-step-grid { grid-template-columns: 1fr; gap: 0.5rem; }
-
-  .booklet-preview-container { min-height: 10rem; padding: 0.75rem; }
+  .fold-booklet-preview-container { min-height: 9rem; padding: 0.75rem; }
+  .fold-guide-list { gap: 0.5rem; }
+  .fold-guide-img { max-height: 6rem; padding: 0.3rem; }
 }

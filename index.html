@@ -193,12 +193,12 @@
                     </div>
                 </div>
 
-                <!-- ── PANEL: Preview fold ───────────────────────────── -->
+                <!-- ── PANEL: Preview fold (trigger) ────────────────────── -->
                 <div class="grid-stack-item"
-                    gs-id="preview-fold" gs-x="4" gs-y="10" gs-w="4" gs-h="2"
+                    gs-id="preview-fold-trigger" gs-x="4" gs-y="10" gs-w="4" gs-h="2"
                     gs-min-w="2" gs-min-h="2" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
-                        <div class="snap-card snap-card--action" id="card-preview-fold">
+                        <div class="snap-card snap-card--action" id="card-preview-fold-trigger">
                             <div class="snap-card-handle" title="Drag to move">
                                 <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
                                 <span class="snap-card-label">Preview fold</span>
@@ -210,6 +210,117 @@
                                     <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
                                     <span class="font-semibold">Preview Fold</span>
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── PANEL: 3D Fold Viewer ────────────────────────────── -->
+                <div class="grid-stack-item"
+                    gs-id="fold-viewer" gs-x="0" gs-y="12" gs-w="6" gs-h="6"
+                    gs-min-w="4" gs-min-h="4" gs-size-to-content="true">
+                    <div class="grid-stack-item-content">
+                        <div class="snap-card fold-viewer-card hidden" id="card-fold-viewer">
+                            <div class="snap-card-handle" title="Drag to move">
+                                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                                <span class="snap-card-label">3D Fold Viewer</span>
+                            </div>
+                            <div class="snap-card-body snap-card-body--fold-viewer">
+                                <div class="fold-viewer-header">
+                                    <div>
+                                        <p class="fold-viewer-kicker">Simulation</p>
+                                        <p class="fold-viewer-title">Move from the open sheet to the finished booklet.</p>
+                                    </div>
+                                    <p class="fold-viewer-note">Drag to orbit · slider or step buttons to jump</p>
+                                </div>
+                                <div id="zine-3d-container" class="fold-viewer-stage"></div>
+                                <section class="fold-viewer-controls" aria-label="Fold checkpoints">
+                                    <div class="fold-viewer-control-row">
+                                        <div>
+                                            <p class="fold-viewer-control-kicker">Steps</p>
+                                            <p class="fold-viewer-control-title">Follow the actual fold sequence.</p>
+                                        </div>
+                                        <span id="fold-status" class="simulation-status-chip">Flat</span>
+                                    </div>
+                                    <div class="fold-viewer-slider-row">
+                                        <label for="fold-slider" class="font-semibold text-xs uppercase whitespace-nowrap flex items-center gap-1.5 text-zinc-500">
+                                            <span class="material-symbols-outlined text-[16px]" style="color: var(--primary-vibrant);" aria-hidden="true">animation</span>
+                                            Position
+                                        </label>
+                                        <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-1.5 cursor-pointer" style="accent-color: var(--primary-vibrant);">
+                                    </div>
+                                    <p id="fold-helper" class="fold-viewer-helper">Export the layout, crease the sheet in half both ways and open flat, then fold and make one short cut through the center before collapsing into a booklet.</p>
+                                    <div class="fold-viewer-step-grid" aria-label="Fold simulation checkpoints">
+                                        <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="0"   data-step-index="1">1. Layout</button>
+                                        <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="0.5" data-step-index="2">2. Crease</button>
+                                        <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="1"   data-step-index="3">3. Strip</button>
+                                        <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="1.5" data-step-index="4">4. Cut</button>
+                                        <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="2"   data-step-index="5">5. Diamond</button>
+                                        <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="3"   data-step-index="6">6. Booklet</button>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── PANEL: Booklet Preview ────────────────────────── -->
+                <div class="grid-stack-item"
+                    gs-id="fold-booklet" gs-x="6" gs-y="12" gs-w="3" gs-h="4"
+                    gs-min-w="3" gs-min-h="3" gs-size-to-content="true">
+                    <div class="grid-stack-item-content">
+                        <div class="snap-card fold-booklet-card hidden" id="card-fold-booklet">
+                            <div class="snap-card-handle" title="Drag to move">
+                                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                                <span class="snap-card-label">Booklet Preview</span>
+                            </div>
+                            <div class="snap-card-body snap-card-body--fold-booklet">
+                                <div class="fold-booklet-header">
+                                    <div>
+                                        <p class="fold-booklet-kicker">Booklet</p>
+                                        <p class="fold-booklet-title">Spread preview</p>
+                                    </div>
+                                    <span id="booklet-status" class="simulation-status-chip">Loading</span>
+                                </div>
+                                <div id="booklet-preview-container" class="fold-booklet-preview-container" aria-label="Small booklet preview"></div>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <button id="booklet-prev-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-white text-zinc-800 font-medium text-sm" type="button">
+                                        <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>Prev
+                                    </button>
+                                    <button id="booklet-next-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-zinc-900 text-white font-medium text-sm" type="button">
+                                        Next<span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── PANEL: Fold Guide ────────────────────────────── -->
+                <div class="grid-stack-item"
+                    gs-id="fold-guide" gs-x="9" gs-y="12" gs-w="3" gs-h="4"
+                    gs-min-w="3" gs-min-h="3" gs-size-to-content="true">
+                    <div class="grid-stack-item-content">
+                        <div class="snap-card fold-guide-card hidden" id="card-fold-guide">
+                            <div class="snap-card-handle" title="Drag to move">
+                                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                                <span class="snap-card-label">How to Fold</span>
+                            </div>
+                            <div class="snap-card-body snap-card-body--fold-guide">
+                                <div class="fold-guide-header">
+                                    <p class="fold-guide-kicker">How to fold</p>
+                                    <p class="fold-guide-title">8 pages · 1 sheet · 1 cut</p>
+                                </div>
+                                <ol class="fold-guide-list" aria-label="Folding steps">
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">1</span><span class="fold-guide-text">Design your zine on one sheet, with the pages in this order and orientation.</span></div><img src="/fold-guide/step-0-plan.png" alt="Page layout diagram" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">2</span><span class="fold-guide-text">Crease the sheet along both main directions — fold in half each way, then open flat.</span></div><img src="/fold-guide/step-1-crease.png" alt="Sheet with crease lines" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">3</span><span class="fold-guide-text">Make two more creases to divide the long direction into quarters, then open flat again.</span></div><img src="/fold-guide/step-2-quarters.png" alt="Quarter crease marks" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">4</span><span class="fold-guide-text">Fold in half, then cut along the center crease — only as far as the quarter-fold marks.</span></div><img src="/fold-guide/step-3-cut.png" alt="Center cut" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">5</span><span class="fold-guide-text">Open it out flat. You'll see a short slit through the center.</span></div><img src="/fold-guide/step-4-open.png" alt="Center slit" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">6</span><span class="fold-guide-text">Fold in half along the long direction so all pages stay on the outside.</span></div><img src="/fold-guide/step-5-fold-strip.png" alt="Long strip fold" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">7</span><span class="fold-guide-text">Push inward from both ends — the slit opens into a cross. Bring pages together with cover outermost.</span></div><img src="/fold-guide/step-6-push-in.png" alt="Diamond cross" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">8</span><span class="fold-guide-text">Fold flat and crease. You now have an 8-page booklet.</span></div><img src="/fold-guide/step-7-booklet.png" alt="Finished booklet" class="fold-guide-img" loading="lazy" /></li>
+                                </ol>
                             </div>
                         </div>
                     </div>
@@ -247,106 +358,6 @@
     <!-- ── Toast ────────────────────────────────────────── -->
     <div id="toast-container" class="toast-container fixed bottom-6 right-6 z-[300] space-y-3" aria-live="polite" aria-atomic="true" role="region" aria-label="Notifications"></div>
 
-    <!-- ── 3D Modal ──────────────────────────────────────── -->
-    <div id="zine-3d-modal" class="fixed inset-0 z-[200] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-300 simulation-modal" style="display: none;">
-        <div class="simulation-modal-shell">
-            <div class="simulation-modal-header">
-                <div class="simulation-modal-intro">
-                    <p class="simulation-modal-kicker">Fold preview</p>
-                    <div class="space-y-1">
-                        <h3 class="text-lg font-semibold flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[18px]" style="color: var(--primary-vibrant);" aria-hidden="true">view_in_ar</span>
-                            Preview the fold
-                        </h3>
-                        <p class="simulation-modal-summary">Check the cut, fold sequence, and finished booklet.</p>
-                    </div>
-                    <div class="simulation-modal-meta" aria-label="Simulation legend">
-                        <span class="simulation-meta-chip">Red = cut</span>
-                        <span class="simulation-meta-chip">Gray = fold</span>
-                        <span class="simulation-meta-chip">Keys 1–6 = steps</span>
-                    </div>
-                </div>
-                <button id="close-3d-btn" class="action-button simulation-close-btn bg-white text-zinc-800 font-semibold focus:outline-none" type="button" aria-label="Close 3D preview" title="Close">
-                    <span class="material-symbols-outlined text-lg" aria-hidden="true">close</span>
-                </button>
-            </div>
-            <div class="simulation-modal-body">
-                <section class="simulation-canvas-panel" aria-label="Fold simulation">
-                    <div class="simulation-panel-top">
-                        <div>
-                            <p class="simulation-panel-kicker">Simulation</p>
-                            <p class="simulation-panel-title">Move from the open sheet to the finished booklet.</p>
-                        </div>
-                        <p class="simulation-panel-note">Drag to orbit · slider or step buttons to jump</p>
-                    </div>
-                    <div id="zine-3d-container" class="simulation-canvas-stage"></div>
-                </section>
-                <aside class="simulation-sidebar">
-                    <section class="simulation-panel simulation-fold-panel" aria-label="Fold checkpoints">
-                        <div class="simulation-panel-top">
-                            <div>
-                                <p class="simulation-panel-kicker">Steps</p>
-                                <p class="simulation-panel-title">Follow the actual fold sequence.</p>
-                            </div>
-                            <span id="fold-status" class="simulation-status-chip">Flat</span>
-                        </div>
-                        <div class="simulation-slider-row">
-                            <label for="fold-slider" class="font-semibold text-xs uppercase whitespace-nowrap flex items-center gap-1.5 text-zinc-500">
-                                <span class="material-symbols-outlined text-[16px]" style="color: var(--primary-vibrant);" aria-hidden="true">animation</span>
-                                Position
-                            </label>
-                            <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-1.5 cursor-pointer" style="accent-color: var(--primary-vibrant);">
-                        </div>
-                        <p id="fold-helper" class="simulation-helper">Export the layout, crease the sheet in half both ways and open flat, then fold and make one short cut through the center before collapsing into a booklet.</p>
-                        <div class="simulation-step-grid" aria-label="Fold simulation checkpoints">
-                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="0"   data-step-index="1">1. Layout</button>
-                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="0.5" data-step-index="2">2. Crease</button>
-                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="1"   data-step-index="3">3. Strip</button>
-                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="1.5" data-step-index="4">4. Cut</button>
-                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="2"   data-step-index="5">5. Diamond</button>
-                            <button type="button" class="fold-step-btn action-button w-full py-2 px-3 bg-white text-zinc-800 font-medium text-sm" data-fold-value="3"   data-step-index="6">6. Booklet</button>
-                        </div>
-                    </section>
-                    <section class="simulation-panel simulation-booklet-panel" aria-label="Booklet preview">
-                        <div class="simulation-panel-top">
-                            <div>
-                                <p class="simulation-panel-kicker">Booklet</p>
-                                <p class="simulation-panel-title">Use Prev / Next to step through each spread in reading order.</p>
-                            </div>
-                            <span id="booklet-status" class="simulation-status-chip">Loading</span>
-                        </div>
-                        <div id="booklet-preview-container" class="booklet-preview-container" aria-label="Small booklet preview"></div>
-                        <div class="grid grid-cols-2 gap-2.5">
-                            <button id="booklet-prev-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-white text-zinc-800 font-medium text-sm" type="button">
-                                <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>Prev
-                            </button>
-                            <button id="booklet-next-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-zinc-900 text-white font-medium text-sm" type="button">
-                                Next<span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
-                            </button>
-                        </div>
-                    </section>
-                    <section class="simulation-panel simulation-guide-panel" aria-label="How to fold">
-                        <div class="simulation-panel-top">
-                            <div>
-                                <p class="simulation-panel-kicker">How to fold</p>
-                                <p class="simulation-panel-title">8 pages · 1 sheet · 1 cut</p>
-                            </div>
-                        </div>
-                        <ol class="simulation-fold-guide" aria-label="Folding steps">
-                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">1</span><span class="fold-guide-text">Design your zine on one sheet, with the pages in this order and orientation.</span></div><img src="/fold-guide/step-0-plan.png" alt="Page layout diagram" class="fold-guide-img" loading="lazy" /></li>
-                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">2</span><span class="fold-guide-text">Crease the sheet along both main directions — fold in half each way, then open flat.</span></div><img src="/fold-guide/step-1-crease.png" alt="Sheet with crease lines" class="fold-guide-img" loading="lazy" /></li>
-                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">3</span><span class="fold-guide-text">Make two more creases to divide the long direction into quarters, then open flat again.</span></div><img src="/fold-guide/step-2-quarters.png" alt="Quarter crease marks" class="fold-guide-img" loading="lazy" /></li>
-                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">4</span><span class="fold-guide-text">Fold in half, then cut along the center crease — only as far as the quarter-fold marks.</span></div><img src="/fold-guide/step-3-cut.png" alt="Center cut" class="fold-guide-img" loading="lazy" /></li>
-                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">5</span><span class="fold-guide-text">Open it out flat. You'll see a short slit through the center.</span></div><img src="/fold-guide/step-4-open.png" alt="Center slit" class="fold-guide-img" loading="lazy" /></li>
-                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">6</span><span class="fold-guide-text">Fold in half along the long direction so all pages stay on the outside.</span></div><img src="/fold-guide/step-5-fold-strip.png" alt="Long strip fold" class="fold-guide-img" loading="lazy" /></li>
-                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">7</span><span class="fold-guide-text">Push inward from both ends — the slit opens into a cross. Bring pages together with cover outermost.</span></div><img src="/fold-guide/step-6-push-in.png" alt="Diamond cross" class="fold-guide-img" loading="lazy" /></li>
-                            <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">8</span><span class="fold-guide-text">Fold flat and crease. You now have an 8-page booklet.</span></div><img src="/fold-guide/step-7-booklet.png" alt="Finished booklet" class="fold-guide-img" loading="lazy" /></li>
-                        </ol>
-                    </section>
-                </aside>
-            </div>
-        </div>
-    </div>
 
     <!-- ── PWA Install Banner ────────────────────────────── -->
     <zineify-install-banner

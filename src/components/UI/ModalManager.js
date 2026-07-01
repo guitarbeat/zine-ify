@@ -1,4 +1,3 @@
-
 import { PagePicker } from './PagePicker.js';
 import { ProgressOverlay } from './ProgressOverlay.js';
 
@@ -38,22 +37,19 @@ export class ModalManager {
 
   /* ── 3D Modal ── */
   toggle3DModal(show) {
-    const modal = this.elements.zine3dModal;
-    if (!modal) {return;}
+    // Show/hide three fold panels instead of modal
+    const foldViewerCard = document.getElementById('card-fold-viewer');
+    const foldBookletCard = document.getElementById('card-fold-booklet');
+    const foldGuideCard = document.getElementById('card-fold-guide');
+
     if (show) {
-      modal.style.display = 'flex';
-      modal.classList.remove('hidden');
-      requestAnimationFrame(() => {
-        modal.classList.remove('opacity-0');
-        modal.classList.add('opacity-100');
-      });
+      foldViewerCard?.classList.remove('hidden');
+      foldBookletCard?.classList.remove('hidden');
+      foldGuideCard?.classList.remove('hidden');
     } else {
-      modal.classList.add('opacity-0');
-      modal.classList.remove('opacity-100');
-      setTimeout(() => {
-        modal.classList.add('hidden');
-        modal.style.display = 'none';
-      }, 300);
+      foldViewerCard?.classList.add('hidden');
+      foldBookletCard?.classList.add('hidden');
+      foldGuideCard?.classList.add('hidden');
     }
   }
 

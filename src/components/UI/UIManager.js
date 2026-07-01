@@ -510,7 +510,6 @@ export class UIManager {
     this.elements.openRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(true));
     this.elements.closeRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(false));
     this.elements.mobileRailOverlay?.addEventListener('click', () => this.toggleMobileRail(false));
-    this.elements.close3dBtn?.addEventListener('click', () => this.toggle3DModal(false));
 
     this.elements.foldSlider?.addEventListener('input', (event) => {
       const value = parseFloat(event.target.value || '0');
@@ -575,9 +574,8 @@ export class UIManager {
   }
 
   isFoldPreviewOpen() {
-    return !!this.elements.zine3dModal
-      && !this.elements.zine3dModal.classList.contains('hidden')
-      && this.elements.zine3dModal.style.display !== 'none';
+    const foldViewerCard = document.getElementById('card-fold-viewer');
+    return foldViewerCard && !foldViewerCard.classList.contains('hidden');
   }
 
   generateLayout(numPages, templateType, paperSettings = {}) {
