@@ -147,7 +147,7 @@ function setInteractionMode() {
   document.body.classList.toggle('layout-mobile', mobile);
   syncGridMetrics();
   grid.enableMove(true);
-  grid.enableResize(!mobile);
+  grid.enableResize(true);
   loadLayout();
 }
 
@@ -163,7 +163,7 @@ export function initGridStack() {
     float: false,
     animate: true,
     sizeToContent: true,
-    resizable: { handles: 'se', autoHide: true },
+    resizable: { handles: 'se', autoHide: false },
     columnOpts: {
       breakpointForWindow: true,
       layout: 'list',
