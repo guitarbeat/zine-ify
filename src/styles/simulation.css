@@ -169,7 +169,7 @@
 
 .fold-guide-list li {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.5rem;
 }
 
 .fold-guide-step-header {
@@ -206,11 +206,11 @@
   width: 100%;
   max-height: 8rem;
   object-fit: contain;
-  object-position: center;
+  object-position: center top;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-button);
   background: var(--surface-muted);
-  padding: 0.6rem;
+  padding: 0.6rem 0.6rem 1rem 0.6rem;
   image-rendering: crisp-edges;
   pointer-events: none;
   margin-top: 0.5rem;
