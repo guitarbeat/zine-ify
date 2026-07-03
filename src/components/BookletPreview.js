@@ -1,5 +1,6 @@
 import { buildMiniZineBookletStates, MINI_ZINE_LAYOUT } from '../utils/miniZineLayout.js';
 import { normalizePreviewPage, getPageLabel } from '../utils/previewHelpers.js';
+import { MINI_ZINE_LAYOUT, buildMiniZineBookletStates } from '../utils/zineLayout.js';
 
 export class BookletPreview {
   constructor({ container, prevButton, nextButton, statusElement }) {

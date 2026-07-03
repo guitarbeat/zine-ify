@@ -4,6 +4,7 @@ import { StateStore } from './StateStore.js';
 import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
+import { PDFProcessor } from '../services/PDFProcessor.js';
 
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
 import { parseBoundedInteger, resizeAndFillArray } from '../utils/helpers.js';
