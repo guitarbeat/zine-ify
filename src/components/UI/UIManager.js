@@ -71,7 +71,7 @@ export class UIManager {
     this.setupEventListeners();
     this.syncResponsiveUI();
 
-    const savedTheme = localStorage.getItem('zine-theme');
+    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('zine-theme') : null;
     if (savedTheme) {
       document.documentElement.setAttribute('data-theme', savedTheme);
     }
@@ -506,9 +506,7 @@ export class UIManager {
     this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
     this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
     this.elements.clearAllBtn?.addEventListener('click', () => this.emitter.emit('clearAll'));
-    if (this.elements.themeToggleBtn) {
-      this.elements.themeToggleBtn.addEventListener('click', () => this.toggleTheme());
-    }
+    this.elements.themeToggleBtn?.addEventListener('click', () => this.toggleTheme());
 
     this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
     this.elements.uploadZone?.addEventListener('keydown', (event) => {
