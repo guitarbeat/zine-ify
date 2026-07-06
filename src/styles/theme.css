@@ -1,76 +1,76 @@
 @import "tailwindcss";
 
 :root {
-  /* Warm studio / newsprint palette */
-  --bg-warm-highlight: #f8f3ea;
-  --bg-warm-shadow: #e3d9c8;
-  --bg-neutral: #ede6d8;
+  /* Punk zine palette: black, off-white, bold red */
+  --bg-warm-highlight: #0f0f0f;
+  --bg-warm-shadow: #000000;
+  --bg-neutral: #0d0d0d;
 
-  --surface-bg: #faf6ef;
-  --surface-strong: #fffdf8;
-  --surface-muted: #f3ece1;
-  --glass-bg-alt: rgba(250, 246, 239, 0.88);
+  --surface-bg: #1a1a1a;
+  --surface-strong: #242424;
+  --surface-muted: #141414;
+  --glass-bg-alt: rgba(26, 26, 26, 0.95);
 
   --surface-paper-stack:
-    var(--texture-fiber, none),
-    linear-gradient(165deg, rgba(255, 253, 248, 0.97) 0%, rgba(245, 238, 226, 0.98) 100%);
+    var(--texture-xerox, none),
+    linear-gradient(165deg, rgba(32, 32, 32, 0.99) 0%, rgba(20, 20, 20, 0.99) 100%);
 
-  --accent-dark: #3d3428;
-  --accent-ink-soft: #5c5246;
-  --primary-vibrant: #c45d3e;
-  --primary-deep: #9e4529;
-  --primary-glow: rgba(196, 93, 62, 0.14);
-  --border-color: rgba(61, 52, 40, 0.14);
-  --border-faint: rgba(61, 52, 40, 0.08);
-  --muted-ink: #6f6558;
-  --paper-bg: #fffdf8;
+  --accent-dark: #e8e8e8;
+  --accent-ink-soft: #b0b0b0;
+  --primary-vibrant: #ff2d2d;
+  --primary-deep: #cc0000;
+  --primary-glow: rgba(255, 45, 45, 0.2);
+  --border-color: rgba(255, 255, 255, 0.15);
+  --border-faint: rgba(255, 255, 255, 0.08);
+  --muted-ink: #909090;
+  --paper-bg: #1f1f1f;
 
-  --shadow-sm: 0 1px 2px rgba(61, 40, 24, 0.06), 0 2px 6px rgba(61, 40, 24, 0.04);
-  --shadow-md: 0 3px 10px rgba(61, 40, 24, 0.08), 0 1px 3px rgba(61, 40, 24, 0.05);
-  --shadow-lg: 0 10px 28px rgba(61, 40, 24, 0.12), 0 3px 8px rgba(61, 40, 24, 0.06);
-  --shadow-paper: 0 1px 0 rgba(255, 255, 255, 0.65) inset, 0 12px 32px rgba(61, 40, 24, 0.1);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.8), 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.85), 0 2px 6px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.8);
+  --shadow-paper: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 16px 48px rgba(0, 0, 0, 0.9);
   --surface-shadow-strong: var(--shadow-paper);
 
-  --radius-panel: 0.875rem;
-  --radius-button: 0.625rem;
+  --radius-panel: 0.5rem;
+  --radius-button: 0.375rem;
   --radius-pill: 999px;
-  --border-bold: 1px solid rgba(61, 52, 40, 0.16);
-  --border-thin: 1px solid rgba(61, 52, 40, 0.1);
+  --border-bold: 2px solid rgba(255, 45, 45, 0.6);
+  --border-thin: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-/* ── Dark mode: lamp-lit desk, not cold blue UI ─────────────────────────── */
+/* ── Dark mode: ink-on-black punk zine ─────────────────────────────── */
 [data-theme="dark"] {
-  --bg-warm-highlight: #2a221c;
-  --bg-warm-shadow: #120e0c;
-  --bg-neutral: #1a1512;
+  --bg-warm-highlight: #0a0a0a;
+  --bg-warm-shadow: #000000;
+  --bg-neutral: #080808;
 
-  --surface-bg: #262019;
-  --surface-strong: #2f271f;
-  --surface-muted: #221c17;
-  --glass-bg-alt: rgba(38, 32, 25, 0.92);
+  --surface-bg: #151515;
+  --surface-strong: #202020;
+  --surface-muted: #0f0f0f;
+  --glass-bg-alt: rgba(21, 21, 21, 0.97);
 
   --surface-paper-stack:
-    var(--texture-fiber, none),
-    linear-gradient(165deg, rgba(48, 40, 32, 0.98) 0%, rgba(30, 25, 20, 0.99) 100%);
+    var(--texture-xerox, none),
+    linear-gradient(165deg, rgba(28, 28, 28, 0.99) 0%, rgba(15, 15, 15, 0.99) 100%);
 
-  --accent-dark: #f5efe6;
-  --accent-ink-soft: #c9bfb0;
-  --primary-vibrant: #e8955f;
-  --primary-deep: #c4723f;
-  --primary-glow: rgba(232, 149, 95, 0.16);
-  --border-color: rgba(245, 239, 230, 0.1);
-  --border-faint: rgba(245, 239, 230, 0.06);
-  --muted-ink: rgba(245, 239, 230, 0.52);
-  --paper-bg: #2f271f;
+  --accent-dark: #e0e0e0;
+  --accent-ink-soft: #a8a8a8;
+  --primary-vibrant: #ff3333;
+  --primary-deep: #dd0000;
+  --primary-glow: rgba(255, 51, 51, 0.22);
+  --border-color: rgba(255, 255, 255, 0.16);
+  --border-faint: rgba(255, 255, 255, 0.08);
+  --muted-ink: #888888;
+  --paper-bg: #1a1a1a;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.5), 0 1px 4px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 10px 36px rgba(0, 0, 0, 0.55), 0 3px 10px rgba(0, 0, 0, 0.4);
-  --shadow-paper: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 14px 40px rgba(0, 0, 0, 0.45);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.8);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.92), 0 2px 6px rgba(0, 0, 0, 0.8);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.95), 0 4px 12px rgba(0, 0, 0, 0.85);
+  --shadow-paper: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 16px 48px rgba(0, 0, 0, 0.95);
   --surface-shadow-strong: var(--shadow-paper);
 
-  --border-bold: 1px solid rgba(245, 239, 230, 0.1);
-  --border-thin: 1px solid rgba(245, 239, 230, 0.07);
+  --border-bold: 2px solid rgba(255, 45, 45, 0.7);
+  --border-thin: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 @utility base-chip {
@@ -78,15 +78,16 @@
   align-items: center;
   justify-content: center;
   padding: 0.3rem 0.7rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-pill);
+  border: 1px solid var(--primary-vibrant);
+  border-radius: 2px;
   background: var(--surface-muted);
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 0.65rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   white-space: nowrap;
-  color: var(--muted-ink);
+  color: var(--primary-vibrant);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
 }
 
 @utility base-panel {
@@ -94,7 +95,7 @@
   background-image: var(--surface-paper-stack);
   border: var(--border-thin);
   border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm), 2px 2px 0 rgba(255, 45, 45, 0.2);
   padding: 1.25rem;
 }
 
@@ -104,7 +105,9 @@ body {
   color: var(--accent-dark);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-stroke: 0.2px rgba(255, 255, 255, 0.05);
   transition: background-color 0.3s ease, color 0.3s ease;
+  letter-spacing: 0.3px;
 }
 
 [data-theme="dark"] body,
