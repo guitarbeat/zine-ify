@@ -39,12 +39,14 @@ body::-webkit-scrollbar {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: transparent;
 }
 
 .app-brand-mark .logo-image {
   height: 2rem;
   width: auto;
   object-fit: contain;
+  background: transparent;
 }
 
 .app-title {
