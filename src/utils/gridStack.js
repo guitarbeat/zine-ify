@@ -5,6 +5,7 @@ const STORAGE_KEY_DESKTOP = 'zine-grid-v3';
 const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v3';
 const MOBILE_BREAKPOINT = 768;
 const CELL_HEIGHT = 32;
+const MOBILE_CELL_HEIGHT = 24;
 
 const DEFAULT_LAYOUT = [
   { id: 'canvas', x: 0, y: 0, w: 8, h: 10 },
@@ -136,8 +137,9 @@ function observePanelSizes() {
 
 function syncGridMetrics() {
   if (!grid) { return; }
-  grid.cellHeight(CELL_HEIGHT);
-  grid.margin(isMobile() ? 6 : 8);
+  const mobile = isMobile();
+  grid.cellHeight(mobile ? MOBILE_CELL_HEIGHT : CELL_HEIGHT);
+  grid.margin(mobile ? 4 : 8);
   grid.float(false);
 }
 
@@ -147,7 +149,7 @@ function setInteractionMode() {
   document.body.classList.toggle('layout-mobile', mobile);
   syncGridMetrics();
   grid.enableMove(true);
-  grid.enableResize(!mobile);
+  grid.enableResize(true);
   loadLayout();
 }
 
@@ -163,7 +165,7 @@ export function initGridStack() {
     float: false,
     animate: true,
     sizeToContent: true,
-    resizable: { handles: 'se', autoHide: true },
+    resizable: { handles: 'se', autoHide: false },
     columnOpts: {
       breakpointForWindow: true,
       layout: 'list',

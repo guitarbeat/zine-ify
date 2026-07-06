@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="Zine-ify" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self' ws: http://localhost:8001 http://127.0.0.1:8001 blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self' ws: http://localhost:8001 http://127.0.0.1:8001 blob:;">
     <title>Zine-ify — Single-Sheet Zine Layout</title>
     <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
     <script>
@@ -70,9 +70,9 @@
                                 <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
                                 <span class="snap-card-label">Zine layout</span>
                                 <span id="preview-helper-chip" class="snap-status-chip ml-auto">Drop files to add pages</span>
-                                <button id="clear-all-btn" type="button" class="panel-clear-btn ml-1" style="display:none;" aria-label="Clear all pages" title="Clear all pages">
+                                <button id="clear-all-btn" type="button" class="panel-clear-btn ml-1" style="display:none;" aria-label="Clear all pages" title="Clear all pages and start over">
                                     <span class="material-symbols-outlined" style="font-size:13px;" aria-hidden="true">delete_sweep</span>
-                                    <span>Clear</span>
+                                    <span>Start over</span>
                                 </button>
                             </div>
                             <div class="snap-card-body snap-card-body--canvas">
@@ -107,7 +107,7 @@
                                     aria-label="Add pages — click to browse, or drop PDF and image files here">
                                     <span class="material-symbols-outlined" style="font-size:22px; color: var(--primary-vibrant);" aria-hidden="true">upload_file</span>
                                     <span class="text-sm font-semibold">Drop files or click to browse</span>
-                                    <span class="text-xs" style="color:var(--muted-ink)">PDF, PNG, JPG, or WEBP</span>
+                                    <span class="text-xs" style="color:var(--muted-ink)">PDF, PNG, JPG, or WEBP • Max 50 MB each</span>
                                 </div>
                                 <input type="file" id="pdf-upload" class="sr-only"
                                     accept="application/pdf,image/png,image/jpeg,image/webp"
@@ -284,10 +284,10 @@
                                 </div>
                                 <div id="booklet-preview-container" class="fold-booklet-preview-container" aria-label="Small booklet preview"></div>
                                 <div class="grid grid-cols-2 gap-2.5">
-                                    <button id="booklet-prev-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-white text-zinc-800 font-medium text-sm" type="button">
-                                        <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>Prev
+                                    <button id="booklet-prev-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-white text-zinc-800 font-medium text-sm" type="button" title="View previous spread">
+                                        <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>Previous
                                     </button>
-                                    <button id="booklet-next-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-zinc-900 text-white font-medium text-sm" type="button">
+                                    <button id="booklet-next-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-zinc-900 text-white font-medium text-sm" type="button" title="View next spread">
                                         Next<span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
                                     </button>
                                 </div>
@@ -319,7 +319,7 @@
                                     <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">5</span><span class="fold-guide-text">Open it out flat. You'll see a short slit through the center.</span></div><img src="/fold-guide/step-4-open.png" alt="Center slit" class="fold-guide-img" loading="lazy" /></li>
                                     <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">6</span><span class="fold-guide-text">Fold in half along the long direction so all pages stay on the outside.</span></div><img src="/fold-guide/step-5-fold-strip.png" alt="Long strip fold" class="fold-guide-img" loading="lazy" /></li>
                                     <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">7</span><span class="fold-guide-text">Push inward from both ends — the slit opens into a cross. Bring pages together with cover outermost.</span></div><img src="/fold-guide/step-6-push-in.png" alt="Diamond cross" class="fold-guide-img" loading="lazy" /></li>
-                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">8</span><span class="fold-guide-text">Fold flat and crease. You now have an 8-page booklet.</span></div><img src="/fold-guide/step-7-booklet.png" alt="Finished booklet" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">8</span><span class="fold-guide-text">Fold flat and crease. You now have an 8-page booklet.</span></div><img src="/fold-guide/step-7-done.png" alt="Finished booklet" class="fold-guide-img" loading="lazy" /></li>
                                 </ol>
                             </div>
                         </div>

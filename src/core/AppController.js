@@ -1,9 +1,9 @@
-import { PDFProcessor } from '../services/PDFProcessor.js';
 import { UIManager } from '../components/UI/UIManager.js';
 import { StateStore } from './StateStore.js';
 import { UndoManager } from './UndoManager.js';
 import { ExportService } from '../services/ExportService.js';
 import { toast } from '../components/Toast.js';
+import { PDFProcessor } from '../services/PDFProcessor.js';
 
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
 import { parseBoundedInteger, resizeAndFillArray } from '../utils/helpers.js';
@@ -181,7 +181,7 @@ export class AppController {
     const status = `Imported image: ${record.name}`;
     this.updateUploadedFileRecord(record, { status });
     this.ui.setStatus(status, 'success');
-    toast.success('Import Complete', status);
+    toast.success('Image imported', 'Drag to reorder or add more pages');
   }
 
   async processPdfUpload(record) {
@@ -246,7 +246,7 @@ export class AppController {
     const status = `Imported ${selectedPages.length} of ${result.numPages} pages from ${record.name}`;
     this.updateUploadedFileRecord(record, { status });
     this.ui.setStatus(status, 'success');
-    toast.success('Import Complete', status);
+    toast.success('PDF imported', 'Rearrange pages or export your zine');
   }
 
   async getSelectedPagesForImport(fileName, numPages) {
@@ -603,6 +603,10 @@ export class AppController {
 
     this.state.totalPages = 0;
     this.state.uploadedFiles = [];
+    this.state.fileQueue = [];
+    this.state.isProcessingQueue = false;
+    this.revokePreviewAssetUrls();
+    this.ui.toggle3DModal(false);
     this.state.resetWorkflowStatus();
     this.ui.updateUploadedFilesList([]);
     this.ui.setStatus('Choose files or drop them here');
@@ -612,7 +616,7 @@ export class AppController {
 
   handlePrint() {
     if (!this.state.getFilledPageCount()) {
-      toast.warning('No Content', 'Import pages before printing.');
+      toast.warning('No pages yet', 'Upload a PDF or images to get started');
       return;
     }
 
@@ -643,12 +647,12 @@ export class AppController {
 
   async handleView3d() {
     if (!this.state.getFilledPageCount()) {
-      toast.warning('No Content', 'Import pages before opening the fold preview.');
+      toast.warning('No pages yet', 'Add pages to preview the fold');
       return;
     }
 
     if (!this.state.isMiniZineLayout()) {
-      toast.warning('Mini-Zine Only', 'Fold preview is available for the 2 × 4 mini-zine layout.');
+      toast.warning('Mini-Zine Only', 'Switch to 2 × 4 layout to preview the fold');
       return;
     }
 
@@ -713,7 +717,7 @@ export class AppController {
 
   async handleExport() {
     if (!this.state.getFilledPageCount()) {
-      toast.warning('No Content', 'Import pages before exporting.');
+      toast.warning('No pages yet', 'Upload a PDF or images to export');
       return;
     }
 
@@ -722,7 +726,7 @@ export class AppController {
       await this.exportService.handleExport();
       this.state.markExported();
       this.updateWorkspaceUi();
-      toast.success('Export Ready', 'Your PDF has been generated.');
+      toast.success('PDF ready', 'Download to print or share your zine');
     } catch (error) {
       toast.error('Export Failed', error.message);
     } finally {

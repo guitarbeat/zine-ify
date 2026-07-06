@@ -388,7 +388,7 @@ export class FormValidator {
               max: () => ({ max: numParam })
             }[ruleName];
             if (ruleFactory) {
-              Object.assign(rules, ruleFactory());
+              rules.push(ruleFactory());
             }
           } else {
             rules.push(rule);
