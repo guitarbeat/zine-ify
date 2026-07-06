@@ -35,18 +35,17 @@ body::-webkit-scrollbar {
 }
 
 .app-brand-mark {
-  width: 1.6rem;
-  height: 1.6rem;
-  border-radius: 999px;
-  background: var(--primary-vibrant);
-  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.app-brand-mark .material-symbols-outlined { font-size: 0.9rem; }
+.app-brand-mark .logo-image {
+  height: 2rem;
+  width: auto;
+  object-fit: contain;
+}
 
 .app-title {
   font-size: 0.88rem;
