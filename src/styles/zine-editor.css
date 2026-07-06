@@ -1,4 +1,3 @@
-
 .print-sheet {
   --sheet-width: 210;
   --sheet-height: 297;
@@ -61,7 +60,6 @@
   justify-content: center;
   overflow: hidden;
   cursor: pointer;
-  background: var(--surface-muted);
   min-height: 7rem;
   transition: border-color 0.15s ease, background-color 0.15s ease;
   border-radius: 0;
@@ -78,7 +76,6 @@
 
 .page-cell.has-page {
   border: 1px solid transparent;
-  background: white;
   cursor: pointer;
 }
 
@@ -153,7 +150,6 @@
 }
 
 [data-theme="dark"] .page-cell.has-page {
-  background: #1e2840;
 }
 
 [data-theme="dark"] .page-cell.has-page:hover {
