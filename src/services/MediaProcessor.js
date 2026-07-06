@@ -55,8 +55,12 @@ export class MediaProcessor {
       return URL.createObjectURL(blob);
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       canvas.toBlob((blob) => {
+        if (!blob) {
+          reject(new Error('Failed to convert canvas to blob'));
+          return;
+        }
         const url = URL.createObjectURL(blob);
         resolve(url);
       }, 'image/jpeg', 0.8);

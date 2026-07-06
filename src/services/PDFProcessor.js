@@ -170,11 +170,12 @@ export class PDFProcessor extends MediaProcessor {
       throw new Error('No PDF loaded');
     }
 
+    let page = null;
     try {
       await this.ensurePdfJs();
-      const page = await this.pdf.getPage(pageNum);
+      page = await this.pdf.getPage(pageNum);
       const baseViewport = page.getViewport({ scale: 1 });
-      
+
       const scale = scaleCalculator(baseViewport);
       const viewport = page.getViewport({ scale });
       const width = Math.floor(viewport.width);
@@ -195,12 +196,13 @@ export class PDFProcessor extends MediaProcessor {
 
       await page.render(renderContext).promise;
 
-      // Clean up the page proxy
-      page.cleanup();
-
       return canvas;
     } catch (error) {
       throw new Error(`Failed to render page ${pageNum}`, { cause: error });
+    } finally {
+      if (page) {
+        page.cleanup();
+      }
     }
   }
 

@@ -1,4 +1,3 @@
-import { PDFProcessor } from '../services/PDFProcessor.js';
 import { UIManager } from '../components/UI/UIManager.js';
 import { StateStore } from './StateStore.js';
 import { UndoManager } from './UndoManager.js';
@@ -604,6 +603,10 @@ export class AppController {
 
     this.state.totalPages = 0;
     this.state.uploadedFiles = [];
+    this.state.fileQueue = [];
+    this.state.isProcessingQueue = false;
+    this.revokePreviewAssetUrls();
+    this.ui.toggle3DModal(false);
     this.state.resetWorkflowStatus();
     this.ui.updateUploadedFilesList([]);
     this.ui.setStatus('Choose files or drop them here');

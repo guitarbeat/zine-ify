@@ -110,8 +110,8 @@ export class ModalManager {
       const hide = () => {
         modal.classList.add('opacity-0', 'pointer-events-none');
         modal.classList.remove('opacity-100', 'pointer-events-auto');
-        modal.querySelector('div').classList.remove('scale-100');
-        modal.querySelector('div').classList.add('scale-95');
+        contentDiv.classList.remove('scale-100');
+        contentDiv.classList.add('scale-95');
       };
       modal.querySelector('.close-modal').addEventListener('click', hide);
       modal.querySelector('.absolute').addEventListener('click', hide);
@@ -122,11 +122,12 @@ export class ModalManager {
       });
     }
     modal.querySelector('.zoom-img').src = imageUrl;
+    const contentDiv = modal.querySelector('[class*="relative"]');
     modal.classList.remove('opacity-0', 'pointer-events-none');
     modal.classList.add('opacity-100', 'pointer-events-auto');
     requestAnimationFrame(() => {
-      modal.querySelector('div').classList.remove('scale-95');
-      modal.querySelector('div').classList.add('scale-100');
+      contentDiv.classList.remove('scale-95');
+      contentDiv.classList.add('scale-100');
     });
   }
 }
