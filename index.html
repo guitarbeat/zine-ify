@@ -70,9 +70,9 @@
                                 <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
                                 <span class="snap-card-label">Zine layout</span>
                                 <span id="preview-helper-chip" class="snap-status-chip ml-auto">Drop files to add pages</span>
-                                <button id="clear-all-btn" type="button" class="panel-clear-btn ml-1" style="display:none;" aria-label="Clear all pages" title="Clear all pages">
+                                <button id="clear-all-btn" type="button" class="panel-clear-btn ml-1" style="display:none;" aria-label="Clear all pages" title="Clear all pages and start over">
                                     <span class="material-symbols-outlined" style="font-size:13px;" aria-hidden="true">delete_sweep</span>
-                                    <span>Clear</span>
+                                    <span>Start over</span>
                                 </button>
                             </div>
                             <div class="snap-card-body snap-card-body--canvas">
@@ -107,7 +107,7 @@
                                     aria-label="Add pages — click to browse, or drop PDF and image files here">
                                     <span class="material-symbols-outlined" style="font-size:22px; color: var(--primary-vibrant);" aria-hidden="true">upload_file</span>
                                     <span class="text-sm font-semibold">Drop files or click to browse</span>
-                                    <span class="text-xs" style="color:var(--muted-ink)">PDF, PNG, JPG, or WEBP</span>
+                                    <span class="text-xs" style="color:var(--muted-ink)">PDF, PNG, JPG, or WEBP • Max 50 MB each</span>
                                 </div>
                                 <input type="file" id="pdf-upload" class="sr-only"
                                     accept="application/pdf,image/png,image/jpeg,image/webp"
@@ -284,10 +284,10 @@
                                 </div>
                                 <div id="booklet-preview-container" class="fold-booklet-preview-container" aria-label="Small booklet preview"></div>
                                 <div class="grid grid-cols-2 gap-2.5">
-                                    <button id="booklet-prev-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-white text-zinc-800 font-medium text-sm" type="button">
-                                        <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>Prev
+                                    <button id="booklet-prev-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-white text-zinc-800 font-medium text-sm" type="button" title="View previous spread">
+                                        <span class="material-symbols-outlined text-base" aria-hidden="true">chevron_left</span>Previous
                                     </button>
-                                    <button id="booklet-next-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-zinc-900 text-white font-medium text-sm" type="button">
+                                    <button id="booklet-next-btn" class="action-button w-full py-2 px-3 flex items-center justify-center gap-1.5 bg-zinc-900 text-white font-medium text-sm" type="button" title="View next spread">
                                         Next<span class="material-symbols-outlined text-base" aria-hidden="true">chevron_right</span>
                                     </button>
                                 </div>
