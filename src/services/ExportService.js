@@ -1,5 +1,3 @@
-import { PAPER_SIZES, ZINE_TEMPLATES } from '../utils/config.js';
-
 import { ZINE_TEMPLATES, PAPER_SIZES } from '../utils/config.js';
 
 const MM_TO_PX_300DPI = 300 / 25.4;
