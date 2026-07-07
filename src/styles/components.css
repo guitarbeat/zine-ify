@@ -225,7 +225,6 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
   overflow: hidden;
   background: var(--surface-muted);
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
-  transform: rotate(0.5deg);
 }
 
 .orientation-seg-btn {

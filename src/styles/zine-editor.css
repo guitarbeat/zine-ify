@@ -14,7 +14,6 @@
   overflow: hidden;
   width: min(100%, calc(var(--sheet-width, 210mm) * var(--sheet-scale, 1)));
   aspect-ratio: var(--sheet-width, 210) / var(--sheet-height, 297);
-  transform: rotate(-0.3deg);
 }
 
 [data-theme="dark"] .print-sheet {
@@ -146,7 +145,6 @@
   letter-spacing: 0.08em;
   backdrop-filter: blur(2px);
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.4);
-  transform: rotate(1deg);
   font-family: 'Comic Sans MS', 'Courier New', monospace;
 }
 
@@ -230,18 +228,16 @@
   line-height: 1;
   cursor: pointer;
   box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
-  transition: background 0.1s ease, border-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, transform 0.1s ease;
+  transition: background 0.1s ease, border-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease;
   white-space: nowrap;
   font-weight: 700;
   text-transform: uppercase;
-  transform: rotate(-0.5deg);
 }
 
 .page-tool-btn:hover {
   background: #ff5555;
   border-color: #000;
   box-shadow: 3px 3px 0 rgba(0,0,0,0.4);
-  transform: rotate(0.5deg) scale(1.05);
 }
 
 .page-tool-btn:focus-visible {
@@ -360,7 +356,6 @@
   pointer-events: none;
   opacity: 0.95;
   transition: opacity 0.15s ease;
-  transform: rotate(-1.5deg);
   box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
   text-transform: uppercase;
 }
