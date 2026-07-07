@@ -1,41 +1,41 @@
 @import "tailwindcss";
 
 :root {
-  /* Punk zine palette: black, off-white, bold red */
-  --bg-warm-highlight: #0f0f0f;
-  --bg-warm-shadow: #000000;
-  --bg-neutral: #0d0d0d;
+  /* Light/Day theme: punk zine on white paper */
+  --bg-warm-highlight: #f5f5f5;
+  --bg-warm-shadow: #ffffff;
+  --bg-neutral: #fafafa;
 
-  --surface-bg: #1a1a1a;
-  --surface-strong: #242424;
-  --surface-muted: #141414;
-  --glass-bg-alt: rgba(26, 26, 26, 0.95);
+  --surface-bg: #ffffff;
+  --surface-strong: #f0f0f0;
+  --surface-muted: #f8f8f8;
+  --glass-bg-alt: rgba(255, 255, 255, 0.95);
 
   --surface-paper-stack:
     var(--texture-xerox, none),
-    linear-gradient(165deg, rgba(32, 32, 32, 0.99) 0%, rgba(20, 20, 20, 0.99) 100%);
+    linear-gradient(165deg, rgba(255, 255, 255, 0.99) 0%, rgba(245, 245, 245, 0.99) 100%);
 
-  --accent-dark: #e8e8e8;
-  --accent-ink-soft: #b0b0b0;
-  --primary-vibrant: #ff2d2d;
-  --primary-deep: #cc0000;
-  --primary-glow: rgba(255, 45, 45, 0.2);
-  --border-color: rgba(255, 255, 255, 0.15);
-  --border-faint: rgba(255, 255, 255, 0.08);
-  --muted-ink: #909090;
-  --paper-bg: #1f1f1f;
+  --accent-dark: #1a1a1a;
+  --accent-ink-soft: #4a4a4a;
+  --primary-vibrant: #ff5555;
+  --primary-deep: #dd3333;
+  --primary-glow: rgba(255, 85, 85, 0.15);
+  --border-color: rgba(0, 0, 0, 0.12);
+  --border-faint: rgba(0, 0, 0, 0.06);
+  --muted-ink: #707070;
+  --paper-bg: #fefefe;
 
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.8), 0 4px 12px rgba(0, 0, 0, 0.6);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.85), 0 2px 6px rgba(0, 0, 0, 0.7);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.8);
-  --shadow-paper: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 16px 48px rgba(0, 0, 0, 0.9);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-paper: 0 1px 0 rgba(0, 0, 0, 0.05) inset, 0 16px 48px rgba(0, 0, 0, 0.08);
   --surface-shadow-strong: var(--shadow-paper);
 
   --radius-panel: 0.5rem;
   --radius-button: 0.375rem;
   --radius-pill: 999px;
-  --border-bold: 2px solid rgba(255, 45, 45, 0.6);
-  --border-thin: 1px solid rgba(255, 255, 255, 0.12);
+  --border-bold: 2px solid rgba(255, 85, 85, 0.7);
+  --border-thin: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 /* ── Dark mode: ink-on-black punk zine ─────────────────────────────── */
@@ -55,9 +55,9 @@
 
   --accent-dark: #e0e0e0;
   --accent-ink-soft: #a8a8a8;
-  --primary-vibrant: #ff3333;
-  --primary-deep: #dd0000;
-  --primary-glow: rgba(255, 51, 51, 0.22);
+  --primary-vibrant: #ff5555;
+  --primary-deep: #dd3333;
+  --primary-glow: rgba(255, 85, 85, 0.22);
   --border-color: rgba(255, 255, 255, 0.16);
   --border-faint: rgba(255, 255, 255, 0.08);
   --muted-ink: #888888;
@@ -69,7 +69,7 @@
   --shadow-paper: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 16px 48px rgba(0, 0, 0, 0.95);
   --surface-shadow-strong: var(--shadow-paper);
 
-  --border-bold: 2px solid rgba(255, 45, 45, 0.7);
+  --border-bold: 2px solid rgba(255, 85, 85, 0.7);
   --border-thin: 1px solid rgba(255, 255, 255, 0.12);
 }
 

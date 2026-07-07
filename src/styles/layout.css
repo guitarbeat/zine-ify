@@ -25,14 +25,15 @@ body::-webkit-scrollbar {
 .app-header {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0 0.875rem;
-  height: 2.5rem;
+  height: 3.5rem;
   flex-shrink: 0;
-  background: var(--surface-bg);
-  border-bottom: 2px solid var(--primary-vibrant);
+  background: #000;
+  border-bottom: 3px solid var(--primary-vibrant);
   z-index: 20;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.8);
+  box-shadow: 0 3px 0 rgba(255, 90, 90, 0.8);
 }
 
 .app-brand-mark {
@@ -41,10 +42,11 @@ body::-webkit-scrollbar {
   justify-content: center;
   flex-shrink: 0;
   background: transparent;
+  margin-right: auto;
 }
 
 .app-brand-mark .logo-image {
-  height: 2rem;
+  height: 2.5rem;
   width: auto;
   object-fit: contain;
   background: transparent;
@@ -52,17 +54,18 @@ body::-webkit-scrollbar {
 
 .app-title {
   font-size: 0.88rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 900;
+  letter-spacing: 0.05em;
   white-space: nowrap;
   color: var(--accent-dark);
+  font-family: 'Comic Sans MS', 'Courier New', monospace;
+  text-transform: uppercase;
 }
 
 .app-header-actions {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  margin-left: auto;
 }
 
 /* ─── GridStack wrapper ──────────────────────────────────── */
@@ -126,9 +129,9 @@ body::-webkit-scrollbar {
 /* ─── Panel (snap-card) ──────────────────────────────────── */
 .snap-card {
   background: var(--surface-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-md), 2px 2px 0 rgba(255, 45, 45, 0.3);
+  border: 3px solid #000;
+  border-radius: 2px;
+  box-shadow: var(--shadow-md), 5px 5px 0 rgba(255, 45, 45, 0.6);
   transition: box-shadow 0.15s ease;
   position: relative;
 }
@@ -139,8 +142,11 @@ body::-webkit-scrollbar {
   inset: 0;
   border-radius: var(--radius-panel);
   pointer-events: none;
-  opacity: 0.08;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)' opacity='0.4'/%3E%3C/svg%3E");
+  opacity: 0.12;
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)' opacity='0.4'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000' stroke-width='0.2' opacity='0.15' fill='none'%3E%3Ccircle cx='25' cy='25' r='1'/%3E%3Ccircle cx='75' cy='25' r='1'/%3E%3Ccircle cx='25' cy='75' r='1'/%3E%3Ccircle cx='75' cy='75' r='1'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: auto, 100px 100px;
 }
 
 /* drag-active state */
@@ -159,8 +165,8 @@ body::-webkit-scrollbar {
   height: 1.875rem;
   cursor: grab;
   user-select: none;
-  background: var(--surface-muted);
-  border-bottom: 2px solid rgba(255, 45, 45, 0.4);
+  background: linear-gradient(135deg, var(--primary-vibrant) 0%, rgba(255, 45, 45, 0.8) 100%);
+  border-bottom: 3px solid #000;
   flex-shrink: 0;
   position: relative;
 }
@@ -179,21 +185,23 @@ body::-webkit-scrollbar {
 
 .snap-card-grip {
   font-size: 13px;
-  color: var(--muted-ink);
-  opacity: 0.45;
+  color: #000;
+  opacity: 0.8;
   flex-shrink: 0;
   transition: opacity 0.15s;
+  font-weight: 900;
 }
 
-.snap-card:hover .snap-card-grip { opacity: 0.75; }
+.snap-card:hover .snap-card-grip { opacity: 1; }
 
 .snap-card-label {
   font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
+  font-weight: 900;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--muted-ink);
+  color: #000;
   white-space: nowrap;
+  font-family: 'Comic Sans MS', 'Courier New', monospace;
 }
 
 /* ─── Panel body ─────────────────────────────────────────── */
