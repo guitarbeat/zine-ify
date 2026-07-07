@@ -220,11 +220,12 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
 /* Orientation segmented control */
 .orientation-seg {
   display: flex;
-  border: 2px solid var(--primary-vibrant);
-  border-radius: 3px;
+  border: 3px solid #000;
+  border-radius: 2px;
   overflow: hidden;
   background: var(--surface-muted);
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
+  transform: rotate(0.5deg);
 }
 
 .orientation-seg-btn {
@@ -236,7 +237,7 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
   min-height: 2.25rem;
   padding: 0.3rem 0.4rem;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 900;
   color: var(--muted-ink);
   background: transparent;
   border: none;
@@ -244,11 +245,12 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
   transition: background 0.15s ease, color 0.15s ease;
   line-height: 1;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
+  font-family: 'Comic Sans MS', 'Courier New', monospace;
 }
 
 .orientation-seg-btn + .orientation-seg-btn {
-  border-left: 2px solid var(--primary-vibrant);
+  border-left: 3px solid #000;
 }
 
 .orientation-seg-btn.active {

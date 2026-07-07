@@ -2,19 +2,25 @@
 
 :root {
   /* Heavy xerox/photocopy noise for that scanned-flyer feel */
-  --texture-xerox: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='xrx'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.8' numOctaves='5' seed='2' stitchTiles='stitch'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='0.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%23000000' filter='url(%23xrx)' opacity='0.4'/%3E%3C/svg%3E");
+  --texture-xerox: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='xrx'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2.2' numOctaves='6' seed='2' stitchTiles='stitch'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='0.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' fill='%23000000' filter='url(%23xrx)' opacity='0.6'/%3E%3C/svg%3E");
 
-  /* Film grain with visible specks */
-  --texture-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 0.15 0.3 0.45 0.6'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.5'/%3E%3C/svg%3E");
+  /* Film grain with visible specks — more aggressive */
+  --texture-grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='5' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 0.2 0.4 0.6 0.8'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.7'/%3E%3C/svg%3E");
 
   /* Rough scan lines */
   --texture-scanlines: repeating-linear-gradient(
     0deg,
     transparent 0,
-    transparent 2px,
-    rgba(255, 45, 45, 0.03) 2px,
-    rgba(255, 45, 45, 0.03) 4px
+    transparent 1px,
+    rgba(255, 45, 45, 0.08) 1px,
+    rgba(255, 45, 45, 0.08) 3px
   );
+
+  /* Distressed scratch marks */
+  --texture-scratches: url("data:image/svg+xml,%3Csvg viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000' stroke-width='0.5' opacity='0.25' fill='none'%3E%3Cpath d='M10,50 Q20,45 30,55'/%3E%3Cpath d='M100,20 L95,80'/%3E%3Cpath d='M150,100 Q160,110 145,120'/%3E%3Cpath d='M250,30 L245,90'/%3E%3Cpath d='M300,150 Q310,140 320,160'/%3E%3Cpath d='M400,50 L390,110'/%3E%3Cpath d='M500,200 Q510,195 520,210'/%3E%3Cpath d='M550,80 L540,140'/%3E%3Cpath d='M70,200 Q75,190 85,205'/%3E%3Cpath d='M200,250 L195,310'/%3E%3C/g%3E%3C/svg%3E");
+
+  /* Ink bleed effect */
+  --texture-bleed: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='bleed'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.4' numOctaves='3' seed='5'/%3E%3CfeDisplacementMap in='SourceGraphic' scale='2' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Ccircle cx='150' cy='150' r='80' fill='%23ff2d2d' opacity='0.15' filter='url(%23bleed)'/%3E%3C/svg%3E");
 
   --studio-wash: linear-gradient(180deg, var(--bg-warm-highlight) 0%, var(--bg-neutral) 100%);
 }
@@ -39,14 +45,14 @@
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.45;
+  opacity: 0.6;
   mix-blend-mode: hard-light;
-  background-image: var(--texture-xerox), var(--texture-grain);
-  background-size: 256px 256px, 200px 200px;
+  background-image: var(--texture-xerox), var(--texture-grain), var(--texture-scratches), var(--texture-bleed);
+  background-size: 256px 256px, 200px 200px, 600px 600px, 300px 300px;
 }
 
 [data-theme="dark"] .mobile-zine-app::after {
-  opacity: 0.5;
+  opacity: 0.7;
   mix-blend-mode: overlay;
 }
 

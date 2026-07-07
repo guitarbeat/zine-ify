@@ -29,10 +29,11 @@ body::-webkit-scrollbar {
   padding: 0 0.875rem;
   height: 2.5rem;
   flex-shrink: 0;
-  background: var(--surface-bg);
-  border-bottom: 2px solid var(--primary-vibrant);
+  background: var(--primary-vibrant);
+  border-bottom: 4px solid #000;
   z-index: 20;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.8);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.8);
+  transform: skewX(-1deg);
 }
 
 .app-brand-mark {
@@ -52,10 +53,12 @@ body::-webkit-scrollbar {
 
 .app-title {
   font-size: 0.88rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 900;
+  letter-spacing: 0.05em;
   white-space: nowrap;
-  color: var(--accent-dark);
+  color: #000;
+  font-family: 'Comic Sans MS', 'Courier New', monospace;
+  text-transform: uppercase;
 }
 
 .app-header-actions {
@@ -126,11 +129,12 @@ body::-webkit-scrollbar {
 /* ─── Panel (snap-card) ──────────────────────────────────── */
 .snap-card {
   background: var(--surface-bg);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-md), 2px 2px 0 rgba(255, 45, 45, 0.3);
+  border: 3px solid #000;
+  border-radius: 2px;
+  box-shadow: var(--shadow-md), 5px 5px 0 rgba(255, 45, 45, 0.6);
   transition: box-shadow 0.15s ease;
   position: relative;
+  transform: rotate(-0.2deg);
 }
 
 .snap-card::before {
@@ -159,8 +163,8 @@ body::-webkit-scrollbar {
   height: 1.875rem;
   cursor: grab;
   user-select: none;
-  background: var(--surface-muted);
-  border-bottom: 2px solid rgba(255, 45, 45, 0.4);
+  background: linear-gradient(135deg, var(--primary-vibrant) 0%, rgba(255, 45, 45, 0.8) 100%);
+  border-bottom: 3px solid #000;
   flex-shrink: 0;
   position: relative;
 }
@@ -179,21 +183,23 @@ body::-webkit-scrollbar {
 
 .snap-card-grip {
   font-size: 13px;
-  color: var(--muted-ink);
-  opacity: 0.45;
+  color: #000;
+  opacity: 0.8;
   flex-shrink: 0;
   transition: opacity 0.15s;
+  font-weight: 900;
 }
 
-.snap-card:hover .snap-card-grip { opacity: 0.75; }
+.snap-card:hover .snap-card-grip { opacity: 1; }
 
 .snap-card-label {
   font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
+  font-weight: 900;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--muted-ink);
+  color: #000;
   white-space: nowrap;
+  font-family: 'Comic Sans MS', 'Courier New', monospace;
 }
 
 /* ─── Panel body ─────────────────────────────────────────── */
