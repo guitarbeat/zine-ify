@@ -15,17 +15,17 @@
   position: absolute;
   inset: 0;
   border-radius: 2px;
-  background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255, 45, 45, 0.08) 2px, rgba(255, 45, 45, 0.08) 4px);
+  background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255, 85, 85, 0.08) 2px, rgba(255, 85, 85, 0.08) 4px);
   pointer-events: none;
   opacity: 0.5;
 }
 
 .upload-box:hover, .upload-box:focus {
-  border-color: #ff5555;
+  border-color: var(--primary-vibrant);
   background-color: var(--primary-glow);
 }
 .upload-box.dragover {
-  border-color: #ff5555;
+  border-color: var(--primary-vibrant);
   background-color: var(--primary-glow);
   box-shadow: inset 0 0 0 3px var(--primary-vibrant), var(--shadow-md);
 }
@@ -50,10 +50,10 @@
   background: var(--surface-bg);
   border: 1px solid var(--border-color);
   transition: box-shadow 0.15s ease, transform 0.15s ease;
-  box-shadow: 2px 2px 0 rgba(255, 45, 45, 0.2);
+  box-shadow: 2px 2px 0 rgba(255, 85, 85, 0.2);
 }
 .uploaded-file-item:hover {
-  box-shadow: 3px 3px 0 rgba(255, 45, 45, 0.3);
+  box-shadow: 3px 3px 0 rgba(255, 85, 85, 0.3);
   transform: translateY(-1px);
 }
 .uploaded-file-name {
@@ -83,7 +83,7 @@
   flex-shrink: 0;
 }
 .uploaded-file-remove:hover {
-  background: rgba(255, 45, 45, 0.15);
+  background: rgba(255, 85, 85, 0.15);
   color: var(--primary-vibrant);
   transform: rotate(90deg);
 }
@@ -157,13 +157,13 @@
   border-radius: 3px;
   border: 2px solid var(--border-color);
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
 
 .workspace-config-input:focus {
   outline: none;
   border-color: var(--primary-vibrant);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4), 0 0 0 2px var(--primary-glow);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2), 0 0 0 2px var(--primary-glow);
   background: var(--surface-bg);
 }
 
@@ -220,7 +220,7 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
 /* Orientation segmented control */
 .orientation-seg {
   display: flex;
-  border: 3px solid #000;
+  border: 3px solid var(--accent-dark);
   border-radius: 2px;
   overflow: hidden;
   background: var(--surface-muted);
@@ -249,12 +249,12 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
 }
 
 .orientation-seg-btn + .orientation-seg-btn {
-  border-left: 3px solid #000;
+  border-left: 3px solid var(--accent-dark);
 }
 
 .orientation-seg-btn.active {
   background: var(--primary-vibrant);
-  color: #000;
+  color: var(--accent-dark);
 }
 
 .orientation-seg-btn svg {
@@ -273,7 +273,7 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
 
 [data-theme="dark"] .orientation-seg-btn.is-active {
   background: var(--primary-vibrant);
-  color: #78350f;
+  color: var(--accent-dark);
 }
 
 .orientation-seg-btn:hover:not(.is-active) {
