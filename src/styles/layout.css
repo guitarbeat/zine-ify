@@ -129,7 +129,7 @@ body::-webkit-scrollbar {
 /* ─── Panel (snap-card) ──────────────────────────────────── */
 .snap-card {
   background: var(--surface-bg);
-  border: 3px solid var(--accent-dark);
+  border: 1px solid var(--accent-dark);
   border-radius: 2px;
   box-shadow: var(--shadow-md), 5px 5px 0 rgba(255, 85, 85, 0.6);
   transition: box-shadow 0.15s ease;
@@ -166,7 +166,7 @@ body::-webkit-scrollbar {
   cursor: grab;
   user-select: none;
   background: linear-gradient(135deg, var(--primary-vibrant) 0%, rgba(255, 85, 85, 0.8) 100%);
-  border-bottom: 3px solid var(--accent-dark);
+  border-bottom: 1px solid var(--accent-dark);
   flex-shrink: 0;
   position: relative;
 }

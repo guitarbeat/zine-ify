@@ -220,7 +220,7 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
 /* Orientation segmented control */
 .orientation-seg {
   display: flex;
-  border: 3px solid var(--accent-dark);
+  border: 1px solid var(--accent-dark);
   border-radius: 2px;
   overflow: hidden;
   background: var(--surface-muted);
@@ -249,7 +249,7 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
 }
 
 .orientation-seg-btn + .orientation-seg-btn {
-  border-left: 3px solid var(--accent-dark);
+  border-left: 1px solid var(--accent-dark);
 }
 
 .orientation-seg-btn.active {
