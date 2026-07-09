@@ -526,13 +526,19 @@ export class UIManager {
       });
     });
 
+    const stepButtonMap = new Map();
+    this.elements.foldStepButtons?.forEach((button) => {
+      if (button.dataset.stepIndex) {
+        stepButtonMap.set(button.dataset.stepIndex, button);
+      }
+    });
+
     document.addEventListener('keydown', (event) => {
       if (!this.isFoldPreviewOpen() || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
         return;
       }
 
-      const stepButton = Array.from(this.elements.foldStepButtons || [])
-        .find((button) => button.dataset.stepIndex === event.key);
+      const stepButton = stepButtonMap.get(event.key);
       if (!stepButton) {
         return;
       }
