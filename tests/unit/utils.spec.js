@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray } from '../../src/utils/helpers.js';
+import { cn, clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray } from '../../src/utils/helpers.js';
 import {
   classifyFileKind,
   getFileTypeLabel,
@@ -8,6 +8,28 @@ import {
 } from '../../src/utils/fileValidation.js';
 
 test.describe('Utils', () => {
+  test('cn', () => {
+    // Strings
+    expect(cn('a', 'b')).toBe('a b');
+
+    // Tailwind conflicts
+    expect(cn('p-2', 'p-4')).toBe('p-4');
+    expect(cn('text-red-500', 'text-blue-500')).toBe('text-blue-500');
+
+    // Conditionals
+    expect(cn('a', (() => false)() && 'b', 'c')).toBe('a c');
+    expect(cn('a', (() => true)() && 'b', 'c')).toBe('a b c');
+
+    // Objects
+    expect(cn({ a: true, b: false, c: true })).toBe('a c');
+
+    // Arrays
+    expect(cn(['a', 'b', 'c'])).toBe('a b c');
+
+    // Mixed
+    expect(cn('a', { b: true, c: false }, ['d', 'e'], 'p-2 p-4')).toBe('a b d e p-4');
+  });
+
   test('formatFileSize', () => {
     expect(formatFileSize(0)).toBe('0 B');
     expect(formatFileSize(1024)).toBe('1.0 KB');
