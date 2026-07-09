@@ -1,0 +1,6 @@
+🧹 Fix eslint curly brace error in main.js
+
+🎯 **What:** Added curly braces to an `if` statement in `src/core/main.js` that was missing them.
+💡 **Why:** The project's ESLint configuration strictly enforces the `curly` rule, which requires block statements (curly braces `{}`) for all `if` conditions, including single-line returns.
+✅ **Verification:** Ran `npx eslint src/core/main.js` and it now passes without errors.
+✨ **Result:** The CI build should now pass successfully as the linting error is resolved.
