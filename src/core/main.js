@@ -8,7 +8,7 @@ function initThemeToggle() {
   const themeToggle = document.getElementById('theme-toggle');
   const themeIcon = document.getElementById('theme-icon');
 
-  if (!themeToggle || !themeIcon) return;
+  if (!themeToggle || !themeIcon) {return;}
 
   themeToggle.addEventListener('click', () => {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
