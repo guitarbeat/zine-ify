@@ -4,7 +4,7 @@ test.describe('File Name DOM XSS', () => {
   test('should execute script if vulnerable via innerHTML directly', async ({ page }) => {
     await page.goto('/');
 
-    // Just inject the vulnerability directly to see if the element is actually created!
+    // Just inject the malicious payload directly to see if the element is actually created!
     await page.evaluate(() => {
         const list = document.getElementById('uploaded-files-list');
         const maliciousName = '<img src=x onerror=window.xssTriggered=true>';

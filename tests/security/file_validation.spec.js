@@ -27,8 +27,8 @@ test('Should reject polyglot files (valid signature not at offset 0)', async ({ 
   await page.goto('/');
 
   // Create a polyglot file: starts with junk but has %PDF- later
-  // Current vulnerability: validateFileSignature checks first 1024 bytes with includes()
-  // So this SHOULD pass current check (but we want it to fail)
+  // The validateFileSignature function checks the file header strictly.
+  // So this MUST fail the check.
   const buffer = Buffer.from('JUNK_HEADER_DATA_TO_BYPASS_OFFSET_0\n%PDF-1.7\nRest of the file');
 
   const fileInput = page.locator('#pdf-upload');
