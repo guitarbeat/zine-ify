@@ -276,9 +276,14 @@ export class UIManager {
       return;
     }
 
-    this.elements.paperSizeSelect.innerHTML = Object.entries(PAPER_SIZES)
-      .map(([key, paper]) => `<option value="${key}">${paper.label}</option>`)
-      .join('');
+    this.elements.paperSizeSelect.innerHTML = '';
+
+    for (const [key, paper] of Object.entries(PAPER_SIZES)) {
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = paper.label;
+      this.elements.paperSizeSelect.appendChild(option);
+    }
   }
 
   bindAppController(controller) {

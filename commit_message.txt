@@ -1,0 +1,5 @@
+🔒 Fix XSS vulnerability in UIManager paper size select
+
+🎯 **What:** The `renderPaperSizeOptions` function in `UIManager.js` was using `innerHTML` with mapped strings to render paper size options, which creates a Cross-Site Scripting (XSS) vulnerability if any of the labels in `PAPER_SIZES` were to be tainted with malicious input.
+⚠️ **Risk:** While `PAPER_SIZES` currently seems to be a static configuration, if this data was ever loaded dynamically from a user-controlled source (e.g., custom paper size names), an attacker could inject malicious scripts into the DOM. This could lead to session hijacking, data theft, or unauthorized actions on behalf of the user.
+🛡️ **Solution:** Refactored the `renderPaperSizeOptions` function to use standard DOM manipulation (`document.createElement('option')`) and `textContent` to safely assign paper labels. This ensures that any input is treated strictly as text and neutralizes the XSS vector.
