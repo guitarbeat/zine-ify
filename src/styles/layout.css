@@ -131,22 +131,9 @@ body::-webkit-scrollbar {
   background: var(--surface-bg);
   border: 1px solid var(--accent-dark);
   border-radius: 2px;
-  box-shadow: var(--shadow-md), 5px 5px 0 rgba(255, 85, 85, 0.6);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.15s ease;
   position: relative;
-}
-
-.snap-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-panel);
-  pointer-events: none;
-  opacity: 0.12;
-  background-image:
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='d'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='2' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23d)' opacity='0.4'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg stroke='%23000' stroke-width='0.2' opacity='0.15' fill='none'%3E%3Ccircle cx='25' cy='25' r='1'/%3E%3Ccircle cx='75' cy='25' r='1'/%3E%3Ccircle cx='25' cy='75' r='1'/%3E%3Ccircle cx='75' cy='75' r='1'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: auto, 100px 100px;
 }
 
 /* drag-active state */
@@ -165,20 +152,10 @@ body::-webkit-scrollbar {
   height: 1.875rem;
   cursor: grab;
   user-select: none;
-  background: linear-gradient(135deg, var(--primary-vibrant) 0%, rgba(255, 85, 85, 0.8) 100%);
+  background: var(--primary-vibrant);
   border-bottom: 1px solid var(--accent-dark);
   flex-shrink: 0;
   position: relative;
-}
-
-.snap-card-handle::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -2px;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(255, 85, 85, 0.6), rgba(255, 85, 85, 0.1));
 }
 
 .snap-card-handle:active { cursor: grabbing; }
@@ -259,22 +236,19 @@ body::-webkit-scrollbar {
   border-radius: var(--radius-button);
   background: var(--primary-vibrant);
   color: var(--accent-dark);
-  transition: filter 0.15s, transform 0.1s;
-  border: 2px solid var(--accent-dark);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.8);
+  transition: opacity 0.15s;
+  border: 1px solid var(--accent-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.05em;
 }
 
 .workspace-action-button:not(:disabled):hover  {
-  filter: brightness(1.1);
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.8);
-  transform: translateY(-1px);
+  opacity: 0.9;
 }
 .workspace-action-button:not(:disabled):active {
-  transform: translateY(0px);
-  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+  opacity: 0.8;
 }
 .workspace-action-button .material-symbols-outlined { font-size: 1.1rem; }
 .workspace-action-button:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -282,21 +256,19 @@ body::-webkit-scrollbar {
 .workspace-action-button-secondary {
   background: var(--surface-bg);
   color: var(--accent-dark);
-  border: 2px solid var(--primary-vibrant) !important;
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.8);
+  border: 1px solid var(--primary-vibrant) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.05em;
 }
 
 .workspace-action-button-secondary:not(:disabled):hover {
-  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.8);
-  transform: translateY(-1px);
+  opacity: 0.9;
 }
 
 .workspace-action-button-secondary:not(:disabled):active {
-  transform: translateY(0px);
-  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
+  opacity: 0.8;
 }
 
 /* ─── Status chip ────────────────────────────────────────── */

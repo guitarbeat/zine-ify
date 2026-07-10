@@ -49,12 +49,10 @@
   border-radius: 3px;
   background: var(--surface-bg);
   border: 1px solid var(--border-color);
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
-  box-shadow: 2px 2px 0 rgba(255, 85, 85, 0.2);
+  transition: opacity 0.15s ease;
 }
 .uploaded-file-item:hover {
-  box-shadow: 3px 3px 0 rgba(255, 85, 85, 0.3);
-  transform: translateY(-1px);
+  opacity: 0.8;
 }
 .uploaded-file-name {
   font-size: 0.78rem;
