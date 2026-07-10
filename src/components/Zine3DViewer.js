@@ -247,20 +247,7 @@ export class Zine3DViewer {
     this.environmentMeshes.push({ mesh: floor, geometry: floorGeometry, material: floorMaterial });
   }
 
-  /**
-   * Initializes or updates the page textures.
-   * @param {Array} imageUrls - Array of 8 image URLs (blob URLs or data URIs)
-   */
-  loadPages(imageUrls) {
-    if (this.isFallbackMode) {
-      this.fallbackPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
-      this.renderFallback();
-      return;
-    }
-
-    const previewPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
-
-    // Clear existing planes
+  cleanupExistingPages() {
     this.pages.forEach((page) => {
       page.frontMaterial?.map?.dispose?.();
       page.frontMaterial?.dispose?.();
@@ -285,7 +272,9 @@ export class Zine3DViewer {
     this.stacks = [];
     this.seams = [];
     this.guides = [];
+  }
 
+  createPageMeshes(previewPages) {
     const textureLoader = new THREE.TextureLoader();
 
     MINI_ZINE_STACKS.forEach((stackDefinition) => {
@@ -362,6 +351,25 @@ export class Zine3DViewer {
         backGeometry
       });
     }
+  }
+
+  /**
+   * Initializes or updates the page textures.
+   * @param {Array} imageUrls - Array of 8 image URLs (blob URLs or data URIs)
+   */
+  loadPages(imageUrls) {
+    if (this.isFallbackMode) {
+      this.fallbackPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
+      this.renderFallback();
+      return;
+    }
+
+    const previewPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
+
+    // Clear existing planes
+    this.cleanupExistingPages();
+
+    this.createPageMeshes(previewPages);
 
     this.createSeams();
     this.createGuides();
