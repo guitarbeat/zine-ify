@@ -70,6 +70,11 @@ export class UIManager {
     this.syncPaperSettings({ paperSize: 'letter', orientation: 'landscape' });
     this.setupEventListeners();
     this.syncResponsiveUI();
+
+    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('zine-theme') : null;
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
     this._syncThemeIcon();
 
     const savedControls = localStorage.getItem('zine-page-controls');
@@ -589,7 +594,7 @@ export class UIManager {
   _syncThemeIcon() {
     if (this.elements.themeIcon) {
       const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-      this.elements.themeIcon.textContent = currentTheme === 'light' ? 'light_mode' : 'dark_mode';
+      this.elements.themeIcon.textContent = currentTheme === 'light' ? 'dark_mode' : 'light_mode';
     }
   }
 
