@@ -503,8 +503,8 @@ export class Zine3DViewer {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       this.scene.add(mesh);
-      const pageA = this.pages.find((page) => page.id === from);
-      const pageB = this.pages.find((page) => page.id === to);
+      const pageA = this.pages[from - 1];
+      const pageB = this.pages[to - 1];
       this.seams.push({ from, to, orientation, mesh, geometry, material, pageA, pageB });
     });
   }
