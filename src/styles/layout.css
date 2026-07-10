@@ -87,8 +87,8 @@ body::-webkit-scrollbar {
 
 /* Panels fill their gridstack cell */
 .grid-stack-item-content {
-  border-radius: var(--radius-panel);
-  overflow: hidden;
+  border-radius: 0;
+  overflow: visible;
   height: 100%;
 }
 
@@ -99,6 +99,7 @@ body::-webkit-scrollbar {
   height: auto;
   min-height: 100%;
   overflow: hidden;
+  border-radius: 2px;
 }
 
 /* ─── Resize handle ──────────────────────────────────────── */
