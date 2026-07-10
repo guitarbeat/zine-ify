@@ -155,12 +155,7 @@ body::-webkit-scrollbar {
   position: relative;
 }
 
-/* drag-active state */
-.grid-stack-item.grid-stack-placeholder > .placeholder-content {
-  background: var(--primary-glow);
-  border: 2px dashed var(--primary-vibrant);
-  border-radius: var(--radius-panel);
-}
+
 
 /* ─── Panel handle ───────────────────────────────────────── */
 .snap-card-handle {
