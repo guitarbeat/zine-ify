@@ -151,10 +151,22 @@ export function createFieldValidation(fieldName, rules = [], options = {}) {
  * @returns {Object} Validation result with isValid and errors
  */
 export function validateValue(value, rules, context = {}) {
+
   const errors = [];
 
   for (const rule of rules) {
-    const ruleObj = typeof rule === 'function' ? rule() : rule;
+    let ruleObj = rule;
+    if (typeof rule === 'string') {
+      ruleObj = VALIDATION_RULES[rule];
+    } else if (typeof rule === 'object' && rule.validate === undefined) {
+      // sometimes it's an object from rulesFactory like { minLength: 3 }
+      const key = Object.keys(rule)[0];
+      ruleObj = VALIDATION_RULES[key](rule[key]);
+    }
+    if (typeof ruleObj === 'function') {
+      ruleObj = ruleObj();
+    }
+
 
     if (!ruleObj) {continue;}
 
