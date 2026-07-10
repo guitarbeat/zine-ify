@@ -22,49 +22,96 @@ export class BookletPreview {
   }
 
   renderBase() {
-    this.container.innerHTML = `
-      <div class="booklet-shell" tabindex="0" role="group" aria-label="Booklet spread preview. Use left and right arrow keys to turn pages.">
-        <div class="booklet-stage">
-          <div class="booklet-shadow" aria-hidden="true"></div>
-          <div class="booklet-spread">
-            <div class="booklet-page booklet-page-left" data-side="left">
-              <img class="booklet-page-media" alt="Left page preview">
-              <span class="booklet-page-placeholder"></span>
-              <span class="booklet-page-label"></span>
-            </div>
-            <div class="booklet-spine" aria-hidden="true"></div>
-            <div class="booklet-page booklet-page-right" data-side="right">
-              <img class="booklet-page-media" alt="Right page preview">
-              <span class="booklet-page-placeholder"></span>
-              <span class="booklet-page-label"></span>
-            </div>
-            <div class="booklet-turn-layer" aria-hidden="true">
-              <div class="booklet-turn-card">
-                <div class="booklet-face booklet-face-front">
-                  <img class="booklet-page-media" alt="">
-                  <span class="booklet-page-placeholder"></span>
-                  <span class="booklet-page-label"></span>
-                </div>
-                <div class="booklet-face booklet-face-back">
-                  <img class="booklet-page-media" alt="">
-                  <span class="booklet-page-placeholder"></span>
-                  <span class="booklet-page-label"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
+    this.shell = document.createElement('div');
+    this.shell.className = 'booklet-shell';
+    this.shell.tabIndex = 0;
+    this.shell.setAttribute('role', 'group');
+    this.shell.setAttribute('aria-label', 'Booklet spread preview. Use left and right arrow keys to turn pages.');
 
-    this.spread = this.container.querySelector('.booklet-spread');
-    this.leftPage = this.container.querySelector('.booklet-page-left');
-    this.rightPage = this.container.querySelector('.booklet-page-right');
-    this.turnLayer = this.container.querySelector('.booklet-turn-layer');
-    this.turnCard = this.container.querySelector('.booklet-turn-card');
-    this.turnFront = this.container.querySelector('.booklet-face-front');
-    this.turnBack = this.container.querySelector('.booklet-face-back');
-    this.shell = this.container.querySelector('.booklet-shell');
+    const stage = document.createElement('div');
+    stage.className = 'booklet-stage';
+
+    const shadow = document.createElement('div');
+    shadow.className = 'booklet-shadow';
+    shadow.setAttribute('aria-hidden', 'true');
+
+    this.spread = document.createElement('div');
+    this.spread.className = 'booklet-spread';
+
+    const createPage = (side, altText) => {
+      const page = document.createElement('div');
+      page.className = `booklet-page booklet-page-${side}`;
+      page.dataset.side = side;
+
+      const img = document.createElement('img');
+      img.className = 'booklet-page-media';
+      img.alt = altText;
+
+      const placeholder = document.createElement('span');
+      placeholder.className = 'booklet-page-placeholder';
+
+      const label = document.createElement('span');
+      label.className = 'booklet-page-label';
+
+      page.appendChild(img);
+      page.appendChild(placeholder);
+      page.appendChild(label);
+      return page;
+    };
+
+    this.leftPage = createPage('left', 'Left page preview');
+
+    const spine = document.createElement('div');
+    spine.className = 'booklet-spine';
+    spine.setAttribute('aria-hidden', 'true');
+
+    this.rightPage = createPage('right', 'Right page preview');
+
+    this.turnLayer = document.createElement('div');
+    this.turnLayer.className = 'booklet-turn-layer';
+    this.turnLayer.setAttribute('aria-hidden', 'true');
+
+    this.turnCard = document.createElement('div');
+    this.turnCard.className = 'booklet-turn-card';
+
+    const createFace = (faceSide) => {
+      const face = document.createElement('div');
+      face.className = `booklet-face booklet-face-${faceSide}`;
+
+      const img = document.createElement('img');
+      img.className = 'booklet-page-media';
+      img.alt = '';
+
+      const placeholder = document.createElement('span');
+      placeholder.className = 'booklet-page-placeholder';
+
+      const label = document.createElement('span');
+      label.className = 'booklet-page-label';
+
+      face.appendChild(img);
+      face.appendChild(placeholder);
+      face.appendChild(label);
+      return face;
+    };
+
+    this.turnFront = createFace('front');
+    this.turnBack = createFace('back');
+
+    this.turnCard.appendChild(this.turnFront);
+    this.turnCard.appendChild(this.turnBack);
+    this.turnLayer.appendChild(this.turnCard);
+
+    this.spread.appendChild(this.leftPage);
+    this.spread.appendChild(spine);
+    this.spread.appendChild(this.rightPage);
+    this.spread.appendChild(this.turnLayer);
+
+    stage.appendChild(shadow);
+    stage.appendChild(this.spread);
+    this.shell.appendChild(stage);
+
+    this.container.textContent = '';
+    this.container.appendChild(this.shell);
   }
 
   bindControls() {

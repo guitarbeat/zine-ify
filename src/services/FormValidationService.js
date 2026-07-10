@@ -8,6 +8,8 @@ import { FormValidator } from '../components/FormValidator.js';
 import { VALIDATION_TIMING, VALIDATION_RULES } from '../utils/formValidation.js';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX, MARGIN_MIN } from './../utils/config.js';
 import { toast } from '../components/Toast.js';
+import DOMPurify from 'dompurify';
+
 
 /**
  * Initialize validation for the settings panel
@@ -226,7 +228,7 @@ export function createValidationDemo(container) {
     </div>
   `;
 
-  container.insertAdjacentHTML('beforeend', html);
+  container.insertAdjacentHTML('beforeend', DOMPurify.sanitize(html));
 
   // Initialize validator
   const demoValidator = new FormValidator(container.querySelector('.validation-demo'), {

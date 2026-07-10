@@ -276,9 +276,13 @@ export class UIManager {
       return;
     }
 
-    this.elements.paperSizeSelect.innerHTML = Object.entries(PAPER_SIZES)
-      .map(([key, paper]) => `<option value="${key}">${paper.label}</option>`)
-      .join('');
+    this.elements.paperSizeSelect.textContent = '';
+    Object.entries(PAPER_SIZES).forEach(([key, paper]) => {
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = paper.label;
+      this.elements.paperSizeSelect.appendChild(option);
+    });
   }
 
   bindAppController(controller) {
@@ -517,7 +521,11 @@ export class UIManager {
       this.emitter.emit('foldProgress', value);
     });
 
+    const stepButtonMap = new Map();
     this.elements.foldStepButtons?.forEach((button) => {
+      if (button.dataset.stepIndex) {
+        stepButtonMap.set(button.dataset.stepIndex, button);
+      }
       button.setAttribute('aria-pressed', 'false');
       button.addEventListener('click', () => {
         const value = parseFloat(button.dataset.foldValue || '0');
@@ -531,8 +539,7 @@ export class UIManager {
         return;
       }
 
-      const stepButton = Array.from(this.elements.foldStepButtons || [])
-        .find((button) => button.dataset.stepIndex === event.key);
+      const stepButton = stepButtonMap.get(event.key);
       if (!stepButton) {
         return;
       }
