@@ -87,8 +87,8 @@ body::-webkit-scrollbar {
 
 /* Panels fill their gridstack cell */
 .grid-stack-item-content {
-  border-radius: 0;
-  overflow: visible;
+  border-radius: 2px;
+  overflow: hidden;
   height: 100%;
 }
 
@@ -96,8 +96,9 @@ body::-webkit-scrollbar {
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  border-radius: 2px;
+  height: auto;
+  min-height: 100%;
+  overflow: hidden;
 }
 
 /* ─── Resize handle ──────────────────────────────────────── */
@@ -133,9 +134,6 @@ body::-webkit-scrollbar {
   box-shadow: var(--shadow-md), 5px 5px 0 rgba(255, 85, 85, 0.6);
   transition: box-shadow 0.15s ease;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
 }
 
 .snap-card::before {
@@ -208,13 +206,12 @@ body::-webkit-scrollbar {
 
 /* ─── Panel body ─────────────────────────────────────────── */
 .snap-card-body {
-  flex: 1 1 auto;
-  overflow: auto;
+  flex: 0 0 auto;
+  overflow: visible;
   padding: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  min-height: 0;
 }
 
 /* ─── Canvas panel body ──────────────────────────────────── */
