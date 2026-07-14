@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import {
   PAPER_SIZES,
   MARGIN_MIN,
@@ -62,7 +63,7 @@ export class SmartSheetConfig {
     const portraitW = fmt(paper.width);
     const portraitH = fmt(paper.height);
 
-    this.container.innerHTML = `
+    this.container.innerHTML = DOMPurify.sanitize(`
       <div class="smart-sheet-config">
         <div class="smart-sheet-section">
           <div class="smart-sheet-header">
@@ -166,7 +167,7 @@ export class SmartSheetConfig {
           </div>
         </div>
       </div>
-    `;
+    `);
   }
 
   attachEventListeners() {
