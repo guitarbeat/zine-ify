@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray } from '../../src/utils/helpers.js';
+import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray, sanitizeHTML } from '../../src/utils/helpers.js';
+import DOMPurify from 'dompurify';
+import { JSDOM } from 'jsdom';
 import {
   classifyFileKind,
   getFileTypeLabel,
@@ -8,6 +10,41 @@ import {
 } from '../../src/utils/fileValidation.js';
 
 test.describe('Utils', () => {
+  test.beforeAll(() => {
+    const window = new JSDOM('').window;
+    // Set up global document for document.createDocumentFragment
+    global.document = window.document;
+
+    // Initialize DOMPurify factory and override the default
+    const purify = DOMPurify(window);
+    DOMPurify.sanitize = purify.sanitize;
+  });
+
+  test('sanitizeHTML', () => {
+    // Edge cases: null, undefined, empty string, non-string
+    expect(sanitizeHTML(null).nodeType).toBe(11); // 11 is Node.DOCUMENT_FRAGMENT_NODE
+    expect(sanitizeHTML(undefined).nodeType).toBe(11);
+    expect(sanitizeHTML('').nodeType).toBe(11);
+    expect(sanitizeHTML(123).nodeType).toBe(11);
+
+    // Content retention for allowed tags
+    const cleanFragm = sanitizeHTML('<b>bold</b> <i>italic</i> <code>code</code>');
+    expect(cleanFragm.childNodes.length).toBeGreaterThan(0);
+    expect(cleanFragm.textContent).toBe('bold italic code');
+
+    // Stripping malicious tags and disallowed attributes
+    const dirtyFragm = sanitizeHTML('<script>alert("xss")</script><b onclick="bad()">bold</b>');
+    expect(dirtyFragm.textContent).toBe('bold');
+
+    // Check if script tag was completely removed
+    const tmpDiv = global.document.createElement('div');
+    tmpDiv.appendChild(dirtyFragm);
+    expect(tmpDiv.innerHTML).toBe('<b>bold</b>');
+  });
+
+  test.afterAll(() => {
+    delete global.document;
+  });
   test('formatFileSize', () => {
     expect(formatFileSize(0)).toBe('0 B');
     expect(formatFileSize(1024)).toBe('1.0 KB');
