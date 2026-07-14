@@ -359,8 +359,7 @@ export class Zine3DViewer {
    */
   loadPages(imageUrls) {
     if (this.isFallbackMode) {
-      this.fallbackPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
-      this.renderFallback();
+      this.loadFallbackPages(imageUrls);
       return;
     }
 
@@ -374,6 +373,15 @@ export class Zine3DViewer {
     this.createSeams();
     this.createGuides();
 
+    this.setupInitialCameraView();
+  }
+
+  loadFallbackPages(imageUrls) {
+    this.fallbackPages = (imageUrls || []).map((page) => normalizePreviewPage(page));
+    this.renderFallback();
+  }
+
+  setupInitialCameraView() {
     // Initialize layout flat
     this.setFoldProgress(0);
     
