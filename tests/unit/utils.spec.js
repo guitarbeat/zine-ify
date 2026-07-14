@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray } from '../../src/utils/helpers.js';
+import { cn, clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray } from '../../src/utils/helpers.js';
 import {
   classifyFileKind,
   getFileTypeLabel,
@@ -8,6 +8,27 @@ import {
 } from '../../src/utils/fileValidation.js';
 
 test.describe('Utils', () => {
+  test('cn', () => {
+    // Standard string merging
+    expect(cn('class1', 'class2')).toBe('class1 class2');
+
+    // Conditional classes
+    expect(cn('class1', { class2: true, class3: false })).toBe('class1 class2');
+    expect(cn({ class1: true }, { class2: true })).toBe('class1 class2');
+
+    // Arrays
+    expect(cn(['class1', 'class2'])).toBe('class1 class2');
+    expect(cn(['class1', { class2: true }])).toBe('class1 class2');
+
+    // Handling undefined/null values
+    expect(cn('class1', undefined, null, false, 'class2')).toBe('class1 class2');
+
+    // Tailwind conflict resolution
+    expect(cn('px-2 py-1', 'px-4')).toBe('py-1 px-4');
+    expect(cn('text-red-500', 'text-blue-500')).toBe('text-blue-500');
+    expect(cn('bg-red-500 p-4', 'bg-blue-500')).toBe('p-4 bg-blue-500');
+  });
+
   test('formatFileSize', () => {
     expect(formatFileSize(0)).toBe('0 B');
     expect(formatFileSize(1024)).toBe('1.0 KB');
