@@ -63,7 +63,7 @@ export class SmartSheetConfig {
     const portraitW = fmt(paper.width);
     const portraitH = fmt(paper.height);
 
-    this.container.innerHTML = DOMPurify.sanitize(`
+    const fragment = DOMPurify.sanitize(`
       <div class="smart-sheet-config">
         <div class="smart-sheet-section">
           <div class="smart-sheet-header">
@@ -167,7 +167,8 @@ export class SmartSheetConfig {
           </div>
         </div>
       </div>
-    `);
+    `, { RETURN_DOM_FRAGMENT: true });
+    this.container.replaceChildren(fragment);
   }
 
   attachEventListeners() {
