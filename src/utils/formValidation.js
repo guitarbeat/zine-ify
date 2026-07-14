@@ -158,7 +158,7 @@ export function validateValue(value, rules, context = {}) {
     let ruleObj = rule;
     if (typeof rule === 'string') {
       ruleObj = VALIDATION_RULES[rule];
-    } else if (typeof rule === 'object' && rule.validate === undefined) {
+    } else if (rule !== null && typeof rule === 'object' && rule.validate === undefined) {
       // sometimes it's an object from rulesFactory like { minLength: 3 }
       const key = Object.keys(rule)[0];
       ruleObj = VALIDATION_RULES[key](rule[key]);
