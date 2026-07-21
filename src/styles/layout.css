@@ -27,34 +27,32 @@ body::-webkit-scrollbar {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 0 0.875rem;
-  height: 3.75rem;
+  height: 3.25rem;
   flex-shrink: 0;
   background: #000;
-  border-bottom: 3px solid var(--primary-vibrant);
+  border-bottom: 2px solid var(--primary-vibrant);
   z-index: 20;
-  box-shadow: 0 3px 0 rgba(255, 90, 90, 0.8);
   position: relative;
 }
 
-.app-header::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 85, 85, 0.06) 50%, transparent 100%);
-  pointer-events: none;
+.app-header-left {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
 }
 
 .app-brand-mark {
   display: flex;
   align-items: center;
   justify-content: center;
-  grid-column: 1 / 3;
+  grid-column: 2;
   position: relative;
   z-index: 1;
 }
 
 .app-brand-mark .logo-image {
-  height: 2.25rem;
+  height: 2rem;
   width: auto;
   transition: transform 0.2s ease;
 }
@@ -77,14 +75,52 @@ body::-webkit-scrollbar {
   border-color: rgba(255, 255, 255, 0.15);
   background: rgba(255, 255, 255, 0.06);
   color: #e0e0e0;
-  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .app-header-actions .panel-icon-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* ── Header action buttons ───────────────────────────────── */
+.header-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: var(--radius-button);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  white-space: nowrap;
+  font-family: 'IBM Plex Mono', monospace;
+  flex-shrink: 0;
+}
+
+.header-action-btn--primary {
   background: var(--primary-vibrant);
   color: #fff;
-  border-color: var(--primary-vibrant);
-  transform: translateY(-1px);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.header-action-btn--ghost {
+  background: rgba(255,255,255,0.07);
+  color: #c8c8c8;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+.header-action-btn:not(:disabled):hover { opacity: 0.82; transform: translateY(-1px); }
+.header-action-btn:not(:disabled):active { transform: none; opacity: 0.7; }
+.header-action-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+
+@media (max-width: 540px) {
+  .header-action-label { display: none; }
+  .header-action-btn { padding: 0.28rem 0.45rem; gap: 0; }
 }
 
 /* ─── GridStack wrapper ──────────────────────────────────── */
@@ -163,11 +199,11 @@ body::-webkit-scrollbar {
   align-items: center;
   gap: 0.3rem;
   padding: 0 0.6rem 0 0.4rem;
-  height: 1.875rem;
+  height: 1.75rem;
   cursor: grab;
   user-select: none;
-  background: var(--primary-vibrant);
-  border-bottom: 1px solid var(--accent-dark);
+  background: #1c1c1c;
+  border-bottom: 1px solid rgba(0,0,0,0.4);
   flex-shrink: 0;
   position: relative;
 }
@@ -176,23 +212,21 @@ body::-webkit-scrollbar {
 
 .snap-card-grip {
   font-size: 13px;
-  color: var(--accent-dark);
-  opacity: 0.8;
+  color: rgba(255,255,255,0.35);
   flex-shrink: 0;
-  transition: opacity 0.15s;
-  font-weight: 900;
+  transition: color 0.15s;
 }
 
-.snap-card:hover .snap-card-grip { opacity: 1; }
+.snap-card:hover .snap-card-grip { color: rgba(255,255,255,0.6); }
 
 .snap-card-label {
   font-size: 0.62rem;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent-dark);
+  color: rgba(255,255,255,0.65);
   white-space: nowrap;
-  font-family: 'Comic Sans MS', 'Courier New', monospace;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 /* ─── Panel body ─────────────────────────────────────────── */
@@ -366,7 +400,8 @@ body::-webkit-scrollbar {
 }
 
 /* ─── Dark mode ──────────────────────────────────────────── */
-[data-theme="dark"] .app-header     { border-bottom-color: rgba(255,255,255,0.05); }
+[data-theme="dark"] .app-header { border-bottom-color: rgba(255,85,85,0.5); }
+[data-theme="dark"] .snap-card-handle { background: #181818; border-bottom-color: rgba(255,255,255,0.05); }
 [data-theme="dark"] .panel-clear-btn:hover {
   background: rgba(220,38,38,0.15);
   border-color: rgba(220,38,38,0.4);
@@ -436,7 +471,7 @@ body::-webkit-scrollbar {
 /* ─── Responsive: mobile (single-column stack, drag to reorder) ─ */
 @media (max-width: 767px) {
   .app-header {
-    height: 2.25rem;
+    height: 2.75rem;
     padding: 0 0.625rem;
   }
 

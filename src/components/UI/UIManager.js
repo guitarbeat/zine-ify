@@ -269,6 +269,12 @@ export class UIManager {
     if (this.elements.view3dBtn) {
       this.elements.view3dBtn.disabled = !hasPagesLoaded;
     }
+    if (this.elements.headerExportBtn) {
+      this.elements.headerExportBtn.disabled = !hasPagesLoaded;
+    }
+    if (this.elements.headerPreviewBtn) {
+      this.elements.headerPreviewBtn.disabled = !hasPagesLoaded;
+    }
   }
 
   renderPaperSizeOptions() {
@@ -438,7 +444,9 @@ export class UIManager {
       bookletStatus: $('#booklet-status'),
       clearAllBtn: $('#clear-all-btn'),
       exportPdfBtn: $('#exportPdfBtn'),
-      view3dBtn: $('#view3dBtn')
+      view3dBtn: $('#view3dBtn'),
+      headerExportBtn: $('#header-export-btn'),
+      headerPreviewBtn: $('#header-preview-btn')
     };
   }
 
@@ -501,6 +509,8 @@ export class UIManager {
 
     this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
     this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
+    this.elements.headerExportBtn?.addEventListener('click', () => this.emitter.emit('export'));
+    this.elements.headerPreviewBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
     this.elements.clearAllBtn?.addEventListener('click', () => this.emitter.emit('clearAll'));
 
     this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());

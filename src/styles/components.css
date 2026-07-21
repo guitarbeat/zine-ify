@@ -233,8 +233,8 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
   gap: 0.35rem;
   min-height: 2.25rem;
   padding: 0.3rem 0.4rem;
-  font-size: 0.8rem;
-  font-weight: 900;
+  font-size: 0.75rem;
+  font-weight: 700;
   color: var(--muted-ink);
   background: transparent;
   border: none;
@@ -243,7 +243,7 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
   line-height: 1;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-family: 'Comic Sans MS', 'Courier New', monospace;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .orientation-seg-btn + .orientation-seg-btn {
