@@ -425,6 +425,7 @@ export class UIManager {
       pagePickerModal: $('#page-picker-modal'),
       pagePickerBackdrop: $('#page-picker-backdrop'),
       pagePickerCancel: $('#page-picker-cancel'),
+      foldViewerCard: $('#card-fold-viewer'),
       pagePickerConfirm: $('#page-picker-confirm'),
       pagePickerSubtitle: $('#page-picker-subtitle'),
       pagePickerSelectFirst: $('#page-picker-select-first'),
@@ -581,7 +582,7 @@ export class UIManager {
   }
 
   isFoldPreviewOpen() {
-    const foldViewerCard = document.getElementById('card-fold-viewer');
+    const foldViewerCard = this.elements.foldViewerCard;
     return foldViewerCard && !foldViewerCard.classList.contains('hidden');
   }
 
