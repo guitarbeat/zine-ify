@@ -69,6 +69,28 @@ export class LayoutRenderer {
           cell.style.gridArea = `page${pageNumberInSheet}`;
         }
         
+        if (options.pageImages && options.pageImages[pageIndex]) {
+          const url = options.pageImages[pageIndex];
+          const img = cell.querySelector('.page-content-img');
+          const placeholder = cell.querySelector('.page-placeholder');
+          if (img) {
+            img.src = url || '';
+            img.classList.toggle('hidden', !url);
+          }
+          if (placeholder) {
+            placeholder.classList.toggle('hidden', !!url);
+          }
+          cell.classList.toggle('has-page', !!url);
+        }
+
+        if (options.pageFlips && options.pageFlips[pageIndex]) {
+          cell.classList.add('is-flipped');
+        }
+
+        if (options.pageZooms && options.pageZooms[pageIndex]) {
+          cell.classList.add('page-zoomed');
+        }
+
         grid.appendChild(cell);
       }
 
