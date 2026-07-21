@@ -352,7 +352,7 @@ export class PDFProcessor extends MediaProcessor {
    * Clean up resources
    */
   cleanup() {
-    this.loadingTask?.destroy().catch((_error) => {});
+    this.loadingTask?.destroy().catch(() => {});
     this.loadingTask = null;
     if (this.pdf) {
       this.pdf.destroy();
