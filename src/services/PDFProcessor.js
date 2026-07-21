@@ -108,8 +108,8 @@ export class PDFProcessor extends MediaProcessor {
         timeoutId = setTimeout(async () => {
           try {
             await this.loadingTask?.destroy();
-          } catch (destroyError) {
-            void destroyError;
+          } catch (_e) {
+            void _e;
           }
           reject(new Error('PDF loading timed out'));
         }, 60000);
