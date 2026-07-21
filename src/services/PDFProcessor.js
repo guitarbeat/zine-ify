@@ -305,8 +305,8 @@ export class PDFProcessor extends MediaProcessor {
   async cleanupFailedLoad() {
     try {
       await this.loadingTask?.destroy();
-    } catch (destroyError) {
-      void destroyError;
+    } catch (_destroyError) {
+      void _destroyError;
     }
     this.loadingTask = null;
 
