@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * FormValidator.js
  * Inline form validation with immediate visual feedback
@@ -26,6 +25,7 @@ export class FormValidator {
       : formElement;
 
     if (!this.form) {
+      // eslint-disable-next-line no-console
       console.error('FormValidator: Form element not found');
       return;
     }
@@ -64,6 +64,7 @@ export class FormValidator {
   register(fieldSelector, config) {
     const field = this.form.querySelector(fieldSelector);
     if (!field) {
+      // eslint-disable-next-line no-console
       console.warn(`FormValidator: Field "${fieldSelector}" not found`);
       return this;
     }
@@ -534,6 +535,7 @@ export class FieldValidator {
       : field;
 
     if (!this.field) {
+      // eslint-disable-next-line no-console
       console.error('FieldValidator: Field element not found');
       return;
     }
