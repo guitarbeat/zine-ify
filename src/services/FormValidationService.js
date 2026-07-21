@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * Validation integration for Zine-ify form controls
  * Demonstrates user-friendly validation for existing settings
@@ -19,6 +18,7 @@ import DOMPurify from 'dompurify';
 export function initSettingsValidation(container = document) {
   const form = container.querySelector('#settings-group') || container.querySelector('.rail-settings-panel');
   if (!form) {
+    /* eslint-disable-next-line no-console */
     console.warn('ValidationService: Settings form not found');
     return null;
   }
