@@ -625,7 +625,7 @@ export class UIManager {
     );
 
     // Attach Sortable to every rendered grid
-    document.querySelectorAll('.zine-grid').forEach(grid => {
+    this.elements.zineSheetsContainer.querySelectorAll('.zine-grid').forEach(grid => {
       this.dnd.initSortable(grid);
     });
   }
