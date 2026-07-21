@@ -325,15 +325,10 @@ export function setupPasswordConfirmation(passwordId, confirmId) {
 
   if (!passwordField || !confirmField) {return;}
 
-  const getFieldValue = (selector) => {
-    const field = document.querySelector(selector);
-    return field ? field.value : '';
-  };
-
   return {
     rules: [
       VALIDATION_RULES.required,
-      VALIDATION_RULES.match('Password', () => getFieldValue(`#${passwordId}`))
+      VALIDATION_RULES.match('Password', () => passwordField.value)
     ],
     timing: VALIDATION_TIMING.DEBOUNCED,
     constraints: {
