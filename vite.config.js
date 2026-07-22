@@ -33,9 +33,6 @@ export default defineConfig({
     host: '0.0.0.0',
     allowedHosts: true,
     strictPort: true,
-    hmr: {
-      clientPort: 443,
-    },
     watch: {
       ignored: ['**/.local/**', '**/node_modules/**']
     }
