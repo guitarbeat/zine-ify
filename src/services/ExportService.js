@@ -14,6 +14,7 @@ export class ExportService {
     const totalSlots = this.state.allPageImages.length;
     const sheetCount = Math.max(1, Math.ceil(totalSlots / slotsPerSheet));
     const template = rows === 2 && cols === 4 ? ZINE_TEMPLATES['mini-8'] : null;
+    const upsideDownSet = template?.upsideDownPages ? new Set(template.upsideDownPages) : new Set();
 
     const filledSlots = this.state.allPageImages.filter(Boolean);
     if (!filledSlots.length) {
@@ -56,7 +57,7 @@ export class ExportService {
 
         if (typeof rawSlot === 'number') {
           pageNum = rawSlot;
-          upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
+          upsideDown = upsideDownSet.has(rawSlot);
         } else if (rawSlot && typeof rawSlot === 'object') {
           pageNum = rawSlot.page;
           upsideDown = !!rawSlot.upsideDown;
@@ -162,6 +163,7 @@ export class ExportService {
     const slotsPerSheet = rows * cols;
     const isMini8 = rows === 2 && cols === 4;
     const template = isMini8 ? ZINE_TEMPLATES['mini-8'] : null;
+    const upsideDownSet = template?.upsideDownPages ? new Set(template.upsideDownPages) : new Set();
     const totalSlots = this.state.allPageImages.length;
     const sheetCount = Math.max(1, Math.ceil(totalSlots / slotsPerSheet));
     const dims = this.getPaperDimensions();
@@ -184,7 +186,7 @@ export class ExportService {
 
         if (typeof rawSlot === 'number') {
           pageNum = rawSlot;
-          upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
+          upsideDown = upsideDownSet.has(rawSlot);
         } else if (rawSlot && typeof rawSlot === 'object') {
           pageNum = rawSlot.page;
           upsideDown = !!rawSlot.upsideDown;
