@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import {
   PAPER_SIZES,
   MARGIN_MIN,
@@ -62,7 +63,7 @@ export class SmartSheetConfig {
     const portraitW = fmt(paper.width);
     const portraitH = fmt(paper.height);
 
-    this.container.innerHTML = `
+    const html = `
       <div class="smart-sheet-config">
         <div class="smart-sheet-section">
           <div class="smart-sheet-header">
@@ -167,6 +168,9 @@ export class SmartSheetConfig {
         </div>
       </div>
     `;
+
+    const fragment = DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true });
+    this.container.replaceChildren(fragment);
   }
 
   attachEventListeners() {
