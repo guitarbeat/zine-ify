@@ -121,6 +121,11 @@ test.describe('Utils', () => {
     expect(invalid.valid).toBe(false);
     expect(invalid.kind).toBeNull();
     expect(invalid.errors).toContain('Please select a PDF or image file.');
+
+    // Test spoofed mime type
+    const spoofed = validateUploadFile({ type: 'application/pdf', size: 1024, name: 'exploit.html' });
+    expect(spoofed.valid).toBe(false);
+    expect(spoofed.kind).toBeNull();
   });
 
   test('partitionSupportedFiles', () => {
