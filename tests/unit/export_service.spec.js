@@ -1,10 +1,21 @@
 import { test, expect } from '@playwright/test';
 import { ExportService } from '../../src/services/ExportService.js';
+import DOMPurify from 'dompurify';
 
 test.describe('ExportService', () => {
   let mockUi;
   let mockState;
   let exportService;
+
+  test.beforeAll(async () => {
+    const { JSDOM } = await import('jsdom');
+    const { window } = new JSDOM('', { url: 'http://localhost/' });
+    global.window = window;
+    global.document = window.document;
+
+    const purify = DOMPurify(window);
+    DOMPurify.sanitize = purify.sanitize;
+  });
 
   test.beforeEach(() => {
     mockUi = {};
@@ -201,7 +212,7 @@ test.describe('ExportService', () => {
 
       await exportService.openPrintWindow('<p>Print</p>');
 
-      expect(openHtml).toBe('<p>Print</p>');
+      expect(openHtml).toContain('<p>Print</p>');
       expect(printCalled).toBe(true);
       expect(focusCalled).toBe(true);
 
@@ -253,7 +264,7 @@ test.describe('ExportService', () => {
       await exportService.openPrintWindow('<p>Iframe Print</p>');
 
       expect(iframeAppended).toBe(true);
-      expect(iframeHtml).toBe('<p>Iframe Print</p>');
+      expect(iframeHtml).toContain('<p>Iframe Print</p>');
       expect(printCalled).toBe(true);
       expect(focusCalled).toBe(true);
 

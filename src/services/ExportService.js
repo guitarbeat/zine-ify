@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import { ZINE_TEMPLATES, PAPER_SIZES } from '../utils/config.js';
 
 const MM_TO_PX_300DPI = 300 / 25.4;
@@ -245,8 +246,9 @@ export class ExportService {
   async openPrintWindow(html) {
     const win = window.open('', '_blank');
     if (win) {
+      const sanitizedHtml = DOMPurify.sanitize(html, { WHOLE_DOCUMENT: true });
       win.document.open();
-      win.document.write(html);
+      win.document.write(sanitizedHtml);
       win.document.close();
       win.focus();
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -265,8 +267,9 @@ export class ExportService {
     document.body.appendChild(printFrame);
 
     const frameDoc = printFrame.contentDocument;
+    const sanitizedHtml = DOMPurify.sanitize(html, { WHOLE_DOCUMENT: true });
     frameDoc.open();
-    frameDoc.write(html);
+    frameDoc.write(sanitizedHtml);
     frameDoc.close();
 
     await new Promise((resolve) => {
