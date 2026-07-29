@@ -14,6 +14,7 @@ import {
   createConstraintHint
 } from '../utils/formValidation.js';
 import { debounce } from '../utils/helpers.js';
+import DOMPurify from 'dompurify';
 
 /**
  * FormValidator - Manages inline validation for forms
@@ -306,9 +307,11 @@ export class FormValidator {
     const successIcon = document.createElement('span');
     successIcon.className = 'form-success-icon';
     successIcon.setAttribute('aria-hidden', 'true');
-    successIcon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+    const svgContent = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
       <polyline points="20,6 9,17 4,12"/>
     </svg>`;
+    const fragment = DOMPurify.sanitize(svgContent, { RETURN_DOM_FRAGMENT: true });
+    successIcon.appendChild(fragment);
 
     // Position it appropriately
     const container = field.closest('.workspace-config-field') || field.parentElement;
