@@ -228,7 +228,8 @@ export function createValidationDemo(container) {
     </div>
   `;
 
-  container.insertAdjacentHTML('beforeend', DOMPurify.sanitize(html));
+  const fragment = DOMPurify.sanitize(html, { RETURN_DOM_FRAGMENT: true });
+  container.appendChild(fragment);
 
   // Initialize validator
   const demoValidator = new FormValidator(container.querySelector('.validation-demo'), {
