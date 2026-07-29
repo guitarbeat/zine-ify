@@ -376,7 +376,8 @@ export class FormValidator {
       // Parse validation rules from data attribute
       const rulesConfig = field.dataset.validate;
       if (rulesConfig) {
-        rulesConfig.split(',').map(r => r.trim()).forEach(rule => {
+        for (const r of rulesConfig.split(',')) {
+          const rule = r.trim();
           // Handle parameterized rules like minLength:8
           const [ruleName, param] = rule.split(':');
           if (param) {
@@ -393,7 +394,7 @@ export class FormValidator {
           } else {
             rules.push(rule);
           }
-        });
+        }
       }
 
       // Auto-detect common validation attributes
