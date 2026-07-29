@@ -659,18 +659,29 @@ export class AppController {
     try {
       const blankUrl = await this.ensureBlankPageUrl();
       this.revokePreviewAssetUrls();
-      const imageUrls = await Promise.all(this.state.allPageImages.slice(0, 8).map(async (url, index) => {
+      const imageUrls = await Promise.all(this.state.allPageImages.slice(0, 8).map((url, index) => {
         const sourceUrl = url || blankUrl;
         const isFlipped = !!this.state.pageFlips[index];
         const isZoomed = !!this.state.pageZooms[index];
+        const pageNumber = index + 1;
 
-        return {
+        if (!isFlipped && !isZoomed) {
+          return {
+            sourceUrl,
+            previewUrl: sourceUrl,
+            pageNumber,
+            isFlipped,
+            isZoomed
+          };
+        }
+
+        return this.buildPreviewAsset(sourceUrl, { isFlipped, isZoomed }).then((previewUrl) => ({
           sourceUrl,
-          previewUrl: await this.buildPreviewAsset(sourceUrl, { isFlipped, isZoomed }),
-          pageNumber: index + 1,
+          previewUrl,
+          pageNumber,
           isFlipped,
           isZoomed
-        };
+        }));
       }));
 
       this.ensureBookletPreview();
