@@ -21,6 +21,9 @@ const PAPER_RECOMMENDATIONS = {
   'a5': { best: 'landscape', reason: 'Compact format, great for cards' }
 };
 
+const UNITS_ENTRIES = Object.entries(UNITS);
+const PAPER_SIZES_ENTRIES = Object.entries(PAPER_SIZES);
+
 export class SmartSheetConfig {
   constructor(container, options = {}) {
     this.container = container;
@@ -69,7 +72,7 @@ export class SmartSheetConfig {
           <div class="smart-sheet-header">
             <span class="smart-sheet-label">Paper Size</span>
             <div class="smart-sheet-unit-seg" role="group" aria-label="Measurement units">
-              ${Object.entries(UNITS).map(([key, u]) => `
+              ${UNITS_ENTRIES.map(([key, u]) => `
                 <button type="button"
                   class="smart-sheet-unit-btn ${unit === key ? 'is-active' : ''}"
                   data-unit="${key}"
@@ -84,7 +87,7 @@ export class SmartSheetConfig {
           </span>
 
           <select class="smart-sheet-select" data-field="paperSize">
-            ${Object.entries(PAPER_SIZES).map(([key, p]) => `
+            ${PAPER_SIZES_ENTRIES.map(([key, p]) => `
               <option value="${key}" ${paperSize === key ? 'selected' : ''}>
                 ${p.label} (${fmt(p.width)}×${fmt(p.height)}${unitDef.label})
               </option>
