@@ -50,7 +50,7 @@ function layoutHasOverlaps() {
   return false;
 }
 
-function saveLayout() {
+export function saveLayout() {
   if (!grid || isRelayouting) { return; }
   try {
     localStorage.setItem(storageKey(), JSON.stringify(grid.save(false)));
