@@ -1,8 +1,8 @@
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
 
-const STORAGE_KEY_DESKTOP = 'zine-grid-v6';
-const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v6';
+const STORAGE_KEY_DESKTOP = 'zine-grid-v7';
+const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v7';
 const MOBILE_BREAKPOINT = 768;
 const CELL_HEIGHT = 32;
 const MOBILE_CELL_HEIGHT = 24;
@@ -14,7 +14,9 @@ const DEFAULT_LAYOUT = [
   { id: 'settings', x: 9, y: 7, w: 3, h: 4 },
   { id: 'display', x: 9, y: 11, w: 3, h: 2 },
   { id: 'export', x: 0, y: 13, w: 4, h: 2 },
-  { id: 'preview-fold', x: 4, y: 13, w: 4, h: 2 }
+  { id: 'fold-viewer', x: 0, y: 15, w: 6, h: 6 },
+  { id: 'fold-booklet', x: 6, y: 15, w: 3, h: 4 },
+  { id: 'fold-guide', x: 9, y: 15, w: 3, h: 4 }
 ];
 
 let grid = null;
