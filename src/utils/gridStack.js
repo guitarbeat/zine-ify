@@ -148,7 +148,7 @@ function setInteractionMode() {
   const mobile = isMobile();
   document.body.classList.toggle('layout-mobile', mobile);
   syncGridMetrics();
-  grid.enableMove(true);
+  grid.enableMove(false);
   grid.enableResize(true);
   loadLayout();
 }
@@ -161,7 +161,6 @@ export function initGridStack() {
     column: 12,
     cellHeight: CELL_HEIGHT,
     margin: isMobile() ? 6 : 8,
-    handle: '.snap-card-handle',
     float: false,
     animate: true,
     sizeToContent: true,

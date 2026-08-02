@@ -197,7 +197,7 @@ body::-webkit-scrollbar {
 
 /* ─── Panel handle ───────────────────────────────────────── */
 .snap-card-handle {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.3rem;
   padding: 0 0.75rem 0 0.55rem;
@@ -495,11 +495,6 @@ body::-webkit-scrollbar {
 
   .snap-card {
     box-shadow: var(--shadow-sm);
-  }
-
-  .snap-card-handle {
-    min-height: 1.875rem;
-    padding: 0 0.5rem 0 0.35rem;
   }
 
   .snap-card-label {
