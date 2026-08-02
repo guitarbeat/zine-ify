@@ -1,14 +1,14 @@
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
 
-const STORAGE_KEY_DESKTOP = 'zine-grid-v7';
-const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v7';
+const STORAGE_KEY_DESKTOP = 'zine-grid-v8';
+const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v8';
 const MOBILE_BREAKPOINT = 768;
 const CELL_HEIGHT = 32;
 const MOBILE_CELL_HEIGHT = 24;
 
 const DEFAULT_LAYOUT = [
-  { id: 'brand', x: 0, y: 0, w: 12, h: 3 },
+  { id: 'brand', x: 0, y: 0, w: 4, h: 3 },
   { id: 'canvas', x: 0, y: 3, w: 9, h: 10 },
   { id: 'upload', x: 9, y: 3, w: 3, h: 4 },
   { id: 'settings', x: 9, y: 7, w: 3, h: 4 },
