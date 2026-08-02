@@ -52,7 +52,7 @@ body::-webkit-scrollbar {
 }
 
 .app-brand-mark .logo-image {
-  height: 2rem;
+  height: 2.75rem;
   width: auto;
   transition: transform 0.2s ease;
 }
@@ -473,6 +473,10 @@ body::-webkit-scrollbar {
   .app-header {
     height: 2.75rem;
     padding: 0 0.625rem;
+  }
+
+  .app-brand-mark .logo-image {
+    height: 2.25rem;
   }
 
   .gs-wrapper {
