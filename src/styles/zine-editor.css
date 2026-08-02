@@ -409,23 +409,19 @@
 .sheet-cut-line::before { left: 0; }
 .sheet-cut-line::after  { right: 0; }
 
-.sheet-cut-line-label--unused {
+.sheet-cut-line-label {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background: var(--primary-vibrant);
-  color: #fff;
-  font-size: 0.55rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 0.15rem 0.5rem;
-  border-radius: 2px;
-  border: 1px solid rgba(0,0,0,0.15);
+  background: var(--surface-bg);
+  color: var(--accent-dark);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0 0.45rem;
   white-space: nowrap;
   font-family: 'IBM Plex Mono', monospace;
-  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
   z-index: 15;
 }
 
