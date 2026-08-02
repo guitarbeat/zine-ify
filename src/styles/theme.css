@@ -91,11 +91,6 @@
   transition: all 0.2s ease;
 }
 
-@utility base-chip:hover {
-  background: var(--primary-glow);
-  border-color: var(--primary-deep);
-}
-
 @utility base-panel {
   background-color: var(--surface-bg);
   background-image: var(--surface-paper-stack);
@@ -104,6 +99,11 @@
   box-shadow: var(--shadow-sm);
   padding: 1.25rem;
   transition: all 0.2s ease;
+}
+
+.base-chip:hover {
+  background: var(--primary-glow);
+  border-color: var(--primary-deep);
 }
 
 body {
