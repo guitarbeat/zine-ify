@@ -186,10 +186,10 @@ body::-webkit-scrollbar {
 /* ─── Panel (snap-card) ──────────────────────────────────── */
 .snap-card {
   background: var(--surface-bg);
-  border: 1px solid var(--accent-dark);
-  border-radius: 2px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.15s ease;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
   position: relative;
 }
 
@@ -200,12 +200,13 @@ body::-webkit-scrollbar {
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0 0.6rem 0 0.4rem;
-  height: 1.75rem;
+  padding: 0 0.75rem 0 0.55rem;
+  height: 1.9rem;
   cursor: grab;
   user-select: none;
   background: #1c1c1c;
   border-bottom: 1px solid rgba(0,0,0,0.4);
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   flex-shrink: 0;
   position: relative;
 }
@@ -262,7 +263,7 @@ body::-webkit-scrollbar {
 .snap-card--action .snap-card-body--action,
 .snap-card--actions .snap-card-body--actions {
   align-items: stretch;
-  padding: 0.5rem;
+  padding: 0.7rem;
 }
 
 .snap-card--actions .snap-card-body--actions {
@@ -272,7 +273,7 @@ body::-webkit-scrollbar {
 
 .panel-action-btn {
   flex: 1;
-  min-height: 2.25rem;
+  min-height: 2.5rem;
   border-radius: var(--radius-button);
 }
 
@@ -286,9 +287,9 @@ body::-webkit-scrollbar {
   border-radius: var(--radius-button);
   background: var(--primary-vibrant);
   color: var(--accent-dark);
-  transition: opacity 0.15s;
-  border: 1px solid var(--accent-dark);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: opacity 0.15s, transform 0.15s ease, box-shadow 0.15s ease;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.05em;
@@ -296,6 +297,8 @@ body::-webkit-scrollbar {
 
 .workspace-action-button:not(:disabled):hover  {
   opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 .workspace-action-button:not(:disabled):active {
   opacity: 0.8;
@@ -307,7 +310,7 @@ body::-webkit-scrollbar {
   background: var(--surface-bg);
   color: var(--accent-dark);
   border: 1px solid var(--primary-vibrant) !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   text-transform: uppercase;
   font-size: 0.85rem;
   letter-spacing: 0.05em;
