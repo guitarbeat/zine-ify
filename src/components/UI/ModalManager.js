@@ -36,21 +36,14 @@ export class ModalManager {
   }
 
   /* ── 3D Modal ── */
-  toggle3DModal(show) {
-    // Show/hide three fold panels instead of modal
+  toggle3DModal() {
     const foldViewerCard = document.getElementById('card-fold-viewer');
     const foldBookletCard = document.getElementById('card-fold-booklet');
     const foldGuideCard = document.getElementById('card-fold-guide');
 
-    if (show) {
-      foldViewerCard?.classList.remove('hidden');
-      foldBookletCard?.classList.remove('hidden');
-      foldGuideCard?.classList.remove('hidden');
-    } else {
-      foldViewerCard?.classList.add('hidden');
-      foldBookletCard?.classList.add('hidden');
-      foldGuideCard?.classList.add('hidden');
-    }
+    foldViewerCard?.classList.remove('hidden');
+    foldBookletCard?.classList.remove('hidden');
+    foldGuideCard?.classList.remove('hidden');
   }
 
   /* ── Zoom Modal ── */

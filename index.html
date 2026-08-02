@@ -40,39 +40,32 @@
     <!-- ── App shell ─────────────────────────────────── -->
     <div class="app-shell">
 
-        <!-- ── Header ──────────────────────────────────── -->
-        <header class="app-header">
-            <div class="app-header-left">
-                <!-- reserved for undo/redo or future nav -->
-            </div>
-            <div class="app-brand-mark">
-                <img src="/icons/zine-ify-logo.png" alt="Zine-ify logo" class="logo-image">
-            </div>
-            <div class="app-header-actions">
-                <button id="header-preview-btn" type="button" class="header-action-btn header-action-btn--ghost" disabled aria-label="Preview fold" title="Preview how your zine folds">
-                    <span class="material-symbols-outlined" style="font-size:14px;" aria-hidden="true">view_in_ar</span>
-                    <span class="header-action-label">Preview</span>
-                </button>
-                <button id="header-export-btn" type="button" class="header-action-btn header-action-btn--primary" disabled aria-label="Export PDF" title="Export your zine as a printable PDF">
-                    <span class="material-symbols-outlined" style="font-size:14px;" aria-hidden="true">print</span>
-                    <span class="header-action-label">Export PDF</span>
-                </button>
-                <button id="pwa-install-trigger" type="button" class="panel-icon-btn" aria-label="Install app" title="Install app" hidden>
-                    <span class="material-symbols-outlined" style="font-size:15px;" aria-hidden="true">install_mobile</span>
-                </button>
-                <button id="theme-toggle" class="panel-icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
-                    <span class="material-symbols-outlined" style="font-size:15px;" id="theme-icon">dark_mode</span>
-                </button>
-            </div>
-        </header>
-
         <!-- ── GridStack workspace ──────────────────────── -->
         <div class="gs-wrapper">
             <div class="grid-stack">
 
+                <!-- ── PANEL: Brand controls ──────────────────────────── -->
+                <div class="grid-stack-item brand-panel-item"
+                    gs-id="brand" gs-x="0" gs-y="0" gs-w="4" gs-h="3"
+                    gs-min-w="3" gs-min-h="2" gs-size-to-content="true">
+                    <div class="grid-stack-item-content">
+                        <section class="brand-panel" aria-label="Zine-ify">
+                            <img src="/icons/zine-ify-logo.jpg" alt="Zine-ify logo" class="logo-image">
+                            <div class="app-header-actions">
+                                <button id="pwa-install-trigger" type="button" class="panel-icon-btn" aria-label="Install app" title="Install app" hidden>
+                                    <span class="material-symbols-outlined" style="font-size:15px;" aria-hidden="true">install_mobile</span>
+                                </button>
+                                <button id="theme-toggle" class="panel-icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+                                    <span class="material-symbols-outlined" style="font-size:15px;" id="theme-icon">dark_mode</span>
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
                 <!-- ── PANEL: Canvas preview ──────────────────────────── -->
                 <div class="grid-stack-item"
-                    gs-id="canvas" gs-x="0" gs-y="0" gs-w="8" gs-h="10"
+                    gs-id="canvas" gs-x="0" gs-y="3" gs-w="9" gs-h="10"
                     gs-min-w="4" gs-min-h="3" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
                         <div class="snap-card snap-card--canvas" id="card-zine">
@@ -102,7 +95,7 @@
 
                 <!-- ── PANEL: Add pages ──────────────────────────────── -->
                 <div class="grid-stack-item"
-                    gs-id="upload" gs-x="8" gs-y="0" gs-w="4" gs-h="4"
+                    gs-id="upload" gs-x="9" gs-y="3" gs-w="3" gs-h="4"
                     gs-min-w="2" gs-min-h="2" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
                         <div class="snap-card" id="card-upload">
@@ -130,7 +123,7 @@
 
                 <!-- ── PANEL: Page settings ──────────────────────────── -->
                 <div class="grid-stack-item"
-                    gs-id="settings" gs-x="8" gs-y="4" gs-w="4" gs-h="4"
+                    gs-id="settings" gs-x="9" gs-y="7" gs-w="3" gs-h="4"
                     gs-min-w="2" gs-min-h="2" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
                         <div class="snap-card" id="card-settings">
@@ -151,7 +144,7 @@
 
                 <!-- ── PANEL: Display options ────────────────────────── -->
                 <div class="grid-stack-item"
-                    gs-id="display" gs-x="8" gs-y="8" gs-w="4" gs-h="2"
+                    gs-id="display" gs-x="9" gs-y="11" gs-w="3" gs-h="2"
                     gs-min-w="2" gs-min-h="2" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
                         <div class="snap-card" id="card-display">
@@ -182,7 +175,7 @@
 
                 <!-- ── PANEL: Export PDF ─────────────────────────────── -->
                 <div class="grid-stack-item"
-                    gs-id="export" gs-x="0" gs-y="10" gs-w="4" gs-h="2"
+                    gs-id="export" gs-x="0" gs-y="13" gs-w="4" gs-h="2"
                     gs-min-w="2" gs-min-h="2" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
                         <div class="snap-card snap-card--action" id="card-export">
@@ -202,34 +195,12 @@
                     </div>
                 </div>
 
-                <!-- ── PANEL: Preview fold (trigger) ────────────────────── -->
-                <div class="grid-stack-item"
-                    gs-id="preview-fold-trigger" gs-x="4" gs-y="10" gs-w="4" gs-h="2"
-                    gs-min-w="2" gs-min-h="2" gs-size-to-content="true">
-                    <div class="grid-stack-item-content">
-                        <div class="snap-card snap-card--action" id="card-preview-fold-trigger">
-                            <div class="snap-card-handle" title="Drag to move">
-                                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
-                                <span class="snap-card-label">Preview fold</span>
-                            </div>
-                            <div class="snap-card-body snap-card-body--action">
-                                <button id="view3dBtn" type="button"
-                                    class="workspace-action-button workspace-action-button-secondary panel-action-btn flex items-center justify-center gap-2"
-                                    disabled aria-label="Preview fold" title="Preview how your zine folds together">
-                                    <span class="material-symbols-outlined" aria-hidden="true">view_in_ar</span>
-                                    <span class="font-semibold">Preview Fold</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- ── PANEL: 3D Fold Viewer ────────────────────────────── -->
                 <div class="grid-stack-item"
-                    gs-id="fold-viewer" gs-x="0" gs-y="12" gs-w="6" gs-h="6"
+                    gs-id="fold-viewer" gs-x="0" gs-y="15" gs-w="6" gs-h="6"
                     gs-min-w="4" gs-min-h="4" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
-                        <div class="snap-card fold-viewer-card hidden" id="card-fold-viewer">
+                        <div class="snap-card fold-viewer-card" id="card-fold-viewer">
                             <div class="snap-card-handle" title="Drag to move">
                                 <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
                                 <span class="snap-card-label">3D Fold Viewer</span>
@@ -275,10 +246,10 @@
 
                 <!-- ── PANEL: Booklet Preview ────────────────────────── -->
                 <div class="grid-stack-item"
-                    gs-id="fold-booklet" gs-x="6" gs-y="12" gs-w="3" gs-h="4"
+                    gs-id="fold-booklet" gs-x="6" gs-y="15" gs-w="3" gs-h="4"
                     gs-min-w="3" gs-min-h="3" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
-                        <div class="snap-card fold-booklet-card hidden" id="card-fold-booklet">
+                        <div class="snap-card fold-booklet-card" id="card-fold-booklet">
                             <div class="snap-card-handle" title="Drag to move">
                                 <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
                                 <span class="snap-card-label">Booklet Preview</span>
@@ -307,10 +278,10 @@
 
                 <!-- ── PANEL: Fold Guide ────────────────────────────── -->
                 <div class="grid-stack-item"
-                    gs-id="fold-guide" gs-x="9" gs-y="12" gs-w="3" gs-h="4"
+                    gs-id="fold-guide" gs-x="9" gs-y="15" gs-w="3" gs-h="4"
                     gs-min-w="3" gs-min-h="3" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
-                        <div class="snap-card fold-guide-card hidden" id="card-fold-guide">
+                        <div class="snap-card fold-guide-card" id="card-fold-guide">
                             <div class="snap-card-handle" title="Drag to move">
                                 <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
                                 <span class="snap-card-label">How to Fold</span>

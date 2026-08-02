@@ -1,19 +1,22 @@
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
 
-const STORAGE_KEY_DESKTOP = 'zine-grid-v3';
-const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v3';
+const STORAGE_KEY_DESKTOP = 'zine-grid-v8';
+const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v8';
 const MOBILE_BREAKPOINT = 768;
 const CELL_HEIGHT = 32;
 const MOBILE_CELL_HEIGHT = 24;
 
 const DEFAULT_LAYOUT = [
-  { id: 'canvas', x: 0, y: 0, w: 8, h: 10 },
-  { id: 'upload', x: 8, y: 0, w: 4, h: 4 },
-  { id: 'settings', x: 8, y: 4, w: 4, h: 4 },
-  { id: 'display', x: 8, y: 8, w: 4, h: 2 },
-  { id: 'export', x: 0, y: 10, w: 4, h: 2 },
-  { id: 'preview-fold', x: 4, y: 10, w: 4, h: 2 }
+  { id: 'brand', x: 0, y: 0, w: 4, h: 3 },
+  { id: 'canvas', x: 0, y: 3, w: 9, h: 10 },
+  { id: 'upload', x: 9, y: 3, w: 3, h: 4 },
+  { id: 'settings', x: 9, y: 7, w: 3, h: 4 },
+  { id: 'display', x: 9, y: 11, w: 3, h: 2 },
+  { id: 'export', x: 0, y: 13, w: 4, h: 2 },
+  { id: 'fold-viewer', x: 0, y: 15, w: 6, h: 6 },
+  { id: 'fold-booklet', x: 6, y: 15, w: 3, h: 4 },
+  { id: 'fold-guide', x: 9, y: 15, w: 3, h: 4 }
 ];
 
 let grid = null;
@@ -161,7 +164,6 @@ export function initGridStack() {
     column: 12,
     cellHeight: CELL_HEIGHT,
     margin: isMobile() ? 6 : 8,
-    handle: '.snap-card-handle',
     float: false,
     animate: true,
     sizeToContent: true,

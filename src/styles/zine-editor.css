@@ -54,7 +54,7 @@
 }
 
 .page-cell {
-  border: 2px dashed var(--primary-vibrant);
+  border: 1px solid var(--border-color);
   position: relative;
   display: flex;
   align-items: center;
@@ -72,7 +72,7 @@
 }
 
 .page-cell:not(.has-page):hover {
-  border-color: var(--primary-vibrant);
+  border-color: var(--border-color);
   background: var(--primary-glow);
 }
 
@@ -165,8 +165,7 @@
 .page-cell.sortable-ghost {
   opacity: 0.3;
   background: var(--primary-glow) !important;
-  border-color: var(--primary-vibrant) !important;
-  border-style: dashed !important;
+  border-color: var(--border-color) !important;
 }
 
 /* Chosen: the cell being picked up */
@@ -389,7 +388,7 @@
 
 .sheet-cut-line-h {
   height: 0;
-  border-top: 3px dashed var(--primary-vibrant);
+  border-top: 1px solid var(--border-color);
   transform: translateY(-50%);
   opacity: 0.9;
 }
@@ -403,30 +402,26 @@
   width: 0.65rem;
   height: 0.65rem;
   border-radius: 1px;
-  background: var(--primary-vibrant);
+  background: var(--border-color);
   border: 1px solid var(--border-color);
 }
 
 .sheet-cut-line::before { left: 0; }
 .sheet-cut-line::after  { right: 0; }
 
-.sheet-cut-line-label--unused {
+.sheet-cut-line-label {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background: var(--primary-vibrant);
-  color: #fff;
-  font-size: 0.55rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 0.15rem 0.5rem;
-  border-radius: 2px;
-  border: 1px solid rgba(0,0,0,0.15);
+  background: var(--surface-bg);
+  color: var(--accent-dark);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0 0.45rem;
   white-space: nowrap;
   font-family: 'IBM Plex Mono', monospace;
-  box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
   z-index: 15;
 }
 
@@ -508,12 +503,12 @@
   border-right: var(--margin-x) solid rgba(255, 255, 255, 0);
   border-top: var(--margin-y) solid rgba(255, 255, 255, 0);
   border-bottom: var(--margin-y) solid rgba(255, 255, 255, 0);
-  outline: 2px dashed rgba(196, 93, 62, 0.4);
+  outline: 1px solid var(--border-color);
   outline-offset: -1px;
 }
 
 [data-theme="dark"] .print-sheet[data-has-margin="true"]::before {
-  outline: 2px dashed rgba(196, 93, 62, 0.5);
+  outline: 1px solid var(--border-color);
 }
 
 .print-sheet[data-has-margin="true"]::after {
