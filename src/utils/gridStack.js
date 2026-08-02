@@ -1,19 +1,20 @@
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
 
-const STORAGE_KEY_DESKTOP = 'zine-grid-v5';
-const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v5';
+const STORAGE_KEY_DESKTOP = 'zine-grid-v6';
+const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v6';
 const MOBILE_BREAKPOINT = 768;
 const CELL_HEIGHT = 32;
 const MOBILE_CELL_HEIGHT = 24;
 
 const DEFAULT_LAYOUT = [
-  { id: 'canvas', x: 0, y: 0, w: 9, h: 10 },
-  { id: 'upload', x: 9, y: 0, w: 3, h: 4 },
-  { id: 'settings', x: 9, y: 4, w: 3, h: 4 },
-  { id: 'display', x: 9, y: 8, w: 3, h: 2 },
-  { id: 'export', x: 0, y: 10, w: 4, h: 2 },
-  { id: 'preview-fold', x: 4, y: 10, w: 4, h: 2 }
+  { id: 'brand', x: 0, y: 0, w: 12, h: 3 },
+  { id: 'canvas', x: 0, y: 3, w: 9, h: 10 },
+  { id: 'upload', x: 9, y: 3, w: 3, h: 4 },
+  { id: 'settings', x: 9, y: 7, w: 3, h: 4 },
+  { id: 'display', x: 9, y: 11, w: 3, h: 2 },
+  { id: 'export', x: 0, y: 13, w: 4, h: 2 },
+  { id: 'preview-fold', x: 4, y: 13, w: 4, h: 2 }
 ];
 
 let grid = null;
