@@ -110,19 +110,6 @@ export class SmartSheetConfig {
             <span class="smart-sheet-custom-unit">${unitDef.label}</span>
           </div>
           ` : ''}
-
-          <div class="smart-sheet-orientation-seg">
-            <button type="button"
-              class="smart-sheet-orientation-btn ${orientation === 'landscape' ? 'is-active' : ''}"
-              data-value="landscape"
-              aria-pressed="${orientation === 'landscape'}">
-              <svg class="smart-sheet-orientation-icon" width="24" height="18" viewBox="0 0 24 18">
-                <rect x="1" y="1" width="22" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              <span>Landscape</span>
-              <span class="smart-sheet-orientation-dims">${landscapeW}×${landscapeH}</span>
-            </button>
-          </div>
         </div>
 
         <div class="smart-sheet-section">
@@ -169,12 +156,6 @@ export class SmartSheetConfig {
     const unitBtn = e.target.closest('.smart-sheet-unit-btn');
     if (unitBtn) {
       this.setUnit(unitBtn.dataset.unit);
-      return;
-    }
-
-    const orientBtn = e.target.closest('.smart-sheet-orientation-btn');
-    if (orientBtn) {
-      this.setOrientation(orientBtn.dataset.value);
       return;
     }
 
@@ -255,12 +236,6 @@ export class SmartSheetConfig {
     this.emitChange();
   }
 
-  setOrientation() {
-    if (this.state.orientation === 'landscape') {return;}
-    this.state.orientation = 'landscape';
-    this.render();
-    this.emitChange();
-  }
 
   emitChange() {
     this.options.onChange({
