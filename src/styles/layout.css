@@ -27,7 +27,7 @@ body::-webkit-scrollbar {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 0 0.875rem;
-  height: 4rem;
+  height: 3.25rem;
   flex-shrink: 0;
   background: #000;
   border-bottom: 2px solid var(--primary-vibrant);
@@ -42,28 +42,28 @@ body::-webkit-scrollbar {
   gap: 0.375rem;
 }
 
-.app-brand-mark {
+.brand-panel {
   display: flex;
   align-items: center;
   justify-content: center;
-  grid-column: 2;
-  position: relative;
-  z-index: 1;
-  padding: 0.2rem 0.55rem;
+  width: fit-content;
+  margin: 0.65rem auto 0;
+  padding: 0.35rem 0.75rem;
   background: #000;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-md);
 }
 
-.app-brand-mark .logo-image {
+.brand-panel .logo-image {
+  display: block;
   height: 3.35rem;
   width: auto;
   filter: brightness(1.35) drop-shadow(0 0 0.35rem rgba(255, 255, 255, 0.25));
   transition: transform 0.2s ease, filter 0.2s ease;
 }
 
-.app-brand-mark:hover .logo-image {
+.brand-panel:hover .logo-image {
   transform: scale(1.06);
   filter: brightness(1.5) drop-shadow(0 0 0.45rem rgba(255, 255, 255, 0.35));
 }
@@ -485,11 +485,12 @@ body::-webkit-scrollbar {
     padding: 0 0.625rem;
   }
 
-  .app-brand-mark {
-    padding: 0.15rem 0.4rem;
+  .brand-panel {
+    margin-top: 0.45rem;
+    padding: 0.25rem 0.5rem;
   }
 
-  .app-brand-mark .logo-image {
+  .brand-panel .logo-image {
     height: 2.65rem;
   }
 
