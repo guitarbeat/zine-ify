@@ -1,8 +1,8 @@
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
 
-const STORAGE_KEY_DESKTOP = 'zine-grid-v4';
-const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v4';
+const STORAGE_KEY_DESKTOP = 'zine-grid-v5';
+const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v5';
 const MOBILE_BREAKPOINT = 768;
 const CELL_HEIGHT = 32;
 const MOBILE_CELL_HEIGHT = 24;
