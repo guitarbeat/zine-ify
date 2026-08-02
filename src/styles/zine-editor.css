@@ -62,28 +62,31 @@
   overflow: hidden;
   cursor: pointer;
   min-height: 7rem;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
-  border-radius: 1px;
-  background: linear-gradient(135deg, rgba(255, 45, 45, 0.03) 0%, transparent 100%);
+  transition: all 0.2s ease;
+  border-radius: var(--radius-button);
+  background: var(--surface-muted);
 }
 
 [data-theme="dark"] .page-cell {
-  border-color: rgba(255,255,255,0.08);
+  border-color: var(--border-color);
+  background: var(--surface-muted);
 }
 
 .page-cell:not(.has-page):hover {
-  border-color: var(--border-color);
+  border-color: var(--primary-vibrant);
   background: var(--primary-glow);
+  box-shadow: inset 0 0 0 1px var(--primary-vibrant);
 }
 
 .page-cell.has-page {
-  border: 1px solid transparent;
+  border: 1px solid var(--border-color);
   cursor: pointer;
 }
 
 .page-cell.has-page:hover {
-  border-color: rgba(0,0,0,0.1);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-color: var(--primary-vibrant);
+  box-shadow: 0 2px 8px var(--primary-glow);
+  transform: translateY(-1px);
 }
 
 .page-cell.has-page::after {
@@ -91,13 +94,13 @@
   position: absolute;
   inset: 0;
   background: transparent;
-  transition: background 0.15s ease;
+  transition: background 0.2s ease;
   z-index: 6;
   pointer-events: none;
 }
 
 .page-cell.has-page:hover::after {
-  background: rgba(239, 68, 68, 0.08);
+  background: rgba(230, 57, 70, 0.06);
 }
 
 .page-cell-remove-hint {
