@@ -52,13 +52,15 @@ body::-webkit-scrollbar {
 }
 
 .app-brand-mark .logo-image {
-  height: 2.75rem;
+  height: 4rem;
   width: auto;
-  transition: transform 0.2s ease;
+  filter: brightness(1.35) drop-shadow(0 0 0.35rem rgba(255, 255, 255, 0.25));
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
 
 .app-brand-mark:hover .logo-image {
   transform: scale(1.06);
+  filter: brightness(1.5) drop-shadow(0 0 0.45rem rgba(255, 255, 255, 0.35));
 }
 
 .app-header-actions {
@@ -476,7 +478,7 @@ body::-webkit-scrollbar {
   }
 
   .app-brand-mark .logo-image {
-    height: 2.25rem;
+    height: 3.25rem;
   }
 
   .gs-wrapper {
