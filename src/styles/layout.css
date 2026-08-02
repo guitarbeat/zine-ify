@@ -154,6 +154,7 @@ body::-webkit-scrollbar {
   border-radius: 2px;
   overflow: hidden;
   height: 100%;
+  cursor: move;
 }
 
 .grid-stack-item-content .snap-card {
@@ -192,6 +193,7 @@ body::-webkit-scrollbar {
 
 /* ─── Panel (snap-card) ──────────────────────────────────── */
 .snap-card {
+  cursor: move;
   background: var(--surface-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-panel);
@@ -205,6 +207,7 @@ body::-webkit-scrollbar {
 /* ─── Panel handle ───────────────────────────────────────── */
 .snap-card-handle {
   display: none;
+  cursor: move;
   align-items: center;
   gap: 0.3rem;
   padding: 0 0.75rem 0 0.55rem;

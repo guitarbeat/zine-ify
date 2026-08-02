@@ -148,7 +148,7 @@ function setInteractionMode() {
   const mobile = isMobile();
   document.body.classList.toggle('layout-mobile', mobile);
   syncGridMetrics();
-  grid.enableMove(false);
+  grid.enableMove(true);
   grid.enableResize(true);
   loadLayout();
 }
