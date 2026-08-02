@@ -14,7 +14,7 @@ const FIXED_ROWS = 2;
 const FIXED_COLS = 4;
 
 const PAPER_RECOMMENDATIONS = {
-  'a4': { best: 'portrait', reason: 'Optimal for mini-zine folding' },
+  'a4': { best: 'landscape', reason: 'Optimal for mini-zine folding' },
   'letter': { best: 'landscape', reason: 'Standard US format, good margins' },
   'a3': { best: 'landscape', reason: 'Great for double-mini format' },
   'legal': { best: 'landscape', reason: 'Extra height for longer content' },
@@ -60,8 +60,6 @@ export class SmartSheetConfig {
     const fmt = (mm) => formatDimension(mm, unit);
     const landscapeW = fmt(paper.height);
     const landscapeH = fmt(paper.width);
-    const portraitW = fmt(paper.width);
-    const portraitH = fmt(paper.height);
 
     const fragment = DOMPurify.sanitize(`
       <div class="smart-sheet-config">
@@ -123,16 +121,6 @@ export class SmartSheetConfig {
               </svg>
               <span>Landscape</span>
               <span class="smart-sheet-orientation-dims">${landscapeW}×${landscapeH}</span>
-            </button>
-            <button type="button"
-              class="smart-sheet-orientation-btn ${orientation === 'portrait' ? 'is-active' : ''}"
-              data-value="portrait"
-              aria-pressed="${orientation === 'portrait'}">
-              <svg class="smart-sheet-orientation-icon" width="18" height="24" viewBox="0 0 18 24">
-                <rect x="1" y="1" width="16" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              <span>Portrait</span>
-              <span class="smart-sheet-orientation-dims">${portraitW}×${portraitH}</span>
             </button>
           </div>
         </div>
@@ -267,8 +255,9 @@ export class SmartSheetConfig {
     this.emitChange();
   }
 
-  setOrientation(orientation) {
-    this.state.orientation = orientation;
+  setOrientation() {
+    if (this.state.orientation === 'landscape') {return;}
+    this.state.orientation = 'landscape';
     this.render();
     this.emitChange();
   }
@@ -291,7 +280,7 @@ export class SmartSheetConfig {
   }
 
   setState(newState) {
-    Object.assign(this.state, newState);
+    Object.assign(this.state, newState, { orientation: 'landscape' });
     this.render();
     this.emitChange();
   }
