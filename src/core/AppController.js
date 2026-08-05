@@ -696,13 +696,11 @@ export class AppController {
           const Zine3DViewer = await this.getZine3DViewerClass();
           try {
             this.viewer3d = new Zine3DViewer(container);
-          } catch (e) {
+          } catch {
             const fallback = container.querySelector('.zine-3d-fallback-canvas');
             if (fallback) {
               fallback.remove();
             }
-            /* eslint-disable-next-line no-console */
-            console.error(e);
             this.viewer3d = null;
             this.ui.toggle3DModal(false);
             toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
