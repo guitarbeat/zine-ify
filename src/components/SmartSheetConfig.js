@@ -14,7 +14,7 @@ const FIXED_ROWS = 2;
 const FIXED_COLS = 4;
 
 const PAPER_RECOMMENDATIONS = {
-  'a4': { best: 'landscape', reason: 'Optimal for mini-zine folding' },
+  'a4': { best: 'portrait', reason: 'Optimal for mini-zine folding' },
   'letter': { best: 'landscape', reason: 'Standard US format, good margins' },
   'a3': { best: 'landscape', reason: 'Great for double-mini format' },
   'legal': { best: 'landscape', reason: 'Extra height for longer content' },
@@ -70,6 +70,25 @@ export class SmartSheetConfig {
                   data-unit="${key}"
                   aria-pressed="${unit === key}">${u.label}</button>
               `).join('')}
+            </div>
+          </div>
+
+
+          <div class="smart-sheet-header">
+            <span class="smart-sheet-label">Orientation</span>
+            <div class="smart-sheet-unit-seg" role="group" aria-label="Paper orientation">
+              <button type="button"
+                class="smart-sheet-orientation-btn ${orientation === 'portrait' ? 'is-active' : ''}"
+                data-value="portrait"
+                aria-pressed="${orientation === 'portrait'}">
+                Portrait
+              </button>
+              <button type="button"
+                class="smart-sheet-orientation-btn ${orientation === 'landscape' ? 'is-active' : ''}"
+                data-value="landscape"
+                aria-pressed="${orientation === 'landscape'}">
+                Landscape
+              </button>
             </div>
           </div>
 
@@ -156,6 +175,12 @@ export class SmartSheetConfig {
       return;
     }
 
+    const orientationBtn = e.target.closest('.smart-sheet-orientation-btn');
+    if (orientationBtn) {
+      this.setOrientation(orientationBtn.dataset.value);
+      return;
+    }
+
     const marginBtn = e.target.closest('[data-margin-delta]');
     if (marginBtn) {
       const sign = parseInt(marginBtn.dataset.marginDelta, 10) || 0;
@@ -214,6 +239,14 @@ export class SmartSheetConfig {
     } else {
       this.state.customPaper = { ...this.state.customPaper, height: clamped };
     }
+    this.render();
+    this.emitChange();
+  }
+
+
+  setOrientation(orientation) {
+    if (orientation === this.state.orientation) {return;}
+    this.state.orientation = orientation;
     this.render();
     this.emitChange();
   }
