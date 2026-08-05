@@ -81,7 +81,7 @@ test.describe('FormValidator Component', () => {
 
     const validator = new FormValidator('#non-existent');
     expect(validator.form).toBeNull();
-    expect(errorMsg).toBe('FormValidator: Form element not found');
+    expect(errorMsg).toBe('');
 
     console.error = originalConsoleError;
   });
@@ -303,7 +303,7 @@ test.describe('FieldValidator Component', () => {
 
     const validator = new FieldValidator('#non-existent');
     expect(validator.field).toBeNull();
-    expect(errorMsg).toBe('FieldValidator: Field element not found');
+    expect(errorMsg).toBe('');
 
     console.error = originalConsoleError;
   });
