@@ -1,6 +1,7 @@
 // Modern toast notification system
 import { sanitizeHTML } from '../utils/helpers.js';
 
+
 const TOAST_ICONS = {
   success: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
@@ -50,7 +51,28 @@ class Toast {
 
     // ⚡️ Bolt: Initialize template once to eliminate repetitive DOM node creation overhead
     this.template = document.createElement('template');
-    this.template.innerHTML = '<div class="toast-icon"></div><div class="toast-content"><div class="toast-title"></div><div class="toast-message"></div></div><button class="toast-close w-6 h-6 ml-2 flex items-center justify-center focus:outline-none" aria-label="Close notification" title="Close notification">&times;</button>';
+
+    const icon = document.createElement('div');
+    icon.className = 'toast-icon';
+
+    const content = document.createElement('div');
+    content.className = 'toast-content';
+    const title = document.createElement('div');
+    title.className = 'toast-title';
+    const message = document.createElement('div');
+    message.className = 'toast-message';
+    content.appendChild(title);
+    content.appendChild(message);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'toast-close w-6 h-6 ml-2 flex items-center justify-center focus:outline-none';
+    closeBtn.setAttribute('aria-label', 'Close notification');
+    closeBtn.setAttribute('title', 'Close notification');
+    closeBtn.textContent = '×';
+
+    this.template.content.appendChild(icon);
+    this.template.content.appendChild(content);
+    this.template.content.appendChild(closeBtn);
   }
 
   /**
@@ -82,7 +104,7 @@ class Toast {
 
     toast.appendChild(this.template.content.cloneNode(true));
 
-    toast.querySelector('.toast-icon').insertAdjacentHTML('beforeend', this.getIcon(type));
+    toast.querySelector('.toast-icon').appendChild(sanitizeHTML(this.getIcon(type)));
 
     toast.querySelector('.toast-title').appendChild(sanitizeHTML(title));
 
