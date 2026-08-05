@@ -19,7 +19,6 @@ import DOMPurify from 'dompurify';
 export function initSettingsValidation(container = document) {
   const form = container.querySelector('#settings-group') || container.querySelector('.rail-settings-panel');
   if (!form) {
-    console.warn('ValidationService: Settings form not found');
     return null;
   }
 
