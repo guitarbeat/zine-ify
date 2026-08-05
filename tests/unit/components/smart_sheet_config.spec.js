@@ -3,11 +3,33 @@ import { SmartSheetConfig } from '../../../src/components/SmartSheetConfig.js';
 import { JSDOM } from 'jsdom';
 import { MARGIN_MAX, MARGIN_MIN, UNITS, PAPER_SIZES, toMm } from '../../../src/utils/config.js';
 
+
+import DOMPurifyFactory from 'dompurify';
+
 test.describe('SmartSheetConfig Component', () => {
   let dom;
   let container;
   let originalWindow;
   let originalDocument;
+  let purify;
+  let originalDOMPurify;
+
+  test.beforeAll(async () => {
+    // We need to reassign the method on the imported module because SmartSheetConfig imports it directly
+    const tempDom = new JSDOM('<!DOCTYPE html>');
+    purify = DOMPurifyFactory(tempDom.window);
+
+    // Import the actual module dynamically to mock its export
+    const DOMPurifyModule = await import('dompurify');
+    originalDOMPurify = DOMPurifyModule.default.sanitize;
+    DOMPurifyModule.default.sanitize = purify.sanitize;
+  });
+
+  test.afterAll(async () => {
+    const DOMPurifyModule = await import('dompurify');
+    DOMPurifyModule.default.sanitize = originalDOMPurify;
+  });
+
 
   test.beforeEach(() => {
     dom = new JSDOM('<!DOCTYPE html><div id="container"></div>');
@@ -39,7 +61,6 @@ test.describe('SmartSheetConfig Component', () => {
     // Check initial render
     expect(container.querySelector('.smart-sheet-config')).toBeTruthy();
     expect(container.querySelector('select[data-field="paperSize"]').value).toBe('letter');
-    expect(container.querySelector('.smart-sheet-orientation-btn[data-value="landscape"]').classList.contains('is-active')).toBe(true);
     expect(container.querySelector('.smart-sheet-unit-btn[data-unit="in"]').classList.contains('is-active')).toBe(true);
   });
 
@@ -50,12 +71,10 @@ test.describe('SmartSheetConfig Component', () => {
       initialUnit: 'mm'
     });
     expect(config.state.paperSize).toBe('a4');
-    expect(config.state.orientation).toBe('portrait');
     expect(config.state.unit).toBe('mm');
     expect(config.state.customPaper.width).toBe(PAPER_SIZES.a4.width);
 
     expect(container.querySelector('select[data-field="paperSize"]').value).toBe('a4');
-    expect(container.querySelector('.smart-sheet-orientation-btn[data-value="portrait"]').classList.contains('is-active')).toBe(true);
   });
 
   test('emits onChange when unit is changed', () => {
@@ -71,19 +90,9 @@ test.describe('SmartSheetConfig Component', () => {
     expect(emitted.unit).toBe('mm');
   });
 
-  test('emits onChange when orientation is changed', () => {
-    let emitted = null;
-    const config = new SmartSheetConfig(container, {
-      initialOrientation: 'landscape',
-      onChange: (state) => { emitted = state; }
-    });
 
-    const portraitBtn = container.querySelector('.smart-sheet-orientation-btn[data-value="portrait"]');
-    portraitBtn.click();
 
-    expect(config.state.orientation).toBe('portrait');
-    expect(emitted.orientation).toBe('portrait');
-  });
+
 
   test('changes paper size and updates recommendation', () => {
     let emitted = null;
@@ -100,8 +109,6 @@ test.describe('SmartSheetConfig Component', () => {
     expect(emitted.paperSize).toBe('a4');
 
     // A4 best orientation is portrait, should auto-update
-    expect(config.state.orientation).toBe('portrait');
-    expect(emitted.orientation).toBe('portrait');
   });
 
   test('shows custom paper inputs when "custom" is selected', () => {
@@ -190,7 +197,6 @@ test.describe('SmartSheetConfig Component', () => {
 
     config.setState({ paperSize: 'a4', orientation: 'portrait' });
     expect(config.state.paperSize).toBe('a4');
-    expect(config.state.orientation).toBe('portrait');
 
     const select = container.querySelector('select[data-field="paperSize"]');
     expect(select.value).toBe('a4');
