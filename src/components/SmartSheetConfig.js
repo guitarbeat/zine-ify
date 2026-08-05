@@ -285,7 +285,7 @@ export class SmartSheetConfig {
   }
 
   setState(newState) {
-    Object.assign(this.state, newState, { orientation: 'landscape' });
+    Object.assign(this.state, newState);
     this.render();
     this.emitChange();
   }
