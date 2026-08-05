@@ -36,14 +36,20 @@ export class ModalManager {
   }
 
   /* ── 3D Modal ── */
-  toggle3DModal() {
+  toggle3DModal(show) {
     const foldViewerCard = document.getElementById('card-fold-viewer');
     const foldBookletCard = document.getElementById('card-fold-booklet');
     const foldGuideCard = document.getElementById('card-fold-guide');
 
-    foldViewerCard?.classList.remove('hidden');
-    foldBookletCard?.classList.remove('hidden');
-    foldGuideCard?.classList.remove('hidden');
+    const cards = [foldViewerCard, foldBookletCard, foldGuideCard];
+    cards.forEach((card) => {
+      if (!card) { return; }
+      if (show) {
+        card.classList.remove('hidden');
+      } else {
+        card.classList.add('hidden');
+      }
+    });
   }
 
   /* ── Zoom Modal ── */
