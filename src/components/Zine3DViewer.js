@@ -258,15 +258,36 @@ export class Zine3DViewer {
     this.stacks.forEach((stack) => {
       this.scene.remove(stack.group);
     });
+    // Use Sets to track shared geometries and materials to avoid redundant calls
+    const disposedGeometries = new Set();
+    const disposedMaterials = new Set();
+
     this.seams.forEach((seam) => {
       this.scene.remove(seam.mesh);
-      seam.material?.dispose?.();
-      seam.geometry?.dispose?.();
+      if (seam.material && !disposedMaterials.has(seam.material)) {
+        seam.material.dispose?.();
+        disposedMaterials.add(seam.material);
+      }
+      if (seam.geometry && !disposedGeometries.has(seam.geometry)) {
+        seam.geometry.dispose?.();
+        disposedGeometries.add(seam.geometry);
+      }
     });
+
     this.guides.forEach((guide) => {
       this.scene.remove(guide.mesh);
-      (guide.materials ?? [guide.material]).forEach((material) => material?.dispose?.());
-      (guide.geometries ?? [guide.geometry]).forEach((geometry) => geometry?.dispose?.());
+      (guide.materials ?? [guide.material]).forEach((material) => {
+        if (material && !disposedMaterials.has(material)) {
+          material.dispose?.();
+          disposedMaterials.add(material);
+        }
+      });
+      (guide.geometries ?? [guide.geometry]).forEach((geometry) => {
+        if (geometry && !disposedGeometries.has(geometry)) {
+          geometry.dispose?.();
+          disposedGeometries.add(geometry);
+        }
+      });
     });
     this.pages = [];
     this.stacks = [];
@@ -505,27 +526,44 @@ export class Zine3DViewer {
   }
 
   createSeams() {
+    if (this.connectionDefinitions.length === 0) {
+      return;
+    }
+
+    // Create shared geometry and material outside the loop to optimize memory and performance
+    const sharedGeometry = new THREE.PlaneGeometry(1, 1);
+    const sharedMaterial = new THREE.MeshStandardMaterial({
+      color: this.sheetMaterialColor,
+      side: THREE.DoubleSide,
+      roughness: 0.95
+    });
+
     this.connectionDefinitions.forEach((connection) => {
       const from = connection.from;
       const to = connection.to;
       const orientation = connection.orientation;
-      const geometry = new THREE.PlaneGeometry(1, 1);
-      const material = new THREE.MeshStandardMaterial({
-        color: this.sheetMaterialColor,
-        side: THREE.DoubleSide,
-        roughness: 0.95
-      });
-      const mesh = new THREE.Mesh(geometry, material);
+
+      const mesh = new THREE.Mesh(sharedGeometry, sharedMaterial);
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       this.scene.add(mesh);
       const pageA = this.pages[from - 1];
       const pageB = this.pages[to - 1];
-      this.seams.push({ from, to, orientation, mesh, geometry, material, pageA, pageB });
+
+      // We push the shared geometry and material so they are properly disposed later
+      this.seams.push({ from, to, orientation, mesh, geometry: sharedGeometry, material: sharedMaterial, pageA, pageB });
     });
   }
 
   createGuides() {
+    // Share materials to optimize performance
+    const foldMaterial = new THREE.MeshBasicMaterial({
+      color: this.foldGuideColor,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.45
+    });
+
     this.guideDefinitions.forEach((guide) => {
       if (guide.type === 'slit') {
         const slitGuide = this.createSlitGuide(guide);
@@ -539,23 +577,17 @@ export class Zine3DViewer {
         isHorizontal ? guide.length : this.guideWidth,
         isHorizontal ? this.guideWidth : guide.length
       );
-      const material = new THREE.MeshBasicMaterial({
-        color: guide.type === 'slit' ? this.slitGuideColor : this.foldGuideColor,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: guide.type === 'slit' ? 0.8 : 0.45
-      });
 
-      const mesh = new THREE.Mesh(geometry, material);
+      const mesh = new THREE.Mesh(geometry, foldMaterial);
       mesh.position.set(guide.x, guide.y, this.panelThickness * 2);
       this.scene.add(mesh);
       this.guides.push({
         ...guide,
         mesh,
         geometry,
-        material,
+        material: foldMaterial,
         geometries: [geometry],
-        materials: [material]
+        materials: [foldMaterial]
       });
     });
   }
@@ -563,23 +595,20 @@ export class Zine3DViewer {
   createSlitGuide(guide) {
     const group = new THREE.Group();
     const lineGeometry = new THREE.PlaneGeometry(guide.length, this.cutGuideWidth);
-    const capGeometry = new THREE.PlaneGeometry(this.cutGuideWidth * 1.15, this.cutGuideCapHeight);
-    const lineMaterial = new THREE.MeshBasicMaterial({
-      color: this.slitGuideColor,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.95
-    });
-    const capMaterial = new THREE.MeshBasicMaterial({
+
+    // Share material between the line and caps
+    const sharedMaterial = new THREE.MeshBasicMaterial({
       color: this.slitGuideColor,
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 0.95
     });
 
-    const lineMesh = new THREE.Mesh(lineGeometry, lineMaterial);
-    const leftCap = new THREE.Mesh(capGeometry, capMaterial);
-    const rightCap = new THREE.Mesh(capGeometry, capMaterial);
+    const capGeometry = new THREE.PlaneGeometry(this.cutGuideWidth * 1.15, this.cutGuideCapHeight);
+
+    const lineMesh = new THREE.Mesh(lineGeometry, sharedMaterial);
+    const leftCap = new THREE.Mesh(capGeometry, sharedMaterial);
+    const rightCap = new THREE.Mesh(capGeometry, sharedMaterial);
     leftCap.position.x = -guide.length / 2;
     rightCap.position.x = guide.length / 2;
 
@@ -594,7 +623,7 @@ export class Zine3DViewer {
       lineMesh,
       endCaps: [leftCap, rightCap],
       geometries: [lineGeometry, capGeometry],
-      materials: [lineMaterial, capMaterial]
+      materials: [sharedMaterial]
     };
   }
 
@@ -704,13 +733,32 @@ export class Zine3DViewer {
       page.backGeometry?.dispose?.();
     });
     this.stacks = [];
+    const disposedGeometries = new Set();
+    const disposedMaterials = new Set();
+
     this.seams.forEach((seam) => {
-      seam.material?.dispose?.();
-      seam.geometry?.dispose?.();
+      if (seam.material && !disposedMaterials.has(seam.material)) {
+        seam.material.dispose?.();
+        disposedMaterials.add(seam.material);
+      }
+      if (seam.geometry && !disposedGeometries.has(seam.geometry)) {
+        seam.geometry.dispose?.();
+        disposedGeometries.add(seam.geometry);
+      }
     });
     this.guides.forEach((guide) => {
-      (guide.materials ?? [guide.material]).forEach((material) => material?.dispose?.());
-      (guide.geometries ?? [guide.geometry]).forEach((geometry) => geometry?.dispose?.());
+      (guide.materials ?? [guide.material]).forEach((material) => {
+        if (material && !disposedMaterials.has(material)) {
+          material.dispose?.();
+          disposedMaterials.add(material);
+        }
+      });
+      (guide.geometries ?? [guide.geometry]).forEach((geometry) => {
+        if (geometry && !disposedGeometries.has(geometry)) {
+          geometry.dispose?.();
+          disposedGeometries.add(geometry);
+        }
+      });
     });
     this.renderer.dispose();
     this.environmentMeshes.forEach(({ geometry, material }) => {
