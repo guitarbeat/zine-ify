@@ -183,9 +183,18 @@ export class FormValidator {
   _getFieldValue(field) {
     if (field.type === 'checkbox') {return field.checked;}
     if (field.type === 'radio') {
-      const radioGroup = this.form.querySelectorAll(`input[name="${field.name}"]`);
-      for (const radio of radioGroup) {
-        if (radio.checked) {return radio.value;}
+      const radioGroup = this.form.elements[field.name];
+      if (radioGroup) {
+        if (radioGroup.length !== undefined) {
+          // It's a RadioNodeList or HTMLCollection
+          for (let i = 0; i < radioGroup.length; i++) {
+            const radio = radioGroup[i];
+            if (radio.checked) return radio.value;
+          }
+        } else {
+          // Handle single radio button element
+          if (radioGroup.checked) return radioGroup.value;
+        }
       }
       return null;
     }
