@@ -217,6 +217,22 @@ input[type="number"].workspace-config-input::-webkit-outer-spin-button {
   margin-top: -0.1rem;
 }
 
+.workspace-config-divider {
+  margin: 0.4rem 0;
+  border: none;
+  border-top: 1px solid var(--border-color);
+}
+
+.workspace-config-group-label {
+  font-size: 0.55rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-ink);
+  margin: 0;
+  padding: 0 0 0.3rem 0;
+}
+
 /* Orientation segmented control */
 .orientation-seg {
   display: flex;
