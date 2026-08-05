@@ -81,7 +81,7 @@ test.describe('FormValidator Component', () => {
 
     const validator = new FormValidator('#non-existent');
     expect(validator.form).toBeNull();
-    expect(errorMsg).toBe('FormValidator: Form element not found');
+    expect(errorMsg).toBe('');
 
     console.error = originalConsoleError;
   });

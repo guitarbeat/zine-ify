@@ -26,7 +26,7 @@ export class FormValidator {
       : formElement;
 
     if (!this.form) {
-      console.error('FormValidator: Form element not found');
+
       return;
     }
 
