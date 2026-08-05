@@ -36,9 +36,7 @@ export class AppController {
       this.renderCurrentLayout();
       this.ui.setStatus('Choose files or drop them here');
     } catch (error) {
-      toast.error('Initialization Failed', 'Check console for details.');
-      // eslint-disable-next-line no-console
-      console.error(error.message || 'An error occurred');
+      toast.error('Initialization Failed', error.message || 'An error occurred');
     }
   }
 
