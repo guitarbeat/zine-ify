@@ -306,9 +306,19 @@ export class FormValidator {
     const successIcon = document.createElement('span');
     successIcon.className = 'form-success-icon';
     successIcon.setAttribute('aria-hidden', 'true');
-    successIcon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-      <polyline points="20,6 9,17 4,12"/>
-    </svg>`;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '16');
+    svg.setAttribute('height', '16');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '3');
+
+    const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    polyline.setAttribute('points', '20,6 9,17 4,12');
+
+    svg.appendChild(polyline);
+    successIcon.appendChild(svg);
 
     // Position it appropriately
     const container = field.closest('.workspace-config-field') || field.parentElement;
