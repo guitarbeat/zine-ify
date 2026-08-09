@@ -369,3 +369,57 @@ body {
     box-shadow: var(--shadow-sm);
   }
 }
+
+.print-sheet {
+  padding: 0.45rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.page-cell {
+  border-color: rgba(15, 15, 15, 0.12);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--surface-muted) 94%, var(--surface-bg));
+}
+
+.page-cell.has-page {
+  background: var(--surface-bg);
+}
+
+.page-cell.has-page:hover {
+  box-shadow: 0 8px 18px var(--primary-glow);
+}
+
+.page-toolbar {
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border-radius: 0.5rem;
+  background: rgba(15, 15, 15, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.page-tool-btn {
+  border-radius: 0.35rem;
+  box-shadow: none;
+  background: var(--primary-vibrant);
+}
+
+.page-tool-btn:hover {
+  box-shadow: 0 4px 10px var(--primary-glow);
+}
+
+.page-label {
+  bottom: 0.5rem;
+  border: none;
+  border-radius: 999px;
+  padding: 0.25rem 0.5rem;
+  box-shadow: none;
+  background: rgba(15, 15, 15, 0.84);
+  backdrop-filter: blur(6px);
+}
+
+.page-placeholder {
+  border: 1px dashed var(--border-color);
+  border-radius: 0.5rem;
+  background: transparent;
+}
