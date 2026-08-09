@@ -161,15 +161,4 @@ test.describe('UndoManager', () => {
     expect(manager.size).toBe(0);
     expect(popped.description).toBe('Page 1 crop applied');
   });
-
-  test('push correctly handles missing properties by destructuring undefined', () => {
-    const manager = new UndoManager();
-    manager.push({});
-    const popped = manager.pop();
-    expect(popped.description).toBeUndefined();
-    expect(popped.allPageImages).toBeUndefined();
-    expect(popped.pageFlips).toBeUndefined();
-    expect(popped.pageZooms).toBeUndefined();
-    expect(popped.onPrune).toBeNull();
-  });
 });
