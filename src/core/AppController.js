@@ -397,12 +397,8 @@ export class AppController {
     }
 
     const image = new Image();
-    const loadPromise = new Promise((resolve, reject) => {
-      image.onload = resolve;
-      image.onerror = reject;
-    });
     image.src = sourceUrl;
-    await loadPromise;
+    await image.decode();
 
     const width = image.naturalWidth || image.width || 1000;
     const height = image.naturalHeight || image.height || 1414;
