@@ -53,10 +53,10 @@
                             <img src="/icons/zine-ify-logo.jpg" alt="Zine-ify logo" class="logo-image">
                             <div class="app-header-actions">
                                 <button id="pwa-install-trigger" type="button" class="panel-icon-btn" aria-label="Install app" title="Install app" hidden>
-                                    <span class="material-symbols-outlined" style="font-size:15px;" aria-hidden="true">install_mobile</span>
+                                    <span class="material-symbols-outlined icon-compact" aria-hidden="true">install_mobile</span>
                                 </button>
                                 <button id="theme-toggle" class="panel-icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
-                                    <span class="material-symbols-outlined" style="font-size:15px;" id="theme-icon">dark_mode</span>
+                                    <span class="material-symbols-outlined icon-compact" id="theme-icon">dark_mode</span>
                                 </button>
                             </div>
                         </section>
@@ -72,8 +72,8 @@
                             <div class="snap-card-handle" title="Drag to move">
                                 <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
                                 <span class="snap-card-label">Zine layout</span>
-                                <button id="clear-all-btn" type="button" class="panel-clear-btn ml-1" style="display:none;" aria-label="Clear all pages" title="Clear all pages and start over">
-                                    <span class="material-symbols-outlined" style="font-size:13px;" aria-hidden="true">delete_sweep</span>
+                                <button id="clear-all-btn" type="button" class="panel-clear-btn ml-1 is-hidden" aria-label="Clear all pages" title="Clear all pages and start over">
+                                    <span class="material-symbols-outlined icon-tiny" aria-hidden="true">delete_sweep</span>
                                     <span>Start over</span>
                                 </button>
                             </div>
@@ -107,9 +107,9 @@
                                 <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer"
                                     role="button" tabindex="0"
                                     aria-label="Add pages — click to browse, or drop PDF and image files here">
-                                    <span class="material-symbols-outlined" style="font-size:22px; color: var(--primary-vibrant);" aria-hidden="true">upload_file</span>
+                                    <span class="material-symbols-outlined upload-icon" aria-hidden="true">upload_file</span>
                                     <span class="text-sm font-semibold">Drop files or click to browse</span>
-                                    <span class="text-xs" style="color:var(--muted-ink)">PDF, PNG, JPG, or WEBP • Max 50 MB each</span>
+                                    <span class="text-xs muted-copy">PDF, PNG, JPG, or WEBP • Max 50 MB each</span>
                                 </div>
                                 <input type="file" id="pdf-upload" class="sr-only"
                                     accept="application/pdf,image/png,image/jpeg,image/webp"
@@ -163,12 +163,11 @@
 
                 <!-- ── PANEL: Display options ────────────────────────── -->
                 <!-- Merged into Settings panel above -->
-                <div class="grid-stack-item"
+                <div class="grid-stack-item is-hidden"
                     gs-id="display" gs-x="9" gs-y="11" gs-w="3" gs-h="2"
-                    gs-min-w="2" gs-min-h="2" gs-size-to-content="true"
-                    style="display: none;">
+                    gs-min-w="2" gs-min-h="2" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
-                        <div class="snap-card" id="card-display" style="display: none;">
+                        <div class="snap-card is-hidden" id="card-display">
                         </div>
                     </div>
                 </div>
@@ -224,10 +223,10 @@
                                     </div>
                                     <div class="fold-viewer-slider-row">
                                         <label for="fold-slider" class="font-semibold text-xs uppercase whitespace-nowrap flex items-center gap-1.5 text-zinc-500">
-                                            <span class="material-symbols-outlined text-[16px]" style="color: var(--primary-vibrant);" aria-hidden="true">animation</span>
+                                            <span class="material-symbols-outlined slider-icon" aria-hidden="true">animation</span>
                                             Position
                                         </label>
-                                        <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-1.5 cursor-pointer" style="accent-color: var(--primary-vibrant);">
+                                        <input type="range" id="fold-slider" min="0" max="3" step="0.01" value="0" class="flex-1 w-full h-1.5 cursor-pointer fold-slider">
                                     </div>
                                     <p id="fold-helper" class="fold-viewer-helper">Export the layout, crease the sheet in half both ways and open flat, then fold and make one short cut through the center before collapsing into a booklet.</p>
                                     <div class="fold-viewer-step-grid" aria-label="Fold simulation checkpoints">
@@ -326,7 +325,7 @@
         class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 hidden bg-black/30 backdrop-blur-sm"
         role="dialog" aria-modal="true" aria-label="Processing">
         <div class="base-panel w-full max-w-sm text-center">
-            <span class="material-symbols-outlined text-3xl mb-3 block" style="color: var(--primary-vibrant);" aria-hidden="true">sync</span>
+            <span class="material-symbols-outlined progress-icon text-3xl mb-3 block" aria-hidden="true">sync</span>
             <h3 id="progress-text" class="text-lg font-semibold mb-4" aria-live="polite" aria-atomic="true">Processing…</h3>
             <div class="progress-bar-container mb-3" id="progress-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                 <div id="progress-fill"></div>

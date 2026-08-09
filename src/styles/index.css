@@ -9,3 +9,168 @@
 /* Tailwind v4 scanning sources must come after all @imports to satisfy CSS rules */
 @source "../../index.html";
 @source "../**/*.{js,ts,jsx,tsx}";
+
+/* Studio pass: make the workspace feel like a working print table, not a generic dashboard. */
+:root {
+  --workspace-grid: rgba(15, 15, 15, 0.055);
+  --workspace-edge: rgba(15, 15, 15, 0.16);
+}
+
+[data-theme="dark"] {
+  --workspace-grid: rgba(255, 255, 255, 0.045);
+  --workspace-edge: rgba(255, 255, 255, 0.16);
+}
+
+html,
+body {
+  background-color: var(--bg-neutral);
+  background-image:
+    linear-gradient(var(--workspace-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--workspace-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.app-shell {
+  position: relative;
+}
+
+.app-shell::before {
+  content: "WORK TABLE / SINGLE SHEET SYSTEM";
+  position: fixed;
+  top: 0.7rem;
+  left: 1rem;
+  z-index: 30;
+  color: rgba(255, 255, 255, 0.52);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  pointer-events: none;
+}
+
+.brand-panel {
+  position: relative;
+  z-index: 25;
+  margin-top: 0.85rem;
+  border-color: var(--workspace-edge);
+  box-shadow: 5px 5px 0 var(--primary-vibrant), var(--shadow-md);
+}
+
+.brand-panel .logo-image {
+  height: 3.6rem;
+}
+
+.snap-card {
+  border-color: var(--workspace-edge);
+  border-radius: 0.2rem;
+  box-shadow: 3px 3px 0 var(--workspace-edge), var(--shadow-sm);
+}
+
+.snap-card:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--primary-vibrant), var(--shadow-md);
+}
+
+.snap-card--canvas {
+  background: var(--surface-paper-stack);
+}
+
+.snap-card--action {
+  box-shadow: 4px 4px 0 var(--primary-vibrant), var(--shadow-md);
+}
+
+.snap-card--action .panel-action-btn {
+  min-height: 3rem;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.upload-box {
+  min-height: 10.5rem;
+  border-radius: 0.2rem;
+}
+
+.upload-icon,
+.slider-icon,
+.progress-icon {
+  color: var(--primary-vibrant);
+}
+
+.upload-icon {
+  font-size: 2rem;
+  transition: transform 0.2s ease;
+}
+
+.upload-box:hover .upload-icon,
+.upload-box:focus .upload-icon {
+  transform: translateY(-3px) rotate(-4deg);
+}
+
+.muted-copy {
+  color: var(--muted-ink);
+}
+
+.icon-compact {
+  font-size: 15px;
+}
+
+.icon-tiny {
+  font-size: 13px;
+}
+
+.fold-slider {
+  accent-color: var(--primary-vibrant);
+}
+
+.progress-icon {
+  animation: progress-pulse 1.25s ease-in-out infinite;
+}
+
+.is-hidden {
+  display: none;
+}
+
+@keyframes progress-pulse {
+  0%, 100% { opacity: 0.45; transform: rotate(0deg); }
+  50% { opacity: 1; transform: rotate(180deg); }
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary-vibrant);
+  outline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .app-shell::before {
+    display: none;
+  }
+
+  .brand-panel {
+    margin-top: 0.6rem;
+    box-shadow: 3px 3px 0 var(--primary-vibrant), var(--shadow-sm);
+  }
+
+  .brand-panel .logo-image {
+    height: 2.8rem;
+  }
+
+  .snap-card:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
