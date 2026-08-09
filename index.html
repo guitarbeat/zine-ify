@@ -21,6 +21,8 @@
         window.__zinePwaPromptEvent = e;
       });
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script>
@@ -36,12 +38,13 @@
 </head>
 
 <body class="mobile-zine-app">
+    <a class="skip-link" href="#workspace-main">Skip to workspace</a>
 
     <!-- ── App shell ─────────────────────────────────── -->
     <div class="app-shell">
 
         <!-- ── GridStack workspace ──────────────────────── -->
-        <div class="gs-wrapper">
+        <main class="gs-wrapper" id="workspace-main" tabindex="-1">
             <div class="grid-stack">
 
                 <!-- ── PANEL: Brand controls ──────────────────────────── -->
@@ -50,7 +53,7 @@
                     gs-min-w="3" gs-min-h="2" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
                         <section class="brand-panel" aria-label="Zine-ify">
-                            <img src="/icons/zine-ify-logo.jpg" alt="Zine-ify logo" class="logo-image">
+                            <img src="/icons/zine-ify-logo.jpg" alt="Zine-ify logo" width="1536" height="1024" class="logo-image">
                             <div class="app-header-actions">
                                 <button id="pwa-install-trigger" type="button" class="panel-icon-btn" aria-label="Install app" title="Install app" hidden>
                                     <span class="material-symbols-outlined icon-compact" aria-hidden="true">install_mobile</span>
@@ -291,14 +294,14 @@
                                     <p class="fold-guide-title">8 pages · 1 sheet · 1 cut</p>
                                 </div>
                                 <ol class="fold-guide-list" aria-label="Folding steps">
-                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">1</span><span class="fold-guide-text">Design your zine on one sheet, with the pages in this order and orientation.</span></div><img src="/fold-guide/step-0-plan.png" alt="Page layout diagram" class="fold-guide-img" loading="lazy" /></li>
-                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">2</span><span class="fold-guide-text">Crease the sheet along both main directions — fold in half each way, then open flat.</span></div><img src="/fold-guide/step-1-crease.png" alt="Sheet with crease lines" class="fold-guide-img" loading="lazy" /></li>
-                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">3</span><span class="fold-guide-text">Make two more creases to divide the long direction into quarters, then open flat again.</span></div><img src="/fold-guide/step-2-quarters.png" alt="Quarter crease marks" class="fold-guide-img" loading="lazy" /></li>
-                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">4</span><span class="fold-guide-text">Fold in half, then cut along the center crease — only as far as the quarter-fold marks.</span></div><img src="/fold-guide/step-3-cut.png" alt="Center cut" class="fold-guide-img" loading="lazy" /></li>
-                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">5</span><span class="fold-guide-text">Open it out flat. You'll see a short slit through the center.</span></div><img src="/fold-guide/step-4-open.png" alt="Center slit" class="fold-guide-img" loading="lazy" /></li>
-                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">6</span><span class="fold-guide-text">Fold in half along the long direction so all pages stay on the outside.</span></div><img src="/fold-guide/step-5-fold-strip.png" alt="Long strip fold" class="fold-guide-img" loading="lazy" /></li>
-                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">7</span><span class="fold-guide-text">Push inward from both ends — the slit opens into a cross. Bring pages together with cover outermost.</span></div><img src="/fold-guide/step-6-push-in.png" alt="Diamond cross" class="fold-guide-img" loading="lazy" /></li>
-                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">8</span><span class="fold-guide-text">Fold flat and crease. You now have an 8-page booklet.</span></div><img src="/fold-guide/step-7-done.png" alt="Finished booklet" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">1</span><span class="fold-guide-text">Design your zine on one sheet, with the pages in this order and orientation.</span></div><img src="/fold-guide/step-0-plan.png" alt="Page layout diagram" width="161" height="114" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">2</span><span class="fold-guide-text">Crease the sheet along both main directions — fold in half each way, then open flat.</span></div><img src="/fold-guide/step-1-crease.png" alt="Sheet with crease lines" width="161" height="113" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">3</span><span class="fold-guide-text">Make two more creases to divide the long direction into quarters, then open flat again.</span></div><img src="/fold-guide/step-2-quarters.png" alt="Quarter crease marks" width="145" height="137" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">4</span><span class="fold-guide-text">Fold in half, then cut along the center crease — only as far as the quarter-fold marks.</span></div><img src="/fold-guide/step-3-cut.png" alt="Center cut" width="90" height="113" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">5</span><span class="fold-guide-text">Open it out flat. You'll see a short slit through the center.</span></div><img src="/fold-guide/step-4-open.png" alt="Center slit" width="161" height="129" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">6</span><span class="fold-guide-text">Fold in half along the long direction so all pages stay on the outside.</span></div><img src="/fold-guide/step-5-fold-strip.png" alt="Long strip fold" width="165" height="73" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">7</span><span class="fold-guide-text">Push inward from both ends — the slit opens into a cross. Bring pages together with cover outermost.</span></div><img src="/fold-guide/step-6-push-in.png" alt="Diamond cross" width="122" height="125" class="fold-guide-img" loading="lazy" /></li>
+                                    <li><div class="fold-guide-step-header"><span class="fold-guide-num" aria-hidden="true">8</span><span class="fold-guide-text">Fold flat and crease. You now have an 8-page booklet.</span></div><img src="/fold-guide/step-7-done.png" alt="Finished booklet" width="43" height="68" class="fold-guide-img" loading="lazy" /></li>
                                 </ol>
                             </div>
                         </div>
@@ -306,7 +309,7 @@
                 </div>
 
             </div><!-- /grid-stack -->
-        </div><!-- /gs-wrapper -->
+        </main><!-- /gs-wrapper -->
 
     </div><!-- /app-shell -->
 

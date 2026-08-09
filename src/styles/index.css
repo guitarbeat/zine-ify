@@ -34,6 +34,31 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.55rem 0.8rem;
+  color: var(--surface-bg);
+  background: var(--accent-dark);
+  border: 2px solid var(--primary-vibrant);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  transform: translateY(-150%);
+  transition: transform 0.15s ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+#workspace-main:focus {
+  outline: none;
+}
+
 .app-shell {
   position: relative;
 }
