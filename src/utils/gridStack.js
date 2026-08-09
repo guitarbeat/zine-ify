@@ -11,6 +11,7 @@ const DEFAULT_LAYOUT = [
   { id: 'brand', x: 0, y: 0, w: 4, h: 3 },
   { id: 'canvas', x: 0, y: 3, w: 9, h: 10 },
   { id: 'upload', x: 9, y: 3, w: 3, h: 4 },
+  { id: 'settings', x: 9, y: 7, w: 3, h: 10 },
   { id: 'fold-viewer', x: 0, y: 15, w: 6, h: 6 },
   { id: 'fold-booklet', x: 6, y: 15, w: 3, h: 4 },
   { id: 'fold-guide', x: 9, y: 15, w: 3, h: 4 }

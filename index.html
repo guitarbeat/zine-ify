@@ -76,7 +76,7 @@
                 </div>
 
                 <!-- ── PANEL: Canvas preview ──────────────────────────── -->
-                <div class="grid-stack-item"
+                <div class="grid-stack-item attachable-panel-item"
                     gs-id="canvas" gs-x="0" gs-y="3" gs-w="9" gs-h="10"
                     gs-min-w="4" gs-min-h="3" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
@@ -100,39 +100,6 @@
                                         <div id="command-deck" class="command-deck-container hidden"></div>
                                     </div>
                                 </div>
-                                <section class="canvas-settings-dock panel-scroll-body" id="card-settings" aria-labelledby="canvas-settings-title">
-                                    <div class="canvas-settings-heading">
-                                        <div>
-                                            <p class="canvas-settings-kicker">Sheet setup</p>
-                                            <h2 id="canvas-settings-title" class="canvas-settings-title">Prepare your zine</h2>
-                                        </div>
-                                        <span class="material-symbols-outlined canvas-settings-icon" aria-hidden="true">tune</span>
-                                    </div>
-                                    <section id="settings-group">
-                                        <div id="smart-sheet-config-container"></div>
-                                        <input type="hidden" id="paper-size-select" value="letter">
-                                        <input type="hidden" id="orientation-toggle" value="landscape">
-                                    </section>
-                                    <hr class="workspace-config-divider">
-                                    <section id="display-group">
-                                        <p class="workspace-config-group-label">Display</p>
-                                        <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
-                                            <span class="workspace-config-toggle-copy">Page Numbers</span>
-                                            <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
-                                            <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                                <span class="workspace-config-toggle-knob"></span>
-                                            </span>
-                                        </label>
-                                        <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
-                                            <span class="workspace-config-toggle-copy">Page Controls</span>
-                                            <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
-                                            <span class="workspace-config-toggle-switch" aria-hidden="true">
-                                                <span class="workspace-config-toggle-knob"></span>
-                                            </span>
-                                        </label>
-                                        <p class="workspace-config-hint">Preview only — won't print.</p>
-                                    </section>
-                                </section>
                             </div>
                         </div>
                     </div>
@@ -161,6 +128,47 @@
                                     multiple aria-hidden="true" tabindex="-1" />
                                 <p id="upload-status" class="upload-status" aria-live="polite"></p>
                                 <section id="uploaded-files-list" class="hidden"></section>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── PANEL: Page settings ──────────────────────────── -->
+                <div class="grid-stack-item attachable-panel-item"
+                    gs-id="settings" gs-x="9" gs-y="7" gs-w="3" gs-h="10"
+                    gs-min-w="2" gs-min-h="8" gs-size-to-content="true">
+                    <div class="grid-stack-item-content">
+                        <div class="snap-card" id="card-settings">
+                            <div class="snap-card-handle" title="Drag to move">
+                                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
+                                <span class="snap-card-label">Sheet setup</span>
+                                <span class="panel-attach-hint" aria-hidden="true">Dockable</span>
+                            </div>
+                            <div class="snap-card-body panel-scroll-body">
+                                <section id="settings-group">
+                                    <div id="smart-sheet-config-container"></div>
+                                    <input type="hidden" id="paper-size-select" value="letter">
+                                    <input type="hidden" id="orientation-toggle" value="landscape">
+                                </section>
+                                <hr class="workspace-config-divider">
+                                <section id="display-group">
+                                    <p class="workspace-config-group-label">Display</p>
+                                    <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-numbers">
+                                        <span class="workspace-config-toggle-copy">Page Numbers</span>
+                                        <input type="checkbox" id="show-page-numbers" checked class="workspace-config-toggle-input">
+                                        <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                            <span class="workspace-config-toggle-knob"></span>
+                                        </span>
+                                    </label>
+                                    <label class="workspace-config-toggle workspace-config-field workspace-config-field-wide" for="show-page-controls">
+                                        <span class="workspace-config-toggle-copy">Page Controls</span>
+                                        <input type="checkbox" id="show-page-controls" checked class="workspace-config-toggle-input">
+                                        <span class="workspace-config-toggle-switch" aria-hidden="true">
+                                            <span class="workspace-config-toggle-knob"></span>
+                                        </span>
+                                    </label>
+                                    <p class="workspace-config-hint">Preview only — won't print.</p>
+                                </section>
                             </div>
                         </div>
                     </div>

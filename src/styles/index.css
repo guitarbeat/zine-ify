@@ -370,47 +370,23 @@ body {
   }
 }
 
-.canvas-settings-dock {
-  display: grid;
-  gap: 0.8rem;
-  margin-top: 1rem;
-  padding: 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  background: var(--surface-muted);
+.attachable-panel-item > .grid-stack-item-content {
+  transition: box-shadow 0.2s ease, outline-color 0.2s ease;
 }
 
-.canvas-settings-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-color);
+.attachable-panel-item:hover > .grid-stack-item-content,
+.attachable-panel-item:focus-within > .grid-stack-item-content {
+  outline: 1px solid var(--primary-vibrant);
+  outline-offset: 3px;
 }
 
-.canvas-settings-kicker {
-  margin: 0 0 0.2rem;
-  color: var(--primary-vibrant);
+.panel-attach-hint {
+  margin-left: auto;
+  color: rgba(255, 255, 255, 0.45);
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.canvas-settings-title {
-  margin: 0;
-  color: var(--accent-dark);
-  font-family: 'Fraunces', serif;
-  font-size: 1.15rem;
-  font-weight: 600;
-  line-height: 1.1;
-}
-
-.canvas-settings-icon {
-  color: var(--primary-vibrant);
-  font-size: 1.4rem;
 }
 
 .print-sheet {
