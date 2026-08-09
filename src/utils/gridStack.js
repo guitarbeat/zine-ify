@@ -33,21 +33,25 @@ function storageKey() {
   return isMobile() ? STORAGE_KEY_MOBILE : STORAGE_KEY_DESKTOP;
 }
 
-function nodesOverlap(a, b) {
-  if (a.id === b.id) { return false; }
-  return !(
-    a.x + a.w <= b.x ||
-    b.x + b.w <= a.x ||
-    a.y + a.h <= b.y ||
-    b.y + b.h <= a.y
-  );
-}
-
 function layoutHasOverlaps() {
   const nodes = grid?.engine?.nodes ?? [];
+  const occupied = [];
+
   for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      if (nodesOverlap(nodes[i], nodes[j])) { return true; }
+    const node = nodes[i];
+    const nx = node.x;
+    const ny = node.y;
+    const nw = node.w;
+    const nh = node.h;
+
+    for (let y = ny; y < ny + nh; y++) {
+      if (!occupied[y]) {
+        occupied[y] = [];
+      }
+      for (let x = nx; x < nx + nw; x++) {
+        if (occupied[y][x]) { return true; }
+        occupied[y][x] = true;
+      }
     }
   }
   return false;
