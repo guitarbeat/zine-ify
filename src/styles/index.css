@@ -163,6 +163,12 @@ body {
   box-shadow: 3px 3px 0 var(--workspace-edge), var(--shadow-sm);
 }
 
+.settings-panel-item,
+.settings-panel-item > .grid-stack-item-content,
+.settings-panel-item #card-settings {
+  overflow: visible;
+}
+
 .snap-card:hover {
   transform: translate(-1px, -1px);
   box-shadow: 4px 4px 0 var(--primary-vibrant), var(--shadow-md);
