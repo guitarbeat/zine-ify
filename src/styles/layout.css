@@ -238,7 +238,7 @@ body::-webkit-scrollbar {
 
 /* ─── Panel handle ───────────────────────────────────────── */
 .snap-card-handle {
-  display: none;
+  display: flex;
   cursor: move;
   align-items: center;
   gap: 0.3rem;
@@ -528,7 +528,10 @@ body::-webkit-scrollbar {
 
 /* ─── Responsive: tablet (< 1024px) ─────────────────────── */
 @media (max-width: 1023px) {
-  .ui-resizable-se { display: none !important; }
+  .ui-resizable-se {
+    display: block !important;
+    opacity: 0.7;
+  }
 }
 
 /* ─── Responsive: mobile (single-column stack, drag to reorder) ─ */
@@ -551,10 +554,6 @@ body::-webkit-scrollbar {
   .gs-wrapper {
     overflow: visible;
     padding: 6px;
-  }
-
-  .grid-stack-item > .ui-resizable-handle {
-    display: none !important;
   }
 
   .snap-card {

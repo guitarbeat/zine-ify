@@ -12,7 +12,6 @@ const DEFAULT_LAYOUT = [
   { id: 'canvas', x: 0, y: 3, w: 9, h: 10 },
   { id: 'upload', x: 9, y: 3, w: 3, h: 4 },
   { id: 'settings', x: 9, y: 7, w: 3, h: 10 },
-  { id: 'display', x: 9, y: 11, w: 3, h: 2 },
   { id: 'fold-viewer', x: 0, y: 15, w: 6, h: 6 },
   { id: 'fold-booklet', x: 6, y: 15, w: 3, h: 4 },
   { id: 'fold-guide', x: 9, y: 15, w: 3, h: 4 }
@@ -20,8 +19,6 @@ const DEFAULT_LAYOUT = [
 
 let grid = null;
 let gridEl = null;
-let resizeObserver = null;
-let resizeFrame = null;
 let isRelayouting = false;
 
 function isMobile() {
@@ -66,17 +63,19 @@ function compactLayout() {
   grid.compact('list');
 }
 
-function relayoutPanels() {
+function relayoutPanels({ fitContent = false } = {}) {
   if (!grid) { return; }
   isRelayouting = true;
 
-  grid.getGridItems().forEach((el) => {
-    if (el.querySelector('.grid-stack-item-content')?.firstElementChild) {
-      grid.resizeToContent(el);
-    }
-  });
-  compactLayout();
+  if (fitContent) {
+    grid.getGridItems().forEach((el) => {
+      if (el.querySelector('.grid-stack-item-content')?.firstElementChild) {
+        grid.resizeToContent(el);
+      }
+    });
+  }
 
+  compactLayout();
   isRelayouting = false;
 }
 
@@ -91,8 +90,7 @@ function resetToDefaults() {
   });
   grid.batchUpdate(false);
 
-  if (isMobile()) { compactLayout(); }
-  relayoutPanels();
+  relayoutPanels({ fitContent: true });
 }
 
 function loadLayout() {
@@ -101,13 +99,13 @@ function loadLayout() {
   try {
     const raw = localStorage.getItem(storageKey());
     if (!raw) {
-      relayoutPanels();
+      relayoutPanels({ fitContent: true });
       return;
     }
 
     const items = JSON.parse(raw);
     if (!Array.isArray(items) || !items.length) {
-      relayoutPanels();
+      relayoutPanels({ fitContent: true });
       return;
     }
 
@@ -124,25 +122,6 @@ function loadLayout() {
   } catch {
     resetToDefaults();
   }
-}
-
-function scheduleRelayout() {
-  if (resizeFrame) { cancelAnimationFrame(resizeFrame); }
-  resizeFrame = requestAnimationFrame(() => {
-    relayoutPanels();
-    if (layoutHasOverlaps()) { compactLayout(); }
-    resizeFrame = null;
-  });
-}
-
-function observePanelSizes() {
-  if (resizeObserver) { resizeObserver.disconnect(); }
-
-  resizeObserver = new ResizeObserver(() => scheduleRelayout());
-
-  gridEl?.querySelectorAll('.grid-stack-item .snap-card').forEach((card) => {
-    resizeObserver.observe(card);
-  });
 }
 
 function syncGridMetrics() {
@@ -185,9 +164,8 @@ export function initGridStack() {
   grid.float(!isMobile());
 
   grid.on('change', saveLayout);
-  grid.on('dragstop resizestop', () => scheduleRelayout());
+  grid.on('dragstop resizestop', saveLayout);
 
-  observePanelSizes();
   setInteractionMode();
 
   window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).addEventListener('change', setInteractionMode);
