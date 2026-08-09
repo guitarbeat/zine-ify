@@ -146,7 +146,19 @@ body::-webkit-scrollbar {
 }
 
 .grid-stack-item {
-  overflow: hidden;
+  overflow: visible;
+  isolation: isolate;
+  transition: z-index 0s linear;
+}
+
+.grid-stack-item:hover,
+.grid-stack-item:focus-within {
+  z-index: 20 !important;
+}
+
+.grid-stack-item.ui-draggable-dragging,
+.grid-stack-item.ui-resizable-resizing {
+  z-index: 50 !important;
 }
 
 /* Panels fill their gridstack cell */
@@ -226,7 +238,7 @@ body::-webkit-scrollbar {
 
 /* ─── Panel handle ───────────────────────────────────────── */
 .snap-card-handle {
-  display: none;
+  display: flex;
   cursor: move;
   align-items: center;
   gap: 0.3rem;
@@ -415,7 +427,7 @@ body::-webkit-scrollbar {
   background: var(--surface-bg);
   color: var(--accent-dark);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
   flex-shrink: 0;
 }
 
@@ -516,7 +528,10 @@ body::-webkit-scrollbar {
 
 /* ─── Responsive: tablet (< 1024px) ─────────────────────── */
 @media (max-width: 1023px) {
-  .ui-resizable-se { display: none !important; }
+  .ui-resizable-se {
+    display: block !important;
+    opacity: 0.7;
+  }
 }
 
 /* ─── Responsive: mobile (single-column stack, drag to reorder) ─ */
@@ -539,10 +554,6 @@ body::-webkit-scrollbar {
   .gs-wrapper {
     overflow: visible;
     padding: 6px;
-  }
-
-  .grid-stack-item > .ui-resizable-handle {
-    display: none !important;
   }
 
   .snap-card {

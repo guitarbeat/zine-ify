@@ -8,7 +8,7 @@
   border-radius: 1px;
   position: relative;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
   scroll-margin-top: 1rem;
   padding: 0.2rem;
   overflow: hidden;
@@ -62,7 +62,7 @@
   overflow: hidden;
   cursor: pointer;
   min-height: 7rem;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
   border-radius: var(--radius-button);
   background: var(--surface-muted);
 }
