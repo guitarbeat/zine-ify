@@ -374,6 +374,32 @@ body {
   transition: box-shadow 0.2s ease, outline-color 0.2s ease;
 }
 
+.settings-panel-item .snap-card-handle {
+  min-height: 2rem;
+  padding-block: 0.35rem;
+}
+
+.settings-panel-item .snap-card-body {
+  gap: 0.45rem;
+  padding: 0.75rem;
+}
+
+.settings-panel-item .workspace-config-divider {
+  margin-block: 0.25rem;
+}
+
+.settings-panel-item .workspace-config-group-label {
+  padding-bottom: 0.15rem;
+}
+
+.settings-panel-item .workspace-config-toggle {
+  min-height: 2rem;
+}
+
+.settings-panel-item .workspace-config-hint {
+  margin-top: 0;
+}
+
 .attachable-panel-item:hover > .grid-stack-item-content,
 .attachable-panel-item:focus-within > .grid-stack-item-content {
   outline: 1px solid var(--primary-vibrant);
