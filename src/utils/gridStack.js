@@ -63,7 +63,7 @@ function saveLayout() {
 }
 
 function compactLayout() {
-  if (!grid) { return; }
+  if (!grid || !isMobile()) { return; }
   grid.compact('list');
 }
 
@@ -143,7 +143,7 @@ function syncGridMetrics() {
   const mobile = isMobile();
   grid.cellHeight(mobile ? MOBILE_CELL_HEIGHT : CELL_HEIGHT);
   grid.margin(mobile ? 4 : 8);
-  grid.float(false);
+  grid.float(!mobile);
 }
 
 function setInteractionMode() {
@@ -164,7 +164,7 @@ export function initGridStack() {
     column: 12,
     cellHeight: CELL_HEIGHT,
     margin: isMobile() ? 6 : 8,
-    float: false,
+    float: !isMobile(),
     animate: true,
     sizeToContent: true,
     resizable: { handles: 'se', autoHide: false },
@@ -175,7 +175,7 @@ export function initGridStack() {
     }
   }, gridEl);
 
-  grid.float(false);
+  grid.float(!isMobile());
 
   grid.on('change', saveLayout);
   grid.on('dragstop resizestop', () => scheduleRelayout());

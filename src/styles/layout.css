@@ -146,7 +146,19 @@ body::-webkit-scrollbar {
 }
 
 .grid-stack-item {
-  overflow: hidden;
+  overflow: visible;
+  isolation: isolate;
+  transition: z-index 0s linear;
+}
+
+.grid-stack-item:hover,
+.grid-stack-item:focus-within {
+  z-index: 20 !important;
+}
+
+.grid-stack-item.ui-draggable-dragging,
+.grid-stack-item.ui-resizable-resizing {
+  z-index: 50 !important;
 }
 
 /* Panels fill their gridstack cell */
