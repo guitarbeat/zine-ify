@@ -13,7 +13,6 @@ const DEFAULT_LAYOUT = [
   { id: 'upload', x: 9, y: 3, w: 3, h: 4 },
   { id: 'settings', x: 9, y: 7, w: 3, h: 10 },
   { id: 'display', x: 9, y: 11, w: 3, h: 2 },
-  { id: 'export', x: 0, y: 13, w: 4, h: 2 },
   { id: 'fold-viewer', x: 0, y: 15, w: 6, h: 6 },
   { id: 'fold-booklet', x: 6, y: 15, w: 3, h: 4 },
   { id: 'fold-guide', x: 9, y: 15, w: 3, h: 4 }
@@ -71,7 +70,11 @@ function relayoutPanels() {
   if (!grid) { return; }
   isRelayouting = true;
 
-  grid.getGridItems().forEach((el) => grid.resizeToContent(el));
+  grid.getGridItems().forEach((el) => {
+    if (el.querySelector('.grid-stack-item-content')?.firstElementChild) {
+      grid.resizeToContent(el);
+    }
+  });
   compactLayout();
 
   isRelayouting = false;
@@ -108,8 +111,12 @@ function loadLayout() {
       return;
     }
 
-    grid.load(items);
+    const validIds = new Set(
+      [...gridEl.querySelectorAll('.grid-stack-item')].map((el) => el.getAttribute('gs-id'))
+    );
+    grid.load(items.filter((item) => validIds.has(item.id)));
     relayoutPanels();
+    saveLayout();
 
     if (layoutHasOverlaps()) {
       resetToDefaults();
