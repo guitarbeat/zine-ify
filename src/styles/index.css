@@ -79,14 +79,22 @@ body {
 .brand-panel {
   position: relative;
   z-index: 25;
+  width: min(100%, 34rem);
+  box-sizing: border-box;
   margin-top: 0.85rem;
+  justify-content: space-between;
+  overflow: hidden;
   border-color: var(--workspace-edge);
   box-shadow: 5px 5px 0 var(--primary-vibrant), var(--shadow-md);
 }
 
 .brand-panel .logo-image {
-  height: 5rem;
+  flex: 1 1 auto;
+  min-width: 0;
   width: auto;
+  max-width: 14rem;
+  height: 5rem;
+  object-fit: contain;
 }
 
 .brand-export-btn {
@@ -106,6 +114,8 @@ body {
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
 }
