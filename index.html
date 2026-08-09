@@ -55,6 +55,12 @@
                         <section class="brand-panel" aria-label="Zine-ify">
                             <img src="/icons/zine-ify-logo.jpg" alt="Zine-ify logo" width="1536" height="1024" class="logo-image">
                             <div class="app-header-actions">
+                                <button id="exportPdfBtn" type="button"
+                                    class="brand-export-btn"
+                                    disabled aria-label="Export PDF" title="Export your zine as a printable PDF">
+                                    <span class="material-symbols-outlined" aria-hidden="true">print</span>
+                                    <span>Export PDF</span>
+                                </button>
                                 <button id="pwa-install-trigger" type="button" class="panel-icon-btn" aria-label="Install app" title="Install app" hidden>
                                     <span class="material-symbols-outlined icon-compact" aria-hidden="true">install_mobile</span>
                                 </button>
@@ -171,28 +177,6 @@
                     gs-min-w="2" gs-min-h="2" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
                         <div class="snap-card is-hidden" id="card-display">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ── PANEL: Export PDF ─────────────────────────────── -->
-                <div class="grid-stack-item"
-                    gs-id="export" gs-x="0" gs-y="13" gs-w="4" gs-h="2"
-                    gs-min-w="2" gs-min-h="2" gs-size-to-content="true">
-                    <div class="grid-stack-item-content">
-                        <div class="snap-card snap-card--action" id="card-export">
-                            <div class="snap-card-handle" title="Drag to move">
-                                <span class="material-symbols-outlined snap-card-grip" aria-hidden="true">drag_indicator</span>
-                                <span class="snap-card-label">Export</span>
-                            </div>
-                            <div class="snap-card-body snap-card-body--action">
-                                <button id="exportPdfBtn" type="button"
-                                    class="workspace-action-button panel-action-btn flex items-center justify-center gap-2"
-                                    disabled aria-label="Export PDF" title="Export your zine as a printable PDF">
-                                    <span class="material-symbols-outlined" aria-hidden="true">print</span>
-                                    <span class="font-semibold">Export PDF</span>
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -85,7 +85,42 @@ body {
 }
 
 .brand-panel .logo-image {
-  height: 3.6rem;
+  height: 5rem;
+  width: auto;
+}
+
+.brand-export-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.7rem;
+  color: #fff;
+  background: var(--primary-vibrant);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-button);
+  box-shadow: 2px 2px 0 rgba(255, 255, 255, 0.18);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+.brand-export-btn:not(:disabled):hover {
+  background: var(--primary-deep);
+  border-color: #fff;
+  box-shadow: 3px 3px 0 rgba(255, 255, 255, 0.24);
+  transform: translate(-1px, -1px);
+}
+
+.brand-export-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .snap-card {
@@ -180,7 +215,12 @@ body {
   }
 
   .brand-panel .logo-image {
-    height: 2.8rem;
+    height: 3.6rem;
+  }
+
+  .brand-export-btn {
+    padding-inline: 0.5rem;
+    font-size: 0.6rem;
   }
 
   .snap-card:hover {
