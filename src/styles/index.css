@@ -97,6 +97,30 @@ body {
   object-fit: contain;
 }
 
+.brand-panel-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.1rem;
+  color: rgba(255, 255, 255, 0.42);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.brand-panel-drag-handle:active {
+  cursor: grabbing;
+}
+
+.brand-panel-drag-handle .material-symbols-outlined {
+  font-size: 1rem;
+}
+
+.brand-panel:hover .brand-panel-drag-handle {
+  color: var(--primary-vibrant);
+}
+
 .brand-export-btn {
   display: inline-flex;
   align-items: center;
