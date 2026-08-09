@@ -58,8 +58,10 @@ export class SmartSheetConfig {
     const isCustom = paperSize === 'custom';
 
     const fmt = (mm) => formatDimension(mm, unit);
+    /* eslint-disable no-unused-vars */
     const landscapeW = fmt(paper.height);
     const landscapeH = fmt(paper.width);
+    /* eslint-enable no-unused-vars */
 
     const fragment = DOMPurify.sanitize(`
       <div class="smart-sheet-config">

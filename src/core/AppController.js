@@ -401,6 +401,7 @@ export class AppController {
       image.onload = resolve;
       image.onerror = reject;
     });
+    loadPromise.catch(() => {}); // prevent unhandled rejection if complete synchronously
     image.src = sourceUrl;
     if (!image.complete) {
       await loadPromise;
