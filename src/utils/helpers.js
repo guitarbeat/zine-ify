@@ -93,3 +93,33 @@ export function resizeAndFillArray(arr, requiredLength, fillValue = null) {
   }
   return nextImages;
 }
+
+/**
+ * Process a list of items using a sliding window concurrency pattern.
+ *
+ * @param {Array|Iterable} items - The items to process
+ * @param {Function} processItem - An async function that processes a single item
+ * @param {number} concurrencyLimit - The maximum number of concurrent promises
+ * @returns {Promise<void>} Resolves when all items are processed
+ */
+export async function processInSlidingWindow(items, processItem, concurrencyLimit = 4) {
+  const activePromises = new Set();
+
+  try {
+    for (const item of items) {
+      // Intentional forward reference: `trackedPromise` is captured by the `.finally()` closure
+      // so that the Set removes the correct (finally-wrapped) promise upon settlement.
+      const trackedPromise = Promise.resolve(processItem(item)).finally(() => activePromises.delete(trackedPromise));
+      activePromises.add(trackedPromise);
+
+      if (activePromises.size >= concurrencyLimit) {
+        await Promise.race(activePromises);
+      }
+    }
+
+    await Promise.all(activePromises);
+  } catch (error) {
+    await Promise.allSettled(Array.from(activePromises));
+    throw error;
+  }
+}

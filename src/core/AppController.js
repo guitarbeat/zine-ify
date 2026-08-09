@@ -6,7 +6,7 @@ import { toast } from '../components/Toast.js';
 import { PDFProcessor } from '../services/PDFProcessor.js';
 
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN } from '../utils/config.js';
-import { parseBoundedInteger, resizeAndFillArray } from '../utils/helpers.js';
+import { parseBoundedInteger, resizeAndFillArray, processInSlidingWindow } from '../utils/helpers.js';
 import { classifyFileKind, SUPPORTED_UPLOAD_MESSAGE, UNSUPPORTED_UPLOAD_TITLE } from '../utils/fileValidation.js';
 import { BookletPreview } from '../components/BookletPreview.js';
 
@@ -205,7 +205,6 @@ export class AppController {
     this.ui.modal.showProgress(true, 'Rendering pages...', '0%');
 
     const CONCURRENCY_LIMIT = 4;
-    const activePromises = new Set();
     let completedCount = 0;
 
     const processPage = async (selectedIndex, pageNumber) => {
@@ -225,18 +224,7 @@ export class AppController {
       this.ui.modal.updateProgress(percent);
     };
 
-    for (const [selectedIndex, pageNumber] of selectedPages.entries()) {
-      // Intentional forward reference: `trackedPromise` is captured by the `.finally()` closure
-      // so that the Set removes the correct (finally-wrapped) promise upon settlement.
-      const trackedPromise = processPage(selectedIndex, pageNumber).finally(() => activePromises.delete(trackedPromise));
-      activePromises.add(trackedPromise);
-
-      if (activePromises.size >= CONCURRENCY_LIMIT) {
-        await Promise.race(activePromises);
-      }
-    }
-
-    await Promise.all(activePromises);
+    await processInSlidingWindow(selectedPages.entries(), ([selectedIndex, pageNumber]) => processPage(selectedIndex, pageNumber), CONCURRENCY_LIMIT);
 
     this.state.totalPages = this.state.getFilledPageCount();
     this.state.resetWorkflowStatus();
@@ -265,7 +253,6 @@ export class AppController {
       // This maintains a constant stream of processing instead of waiting for batched promises,
       // avoiding UI stuttering and utilizing resources more evenly.
       const CONCURRENCY_LIMIT = 4;
-      const activePromises = new Set();
       let completedCount = 0;
 
       const processPage = async (pageNumber) => {
@@ -280,23 +267,12 @@ export class AppController {
       };
 
       try {
-        for (let pageNumber = 1; pageNumber <= numPages; pageNumber++) {
-          // Intentional forward reference: `trackedPromise` is captured by the `.finally()` closure
-          // so that the Set removes the correct (finally-wrapped) promise upon settlement.
-          const trackedPromise = processPage(pageNumber).finally(() => activePromises.delete(trackedPromise));
-          activePromises.add(trackedPromise);
-
-          if (activePromises.size >= CONCURRENCY_LIMIT) {
-            await Promise.race(activePromises);
-          }
-        }
-
-        await Promise.all(activePromises);
+        const pageNumbers = Array.from({ length: numPages }, (_, i) => i + 1);
+        await processInSlidingWindow(pageNumbers, (pageNumber) => processPage(pageNumber), CONCURRENCY_LIMIT);
 
         // Ensure thumbnails are sorted by pageNumber since they resolve out of order
         thumbnails.sort((a, b) => a.pageNumber - b.pageNumber);
       } catch (error) {
-        await Promise.allSettled(Array.from(activePromises));
         thumbnails.forEach(({ thumbnailUrl }) => {
           this.pdfProcessor.revokeBlobUrl(thumbnailUrl);
         });
