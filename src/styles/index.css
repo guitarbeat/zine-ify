@@ -168,6 +168,15 @@ body {
   box-shadow: 4px 4px 0 var(--primary-vibrant), var(--shadow-md);
 }
 
+.panel-scroll-body {
+  min-height: 0;
+  max-height: min(70vh, 34rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-vibrant) var(--surface-muted);
+}
+
 .snap-card--canvas {
   background: var(--surface-paper-stack);
 }
