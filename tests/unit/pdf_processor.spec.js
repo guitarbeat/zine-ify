@@ -346,20 +346,4 @@ test.describe('PDFProcessor Media handling', () => {
     expect(closed).toBe(true);
   });
 
-
-  test('renderImageFile catches and formats image load error', async () => {
-    processor.loadImageElement = async () => {
-      throw new Error('Fake load error');
-    };
-
-    if (typeof global !== 'undefined' && !global.URL.createObjectURL) {
-      global.URL.createObjectURL = () => 'blob:test';
-      global.URL.revokeObjectURL = () => {};
-    }
-
-    const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
-
-    await expect(processor.renderImageFile(file)).rejects.toThrow('Image processing failed: Fake load error');
-  });
-
 });

@@ -56,8 +56,8 @@ export class SmartSheetConfig {
     const isRecommended = orientation === recommendation?.best;
     const isCustom = paperSize === 'custom';
 
-
     const fmt = (mm) => formatDimension(mm, unit);
+
     const fragment = DOMPurify.sanitize(`
       <div class="smart-sheet-config">
         <div class="smart-sheet-section">
