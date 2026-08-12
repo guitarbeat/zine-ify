@@ -346,4 +346,19 @@ test.describe('PDFProcessor Media handling', () => {
     expect(closed).toBe(true);
   });
 
+
+  test('renderImageFile throws properly formatted error when image processing fails', async () => {
+    processor.loadImageElement = async () => {
+      throw new Error('Simulated image load failure');
+    };
+
+    if (typeof global !== 'undefined' && !global.URL.createObjectURL) {
+      global.URL.createObjectURL = () => 'blob:test';
+      global.URL.revokeObjectURL = () => {};
+    }
+
+    const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+
+    await expect(processor.renderImageFile(file)).rejects.toThrow('Image processing failed: Simulated image load failure');
+  });
 });
