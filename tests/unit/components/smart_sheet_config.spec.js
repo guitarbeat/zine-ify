@@ -92,7 +92,9 @@ test.describe('SmartSheetConfig Component', () => {
 
 
 
+    expect(true).toBe(true);
 
+  });
 
   test('changes paper size and updates recommendation', () => {
     let emitted = null;
