@@ -93,3 +93,30 @@ export function resizeAndFillArray(arr, requiredLength, fillValue = null) {
   }
   return nextImages;
 }
+
+/**
+ * Run tasks with a maximum concurrency limit
+ * @param {Iterable} items - Items to iterate over
+ * @param {number} concurrencyLimit - Maximum concurrent tasks
+ * @param {Function} taskFn - Async function to run for each item
+ * @returns {Promise<void>}
+ */
+export async function runWithConcurrencyLimit(items, concurrencyLimit, taskFn) {
+  const activePromises = new Set();
+
+  try {
+    for (const item of items) {
+      const trackedPromise = taskFn(item).finally(() => activePromises.delete(trackedPromise));
+      activePromises.add(trackedPromise);
+
+      if (activePromises.size >= concurrencyLimit) {
+        await Promise.race(activePromises);
+      }
+    }
+
+    await Promise.all(activePromises);
+  } catch (error) {
+    await Promise.allSettled(Array.from(activePromises));
+    throw error;
+  }
+}

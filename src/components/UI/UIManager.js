@@ -539,10 +539,10 @@ export class UIManager {
       this.emitter.emit('foldProgress', value);
     });
 
-    const stepButtonMap = new Map();
+    const foldStepButtonMap = new Map();
     this.elements.foldStepButtons?.forEach((button) => {
       if (button.dataset.stepIndex) {
-        stepButtonMap.set(button.dataset.stepIndex, button);
+        foldStepButtonMap.set(button.dataset.stepIndex, button);
       }
       button.setAttribute('aria-pressed', 'false');
       button.addEventListener('click', () => {
@@ -557,7 +557,7 @@ export class UIManager {
         return;
       }
 
-      const stepButton = stepButtonMap.get(event.key);
+      const stepButton = foldStepButtonMap.get(event.key);
       if (!stepButton) {
         return;
       }

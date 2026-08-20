@@ -35,21 +35,23 @@
 .fold-booklet-kicker,
 .fold-guide-kicker,
 .simulation-panel-kicker {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--muted-ink);
+  color: var(--primary-vibrant);
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .fold-viewer-title,
 .fold-booklet-title,
 .fold-guide-title,
 .simulation-panel-title {
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: var(--accent-dark);
+  font-family: 'Fraunces', serif;
 }
 
 .fold-viewer-note,

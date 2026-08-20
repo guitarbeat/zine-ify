@@ -23,10 +23,8 @@ export class ExportService {
     const { jsPDF } = await import('jspdf').then((m) => m);
 
     const dims = this.getPaperDimensions();
-    const isLandscape = this.state.orientation === 'landscape';
-
     const doc = new jsPDF({
-      orientation: isLandscape ? 'landscape' : 'portrait',
+      orientation: 'landscape',
       unit: 'mm',
       format: [dims.width, dims.height]
     });
@@ -93,7 +91,7 @@ export class ExportService {
 
       const imgData = offscreen.toDataURL('image/jpeg', 0.92);
       if (sheetIndex > 0) {
-        doc.addPage([dims.width, dims.height], isLandscape ? 'landscape' : 'portrait');
+        doc.addPage([dims.width, dims.height], 'landscape');
       }
       doc.addImage(imgData, 'JPEG', 0, 0, dims.width, dims.height);
     }
@@ -236,10 +234,7 @@ export class ExportService {
 
   getPaperDimensions() {
     const paper = PAPER_SIZES[this.state.paperSize] || PAPER_SIZES.letter;
-    const isLandscape = this.state.orientation === 'landscape';
-    return isLandscape
-      ? { width: paper.height, height: paper.width }
-      : { width: paper.width, height: paper.height };
+    return { width: paper.height, height: paper.width };
   }
 
   async openPrintWindow(html) {
