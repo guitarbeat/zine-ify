@@ -37,20 +37,19 @@ export class ModalManager {
 
   /* ── 3D Modal ── */
   toggle3DModal(show) {
-    // Show/hide three fold panels instead of modal
     const foldViewerCard = document.getElementById('card-fold-viewer');
     const foldBookletCard = document.getElementById('card-fold-booklet');
     const foldGuideCard = document.getElementById('card-fold-guide');
 
-    if (show) {
-      foldViewerCard?.classList.remove('hidden');
-      foldBookletCard?.classList.remove('hidden');
-      foldGuideCard?.classList.remove('hidden');
-    } else {
-      foldViewerCard?.classList.add('hidden');
-      foldBookletCard?.classList.add('hidden');
-      foldGuideCard?.classList.add('hidden');
-    }
+    const cards = [foldViewerCard, foldBookletCard, foldGuideCard];
+    cards.forEach((card) => {
+      if (!card) { return; }
+      if (show) {
+        card.classList.remove('hidden');
+      } else {
+        card.classList.add('hidden');
+      }
+    });
   }
 
   /* ── Zoom Modal ── */

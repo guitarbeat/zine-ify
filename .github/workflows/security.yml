@@ -6,9 +6,17 @@ on:
   schedule:
     - cron: '0 0 * * 0' # Weekly on Sunday at midnight
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code

@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import {
   PAPER_SIZES,
   MARGIN_MIN,
@@ -13,7 +14,7 @@ const FIXED_ROWS = 2;
 const FIXED_COLS = 4;
 
 const PAPER_RECOMMENDATIONS = {
-  'a4': { best: 'portrait', reason: 'Optimal for mini-zine folding' },
+  'a4': { best: 'landscape', reason: 'Optimal for mini-zine folding' },
   'letter': { best: 'landscape', reason: 'Standard US format, good margins' },
   'a3': { best: 'landscape', reason: 'Great for double-mini format' },
   'legal': { best: 'landscape', reason: 'Extra height for longer content' },
@@ -51,18 +52,13 @@ export class SmartSheetConfig {
   render() {
     const { paperSize, orientation, margin, unit } = this.state;
     const unitDef = UNITS[unit] || UNITS.mm;
-    const paper = resolvePaperSize(paperSize, this.state.customPaper);
     const recommendation = PAPER_RECOMMENDATIONS[paperSize];
     const isRecommended = orientation === recommendation?.best;
     const isCustom = paperSize === 'custom';
 
     const fmt = (mm) => formatDimension(mm, unit);
-    const landscapeW = fmt(paper.height);
-    const landscapeH = fmt(paper.width);
-    const portraitW = fmt(paper.width);
-    const portraitH = fmt(paper.height);
 
-    this.container.innerHTML = `
+    const fragment = DOMPurify.sanitize(`
       <div class="smart-sheet-config">
         <div class="smart-sheet-section">
           <div class="smart-sheet-header">
@@ -111,29 +107,6 @@ export class SmartSheetConfig {
             <span class="smart-sheet-custom-unit">${unitDef.label}</span>
           </div>
           ` : ''}
-
-          <div class="smart-sheet-orientation-seg">
-            <button type="button"
-              class="smart-sheet-orientation-btn ${orientation === 'landscape' ? 'is-active' : ''}"
-              data-value="landscape"
-              aria-pressed="${orientation === 'landscape'}">
-              <svg class="smart-sheet-orientation-icon" width="24" height="18" viewBox="0 0 24 18">
-                <rect x="1" y="1" width="22" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              <span>Landscape</span>
-              <span class="smart-sheet-orientation-dims">${landscapeW}×${landscapeH}</span>
-            </button>
-            <button type="button"
-              class="smart-sheet-orientation-btn ${orientation === 'portrait' ? 'is-active' : ''}"
-              data-value="portrait"
-              aria-pressed="${orientation === 'portrait'}">
-              <svg class="smart-sheet-orientation-icon" width="18" height="24" viewBox="0 0 18 24">
-                <rect x="1" y="1" width="16" height="22" rx="2" fill="none" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              <span>Portrait</span>
-              <span class="smart-sheet-orientation-dims">${portraitW}×${portraitH}</span>
-            </button>
-          </div>
         </div>
 
         <div class="smart-sheet-section">
@@ -166,7 +139,8 @@ export class SmartSheetConfig {
           </div>
         </div>
       </div>
-    `;
+    `, { RETURN_DOM_FRAGMENT: true });
+    this.container.replaceChildren(fragment);
   }
 
   attachEventListeners() {
@@ -179,12 +153,6 @@ export class SmartSheetConfig {
     const unitBtn = e.target.closest('.smart-sheet-unit-btn');
     if (unitBtn) {
       this.setUnit(unitBtn.dataset.unit);
-      return;
-    }
-
-    const orientBtn = e.target.closest('.smart-sheet-orientation-btn');
-    if (orientBtn) {
-      this.setOrientation(orientBtn.dataset.value);
       return;
     }
 
@@ -265,11 +233,6 @@ export class SmartSheetConfig {
     this.emitChange();
   }
 
-  setOrientation(orientation) {
-    this.state.orientation = orientation;
-    this.render();
-    this.emitChange();
-  }
 
   emitChange() {
     this.options.onChange({
@@ -289,7 +252,7 @@ export class SmartSheetConfig {
   }
 
   setState(newState) {
-    Object.assign(this.state, newState);
+    Object.assign(this.state, newState, { orientation: 'landscape' });
     this.render();
     this.emitChange();
   }

@@ -10,21 +10,26 @@ global.Element = dom.window.Element;
 global.Event = dom.window.Event;
 global.CustomEvent = dom.window.CustomEvent;
 
+let toast;
+test.beforeAll(async () => {
+  const toastModule = await import('../../../src/components/Toast.js');
+  toast = toastModule.toast;
+});
+
 test.describe('FormValidator Component', () => {
   let form;
-  let FormValidator, FieldValidator, createFormValidator, createFieldValidator;
-  let FIELD_STATE, VALIDATION_TIMING, VALIDATION_RULES;
+  let FormValidator, createFormValidator;
+  let VALIDATION_RULES;
 
   test.beforeAll(async () => {
+    window.HTMLElement.prototype.scrollIntoView = function() {};
     const FV = await import('../../../src/components/FormValidator.js');
     FormValidator = FV.FormValidator;
-    FieldValidator = FV.FieldValidator;
+
     createFormValidator = FV.createFormValidator;
-    createFieldValidator = FV.createFieldValidator;
+
 
     const util = await import('../../../src/utils/formValidation.js');
-    FIELD_STATE = util.FIELD_STATE;
-    VALIDATION_TIMING = util.VALIDATION_TIMING;
     VALIDATION_RULES = util.VALIDATION_RULES;
   });
 
@@ -158,6 +163,97 @@ test.describe('FormValidator Component', () => {
     expect(state).toHaveProperty('fields');
   });
 
+
+  test('handles valid form submission', async () => {
+    const nameField = document.getElementById('name');
+    nameField.value = 'John Doe';
+    const emailField = document.getElementById('email');
+    emailField.value = 'john@example.com';
+    const ageField = document.getElementById('age');
+    ageField.value = '25';
+    const usernameField = document.getElementById('username');
+    usernameField.value = 'johndoe';
+
+    let successToastCount = 0;
+    const originalSuccess = toast.success;
+    toast.success = () => { successToastCount++; };
+
+    const validator = new FormValidator(form);
+
+    const event = new Event('submit', { cancelable: true });
+    let preventDefaultCalled = false;
+    event.preventDefault = () => { preventDefaultCalled = true; };
+
+    const result = await validator._handleSubmit(event);
+
+    expect(result).toBe(true);
+    expect(preventDefaultCalled).toBe(false);
+    expect(successToastCount).toBe(1);
+
+    toast.success = originalSuccess;
+  });
+
+  test('handles invalid form submission', async () => {
+    let errorToastCount = 0;
+    const originalError = toast.error;
+    toast.error = () => { errorToastCount++; };
+
+    const validator = new FormValidator(form);
+
+    const event = new Event('submit', { cancelable: true });
+    let preventDefaultCalled = false;
+    let stopPropCalled = false;
+    event.preventDefault = () => { preventDefaultCalled = true; };
+    event.stopImmediatePropagation = () => { stopPropCalled = true; };
+
+    const result = await validator._handleSubmit(event);
+
+    expect(result).toBe(false);
+    expect(preventDefaultCalled).toBe(true);
+    expect(stopPropCalled).toBe(true);
+    expect(errorToastCount).toBe(1);
+
+    toast.error = originalError;
+  });
+
+  test('extracts field values correctly', () => {
+    const checkboxHtml = '<input type="checkbox" id="agree" name="agree" checked />';
+    const radioHtml1 = '<input type="radio" name="gender" value="m" checked />';
+    const radioHtml2 = '<input type="radio" name="gender" value="f" />';
+    const selectHtml = '<select id="multiselect" multiple><option value="1" selected></option><option value="2" selected></option></select>';
+
+    form.insertAdjacentHTML('beforeend', checkboxHtml + radioHtml1 + radioHtml2 + selectHtml);
+
+    const validator = new FormValidator(form);
+
+    expect(validator._getFieldValue(document.getElementById('agree'))).toBe(true);
+    expect(validator._getFieldValue(form.querySelector('input[name="gender"]'))).toBe('m');
+    expect(validator._getFieldValue(document.getElementById('multiselect'))).toEqual(['1', '2']);
+  });
+
+  test('sets up character counter correctly', () => {
+    new FormValidator(form);
+    const usernameField = document.getElementById('username');
+    const counter = usernameField.parentElement.querySelector('.form-char-counter');
+    expect(counter).toBeTruthy();
+
+    usernameField.value = 'test';
+    usernameField.dispatchEvent(new Event('input'));
+
+    expect(counter.textContent).toBe('4/20');
+  });
+
+  test('handles blur validation', () => {
+    new FormValidator(form, { validateOnSubmit: false });
+    const nameField = document.getElementById('name');
+
+    expect(nameField.classList.contains('is-invalid')).toBe(false);
+
+    nameField.dispatchEvent(new Event('blur'));
+
+    expect(nameField.classList.contains('is-invalid')).toBe(true);
+  });
+
   test('adds a rule dynamically', () => {
     const validator = new FormValidator(form);
     validator.addRule('name', VALIDATION_RULES.email);
@@ -167,7 +263,7 @@ test.describe('FormValidator Component', () => {
 
 test.describe('FieldValidator Component', () => {
   let field;
-  let FieldValidator, createFieldValidator, VALIDATION_RULES;
+  let FieldValidator, createFieldValidator, VALIDATION_RULES, VALIDATION_TIMING;
 
   test.beforeAll(async () => {
     const FV = await import('../../../src/components/FormValidator.js');
@@ -175,6 +271,7 @@ test.describe('FieldValidator Component', () => {
     createFieldValidator = FV.createFieldValidator;
     const util = await import('../../../src/utils/formValidation.js');
     VALIDATION_RULES = util.VALIDATION_RULES;
+    VALIDATION_TIMING = util.VALIDATION_TIMING;
   });
 
   test.beforeEach(() => {
@@ -228,6 +325,38 @@ test.describe('FieldValidator Component', () => {
 
     expect(result.isValid).toBe(false);
     expect(field.classList.contains('is-invalid')).toBe(true);
+  });
+
+
+  test('handles debounced input validation', async () => {
+    new FieldValidator(field, {
+      rules: [VALIDATION_RULES.required],
+      timing: VALIDATION_TIMING.DEBOUNCED,
+      debounceMs: 10
+    });
+
+    field.value = '';
+    field.dispatchEvent(new Event('input'));
+
+    expect(field.classList.contains('is-invalid')).toBe(false);
+
+    await new Promise(r => setTimeout(r, 20));
+
+    expect(field.classList.contains('is-invalid')).toBe(true);
+  });
+
+  test('shows success indicator', () => {
+    const validator = new FieldValidator(field, {
+      rules: [VALIDATION_RULES.required],
+      showSuccess: true
+    });
+
+    field.value = 'valid';
+    validator.stateManager.markDirty(validator.fieldId);
+    validator.validate();
+
+    expect(field.classList.contains('is-valid')).toBe(true);
+    expect(field.getAttribute('aria-invalid')).toBe('false');
   });
 
   test('reset single field', () => {
