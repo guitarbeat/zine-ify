@@ -36,4 +36,20 @@ test('Toast should allow safe HTML but sanitize XSS', async ({ page }) => {
   // Img tag should be removed (not in whitelist) or attribute removed
   const imgTag = page.locator('.toast-success, .toast-info img');
   await expect(imgTag).not.toBeAttached();
+
+
+  // 4. Check XSS in Icon Type (Malicious Type Parameter)
+  // Ensure that if a malicious payload is passed into 'type', it gets sanitized before injection
+  await page.evaluate(() => {
+    Object.prototype["<img src=x onerror=window.iconXss=true>"] = "<img src=x onerror=window.iconXss=true>";
+    window.__zineifyToast.show("<img src=x onerror=window.iconXss=true>", 'Icon XSS', 'Test');
+    delete Object.prototype["<img src=x onerror=window.iconXss=true>"];
+  });
+
+  const iconImgTag = page.locator('.toast-icon img');
+  await expect(iconImgTag).not.toBeAttached();
+
+  const iconXssInjected = await page.evaluate(() => window.iconXss);
+  expect(iconXssInjected).toBeUndefined();
+
 });
