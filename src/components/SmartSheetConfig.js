@@ -52,11 +52,14 @@ export class SmartSheetConfig {
   render() {
     const { paperSize, orientation, margin, unit } = this.state;
     const unitDef = UNITS[unit] || UNITS.mm;
+    const paper = resolvePaperSize(paperSize, this.state.customPaper);
     const recommendation = PAPER_RECOMMENDATIONS[paperSize];
     const isRecommended = orientation === recommendation?.best;
     const isCustom = paperSize === 'custom';
 
     const fmt = (mm) => formatDimension(mm, unit);
+    const landscapeW = fmt(paper.height);
+    const landscapeH = fmt(paper.width);
 
     const fragment = DOMPurify.sanitize(`
       <div class="smart-sheet-config">
