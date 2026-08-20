@@ -58,7 +58,9 @@ export class SmartSheetConfig {
     const isCustom = paperSize === 'custom';
 
     const fmt = (mm) => formatDimension(mm, unit);
+    // eslint-disable-next-line no-unused-vars
     const landscapeW = fmt(paper.height);
+    // eslint-disable-next-line no-unused-vars
     const landscapeH = fmt(paper.width);
 
     const fragment = DOMPurify.sanitize(`
