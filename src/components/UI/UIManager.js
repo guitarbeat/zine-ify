@@ -167,7 +167,12 @@ export class UIManager {
       remove.className = 'uploaded-file-remove';
       remove.type = 'button';
       remove.setAttribute('aria-label', `Remove ${file.name}`);
-      remove.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;" aria-hidden="true">close</span>';
+      const removeIcon = document.createElement('span');
+      removeIcon.className = 'material-symbols-outlined';
+      removeIcon.style.fontSize = '14px';
+      removeIcon.setAttribute('aria-hidden', 'true');
+      removeIcon.textContent = 'close';
+      remove.appendChild(removeIcon);
       remove.addEventListener('click', () => this.emitter.emit('removeUploadedFile', index));
       item.appendChild(icon);
       item.appendChild(body);
@@ -550,13 +555,6 @@ export class UIManager {
         this.setFoldProgressControl(value);
         this.emitter.emit('foldProgress', value);
       });
-    });
-
-    const stepButtonMap = new Map();
-    this.elements.foldStepButtons?.forEach((button) => {
-      if (button.dataset.stepIndex) {
-        stepButtonMap.set(button.dataset.stepIndex, button);
-      }
     });
 
     document.addEventListener('keydown', (event) => {
