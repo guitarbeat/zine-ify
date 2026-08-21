@@ -183,9 +183,16 @@ export class FormValidator {
   _getFieldValue(field) {
     if (field.type === 'checkbox') {return field.checked;}
     if (field.type === 'radio') {
-      const radioGroup = this.form.querySelectorAll(`input[name="${field.name}"]`);
-      for (const radio of radioGroup) {
-        if (radio.checked) {return radio.value;}
+      const elements = this.form.elements[field.name];
+      if (elements) {
+        const isIterable = elements.length !== undefined && !elements.tagName;
+        if (isIterable) {
+          for (let i = 0; i < elements.length; i++) {
+            if (elements[i].checked) {return elements[i].value;}
+          }
+        } else {
+          if (elements.checked) {return elements.value;}
+        }
       }
       return null;
     }

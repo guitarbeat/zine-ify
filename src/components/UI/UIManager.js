@@ -71,6 +71,12 @@ export class UIManager {
     this.setupEventListeners();
     this.syncResponsiveUI();
 
+    const savedTheme = typeof window !== 'undefined' ? localStorage.getItem('zine-theme') : null;
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+    this._syncThemeIcon();
+
     const savedControls = localStorage.getItem('zine-page-controls');
     const showControls = savedControls !== 'false';
     if (this.elements.pageControlsCheckbox) {
@@ -269,6 +275,12 @@ export class UIManager {
     if (this.elements.view3dBtn) {
       this.elements.view3dBtn.disabled = !hasPagesLoaded;
     }
+    if (this.elements.headerExportBtn) {
+      this.elements.headerExportBtn.disabled = !hasPagesLoaded;
+    }
+    if (this.elements.headerPreviewBtn) {
+      this.elements.headerPreviewBtn.disabled = !hasPagesLoaded;
+    }
   }
 
   renderPaperSizeOptions() {
@@ -425,6 +437,7 @@ export class UIManager {
       pagePickerModal: $('#page-picker-modal'),
       pagePickerBackdrop: $('#page-picker-backdrop'),
       pagePickerCancel: $('#page-picker-cancel'),
+      foldViewerCard: $('#card-fold-viewer'),
       pagePickerConfirm: $('#page-picker-confirm'),
       pagePickerSubtitle: $('#page-picker-subtitle'),
       pagePickerSelectFirst: $('#page-picker-select-first'),
@@ -438,7 +451,9 @@ export class UIManager {
       bookletStatus: $('#booklet-status'),
       clearAllBtn: $('#clear-all-btn'),
       exportPdfBtn: $('#exportPdfBtn'),
-      view3dBtn: $('#view3dBtn')
+      view3dBtn: $('#view3dBtn'),
+      headerExportBtn: $('#header-export-btn'),
+      headerPreviewBtn: $('#header-preview-btn')
     };
   }
 
@@ -501,7 +516,10 @@ export class UIManager {
 
     this.elements.exportPdfBtn?.addEventListener('click', () => this.emitter.emit('export'));
     this.elements.view3dBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
+    this.elements.headerExportBtn?.addEventListener('click', () => this.emitter.emit('export'));
+    this.elements.headerPreviewBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
     this.elements.clearAllBtn?.addEventListener('click', () => this.emitter.emit('clearAll'));
+    this.elements.themeToggleBtn?.addEventListener('click', () => this.toggleTheme());
 
     this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
     this.elements.uploadZone?.addEventListener('keydown', (event) => {
@@ -521,10 +539,10 @@ export class UIManager {
       this.emitter.emit('foldProgress', value);
     });
 
-    const stepButtonMap = new Map();
+    const foldStepButtonMap = new Map();
     this.elements.foldStepButtons?.forEach((button) => {
       if (button.dataset.stepIndex) {
-        stepButtonMap.set(button.dataset.stepIndex, button);
+        foldStepButtonMap.set(button.dataset.stepIndex, button);
       }
       button.setAttribute('aria-pressed', 'false');
       button.addEventListener('click', () => {
@@ -539,7 +557,7 @@ export class UIManager {
         return;
       }
 
-      const stepButton = stepButtonMap.get(event.key);
+      const stepButton = foldStepButtonMap.get(event.key);
       if (!stepButton) {
         return;
       }
@@ -580,8 +598,23 @@ export class UIManager {
     window.addEventListener('resize', () => this.syncResponsiveUI());
   }
 
+  toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('zine-theme', newTheme);
+    this._syncThemeIcon();
+  }
+
+  _syncThemeIcon() {
+    if (this.elements.themeIcon) {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      this.elements.themeIcon.textContent = currentTheme === 'light' ? 'dark_mode' : 'light_mode';
+    }
+  }
+
   isFoldPreviewOpen() {
-    const foldViewerCard = document.getElementById('card-fold-viewer');
+    const foldViewerCard = this.elements.foldViewerCard;
     return foldViewerCard && !foldViewerCard.classList.contains('hidden');
   }
 
@@ -625,7 +658,7 @@ export class UIManager {
     );
 
     // Attach Sortable to every rendered grid
-    document.querySelectorAll('.zine-grid').forEach(grid => {
+    this.elements.zineSheetsContainer.querySelectorAll('.zine-grid').forEach(grid => {
       this.dnd.initSortable(grid);
     });
   }
