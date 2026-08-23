@@ -193,6 +193,10 @@ export class UIManager {
       placeholder.classList.toggle('hidden', !!url);
     }
     cell.classList.toggle('has-page', !!url);
+    const baseLabel = (cell.getAttribute('aria-label') || '').replace(/, (empty slot|has content)$/, '');
+    if (baseLabel) {
+      cell.setAttribute('aria-label', url ? `${baseLabel}, has content` : `${baseLabel}, empty slot`);
+    }
   }
 
   setPageFlip(index, enabled) {

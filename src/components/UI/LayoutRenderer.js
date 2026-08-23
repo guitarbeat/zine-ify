@@ -186,6 +186,9 @@ export class LayoutRenderer {
     cell.setAttribute('data-page-index', pageIndex);
     cell.setAttribute('data-page', pageNumber);
     cell.setAttribute('draggable', 'true');
+    cell.setAttribute('role', 'button');
+    cell.setAttribute('tabindex', '0');
+    cell.setAttribute('aria-label', `${accessibleLabelText}, empty slot`);
 
     if (upsideDown) {
       cell.classList.add('is-template-upside-down');
@@ -207,6 +210,12 @@ export class LayoutRenderer {
     cell.addEventListener('drop', (e) => handlers.onDrop(e, cell));
     cell.addEventListener('dragend', () => handlers.onDragEnd(cell));
     cell.addEventListener('click', (e) => handlers.onClick(e, pageIndex));
+    cell.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handlers.onClick(e, pageIndex);
+      }
+    });
 
     const toolbar = cell.querySelector('.page-toolbar');
     TOOLBAR_BUTTONS.forEach(({ selector, title, ariaLabel }) => {
