@@ -1,24 +1,25 @@
 import { GridStack } from 'gridstack';
 import 'gridstack/dist/gridstack.min.css';
 
-const STORAGE_KEY_DESKTOP = 'zine-grid-v8';
-const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v8';
+const STORAGE_KEY_DESKTOP = 'zine-grid-v3';
+const STORAGE_KEY_MOBILE = 'zine-grid-mobile-v3';
 const MOBILE_BREAKPOINT = 768;
 const CELL_HEIGHT = 32;
 const MOBILE_CELL_HEIGHT = 24;
 
 const DEFAULT_LAYOUT = [
-  { id: 'brand', x: 0, y: 0, w: 4, h: 3 },
-  { id: 'canvas', x: 0, y: 3, w: 9, h: 10 },
-  { id: 'upload', x: 9, y: 3, w: 3, h: 4 },
-  { id: 'settings', x: 9, y: 7, w: 3, h: 8 },
-  { id: 'fold-viewer', x: 0, y: 15, w: 6, h: 6 },
-  { id: 'fold-booklet', x: 6, y: 15, w: 3, h: 4 },
-  { id: 'fold-guide', x: 9, y: 15, w: 3, h: 4 }
+  { id: 'canvas', x: 0, y: 0, w: 8, h: 10 },
+  { id: 'upload', x: 8, y: 0, w: 4, h: 4 },
+  { id: 'settings', x: 8, y: 4, w: 4, h: 4 },
+  { id: 'display', x: 8, y: 8, w: 4, h: 2 },
+  { id: 'export', x: 0, y: 10, w: 4, h: 2 },
+  { id: 'preview-fold', x: 4, y: 10, w: 4, h: 2 }
 ];
 
 let grid = null;
 let gridEl = null;
+let resizeObserver = null;
+let resizeFrame = null;
 let isRelayouting = false;
 
 function isMobile() {
@@ -59,23 +60,17 @@ function saveLayout() {
 }
 
 function compactLayout() {
-  if (!grid || !isMobile()) { return; }
+  if (!grid) { return; }
   grid.compact('list');
 }
 
-function relayoutPanels({ fitContent = false } = {}) {
+function relayoutPanels() {
   if (!grid) { return; }
   isRelayouting = true;
 
-  if (fitContent) {
-    grid.getGridItems().forEach((el) => {
-      if (el.querySelector('.grid-stack-item-content')?.firstElementChild) {
-        grid.resizeToContent(el);
-      }
-    });
-  }
-
+  grid.getGridItems().forEach((el) => grid.resizeToContent(el));
   compactLayout();
+
   isRelayouting = false;
 }
 
@@ -90,7 +85,8 @@ function resetToDefaults() {
   });
   grid.batchUpdate(false);
 
-  relayoutPanels({ fitContent: true });
+  if (isMobile()) { compactLayout(); }
+  relayoutPanels();
 }
 
 function loadLayout() {
@@ -99,25 +95,18 @@ function loadLayout() {
   try {
     const raw = localStorage.getItem(storageKey());
     if (!raw) {
-      relayoutPanels({ fitContent: true });
+      relayoutPanels();
       return;
     }
 
     const items = JSON.parse(raw);
     if (!Array.isArray(items) || !items.length) {
-      relayoutPanels({ fitContent: true });
+      relayoutPanels();
       return;
     }
 
-    const validIds = new Set(
-      [...gridEl.querySelectorAll('.grid-stack-item')].map((el) => el.getAttribute('gs-id'))
-    );
-    const savedItems = items.filter((item) => validIds.has(item.id));
-    const savedIds = new Set(savedItems.map((item) => item.id));
-    const missingItems = DEFAULT_LAYOUT.filter(({ id }) => validIds.has(id) && !savedIds.has(id));
-    grid.load([...savedItems, ...missingItems]);
+    grid.load(items);
     relayoutPanels();
-    saveLayout();
 
     if (layoutHasOverlaps()) {
       resetToDefaults();
@@ -127,12 +116,31 @@ function loadLayout() {
   }
 }
 
+function scheduleRelayout() {
+  if (resizeFrame) { cancelAnimationFrame(resizeFrame); }
+  resizeFrame = requestAnimationFrame(() => {
+    relayoutPanels();
+    if (layoutHasOverlaps()) { compactLayout(); }
+    resizeFrame = null;
+  });
+}
+
+function observePanelSizes() {
+  if (resizeObserver) { resizeObserver.disconnect(); }
+
+  resizeObserver = new ResizeObserver(() => scheduleRelayout());
+
+  gridEl?.querySelectorAll('.grid-stack-item .snap-card').forEach((card) => {
+    resizeObserver.observe(card);
+  });
+}
+
 function syncGridMetrics() {
   if (!grid) { return; }
   const mobile = isMobile();
   grid.cellHeight(mobile ? MOBILE_CELL_HEIGHT : CELL_HEIGHT);
   grid.margin(mobile ? 4 : 8);
-  grid.float(!mobile);
+  grid.float(false);
 }
 
 function setInteractionMode() {
@@ -153,7 +161,8 @@ export function initGridStack() {
     column: 12,
     cellHeight: CELL_HEIGHT,
     margin: isMobile() ? 6 : 8,
-    float: !isMobile(),
+    handle: '.snap-card-handle',
+    float: false,
     animate: true,
     sizeToContent: true,
     resizable: { handles: 'se', autoHide: false },
@@ -164,11 +173,12 @@ export function initGridStack() {
     }
   }, gridEl);
 
-  grid.float(!isMobile());
+  grid.float(false);
 
   grid.on('change', saveLayout);
-  grid.on('dragstop resizestop', saveLayout);
+  grid.on('dragstop resizestop', () => scheduleRelayout());
 
+  observePanelSizes();
   setInteractionMode();
 
   window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).addEventListener('change', setInteractionMode);

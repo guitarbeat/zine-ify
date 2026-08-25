@@ -32,7 +32,6 @@ export default defineConfig({
     port: 5000,
     host: '0.0.0.0',
     allowedHosts: true,
-    strictPort: true,
     watch: {
       ignored: ['**/.local/**', '**/node_modules/**']
     }

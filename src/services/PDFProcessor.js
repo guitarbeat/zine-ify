@@ -108,8 +108,8 @@ export class PDFProcessor extends MediaProcessor {
         timeoutId = setTimeout(async () => {
           try {
             await this.loadingTask?.destroy();
-          } catch (_e) {
-            void _e;
+          } catch (destroyError) {
+            void destroyError;
           }
           reject(new Error('PDF loading timed out'));
         }, 60000);
@@ -305,8 +305,8 @@ export class PDFProcessor extends MediaProcessor {
   async cleanupFailedLoad() {
     try {
       await this.loadingTask?.destroy();
-    } catch (_destroyError) {
-      void _destroyError;
+    } catch (destroyError) {
+      void destroyError;
     }
     this.loadingTask = null;
 
@@ -352,7 +352,7 @@ export class PDFProcessor extends MediaProcessor {
    * Clean up resources
    */
   cleanup() {
-    this.loadingTask?.destroy().catch(() => {});
+    this.loadingTask?.destroy().catch((_error) => {});
     this.loadingTask = null;
     if (this.pdf) {
       this.pdf.destroy();

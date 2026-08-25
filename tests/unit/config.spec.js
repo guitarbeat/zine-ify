@@ -3,7 +3,7 @@ import {
     toMm,
     fromMm,
     formatDimension,
-    resolvePaperSize,
+    resolvePaperSize
 } from '../../src/utils/config.js';
 
 test.describe('Config Utilities', () => {

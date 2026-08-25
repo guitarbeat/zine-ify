@@ -1,5 +1,17 @@
 import DOMPurify from 'dompurify';
 // Utility functions for the PDF Zine Maker
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+/**
+ * Utility for merging Tailwind classes with clsx
+ * @param {...any} inputs - Class values to merge
+ * @returns {string} Merged class string
+ */
+export function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
+
 /**
  * Debounce function to limit how often a function can be called
  * @param {Function} func - Function to debounce
@@ -92,31 +104,4 @@ export function resizeAndFillArray(arr, requiredLength, fillValue = null) {
     nextImages[index] = arr[index];
   }
   return nextImages;
-}
-
-/**
- * Run tasks with a maximum concurrency limit
- * @param {Iterable} items - Items to iterate over
- * @param {number} concurrencyLimit - Maximum concurrent tasks
- * @param {Function} taskFn - Async function to run for each item
- * @returns {Promise<void>}
- */
-export async function runWithConcurrencyLimit(items, concurrencyLimit, taskFn) {
-  const activePromises = new Set();
-
-  try {
-    for (const item of items) {
-      const trackedPromise = taskFn(item).finally(() => activePromises.delete(trackedPromise));
-      activePromises.add(trackedPromise);
-
-      if (activePromises.size >= concurrencyLimit) {
-        await Promise.race(activePromises);
-      }
-    }
-
-    await Promise.all(activePromises);
-  } catch (error) {
-    await Promise.allSettled(Array.from(activePromises));
-    throw error;
-  }
 }

@@ -17,8 +17,7 @@ PAGE_CELL_TEMPLATE.innerHTML = `
     </button>
   </div>
   <div class="page-placeholder flex flex-col items-center justify-center gap-2 absolute inset-0">
-     <span class="material-symbols-outlined text-3xl">upload_file</span>
-     <span class="page-placeholder-hint">click to add</span>
+     <span class="material-symbols-outlined text-3xl">note_stack</span>
   </div>
   <button type="button" class="page-cell-remove-hint" aria-label="Remove page">
     <div class="page-cell-remove-hint-inner">

@@ -59,7 +59,7 @@ export class StateStore {
       this.paperSize = paperSize;
     }
     if (orientation) {
-      this.orientation = 'landscape';
+      this.orientation = orientation;
     }
   }
 }

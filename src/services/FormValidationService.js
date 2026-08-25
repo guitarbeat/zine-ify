@@ -138,6 +138,24 @@ export function initSettingsValidation(container = document) {
 }
 
 /**
+ * Create an email validation example (for reference)
+ * Demonstrates classic form validation patterns
+ */
+export function createEmailValidationExample() {
+  // Example validator for an email input
+  return {
+    rules: [
+      VALIDATION_RULES.required,
+      VALIDATION_RULES.email
+    ],
+    timing: VALIDATION_TIMING.DEBOUNCED,
+    constraints: {
+      format: 'example@domain.com'
+    }
+  };
+}
+
+/**
  * Create a password validation example
  * Demonstrates multi-rule validation with helpful constraints
  */
