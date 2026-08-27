@@ -64,7 +64,6 @@ export class FormValidator {
   register(fieldSelector, config) {
     const field = this.form.querySelector(fieldSelector);
     if (!field) {
-      console.warn(`FormValidator: Field "${fieldSelector}" not found`);
       return this;
     }
 

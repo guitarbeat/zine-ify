@@ -14,7 +14,7 @@ const FIXED_ROWS = 2;
 const FIXED_COLS = 4;
 
 const PAPER_RECOMMENDATIONS = {
-  'a4': { best: 'landscape', reason: 'Optimal for mini-zine folding' },
+  'a4': { best: 'portrait', reason: 'Optimal for mini-zine folding' },
   'letter': { best: 'landscape', reason: 'Standard US format, good margins' },
   'a3': { best: 'landscape', reason: 'Great for double-mini format' },
   'legal': { best: 'landscape', reason: 'Extra height for longer content' },
@@ -70,6 +70,26 @@ export class SmartSheetConfig {
                   data-unit="${key}"
                   aria-pressed="${unit === key}">${u.label}</button>
               `).join('')}
+            </div>
+          </div>
+
+          <div class="smart-sheet-header">
+            <span class="smart-sheet-label">Orientation</span>
+            <div class="smart-sheet-orientation-seg" role="group" aria-label="Page orientation">
+              <button type="button"
+                class="smart-sheet-orientation-btn ${orientation === 'portrait' ? 'is-active' : ''}"
+                data-value="portrait"
+                aria-pressed="${orientation === 'portrait'}">
+                <span class="material-symbols-outlined">portrait</span>
+                Portrait <span class="smart-sheet-dim">(${landscapeH}×${landscapeW})</span>
+              </button>
+              <button type="button"
+                class="smart-sheet-orientation-btn ${orientation === 'landscape' ? 'is-active' : ''}"
+                data-value="landscape"
+                aria-pressed="${orientation === 'landscape'}">
+                <span class="material-symbols-outlined">landscape</span>
+                Landscape <span class="smart-sheet-dim">(${landscapeW}×${landscapeH})</span>
+              </button>
             </div>
           </div>
 
@@ -156,6 +176,12 @@ export class SmartSheetConfig {
       return;
     }
 
+    const orientBtn = e.target.closest('.smart-sheet-orientation-btn');
+    if (orientBtn) {
+      this.setOrientation(orientBtn.dataset.value);
+      return;
+    }
+
     const marginBtn = e.target.closest('[data-margin-delta]');
     if (marginBtn) {
       const sign = parseInt(marginBtn.dataset.marginDelta, 10) || 0;
@@ -194,6 +220,13 @@ export class SmartSheetConfig {
 
   setMargin(margin) {
     this.state.margin = this.clampMargin(margin);
+    this.render();
+    this.emitChange();
+  }
+
+  setOrientation(orientation) {
+    if (orientation !== 'portrait' && orientation !== 'landscape') { return; }
+    this.state.orientation = orientation;
     this.render();
     this.emitChange();
   }
@@ -252,7 +285,7 @@ export class SmartSheetConfig {
   }
 
   setState(newState) {
-    Object.assign(this.state, newState, { orientation: 'landscape' });
+    Object.assign(this.state, newState);
     this.render();
     this.emitChange();
   }
