@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { JSDOM } from 'jsdom';
+import DOMPurify from 'dompurify';
 
 // Setup JSDOM BEFORE importing any files that might rely on global objects
 let dom;
@@ -8,6 +9,8 @@ test.beforeAll(() => {
   dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
   global.window = dom.window;
   global.document = dom.window.document;
+    const purify = DOMPurify(dom.window);
+    DOMPurify.sanitize = purify.sanitize;
 });
 
 test.describe('FormValidationService Tests', () => {
