@@ -204,6 +204,33 @@ test.describe('PDFProcessor', () => {
 
 
 
+
+  test('loadPDF handles PDF processing error and cleans up', async () => {
+    // Mock getDocument to throw/reject
+    processor.ensurePdfJs = async () => ({
+      getDocument: () => ({
+        promise: Promise.reject(new Error('Simulated PDF library error')),
+        destroy: async () => {}
+      })
+    });
+    processor.validateFile = () => ({ valid: true, errors: [] });
+    processor.validateFileSignature = async () => true;
+
+    if (typeof global !== 'undefined') {
+      global.URL.createObjectURL = () => 'blob:test';
+      global.URL.revokeObjectURL = () => {};
+    }
+
+    const file = new File(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' });
+
+    await expect(processor.loadPDF(file)).rejects.toThrow('Simulated PDF library error');
+
+    // Verify cleanup happened
+    expect(processor.isProcessing).toBe(false);
+    expect(processor.loadingTask).toBeNull();
+    expect(processor.fileUrl).toBeNull();
+  });
+
   test('renderPage returns canvas and cleans up page', async () => {
     // Mock the PDF object
     processor.pdf = {
