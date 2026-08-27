@@ -41,11 +41,41 @@ function nodesOverlap(a, b) {
 
 function layoutHasOverlaps() {
   const nodes = grid?.engine?.nodes ?? [];
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      if (nodesOverlap(nodes[i], nodes[j])) { return true; }
+  const len = nodes.length;
+
+  if (len < 10) {
+    for (let i = 0; i < len; i++) {
+      for (let j = i + 1; j < len; j++) {
+        if (nodesOverlap(nodes[i], nodes[j])) { return true; }
+      }
+    }
+    return false;
+  }
+
+  let maxX = 0;
+  let maxY = 0;
+  for (let i = 0; i < len; i++) {
+    const n = nodes[i];
+    const right = n.x + n.w;
+    const bottom = n.y + n.h;
+    if (right > maxX) { maxX = right; }
+    if (bottom > maxY) { maxY = bottom; }
+  }
+
+  const spatialGrid = new Uint8Array(maxY * maxX);
+
+  for (let i = 0; i < len; i++) {
+    const n = nodes[i];
+    for (let y = n.y, yEnd = n.y + n.h; y < yEnd; y++) {
+      const rowOffset = y * maxX;
+      for (let x = n.x, xEnd = n.x + n.w; x < xEnd; x++) {
+        const index = rowOffset + x;
+        if (spatialGrid[index]) { return true; }
+        spatialGrid[index] = 1;
+      }
     }
   }
+
   return false;
 }
 
