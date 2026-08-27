@@ -96,12 +96,13 @@ export class PagePicker {
     const grid = this.elements.pagePickerGrid;
     if (!grid) {return;}
     grid.innerHTML = '';
+    const selectionSet = new Set(initialSelection);
     thumbnails.forEach(({ pageNumber, thumbnailUrl }) => {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'page-picker-thumb';
       btn.dataset.pageNumber = String(pageNumber);
-      btn.setAttribute('aria-pressed', initialSelection.includes(pageNumber) ? 'true' : 'false');
+      btn.setAttribute('aria-pressed', selectionSet.has(pageNumber) ? 'true' : 'false');
       btn.setAttribute('aria-label', `Toggle selection for page ${pageNumber}`);
 
       const media = document.createElement('div');
