@@ -82,7 +82,7 @@ class Toast {
 
     toast.appendChild(this.template.content.cloneNode(true));
 
-    toast.querySelector('.toast-icon').insertAdjacentHTML('beforeend', this.getIcon(type));
+    toast.querySelector('.toast-icon').appendChild(sanitizeHTML(this.getIcon(type)));
 
     toast.querySelector('.toast-title').appendChild(sanitizeHTML(title));
 
