@@ -26,7 +26,6 @@ export class FormValidator {
       : formElement;
 
     if (!this.form) {
-      console.error('FormValidator: Form element not found');
       return;
     }
 
@@ -540,7 +539,6 @@ export class FieldValidator {
       : field;
 
     if (!this.field) {
-      console.error('FieldValidator: Field element not found');
       return;
     }
 
