@@ -38,6 +38,17 @@ export class ExportService {
     const cellW = drawW / cols;
     const cellH = drawH / rows;
 
+
+    const uniqueUrls = [...new Set(filledSlots)];
+    const imageCache = new Map();
+    await Promise.all(
+      uniqueUrls.map(url =>
+        this._loadImage(url).then(img => {
+          imageCache.set(url, img);
+        })
+      )
+    );
+
     for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
       const offscreen = document.createElement('canvas');
       offscreen.width = canvasW;
@@ -81,13 +92,12 @@ export class ExportService {
         draws.push({ url, cellX, cellY, rotateDeg, scale, objectFit });
       }
 
-      await Promise.all(
-        draws.map(({ url, cellX, cellY, rotateDeg, scale, objectFit }) =>
-          this._loadImage(url).then((img) => {
-            this._drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit);
-          })
-        )
-      );
+      for (const { url, cellX, cellY, rotateDeg, scale, objectFit } of draws) {
+        const img = imageCache.get(url);
+        if (img) {
+          this._drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit);
+        }
+      }
 
       const imgData = offscreen.toDataURL('image/jpeg', 0.92);
       if (sheetIndex > 0) {
