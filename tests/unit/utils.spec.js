@@ -183,5 +183,10 @@ test.describe('Utils', () => {
     // Negative requiredLength: treated as 0, returns empty array
     expect(resizeAndFillArray([1, 2], -1)).toEqual([]);
     expect(resizeAndFillArray([1, 2], 0)).toEqual([]);
+    // Infinity requiredLength: throws RangeError
+    expect(() => resizeAndFillArray([1, 2], Infinity)).toThrow(RangeError);
+
+    // NaN requiredLength: throws RangeError
+    expect(() => resizeAndFillArray([1, 2], NaN)).toThrow(RangeError);
   });
 });
