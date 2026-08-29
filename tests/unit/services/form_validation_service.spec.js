@@ -17,7 +17,6 @@ test.describe('FormValidationService Tests', () => {
   let initSettingsValidation;
   let createPasswordValidationExample;
   let createValidationDemo;
-  let showValidationErrorWithAction;
   let setupPasswordConfirmation;
   let GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX;
 
@@ -27,7 +26,6 @@ test.describe('FormValidationService Tests', () => {
     initSettingsValidation = FormValidationService.initSettingsValidation;
     createPasswordValidationExample = FormValidationService.createPasswordValidationExample;
     createValidationDemo = FormValidationService.createValidationDemo;
-    showValidationErrorWithAction = FormValidationService.showValidationErrorWithAction;
     setupPasswordConfirmation = FormValidationService.setupPasswordConfirmation;
 
     const config = await import('../../../src/utils/config.js');
@@ -159,49 +157,6 @@ test.describe('FormValidationService Tests', () => {
       // Check if rules are registered
       expect(validator.fieldConfigs.has('demo-password') || validator.fieldConfigs.has('#demo-password')).toBe(true);
       expect(validator.fieldConfigs.has('demo-comment') || validator.fieldConfigs.has('#demo-comment')).toBe(true);
-    });
-  });
-
-  test.describe('showValidationErrorWithAction', () => {
-    test('does nothing if field is not found', () => {
-      // Should not throw
-      showValidationErrorWithAction('non-existent-field', 'Error message');
-    });
-
-    test('adds error message and action button to field', () => {
-      const actionHandler = () => {};
-      showValidationErrorWithAction('action-field', 'Test Error', {
-        label: 'Fix It',
-        handler: actionHandler
-      });
-
-      const field = document.getElementById('action-field');
-      expect(field.classList.contains('is-invalid')).toBe(true);
-      expect(field.getAttribute('aria-invalid')).toBe('true');
-
-      const errorEl = field.nextElementSibling;
-      expect(errorEl).not.toBeNull();
-      expect(errorEl.className).toBe('form-error');
-
-      const textSpan = errorEl.querySelector('span');
-      expect(textSpan.textContent).toBe('Test Error');
-
-      const actionBtn = errorEl.querySelector('button');
-      expect(actionBtn).not.toBeNull();
-      expect(actionBtn.textContent).toBe('Fix It');
-      expect(actionBtn.onclick).toBe(actionHandler);
-    });
-
-    test('removes existing error before adding a new one', () => {
-      showValidationErrorWithAction('action-field', 'Error 1');
-      showValidationErrorWithAction('action-field', 'Error 2');
-
-      const field = document.getElementById('action-field');
-      const parent = field.parentElement;
-      const errors = parent.querySelectorAll('.form-error');
-
-      expect(errors).toHaveLength(1);
-      expect(errors[0].querySelector('span').textContent).toBe('Error 2');
     });
   });
 

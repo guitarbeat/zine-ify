@@ -259,47 +259,6 @@ export function createValidationDemo(container) {
   return demoValidator;
 }
 
-/**
- * Show validation error with custom action
- * Demonstrates error message with recovery guidance
- */
-export function showValidationErrorWithAction(fieldId, message, action) {
-  const field = document.querySelector(`#${fieldId}`);
-  if (!field) {return;}
-
-  // Mark invalid
-  field.classList.add('is-invalid');
-  field.setAttribute('aria-invalid', 'true');
-
-  // Remove existing error
-  const existingError = field.parentElement.querySelector('.form-error');
-  if (existingError) {existingError.remove();}
-
-  // Create error with action link
-  const errorEl = document.createElement('div');
-  errorEl.className = 'form-error';
-  errorEl.setAttribute('role', 'alert');
-
-  const textSpan = document.createElement('span');
-  textSpan.textContent = message;
-  errorEl.appendChild(textSpan);
-
-  if (action) {
-    const actionBtn = document.createElement('button');
-    actionBtn.type = 'button';
-    actionBtn.className = 'ml-2 text-underline font-semibold hover:opacity-80';
-    actionBtn.textContent = action.label;
-    actionBtn.onclick = action.handler;
-    errorEl.appendChild(actionBtn);
-  }
-
-  field.insertAdjacentElement('afterend', errorEl);
-}
-
-/**
- * Form validation hooks for cross-field validation
- * Example: password confirmation
- */
 export function setupPasswordConfirmation(passwordId, confirmId) {
   const passwordField = document.querySelector(`#${passwordId}`);
   const confirmField = document.querySelector(`#${confirmId}`);
