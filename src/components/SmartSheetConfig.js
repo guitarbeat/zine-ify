@@ -57,6 +57,9 @@ export class SmartSheetConfig {
     const isCustom = paperSize === 'custom';
 
     const fmt = (mm) => formatDimension(mm, unit);
+    const paper = resolvePaperSize(paperSize, this.state.customPaper);
+    const landscapeW = fmt(Math.max(paper.width, paper.height));
+    const landscapeH = fmt(Math.min(paper.width, paper.height));
 
     const fragment = DOMPurify.sanitize(`
       <div class="smart-sheet-config">
