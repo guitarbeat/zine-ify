@@ -97,6 +97,31 @@ test.describe('Zine3DViewer', () => {
     expect(result.hasFrontMaterial).toBe(true);
   });
 
+  test('loadPages loads page textures and sets up scene elements', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const container = document.getElementById('container');
+      const viewer = new window.Zine3DViewer(container);
+
+      const previewPages = Array.from({ length: 8 }, (_, i) => `page${i + 1}.png`);
+      viewer.loadPages(previewPages);
+
+      const state = {
+        pagesCount: viewer.pages.length,
+        seamsCount: viewer.seams.length,
+        guidesCount: viewer.guides.length,
+        currentFoldProgress: viewer.currentFoldProgress
+      };
+
+      viewer.destroy();
+      return state;
+    });
+
+    expect(result.pagesCount).toBe(8);
+    expect(result.seamsCount).toBeGreaterThan(0);
+    expect(result.guidesCount).toBeGreaterThan(0);
+    expect(result.currentFoldProgress).toBe(0);
+  });
+
   test('createSeams and createGuides generate visual connection elements', async ({ page }) => {
     const result = await page.evaluate(() => {
       const container = document.getElementById('container');
@@ -152,11 +177,11 @@ test.describe('Zine3DViewer', () => {
     expect(result.guidesLength).toBe(0);
   });
 
-  test('initFallbackScene activates if WebGL fails', async ({ page }) => {
+  test('initFallbackScene activates if WebGL fails and supports loadPages & setFoldProgress', async ({ page }) => {
     const result = await page.evaluate(() => {
       const container = document.getElementById('container');
 
-      // We can force WebGL to fail by removing the context from the test page entirely
+      // Force WebGL context creation failure
       const origGetContext = HTMLCanvasElement.prototype.getContext;
       HTMLCanvasElement.prototype.getContext = function(type, options) {
         if (type.includes('webgl')) return null;
@@ -165,14 +190,19 @@ test.describe('Zine3DViewer', () => {
 
       const viewer = new window.Zine3DViewer(container);
 
-      // Restore
-      HTMLCanvasElement.prototype.getContext = origGetContext;
+      viewer.loadPages(['page1.png', 'page2.png']);
+      viewer.setFoldProgress(1.5);
 
       const state = {
         isFallbackMode: viewer.isFallbackMode,
         hasFallbackCanvas: !!viewer.fallbackCanvas,
-        hasFallbackContext: !!viewer.fallbackContext
+        hasFallbackContext: !!viewer.fallbackContext,
+        fallbackPagesLength: viewer.fallbackPages.length,
+        fallbackFoldProgress: viewer.fallbackFoldProgress
       };
+
+      // Restore original getContext
+      HTMLCanvasElement.prototype.getContext = origGetContext;
 
       viewer.destroy();
       return state;
@@ -181,5 +211,7 @@ test.describe('Zine3DViewer', () => {
     expect(result.isFallbackMode).toBe(true);
     expect(result.hasFallbackCanvas).toBe(true);
     expect(result.hasFallbackContext).toBe(true);
+    expect(result.fallbackPagesLength).toBe(2);
+    expect(result.fallbackFoldProgress).toBe(1.5);
   });
 });
