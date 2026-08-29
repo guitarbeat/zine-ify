@@ -224,6 +224,64 @@ test.describe('Utils', () => {
       }
     });
     await expect(failedPromise).rejects.toThrow('Task failed');
+
+    // 5. Handles non-Array Iterables (Set and Generator)
+    const setIter = new Set(['a', 'b', 'c']);
+    const setResults = [];
+    await runWithConcurrencyLimit(setIter, 2, async (item) => {
+      setResults.push(item);
+    });
+    expect(setResults).toEqual(['a', 'b', 'c']);
+
+    function* generateItems() {
+      yield 100;
+      yield 200;
+      yield 300;
+    }
+    const genResults = [];
+    await runWithConcurrencyLimit(generateItems(), 2, async (item) => {
+      genResults.push(item);
+    });
+    expect(genResults).toEqual([100, 200, 300]);
+
+    // 6. Concurrency limit = 1 runs sequentially
+    const seqActive = new Set();
+    let seqMaxActive = 0;
+    await runWithConcurrencyLimit([1, 2, 3, 4], 1, async (item) => {
+      seqActive.add(item);
+      seqMaxActive = Math.max(seqMaxActive, seqActive.size);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      seqActive.delete(item);
+    });
+    expect(seqMaxActive).toBe(1);
+
+    // 7. Concurrency limit higher than item count
+    const highLimitResults = [];
+    await runWithConcurrencyLimit([1, 2], 10, async (item) => {
+      highLimitResults.push(item);
+    });
+    expect(highLimitResults).toEqual([1, 2]);
+
+    // 8. Handles out-of-order task completions correctly
+    const completedInOrder = [];
+    await runWithConcurrencyLimit([30, 10, 5], 2, async (delay) => {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      completedInOrder.push(delay);
+    });
+    expect(completedInOrder).toEqual([10, 5, 30]);
+
+    // 9. Ensures active promises complete/settle on error without unhandled rejections
+    let taskFinishedCount = 0;
+    const cleanupFailPromise = runWithConcurrencyLimit([10, 50, 100], 2, async (delay) => {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      taskFinishedCount++;
+      if (delay === 10) {
+        throw new Error('Early failure');
+      }
+    });
+    await expect(cleanupFailPromise).rejects.toThrow('Early failure');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    expect(taskFinishedCount).toBe(2);
   });
 
 });

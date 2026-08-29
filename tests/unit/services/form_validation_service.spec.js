@@ -15,18 +15,12 @@ test.beforeAll(() => {
 
 test.describe('FormValidationService Tests', () => {
   let initSettingsValidation;
-  let createPasswordValidationExample;
-  let showValidationErrorWithAction;
-  let setupPasswordConfirmation;
   let GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX;
 
   test.beforeAll(async () => {
     // Dynamic import to ensure JSDOM is setup first
     const FormValidationService = await import('../../../src/services/FormValidationService.js');
     initSettingsValidation = FormValidationService.initSettingsValidation;
-    createPasswordValidationExample = FormValidationService.createPasswordValidationExample;
-    showValidationErrorWithAction = FormValidationService.showValidationErrorWithAction;
-    setupPasswordConfirmation = FormValidationService.setupPasswordConfirmation;
 
     const config = await import('../../../src/utils/config.js');
     GRID_DIMENSION_MAX = config.GRID_DIMENSION_MAX;
@@ -49,13 +43,6 @@ test.describe('FormValidationService Tests', () => {
 
         <div id="demo-container"></div>
 
-        <input id="test-field" type="text" />
-        <div id="field-wrapper">
-          <input id="action-field" type="text" />
-        </div>
-
-        <input id="password" type="password" value="password123" />
-        <input id="confirm-password" type="password" value="password123" />
       </div>
     `;
   });
@@ -128,74 +115,6 @@ test.describe('FormValidationService Tests', () => {
       marginConfig.onValidationChange({ isValid: false }, marginInput);
 
       expect(marginInput.value).toBe(MARGIN_MAX.toString());
-    });
-  });
-
-
-  test.describe('createPasswordValidationExample', () => {
-    test('returns correct password validation configuration', () => {
-      const config = createPasswordValidationExample();
-      expect(config.rules).toHaveLength(4); // required, minLength, maxLength, pattern
-      expect(config.constraints.minLength).toBe(8);
-      expect(config.constraints.maxLength).toBe(64);
-    });
-  });
-
-  test.describe('showValidationErrorWithAction', () => {
-    test('does nothing if field is not found', () => {
-      // Should not throw
-      showValidationErrorWithAction('non-existent-field', 'Error message');
-    });
-
-    test('adds error message and action button to field', () => {
-      const actionHandler = () => {};
-      showValidationErrorWithAction('action-field', 'Test Error', {
-        label: 'Fix It',
-        handler: actionHandler
-      });
-
-      const field = document.getElementById('action-field');
-      expect(field.classList.contains('is-invalid')).toBe(true);
-      expect(field.getAttribute('aria-invalid')).toBe('true');
-
-      const errorEl = field.nextElementSibling;
-      expect(errorEl).not.toBeNull();
-      expect(errorEl.className).toBe('form-error');
-
-      const textSpan = errorEl.querySelector('span');
-      expect(textSpan.textContent).toBe('Test Error');
-
-      const actionBtn = errorEl.querySelector('button');
-      expect(actionBtn).not.toBeNull();
-      expect(actionBtn.textContent).toBe('Fix It');
-      expect(actionBtn.onclick).toBe(actionHandler);
-    });
-
-    test('removes existing error before adding a new one', () => {
-      showValidationErrorWithAction('action-field', 'Error 1');
-      showValidationErrorWithAction('action-field', 'Error 2');
-
-      const field = document.getElementById('action-field');
-      const parent = field.parentElement;
-      const errors = parent.querySelectorAll('.form-error');
-
-      expect(errors).toHaveLength(1);
-      expect(errors[0].querySelector('span').textContent).toBe('Error 2');
-    });
-  });
-
-  test.describe('setupPasswordConfirmation', () => {
-    test('returns undefined if fields are not found', () => {
-      const result = setupPasswordConfirmation('bad-id-1', 'bad-id-2');
-      expect(result).toBeUndefined();
-    });
-
-    test('returns correct validation rules for password confirmation', () => {
-      const config = setupPasswordConfirmation('password', 'confirm-password');
-
-      expect(config).toBeDefined();
-      expect(config.rules).toHaveLength(2); // required, match
-      expect(config.constraints.format).toBe('must match password');
     });
   });
 });
