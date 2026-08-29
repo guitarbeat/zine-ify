@@ -1,10 +1,11 @@
+import DOMPurify from 'dompurify';
+
 /**
  * Templates.js
  * Centralized HTML templates for UI components
  */
 
-export const PAGE_CELL_TEMPLATE = document.createElement('template');
-PAGE_CELL_TEMPLATE.innerHTML = `
+const RAW_PAGE_CELL_TEMPLATE = `
   <span class="page-label"></span>
   <div class="page-toolbar absolute top-1.5 right-1.5 flex items-center gap-1 z-10" data-layout="row">
     <button class="crop-btn page-tool-btn" aria-label="Toggle fit or fill for this page (C)" title="Fit — make the whole page visible. Fill — zoom to cover the slot. (C)">
@@ -28,3 +29,8 @@ PAGE_CELL_TEMPLATE.innerHTML = `
   </button>
   <img class="page-content-img w-full h-full object-contain hidden transition-transform duration-200 ease-in-out relative z-[5]" draggable="false" />
 `;
+
+export const PAGE_CELL_TEMPLATE = document.createElement('template');
+PAGE_CELL_TEMPLATE.content.appendChild(
+  DOMPurify.sanitize(RAW_PAGE_CELL_TEMPLATE, { RETURN_DOM_FRAGMENT: true })
+);
