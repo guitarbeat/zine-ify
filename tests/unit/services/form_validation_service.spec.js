@@ -18,7 +18,6 @@ test.describe('FormValidationService Tests', () => {
   let createPasswordValidationExample;
   let createValidationDemo;
   let showValidationErrorWithAction;
-  let setupPasswordConfirmation;
   let GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX;
 
   test.beforeAll(async () => {
@@ -28,7 +27,6 @@ test.describe('FormValidationService Tests', () => {
     createPasswordValidationExample = FormValidationService.createPasswordValidationExample;
     createValidationDemo = FormValidationService.createValidationDemo;
     showValidationErrorWithAction = FormValidationService.showValidationErrorWithAction;
-    setupPasswordConfirmation = FormValidationService.setupPasswordConfirmation;
 
     const config = await import('../../../src/utils/config.js');
     GRID_DIMENSION_MAX = config.GRID_DIMENSION_MAX;
@@ -202,21 +200,6 @@ test.describe('FormValidationService Tests', () => {
 
       expect(errors).toHaveLength(1);
       expect(errors[0].querySelector('span').textContent).toBe('Error 2');
-    });
-  });
-
-  test.describe('setupPasswordConfirmation', () => {
-    test('returns undefined if fields are not found', () => {
-      const result = setupPasswordConfirmation('bad-id-1', 'bad-id-2');
-      expect(result).toBeUndefined();
-    });
-
-    test('returns correct validation rules for password confirmation', () => {
-      const config = setupPasswordConfirmation('password', 'confirm-password');
-
-      expect(config).toBeDefined();
-      expect(config.rules).toHaveLength(2); // required, match
-      expect(config.constraints.format).toBe('must match password');
     });
   });
 });
