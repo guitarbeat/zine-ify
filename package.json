@@ -48,7 +48,6 @@
   },
   "packageManager": "pnpm@10.27.0",
   "pnpm": {
-    "lockfileVersion": "6.0",
     "overrides": {
       "ajv": "6.14.0",
       "brace-expansion": "5.0.5",
