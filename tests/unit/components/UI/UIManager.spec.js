@@ -192,4 +192,18 @@ test('updateWorkspaceState enables/disables buttons', () => {
     expect(ui.elements.exportPdfBtn.disabled).toBe(true);
     expect(ui.elements.view3dBtn.disabled).toBe(true);
   });
+  test('updateUploadedFilesList creates remove button icon using DOM methods', () => {
+    const ui = new UIManager();
+    ui.elements.uploadedFilesList = document.createElement('div');
+    const files = [{ name: 'test.pdf', kind: 'pdf', size: 1024 }];
+    ui.updateUploadedFilesList(files);
+
+    const removeBtn = ui.elements.uploadedFilesList.querySelector('.uploaded-file-remove');
+    expect(removeBtn).not.toBeNull();
+    const iconSpan = removeBtn.querySelector('span.material-symbols-outlined');
+    expect(iconSpan).not.toBeNull();
+    expect(iconSpan.textContent).toBe('close');
+    expect(iconSpan.getAttribute('aria-hidden')).toBe('true');
+    expect(iconSpan.style.fontSize).toBe('14px');
+  });
 });
