@@ -139,18 +139,28 @@ function loadLayout() {
       return;
     }
 
-    const validIds = new Set(
-      [...gridEl.querySelectorAll('.grid-stack-item')].map((el) => el.getAttribute('gs-id'))
-    );
+    const validIds = new Set();
+    const itemElements = gridEl.querySelectorAll('.grid-stack-item');
+    for (let i = 0; i < itemElements.length; i++) {
+      const id = itemElements[i].getAttribute('gs-id');
+      if (id) { validIds.add(id); }
+    }
     const savedItems = [];
     const savedIds = new Set();
-    for (const item of items) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
       if (item && validIds.has(item.id)) {
         savedItems.push(item);
         savedIds.add(item.id);
       }
     }
-    const missingItems = DEFAULT_LAYOUT.filter(({ id }) => validIds.has(id) && !savedIds.has(id));
+    const missingItems = [];
+    for (let i = 0; i < DEFAULT_LAYOUT.length; i++) {
+      const layoutItem = DEFAULT_LAYOUT[i];
+      if (validIds.has(layoutItem.id) && !savedIds.has(layoutItem.id)) {
+        missingItems.push(layoutItem);
+      }
+    }
     grid.load([...savedItems, ...missingItems]);
     relayoutPanels();
     saveLayout();
