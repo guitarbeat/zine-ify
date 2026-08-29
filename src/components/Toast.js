@@ -48,9 +48,33 @@ class Toast {
     this.container.setAttribute('role', 'region');
     this.container.setAttribute('aria-label', 'Notifications');
 
-    // ⚡️ Bolt: Initialize template once to eliminate repetitive DOM node creation overhead
+    // ⚡️ Bolt: Initialize template once using DOM API to avoid unescaped innerHTML
     this.template = document.createElement('template');
-    this.template.innerHTML = '<div class="toast-icon"></div><div class="toast-content"><div class="toast-title"></div><div class="toast-message"></div></div><button class="toast-close w-6 h-6 ml-2 flex items-center justify-center focus:outline-none" aria-label="Close notification" title="Close notification">&times;</button>';
+
+    const iconDiv = document.createElement('div');
+    iconDiv.className = 'toast-icon';
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'toast-content';
+
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'toast-title';
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'toast-message';
+
+    contentDiv.appendChild(titleDiv);
+    contentDiv.appendChild(messageDiv);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'toast-close w-6 h-6 ml-2 flex items-center justify-center focus:outline-none';
+    closeBtn.setAttribute('aria-label', 'Close notification');
+    closeBtn.setAttribute('title', 'Close notification');
+    closeBtn.textContent = '×';
+
+    this.template.content.appendChild(iconDiv);
+    this.template.content.appendChild(contentDiv);
+    this.template.content.appendChild(closeBtn);
   }
 
   /**
