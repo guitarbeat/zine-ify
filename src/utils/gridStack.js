@@ -142,8 +142,14 @@ function loadLayout() {
     const validIds = new Set(
       [...gridEl.querySelectorAll('.grid-stack-item')].map((el) => el.getAttribute('gs-id'))
     );
-    const savedItems = items.filter((item) => validIds.has(item.id));
-    const savedIds = new Set(savedItems.map((item) => item.id));
+    const savedItems = [];
+    const savedIds = new Set();
+    for (const item of items) {
+      if (item && validIds.has(item.id)) {
+        savedItems.push(item);
+        savedIds.add(item.id);
+      }
+    }
     const missingItems = DEFAULT_LAYOUT.filter(({ id }) => validIds.has(id) && !savedIds.has(id));
     grid.load([...savedItems, ...missingItems]);
     relayoutPanels();
