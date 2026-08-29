@@ -409,7 +409,8 @@ test.describe('PDFProcessor Media handling', () => {
     const originalCreateImageBitmap = global.createImageBitmap;
     delete global.createImageBitmap;
 
-    const originalRevoke = global.URL?.revokeObjectURL;
+    const originalCreateObjectURL = global.URL?.createObjectURL;
+    const originalRevokeObjectURL = global.URL?.revokeObjectURL;
     if (typeof global !== 'undefined') {
       if (!global.URL) { global.URL = {}; }
       global.URL.createObjectURL = () => 'blob:test-revoke';
@@ -425,8 +426,15 @@ test.describe('PDFProcessor Media handling', () => {
       if (originalCreateImageBitmap !== undefined) {
         global.createImageBitmap = originalCreateImageBitmap;
       }
-      if (originalRevoke !== undefined) {
-        global.URL.revokeObjectURL = originalRevoke;
+      if (originalCreateObjectURL !== undefined) {
+        global.URL.createObjectURL = originalCreateObjectURL;
+      } else {
+        delete global.URL.createObjectURL;
+      }
+      if (originalRevokeObjectURL !== undefined) {
+        global.URL.revokeObjectURL = originalRevokeObjectURL;
+      } else {
+        delete global.URL.revokeObjectURL;
       }
     }
   });
@@ -439,9 +447,12 @@ test.describe('PDFProcessor Media handling', () => {
       throw new Error('Simulated image load failure');
     };
 
-    if (typeof global !== 'undefined' && !global.URL.createObjectURL) {
-      global.URL.createObjectURL = () => 'blob:test';
-      global.URL.revokeObjectURL = () => {};
+    const originalCreateObjectURL = global.URL?.createObjectURL;
+    const originalRevokeObjectURL = global.URL?.revokeObjectURL;
+    if (typeof global !== 'undefined') {
+      if (!global.URL) { global.URL = {}; }
+      if (!global.URL.createObjectURL) global.URL.createObjectURL = () => 'blob:test';
+      if (!global.URL.revokeObjectURL) global.URL.revokeObjectURL = () => {};
     }
 
     try {
@@ -450,6 +461,16 @@ test.describe('PDFProcessor Media handling', () => {
     } finally {
       if (originalCreateImageBitmap !== undefined) {
         global.createImageBitmap = originalCreateImageBitmap;
+      }
+      if (originalCreateObjectURL !== undefined) {
+        global.URL.createObjectURL = originalCreateObjectURL;
+      } else {
+        delete global.URL?.createObjectURL;
+      }
+      if (originalRevokeObjectURL !== undefined) {
+        global.URL.revokeObjectURL = originalRevokeObjectURL;
+      } else {
+        delete global.URL?.revokeObjectURL;
       }
     }
   });
@@ -462,12 +483,28 @@ test.describe('PDFProcessor Media handling', () => {
       naturalHeight: 0
     });
 
-    if (typeof global !== 'undefined' && !global.URL.createObjectURL) {
-      global.URL.createObjectURL = () => 'blob:test';
-      global.URL.revokeObjectURL = () => {};
+    const originalCreateObjectURL = global.URL?.createObjectURL;
+    const originalRevokeObjectURL = global.URL?.revokeObjectURL;
+    if (typeof global !== 'undefined') {
+      if (!global.URL) { global.URL = {}; }
+      if (!global.URL.createObjectURL) global.URL.createObjectURL = () => 'blob:test';
+      if (!global.URL.revokeObjectURL) global.URL.revokeObjectURL = () => {};
     }
 
-    const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
-    await expect(processor.renderImageFile(file)).rejects.toThrow('Image processing failed: Image dimensions could not be read.');
+    try {
+      const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+      await expect(processor.renderImageFile(file)).rejects.toThrow('Image processing failed: Image dimensions could not be read.');
+    } finally {
+      if (originalCreateObjectURL !== undefined) {
+        global.URL.createObjectURL = originalCreateObjectURL;
+      } else {
+        delete global.URL?.createObjectURL;
+      }
+      if (originalRevokeObjectURL !== undefined) {
+        global.URL.revokeObjectURL = originalRevokeObjectURL;
+      } else {
+        delete global.URL?.revokeObjectURL;
+      }
+    }
   });
 });
