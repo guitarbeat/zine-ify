@@ -374,9 +374,7 @@ export class AppController {
       return sourceUrl;
     }
 
-    const image = new Image();
-    image.src = sourceUrl;
-    await image.decode();
+    const image = await this.pdfProcessor.loadImageElement(sourceUrl);
 
     const width = image.naturalWidth || image.width || 1000;
     const height = image.naturalHeight || image.height || 1414;
