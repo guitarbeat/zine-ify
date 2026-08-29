@@ -21,13 +21,12 @@ export class StateStore {
   }
 
   getFilledPageCount() {
-    let count = 0;
-    for (let i = 0; i < this.allPageImages.length; i++) {
+    for (let i = this.allPageImages.length - 1; i >= 0; i--) {
       if (this.allPageImages[i] && this.allPageImages[i] !== this._blankPageUrl) {
-        count = i + 1;
+        return i + 1;
       }
     }
-    return count;
+    return 0;
   }
 
   getRequiredPageCapacity() {
