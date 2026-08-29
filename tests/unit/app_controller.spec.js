@@ -34,7 +34,7 @@ test.describe('AppController', () => {
 
     let toastErrorTitle = null;
     let toastErrorMessage = null;
-    originalToastError = toast.error;
+    const originalToastError = toast.error;
     toast.error = (title, message) => {
       toastErrorTitle = title;
       toastErrorMessage = message;
@@ -69,6 +69,53 @@ test.describe('AppController', () => {
       toast.error = originalToastError;
       // eslint-disable-next-line no-console
       console.error = originalConsoleError;
+    }
+  });
+
+  test('handleExport handles exportService.handleExport error correctly', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+    const { toast } = await import('../../src/components/Toast.js');
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+
+      // Mock filled page count to proceed with export
+      controller.state.getFilledPageCount = () => 1;
+
+      // Track modal progress calls
+      const progressCalls = [];
+      controller.ui.modal = {
+        showProgress: (show, message) => {
+          progressCalls.push({ show, message });
+        }
+      };
+
+      // Mock exportService.handleExport to reject
+      const mockErrorMessage = 'Export processing failed';
+      controller.exportService = {
+        handleExport: async () => {
+          throw new Error(mockErrorMessage);
+        }
+      };
+
+      await controller.handleExport();
+
+      expect(toastErrorTitle).toBe('Export Failed');
+      expect(toastErrorMessage).toBe(mockErrorMessage);
+      expect(progressCalls).toEqual([
+        { show: true, message: 'Generating PDF...' },
+        { show: false, message: undefined }
+      ]);
+    } finally {
+      toast.error = originalToastError;
     }
   });
 });
