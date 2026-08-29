@@ -172,4 +172,22 @@ test.describe('UndoManager', () => {
     expect(popped.pageZooms).toBeUndefined();
     expect(popped.onPrune).toBeNull();
   });
+  test('push correctly handles partial properties and defaults missing ones', () => {
+    const manager = new UndoManager();
+    manager.push({ description: 'Only description' });
+    const popped = manager.pop();
+    expect(popped.description).toBe('Only description');
+    expect(popped.allPageImages).toBeUndefined();
+    expect(popped.pageFlips).toBeUndefined();
+    expect(popped.pageZooms).toBeUndefined();
+    expect(popped.onPrune).toBeNull();
+  });
+
+  test('prunes entry with missing or default onPrune without throwing', () => {
+    const manager = new UndoManager(1);
+    manager.push({ description: 'First entry with no onPrune' });
+    expect(() => manager.push({ description: 'Second entry' })).not.toThrow();
+    expect(manager.size).toBe(1);
+    expect(manager.pop().description).toBe('Second entry');
+  });
 });
