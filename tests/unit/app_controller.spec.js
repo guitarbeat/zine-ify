@@ -9,7 +9,7 @@ test.describe('AppController', () => {
   test.beforeEach(async () => {
     // Need JSDOM since Toast evaluates `document` at top-level execution
     const { JSDOM } = require('jsdom');
-    const dom = new JSDOM('<!DOCTYPE html><html lang="en"><body><div id="toast-container"></div></body></html>', {
+    const dom = new JSDOM('<!DOCTYPE html><html lang="en"><body><div id="toast-container"></div><div id="status"></div><div id="zine-sheets-container"></div></body></html>', {
       url: 'http://localhost/'
     });
 
@@ -239,6 +239,56 @@ test.describe('AppController', () => {
       expect(warningMessage).toBe('Upload a PDF or images to get started');
     } finally {
       toast.warning = originalWarning;
+    }
+  });
+
+  test('handlePrint shows error toast when exportService.handlePrint rejects', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+    const { toast } = await import('../../src/components/Toast.js');
+
+    let errorTitle = null;
+    let errorMessage = null;
+    const originalError = toast.error;
+    toast.error = (title, message) => {
+      errorTitle = title;
+      errorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      controller.state.getFilledPageCount = () => 1;
+      controller.exportService.handlePrint = () => Promise.reject(new Error('Printer disconnected'));
+      controller.handlePrint();
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(errorTitle).toBe('Print Failed');
+      expect(errorMessage).toBe('Printer disconnected');
+    } finally {
+      toast.error = originalError;
+    }
+  });
+
+  test('handlePrint falls back to default error message if error message is missing', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+    const { toast } = await import('../../src/components/Toast.js');
+
+    let errorTitle = null;
+    let errorMessage = null;
+    const originalError = toast.error;
+    toast.error = (title, message) => {
+      errorTitle = title;
+      errorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      controller.state.getFilledPageCount = () => 1;
+      controller.exportService.handlePrint = () => Promise.reject({});
+      controller.handlePrint();
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(errorTitle).toBe('Print Failed');
+      expect(errorMessage).toBe('Unable to print.');
+    } finally {
+      toast.error = originalError;
     }
   });
 
