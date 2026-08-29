@@ -3,7 +3,6 @@ import { SmartSheetConfig } from '../../../src/components/SmartSheetConfig.js';
 import { JSDOM } from 'jsdom';
 import DOMPurify from 'dompurify';
 import { MARGIN_MAX, MARGIN_MIN, UNITS, PAPER_SIZES, toMm } from '../../../src/utils/config.js';
-import DOMPurify from 'dompurify';
 
 test.describe('SmartSheetConfig Component', () => {
   let dom;
