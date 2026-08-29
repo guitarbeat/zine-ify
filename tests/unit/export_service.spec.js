@@ -176,6 +176,73 @@ test.describe('ExportService', () => {
 
 
   test.describe('openPrintWindow', () => {
+    test('sanitizes malicious script tags and event handlers before writing to window.open', async () => {
+      let writtenHtml = null;
+      const mockWin = {
+        document: {
+          open: () => {},
+          write: (html) => { writtenHtml = html; },
+          close: () => {},
+        },
+        focus: () => {},
+        print: () => {},
+      };
+
+      global.window = {
+        open: () => mockWin
+      };
+
+      const unsafeHtml = '<html><head><title>Test</title></head><body><p>Safe Content</p><script>alert("xss")</script><img src="x" onerror="alert(1)"></body></html>';
+      await exportService.openPrintWindow(unsafeHtml);
+
+      expect(writtenHtml).toContain('<p>Safe Content</p>');
+      expect(writtenHtml).not.toContain('<script>');
+      expect(writtenHtml).not.toContain('alert');
+      expect(writtenHtml).not.toContain('onerror');
+    });
+
+    test('sanitizes malicious script tags and event handlers before writing to iframe fallback', async () => {
+      global.window = { open: () => null };
+      let writtenHtml = null;
+
+      const mockIframe = {
+        style: {},
+        setAttribute: () => {},
+        contentDocument: {
+          open: () => {},
+          write: (html) => { writtenHtml = html; },
+          close: () => {}
+        },
+        contentWindow: {
+          focus: () => {},
+          print: () => {}
+        },
+        remove: () => {}
+      };
+
+      global.document = {
+        createElement: (tag) => {
+          if (tag === 'iframe') { return mockIframe; }
+          return {};
+        },
+        body: {
+          appendChild: (el) => {
+            if (el === mockIframe) {
+              setTimeout(() => { if (el.onload) { el.onload(); } }, 50);
+            }
+          }
+        }
+      };
+
+      const unsafeHtml = '<html><head><title>Test</title></head><body><p>Iframe Safe</p><script>alert("xss")</script><img src="x" onerror="alert(1)"></body></html>';
+      await exportService.openPrintWindow(unsafeHtml);
+
+      expect(writtenHtml).toContain('<p>Iframe Safe</p>');
+      expect(writtenHtml).not.toContain('<script>');
+      expect(writtenHtml).not.toContain('alert');
+      expect(writtenHtml).not.toContain('onerror');
+    });
+
     test.afterEach(() => {
     });
 
@@ -235,7 +302,7 @@ test.describe('ExportService', () => {
 
       global.document = {
         createElement: (tag) => {
-          if (tag === 'iframe') return mockIframe;
+          if (tag === 'iframe') {return mockIframe;}
           return {};
         },
         body: {
@@ -243,7 +310,7 @@ test.describe('ExportService', () => {
             if (el === mockIframe) {
               iframeAppended = true;
               setTimeout(() => {
-                if (el.onload) el.onload();
+                if (el.onload) {el.onload();}
               }, 50);
             }
           }
