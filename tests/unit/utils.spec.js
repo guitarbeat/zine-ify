@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray, sanitizeHTML, runWithConcurrencyLimit } from '../../src/utils/helpers.js';
 import DOMPurify from 'dompurify';
-import { JSDOM } from 'jsdom';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { JSDOM } = require('jsdom');
 import {
   classifyFileKind,
   getFileTypeLabel,
