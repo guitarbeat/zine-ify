@@ -507,4 +507,150 @@ test.describe('PDFProcessor Media handling', () => {
       }
     }
   });
+
+  test('renderImageFile handles createImageBitmap failure and wraps error', async () => {
+    const origCreateImageBitmap = global.createImageBitmap;
+    const origCreateObjectURL = global.URL?.createObjectURL;
+    const origRevokeObjectURL = global.URL?.revokeObjectURL;
+
+    if (typeof global !== 'undefined') {
+      global.createImageBitmap = async () => {
+        throw new Error('createImageBitmap failed');
+      };
+      if (!global.URL.createObjectURL) {
+        global.URL.createObjectURL = () => 'blob:test';
+        global.URL.revokeObjectURL = () => {};
+      }
+    }
+
+    try {
+      const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+
+      await expect(processor.renderImageFile(file)).rejects.toThrow(
+        'Image processing failed: createImageBitmap failed'
+      );
+    } finally {
+      if (typeof global !== 'undefined') {
+        if (origCreateImageBitmap !== undefined) {
+          global.createImageBitmap = origCreateImageBitmap;
+        } else {
+          delete global.createImageBitmap;
+        }
+        if (origCreateObjectURL !== undefined) {
+          global.URL.createObjectURL = origCreateObjectURL;
+        }
+        if (origRevokeObjectURL !== undefined) {
+          global.URL.revokeObjectURL = origRevokeObjectURL;
+        }
+      }
+    }
+  });
+
+  test('renderImageFile handles error with no message string and falls back to Unknown error', async () => {
+    const origCreateObjectURL = global.URL?.createObjectURL;
+    const origRevokeObjectURL = global.URL?.revokeObjectURL;
+
+    processor.loadImageElement = async () => {
+      throw {};
+    };
+
+    if (typeof global !== 'undefined' && !global.URL.createObjectURL) {
+      global.URL.createObjectURL = () => 'blob:test';
+      global.URL.revokeObjectURL = () => {};
+    }
+
+    try {
+      const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+
+      await expect(processor.renderImageFile(file)).rejects.toThrow(
+        'Image processing failed: Unknown error'
+      );
+    } finally {
+      if (typeof global !== 'undefined') {
+        if (origCreateObjectURL !== undefined) {
+          global.URL.createObjectURL = origCreateObjectURL;
+        }
+        if (origRevokeObjectURL !== undefined) {
+          global.URL.revokeObjectURL = origRevokeObjectURL;
+        }
+      }
+    }
+  });
+
+  test('renderImageFile throws when image dimensions are zero or invalid', async () => {
+    const origCreateObjectURL = global.URL?.createObjectURL;
+    const origRevokeObjectURL = global.URL?.revokeObjectURL;
+
+    processor.loadImageElement = async () => ({
+      width: 0,
+      height: 0,
+      naturalWidth: 0,
+      naturalHeight: 0
+    });
+
+    if (typeof global !== 'undefined' && !global.URL.createObjectURL) {
+      global.URL.createObjectURL = () => 'blob:test';
+      global.URL.revokeObjectURL = () => {};
+    }
+
+    try {
+      const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+
+      await expect(processor.renderImageFile(file)).rejects.toThrow(
+        'Image processing failed: Image dimensions could not be read.'
+      );
+    } finally {
+      if (typeof global !== 'undefined') {
+        if (origCreateObjectURL !== undefined) {
+          global.URL.createObjectURL = origCreateObjectURL;
+        }
+        if (origRevokeObjectURL !== undefined) {
+          global.URL.revokeObjectURL = origRevokeObjectURL;
+        }
+      }
+    }
+  });
+
+  test('renderImageFile cleans up imageSource and objectUrl in finally block when processing fails', async () => {
+    let closed = false;
+    let revokedUrl = null;
+
+    const origCreateObjectURL = global.URL?.createObjectURL;
+    const origRevokeObjectURL = global.URL?.revokeObjectURL;
+
+    if (typeof global !== 'undefined') {
+      global.URL.createObjectURL = () => 'blob:cleanup-test';
+      global.URL.revokeObjectURL = (url) => { revokedUrl = url; };
+    }
+
+    processor.loadImageElement = async () => ({
+      width: 100,
+      height: 100,
+      close: () => { closed = true; }
+    });
+
+    processor.createRenderCanvas = () => {
+      throw new Error('Canvas acquisition error');
+    };
+
+    try {
+      const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+
+      await expect(processor.renderImageFile(file)).rejects.toThrow(
+        'Image processing failed: Canvas acquisition error'
+      );
+
+      expect(closed).toBe(true);
+      expect(revokedUrl).toBe('blob:cleanup-test');
+    } finally {
+      if (typeof global !== 'undefined') {
+        if (origCreateObjectURL !== undefined) {
+          global.URL.createObjectURL = origCreateObjectURL;
+        }
+        if (origRevokeObjectURL !== undefined) {
+          global.URL.revokeObjectURL = origRevokeObjectURL;
+        }
+      }
+    }
+  });
 });
