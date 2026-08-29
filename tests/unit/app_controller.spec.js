@@ -9,7 +9,7 @@ test.describe('AppController', () => {
   test.beforeEach(async () => {
     // Need JSDOM since Toast evaluates `document` at top-level execution
     const { JSDOM } = require('jsdom');
-    const dom = new JSDOM('<!DOCTYPE html><html lang="en"><body><div id="toast-container"></div></body></html>', {
+    const dom = new JSDOM('<!DOCTYPE html><html lang="en"><body><div id="toast-container"></div><div id="status-message"></div><div id="file-input"></div><div id="grid-cols"></div><div id="grid-rows"></div><div id="page-numbers-toggle"></div><div id="fold-progress"></div><div id="paper-size-select"></div><div id="orientation-select"></div><div id="margin-input"></div><div id="zines-grid"></div><div id="zine-sheets-container"></div></body></html>', {
       url: 'http://localhost/'
     });
 
@@ -169,6 +169,31 @@ test.describe('AppController', () => {
       expect(controller.state.isProcessingQueue).toBe(false);
     } finally {
       toast.error = originalToastError;
+    }
+  });
+
+  test('handleExport shows warning toast when no pages are filled', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+    const { toast } = await import('../../src/components/Toast.js');
+
+    let warningTitle = null;
+    let warningMessage = null;
+    const originalWarning = toast.warning;
+    toast.warning = (title, message) => {
+      warningTitle = title;
+      warningMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      controller.state.getFilledPageCount = () => 0;
+
+      await controller.handleExport();
+
+      expect(warningTitle).toBe('No pages yet');
+      expect(warningMessage).toBe('Upload a PDF or images to export');
+    } finally {
+      toast.warning = originalWarning;
     }
   });
 
