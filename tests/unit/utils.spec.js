@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray, sanitizeHTML } from '../../src/utils/helpers.js';
+import { clampNumber, formatFileSize, isNumber, debounce, parseBoundedInteger, resizeAndFillArray, sanitizeHTML, runWithConcurrencyLimit } from '../../src/utils/helpers.js';
 import DOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
 import {
@@ -189,4 +189,41 @@ test.describe('Utils', () => {
     // NaN requiredLength: throws RangeError
     expect(() => resizeAndFillArray([1, 2], NaN)).toThrow(RangeError);
   });
+
+  test('runWithConcurrencyLimit', async () => {
+    // 1. Basic task execution for all items
+    const processedItems = [];
+    await runWithConcurrencyLimit([1, 2, 3], 2, async (item) => {
+      processedItems.push(item);
+    });
+    expect(processedItems).toEqual([1, 2, 3]);
+
+    // 2. Concurrency limit adherence
+    const active = new Set();
+    let maxActive = 0;
+    await runWithConcurrencyLimit([10, 20, 30, 40, 50], 2, async (item) => {
+      active.add(item);
+      maxActive = Math.max(maxActive, active.size);
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      active.delete(item);
+    });
+    expect(maxActive).toBeLessThanOrEqual(2);
+
+    // 3. Handles empty array
+    let called = false;
+    await runWithConcurrencyLimit([], 3, async () => {
+      called = true;
+    });
+    expect(called).toBe(false);
+
+    // 4. Handles task failure and propagates error
+    const failedPromise = runWithConcurrencyLimit([1, 2, 3], 2, async (item) => {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      if (item === 2) {
+        throw new Error('Task failed');
+      }
+    });
+    await expect(failedPromise).rejects.toThrow('Task failed');
+  });
+
 });
