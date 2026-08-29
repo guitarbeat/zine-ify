@@ -153,11 +153,7 @@ export class PDFProcessor extends MediaProcessor {
    */
   async validateFileSignature(file) {
     const HEADER_LIMIT = 5;
-    const slice = file.slice(0, HEADER_LIMIT);
-    const buffer = await slice.arrayBuffer();
-    const data = new Uint8Array(buffer);
-    const decoder = new TextDecoder();
-    const text = decoder.decode(data);
+    const text = await file.slice(0, HEADER_LIMIT).text();
     return text.startsWith('%PDF-');
   }
 
