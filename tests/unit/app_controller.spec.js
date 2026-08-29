@@ -231,6 +231,9 @@ test.describe('AppController', () => {
       warningMessage = message;
     };
 
+    const originalInit = AppController.prototype.init;
+    AppController.prototype.init = async () => {};
+
     try {
       const controller = new AppController();
       controller.state.getFilledPageCount = () => 0;
@@ -238,6 +241,7 @@ test.describe('AppController', () => {
       expect(warningTitle).toBe('No pages yet');
       expect(warningMessage).toBe('Upload a PDF or images to get started');
     } finally {
+      AppController.prototype.init = originalInit;
       toast.warning = originalWarning;
     }
   });
@@ -254,6 +258,9 @@ test.describe('AppController', () => {
       errorMessage = message;
     };
 
+    const originalInit = AppController.prototype.init;
+    AppController.prototype.init = async () => {};
+
     try {
       const controller = new AppController();
       controller.state.getFilledPageCount = () => 1;
@@ -263,6 +270,7 @@ test.describe('AppController', () => {
       expect(errorTitle).toBe('Print Failed');
       expect(errorMessage).toBe('Printer disconnected');
     } finally {
+      AppController.prototype.init = originalInit;
       toast.error = originalError;
     }
   });
@@ -279,6 +287,9 @@ test.describe('AppController', () => {
       errorMessage = message;
     };
 
+    const originalInit = AppController.prototype.init;
+    AppController.prototype.init = async () => {};
+
     try {
       const controller = new AppController();
       controller.state.getFilledPageCount = () => 1;
@@ -288,6 +299,7 @@ test.describe('AppController', () => {
       expect(errorTitle).toBe('Print Failed');
       expect(errorMessage).toBe('Unable to print.');
     } finally {
+      AppController.prototype.init = originalInit;
       toast.error = originalError;
     }
   });
