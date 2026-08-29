@@ -74,7 +74,8 @@ export function sanitizeHTML(html) {
 
   // Use DOMPurify for secure HTML sanitization instead of template.innerHTML fallback
   return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['b', 'strong', 'i', 'em', 'u', 'br', 'code', 'span'],
+    ALLOWED_TAGS: ['b', 'strong', 'i', 'em', 'u', 'br', 'code', 'span', 'svg', 'path', 'circle', 'line', 'polyline'],
+    ALLOWED_ATTR: ['class', 'id', 'width', 'height', 'viewBox', 'fill', 'stroke', 'stroke-width', 'points', 'd', 'cx', 'cy', 'r', 'x1', 'y1', 'x2', 'y2'],
     RETURN_DOM_FRAGMENT: true
   });
 }

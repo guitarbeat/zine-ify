@@ -153,4 +153,47 @@ test.describe('Toast Component', () => {
     expect(iconContainer.innerHTML).toContain('<circle cx="12" cy="12" r="10"');
     expect(iconContainer.innerHTML).toContain('<path d="M12 16v-4"');
   });
+  test('should reuse existing container if toast-container element already exists', () => {
+    // Remove existing container if any
+    const oldContainer = global.document.getElementById('toast-container');
+    if (oldContainer) {
+      oldContainer.remove();
+    }
+
+    // Pre-create container
+    const existingContainer = global.document.createElement('div');
+    existingContainer.id = 'toast-container';
+    global.document.body.appendChild(existingContainer);
+
+    // Instantiate Toast class constructor directly
+    const ToastClass = toastModule.toast.constructor;
+    const newToastInstance = new ToastClass();
+    expect(newToastInstance.container).toBe(existingContainer);
+  });
+
+  test('should not auto-close toast if duration is 0 or negative', async () => {
+    const { toast } = toastModule;
+    const toastElement = toast.show('info', 'Persistent Toast', '', 0);
+
+    const container = global.document.getElementById('toast-container');
+    expect(container.contains(toastElement)).toBe(true);
+
+    // Wait 100ms and verify it remains in DOM
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(container.contains(toastElement)).toBe(true);
+  });
+
+  test('should safely handle remove call when toast is already detached', async () => {
+    const { toast } = toastModule;
+    const toastElement = toast.show('info', 'Detached Test');
+
+    // Manually remove before toast.remove transition finishes
+    if (toastElement.parentNode) {
+      toastElement.parentNode.removeChild(toastElement);
+    }
+
+    // Call remove - should not throw error
+    expect(() => toast.remove(toastElement)).not.toThrow();
+    await new Promise(resolve => setTimeout(resolve, 350));
+  });
 });
