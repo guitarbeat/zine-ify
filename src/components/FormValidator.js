@@ -40,6 +40,7 @@ export class FormValidator {
 
     this.stateManager = new FieldStateManager();
     this.fieldConfigs = new Map();
+    this.errorElements = new Map();
     this.debounceTimers = new Map();
     this.validators = new Map();
 
@@ -260,6 +261,7 @@ export class FormValidator {
         ? field.closest('.workspace-config-field')
         : field;
       insertPoint.insertAdjacentElement('afterend', errorElement);
+      this.errorElements.set(fieldId, errorElement);
     }
 
     // Set error content safely
@@ -271,7 +273,17 @@ export class FormValidator {
    * Get existing error element for a field
    */
   _getErrorElement(fieldId) {
-    return this.form.querySelector(`.form-error[data-field-id="${fieldId}"]`);
+    let cached = this.errorElements.get(fieldId);
+    if (cached && cached.isConnected) {
+      return cached;
+    }
+    const element = this.form.querySelector(`.form-error[data-field-id="${fieldId}"]`);
+    if (element) {
+      this.errorElements.set(fieldId, element);
+    } else {
+      this.errorElements.delete(fieldId);
+    }
+    return element;
   }
 
   /**
@@ -282,6 +294,7 @@ export class FormValidator {
     if (errorElement) {
       errorElement.remove();
     }
+    this.errorElements.delete(fieldId);
   }
 
   /**
