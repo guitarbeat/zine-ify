@@ -374,7 +374,67 @@ test.describe('PDFProcessor Media handling', () => {
   });
 
 
-  test('renderImageFile throws properly formatted error when image processing fails', async () => {
+  test('renderImageFile throws properly formatted error when createImageBitmap rejects', async () => {
+    const originalCreateImageBitmap = global.createImageBitmap;
+    global.createImageBitmap = async () => {
+      throw new Error('Bitmap creation failed');
+    };
+
+    try {
+      const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+      await expect(processor.renderImageFile(file)).rejects.toThrow('Image processing failed: Bitmap creation failed');
+    } finally {
+      if (originalCreateImageBitmap !== undefined) {
+        global.createImageBitmap = originalCreateImageBitmap;
+      } else {
+        delete global.createImageBitmap;
+      }
+    }
+  });
+
+  test('renderImageFile closes imageSource and revokes objectUrl when error occurs during canvas rendering', async () => {
+    let closed = false;
+    let revokedUrl = null;
+
+    processor.loadImageElement = async () => ({
+      width: 100,
+      height: 100,
+      close: () => { closed = true; }
+    });
+
+    processor.createRenderCanvas = () => {
+      throw new Error('Canvas creation failed');
+    };
+
+    const originalCreateImageBitmap = global.createImageBitmap;
+    delete global.createImageBitmap;
+
+    const originalRevoke = global.URL?.revokeObjectURL;
+    if (typeof global !== 'undefined') {
+      if (!global.URL) { global.URL = {}; }
+      global.URL.createObjectURL = () => 'blob:test-revoke';
+      global.URL.revokeObjectURL = (url) => { revokedUrl = url; };
+    }
+
+    try {
+      const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+      await expect(processor.renderImageFile(file)).rejects.toThrow('Image processing failed: Canvas creation failed');
+      expect(closed).toBe(true);
+      expect(revokedUrl).toBe('blob:test-revoke');
+    } finally {
+      if (originalCreateImageBitmap !== undefined) {
+        global.createImageBitmap = originalCreateImageBitmap;
+      }
+      if (originalRevoke !== undefined) {
+        global.URL.revokeObjectURL = originalRevoke;
+      }
+    }
+  });
+
+  test('renderImageFile throws properly formatted error when loadImageElement fails', async () => {
+    const originalCreateImageBitmap = global.createImageBitmap;
+    delete global.createImageBitmap;
+
     processor.loadImageElement = async () => {
       throw new Error('Simulated image load failure');
     };
@@ -384,8 +444,30 @@ test.describe('PDFProcessor Media handling', () => {
       global.URL.revokeObjectURL = () => {};
     }
 
-    const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+    try {
+      const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+      await expect(processor.renderImageFile(file)).rejects.toThrow('Image processing failed: Simulated image load failure');
+    } finally {
+      if (originalCreateImageBitmap !== undefined) {
+        global.createImageBitmap = originalCreateImageBitmap;
+      }
+    }
+  });
 
-    await expect(processor.renderImageFile(file)).rejects.toThrow('Image processing failed: Simulated image load failure');
+  test('renderImageFile throws error when image dimensions are missing or zero', async () => {
+    processor.loadImageElement = async () => ({
+      width: 0,
+      height: 0,
+      naturalWidth: 0,
+      naturalHeight: 0
+    });
+
+    if (typeof global !== 'undefined' && !global.URL.createObjectURL) {
+      global.URL.createObjectURL = () => 'blob:test';
+      global.URL.revokeObjectURL = () => {};
+    }
+
+    const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+    await expect(processor.renderImageFile(file)).rejects.toThrow('Image processing failed: Image dimensions could not be read.');
   });
 });
