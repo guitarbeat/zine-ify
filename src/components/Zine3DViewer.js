@@ -247,14 +247,16 @@ export class Zine3DViewer {
     this.environmentMeshes.push({ mesh: floor, geometry: floorGeometry, material: floorMaterial });
   }
 
+  disposePage(page) {
+    page.frontMaterial?.map?.dispose?.();
+    page.frontMaterial?.dispose?.();
+    page.backMaterial?.dispose?.();
+    page.frontGeometry?.dispose?.();
+    page.backGeometry?.dispose?.();
+  }
+
   cleanupExistingPages() {
-    this.pages.forEach((page) => {
-      page.frontMaterial?.map?.dispose?.();
-      page.frontMaterial?.dispose?.();
-      page.backMaterial?.dispose?.();
-      page.frontGeometry?.dispose?.();
-      page.backGeometry?.dispose?.();
-    });
+    this.pages.forEach((page) => this.disposePage(page));
     this.stacks.forEach((stack) => {
       this.scene.remove(stack.group);
     });
@@ -696,13 +698,7 @@ export class Zine3DViewer {
     if (this.renderer?.domElement?.parentNode === this.container) {
       this.container.removeChild(this.renderer.domElement);
     }
-    this.pages.forEach((page) => {
-      page.frontMaterial?.map?.dispose?.();
-      page.frontMaterial?.dispose?.();
-      page.backMaterial?.dispose?.();
-      page.frontGeometry?.dispose?.();
-      page.backGeometry?.dispose?.();
-    });
+    this.pages.forEach((page) => this.disposePage(page));
     this.stacks = [];
     this.seams.forEach((seam) => {
       seam.material?.dispose?.();
