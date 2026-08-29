@@ -132,7 +132,7 @@ export class UIManager {
     if (!this.elements.uploadedFilesList) {
       return;
     }
-    this.elements.uploadedFilesList.innerHTML = '';
+    this.elements.uploadedFilesList.textContent = '';
     if (files.length === 0) {
       this.elements.uploadedFilesList.classList.add('hidden');
       return;
@@ -167,7 +167,12 @@ export class UIManager {
       remove.className = 'uploaded-file-remove';
       remove.type = 'button';
       remove.setAttribute('aria-label', `Remove ${file.name}`);
-      remove.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;" aria-hidden="true">close</span>';
+      const removeIcon = document.createElement('span');
+      removeIcon.className = 'material-symbols-outlined';
+      removeIcon.style.fontSize = '14px';
+      removeIcon.textContent = 'close';
+      removeIcon.setAttribute('aria-hidden', 'true');
+      remove.appendChild(removeIcon);
       remove.addEventListener('click', () => this.emitter.emit('removeUploadedFile', index));
       item.appendChild(icon);
       item.appendChild(body);
