@@ -15,7 +15,6 @@ test.beforeAll(() => {
 
 test.describe('FormValidationService Tests', () => {
   let initSettingsValidation;
-  let createPasswordValidationExample;
   let createValidationDemo;
   let showValidationErrorWithAction;
   let setupPasswordConfirmation;
@@ -25,7 +24,6 @@ test.describe('FormValidationService Tests', () => {
     // Dynamic import to ensure JSDOM is setup first
     const FormValidationService = await import('../../../src/services/FormValidationService.js');
     initSettingsValidation = FormValidationService.initSettingsValidation;
-    createPasswordValidationExample = FormValidationService.createPasswordValidationExample;
     createValidationDemo = FormValidationService.createValidationDemo;
     showValidationErrorWithAction = FormValidationService.showValidationErrorWithAction;
     setupPasswordConfirmation = FormValidationService.setupPasswordConfirmation;
@@ -133,15 +131,6 @@ test.describe('FormValidationService Tests', () => {
     });
   });
 
-
-  test.describe('createPasswordValidationExample', () => {
-    test('returns correct password validation configuration', () => {
-      const config = createPasswordValidationExample();
-      expect(config.rules).toHaveLength(4); // required, minLength, maxLength, pattern
-      expect(config.constraints.minLength).toBe(8);
-      expect(config.constraints.maxLength).toBe(64);
-    });
-  });
 
   test.describe('createValidationDemo', () => {
     test('injects demo HTML and initializes validator', () => {

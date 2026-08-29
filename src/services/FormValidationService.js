@@ -137,30 +137,6 @@ export function initSettingsValidation(container = document) {
 }
 
 /**
- * Create a password validation example
- * Demonstrates multi-rule validation with helpful constraints
- */
-export function createPasswordValidationExample() {
-  return {
-    rules: [
-      VALIDATION_RULES.required,
-      VALIDATION_RULES.minLength(8),
-      VALIDATION_RULES.maxLength(64),
-      VALIDATION_RULES.pattern(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'Must include uppercase, lowercase, and a number'
-      )
-    ],
-    timing: VALIDATION_TIMING.DEBOUNCED,
-    constraints: {
-      minLength: 8,
-      maxLength: 64,
-      format: 'uppercase, lowercase, and number'
-    }
-  };
-}
-
-/**
  * Update grid total display helper
  */
 function updateGridTotal() {
