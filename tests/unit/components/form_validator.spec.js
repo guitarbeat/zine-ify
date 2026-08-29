@@ -357,6 +357,16 @@ test.describe('FieldValidator Component', () => {
 
     expect(field.classList.contains('is-valid')).toBe(true);
     expect(field.getAttribute('aria-invalid')).toBe('false');
+
+    const icon = field.parentElement.querySelector('.form-success-icon');
+    expect(icon).toBeTruthy();
+    const svg = icon.querySelector('svg');
+    expect(svg).toBeTruthy();
+    expect(svg.namespaceURI).toBe('http://www.w3.org/2000/svg');
+    const polyline = svg.querySelector('polyline');
+    expect(polyline).toBeTruthy();
+    expect(polyline.namespaceURI).toBe('http://www.w3.org/2000/svg');
+    expect(polyline.getAttribute('points')).toBe('20,6 9,17 4,12');
   });
 
   test('reset single field', () => {
