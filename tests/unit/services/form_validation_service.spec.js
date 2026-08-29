@@ -16,7 +16,6 @@ test.beforeAll(() => {
 test.describe('FormValidationService Tests', () => {
   let initSettingsValidation;
   let createPasswordValidationExample;
-  let createValidationDemo;
   let showValidationErrorWithAction;
   let setupPasswordConfirmation;
   let GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX;
@@ -26,7 +25,6 @@ test.describe('FormValidationService Tests', () => {
     const FormValidationService = await import('../../../src/services/FormValidationService.js');
     initSettingsValidation = FormValidationService.initSettingsValidation;
     createPasswordValidationExample = FormValidationService.createPasswordValidationExample;
-    createValidationDemo = FormValidationService.createValidationDemo;
     showValidationErrorWithAction = FormValidationService.showValidationErrorWithAction;
     setupPasswordConfirmation = FormValidationService.setupPasswordConfirmation;
 
@@ -140,25 +138,6 @@ test.describe('FormValidationService Tests', () => {
       expect(config.rules).toHaveLength(4); // required, minLength, maxLength, pattern
       expect(config.constraints.minLength).toBe(8);
       expect(config.constraints.maxLength).toBe(64);
-    });
-  });
-
-  test.describe('createValidationDemo', () => {
-    test('injects demo HTML and initializes validator', () => {
-      const container = document.getElementById('demo-container');
-      const validator = createValidationDemo(container);
-
-      expect(validator).not.toBeNull();
-
-      // Check if HTML was injected
-      const emailInput = document.getElementById('demo-email');
-      const passwordInput = document.getElementById('demo-password');
-      expect(emailInput).not.toBeNull();
-      expect(passwordInput).not.toBeNull();
-
-      // Check if rules are registered
-      expect(validator.fieldConfigs.has('demo-password') || validator.fieldConfigs.has('#demo-password')).toBe(true);
-      expect(validator.fieldConfigs.has('demo-comment') || validator.fieldConfigs.has('#demo-comment')).toBe(true);
     });
   });
 
