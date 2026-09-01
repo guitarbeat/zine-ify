@@ -245,7 +245,10 @@ export class ExportService {
 
   getPaperDimensions() {
     const paper = PAPER_SIZES[this.state.paperSize] || PAPER_SIZES.letter;
-    return { width: paper.height, height: paper.width };
+    const isLandscape = this.state.orientation === 'landscape';
+    return isLandscape
+      ? { width: paper.height, height: paper.width }
+      : { width: paper.width, height: paper.height };
   }
 
   async openPrintWindow(html) {
@@ -253,7 +256,8 @@ export class ExportService {
     const win = window.open('', '_blank');
     if (win) {
       win.document.open();
-      win.document.write(cleanHtml);
+      const docNode = new DOMParser().parseFromString(cleanHtml, 'text/html');
+      win.document.replaceChild(win.document.importNode(docNode.documentElement, true), win.document.documentElement);
       win.document.close();
       win.focus();
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -273,7 +277,8 @@ export class ExportService {
 
     const frameDoc = printFrame.contentDocument;
     frameDoc.open();
-    frameDoc.write(cleanHtml);
+    const docNode = new DOMParser().parseFromString(cleanHtml, 'text/html');
+    frameDoc.replaceChild(frameDoc.importNode(docNode.documentElement, true), frameDoc.documentElement);
     frameDoc.close();
 
     await new Promise((resolve) => {
