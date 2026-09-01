@@ -504,4 +504,58 @@ test.describe('AppController', () => {
       toast.success = originalSuccess;
     }
   });
+  test("processFileQueue handles error when error message is missing", async () => {
+    const { AppController } = await import("../../src/core/AppController.js");
+    const { toast } = await import("../../src/components/Toast.js");
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      let statusText = null;
+      let statusType = null;
+      controller.ui.setStatus = (text, type) => {
+        statusText = text;
+        statusType = type;
+      };
+
+      let progressShown = null;
+      controller.ui.modal.showProgress = (show) => {
+        progressShown = show;
+      };
+
+      controller.processPdfUpload = async () => {
+        throw {};
+      };
+
+      const record = {
+        name: "fallback-error.pdf",
+        kind: "pdf",
+        file: new Blob([""], { type: "application/pdf" }),
+        status: "Pending"
+      };
+
+      controller.state.uploadedFiles = [record];
+      controller.state.fileQueue = [record];
+
+      await controller.processFileQueue();
+
+      expect(record.status).toBe("Failed");
+      expect(statusText).toBe("Failed: fallback-error.pdf");
+      expect(statusType).toBe("error");
+      expect(toastErrorTitle).toBe("Import Failed");
+      expect(toastErrorMessage).toBeUndefined();
+      expect(progressShown).toBe(false);
+      expect(controller.state.isProcessingQueue).toBe(false);
+    } finally {
+      toast.error = originalToastError;
+    }
+  });
+
 });
