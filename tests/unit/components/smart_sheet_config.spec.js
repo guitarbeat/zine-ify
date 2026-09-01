@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { SmartSheetConfig } from '../../../src/components/SmartSheetConfig.js';
-import { JSDOM } from 'jsdom';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { JSDOM } = require('jsdom');
 import DOMPurify from 'dompurify';
 import { MARGIN_MAX, MARGIN_MIN, UNITS, PAPER_SIZES, toMm } from '../../../src/utils/config.js';
 

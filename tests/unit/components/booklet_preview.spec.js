@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { BookletPreview } from '../../../src/components/BookletPreview.js';
-import { JSDOM } from 'jsdom';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { JSDOM } = require('jsdom');
 
 test.describe('BookletPreview Component', () => {
   let dom;
