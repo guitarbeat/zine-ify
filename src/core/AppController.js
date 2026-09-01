@@ -633,43 +633,26 @@ export class AppController {
       const blankUrl = await this.ensureBlankPageUrl();
       this.revokePreviewAssetUrls();
       const pages = this.state.allPageImages.slice(0, 8);
-      const imageUrls = new Array(pages.length);
-      let asyncPromises = null;
+      const imageUrls = await Promise.all(
+        pages.map(async (url, index) => {
+          const sourceUrl = url || blankUrl;
+          const isFlipped = !!this.state.pageFlips[index];
+          const isZoomed = !!this.state.pageZooms[index];
+          const pageNumber = index + 1;
 
-      for (let index = 0; index < pages.length; index++) {
-        const url = pages[index];
-        const sourceUrl = url || blankUrl;
-        const isFlipped = !!this.state.pageFlips[index];
-        const isZoomed = !!this.state.pageZooms[index];
-        const pageNumber = index + 1;
+          const previewUrl = (isFlipped || isZoomed)
+            ? await this.buildPreviewAsset(sourceUrl, { isFlipped, isZoomed })
+            : sourceUrl;
 
-        if (!isFlipped && !isZoomed) {
-          imageUrls[index] = {
+          return {
             sourceUrl,
-            previewUrl: sourceUrl,
+            previewUrl,
             pageNumber,
             isFlipped,
             isZoomed
           };
-        } else {
-          if (!asyncPromises) { asyncPromises = []; }
-          asyncPromises.push(
-            this.buildPreviewAsset(sourceUrl, { isFlipped, isZoomed }).then((previewUrl) => {
-              imageUrls[index] = {
-                sourceUrl,
-                previewUrl,
-                pageNumber,
-                isFlipped,
-                isZoomed
-              };
-            })
-          );
-        }
-      }
-
-      if (asyncPromises) {
-        await Promise.all(asyncPromises);
-      }
+        })
+      );
 
       this.ensureBookletPreview();
       this.ui.toggle3DModal(true);
