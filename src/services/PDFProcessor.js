@@ -153,8 +153,10 @@ export class PDFProcessor extends MediaProcessor {
    */
   async validateFileSignature(file) {
     const HEADER_LIMIT = 5;
-    const buffer = await file.slice(0, HEADER_LIMIT).arrayBuffer();
-    const bytes = new Uint8Array(buffer);
+    const slice = file.slice(0, HEADER_LIMIT);
+    const bytes = typeof slice.bytes === 'function'
+      ? await slice.bytes()
+      : new Uint8Array(await slice.arrayBuffer());
     return bytes.length >= 5 &&
       bytes[0] === 0x25 && // '%'
       bytes[1] === 0x50 && // 'P'
