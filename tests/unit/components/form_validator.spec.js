@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { JSDOM } from 'jsdom';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { JSDOM } = require('jsdom');
 
 const dom = new JSDOM('<!DOCTYPE html><html><body><div id="toast-container"></div></body></html>');
 global.window = dom.window;
