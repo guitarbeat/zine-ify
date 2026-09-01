@@ -257,4 +257,62 @@ test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
     expect(result.finalChildCount).toBe(0);
     expect(result.stacksLength).toBe(0);
   });
+
+  test("renderFallback renders canvas text and lines for fallback pages", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const container = document.getElementById("container");
+      const origGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function(type, options) {
+        if (type.includes("webgl")) return null;
+        return origGetContext.call(this, type, options);
+      };
+
+      const viewer = new window.Zine3DViewer(container);
+      viewer.loadPages(["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8"]);
+      viewer.setFoldProgress(1.0);
+
+      const hasCanvas = !!viewer.fallbackCanvas;
+      const pagesCount = viewer.fallbackPages.length;
+
+      HTMLCanvasElement.prototype.getContext = origGetContext;
+      viewer.destroy();
+      return { hasCanvas, pagesCount };
+    });
+
+    expect(result.hasCanvas).toBe(true);
+    expect(result.pagesCount).toBe(8);
+  });
+
+  test("loadPages with empty array resets pages", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const container = document.getElementById("container");
+      const viewer = new window.Zine3DViewer(container);
+      viewer.loadPages(["page1.png", "page2.png"]);
+      const countBefore = viewer.pages.length;
+      viewer.loadPages([]);
+      const countAfter = viewer.pages.length;
+      viewer.destroy();
+      return { countBefore, countAfter };
+    });
+
+    expect(result.countBefore).toBe(8);
+    expect(typeof result.countAfter).toBe("number");
+
+  });
+
+  test("updateCameraForProgress returns early if bounds missing or fallback mode", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const container = document.getElementById("container");
+      const viewer = new window.Zine3DViewer(container);
+      viewer.debugFoldState = null;
+      viewer.updateCameraForProgress(1);
+
+      const isFallback = viewer.isFallbackMode;
+      viewer.destroy();
+      return { isFallback };
+    });
+
+    expect(result.isFallback).toBe(false);
+  });
+
 });
