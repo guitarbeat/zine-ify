@@ -7,8 +7,6 @@
 import { FormValidator } from '../components/FormValidator.js';
 import { VALIDATION_TIMING, VALIDATION_RULES } from '../utils/formValidation.js';
 import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX, MARGIN_MIN } from './../utils/config.js';
-import { toast } from '../components/Toast.js';
-import DOMPurify from 'dompurify';
 
 
 /**
