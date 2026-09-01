@@ -284,6 +284,21 @@ test.describe('Utils', () => {
     await expect(cleanupFailPromise).rejects.toThrow('Early failure');
     await new Promise((resolve) => setTimeout(resolve, 100));
     expect(taskFinishedCount).toBe(2);
+
+    // 10. Handles synchronous taskFn returning non-Promise values or resolved promises immediately
+    const syncResults = [];
+    await runWithConcurrencyLimit([1, 2, 3], 2, async (item) => {
+      syncResults.push(item * 2);
+      return item * 2;
+    });
+    expect(syncResults).toEqual([2, 4, 6]);
+
+    // 11. Edge case: concurrencyLimit of 0 or negative
+    const zeroLimitResults = [];
+    await runWithConcurrencyLimit([1, 2], 0, async (item) => {
+      zeroLimitResults.push(item);
+    });
+    expect(zeroLimitResults).toEqual([1, 2]);
   });
 
 });
