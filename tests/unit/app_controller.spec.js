@@ -4,6 +4,7 @@ const require = createRequire(import.meta.url);
 
 test.describe('AppController', () => {
   let originalInitialize;
+  let originalRenderCurrentLayout;
   let originalToastError;
 
   test.beforeEach(async () => {
@@ -19,14 +20,30 @@ test.describe('AppController', () => {
     global.localStorage = dom.window.localStorage;
     global.window.matchMedia = () => ({ matches: false, addEventListener: () => {} });
     global.requestAnimationFrame = (cb) => setTimeout(cb, 0);
+
+    const { PDFProcessor } = await import('../../src/services/PDFProcessor.js');
+    const { AppController } = await import('../../src/core/AppController.js');
+    originalInitialize = PDFProcessor.prototype.initialize;
+    originalRenderCurrentLayout = AppController.prototype.renderCurrentLayout;
+    PDFProcessor.prototype.initialize = async () => {};
+    AppController.prototype.renderCurrentLayout = () => {};
   });
 
-  test.afterEach(() => {
+  test.afterEach(async () => {
     delete global.window;
     delete global.document;
     delete global.HTMLElement;
     delete global.localStorage;
     delete global.requestAnimationFrame;
+
+    const { PDFProcessor } = await import('../../src/services/PDFProcessor.js');
+    const { AppController } = await import('../../src/core/AppController.js');
+    if (originalInitialize) {
+      PDFProcessor.prototype.initialize = originalInitialize;
+    }
+    if (originalRenderCurrentLayout) {
+      AppController.prototype.renderCurrentLayout = originalRenderCurrentLayout;
+    }
   });
 
   test('init handles pdfProcessor.initialize error correctly', async () => {
