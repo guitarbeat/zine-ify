@@ -1,24 +1,18 @@
 import { test, expect } from '@playwright/test';
-import { JSDOM } from 'jsdom';
-import DOMPurify from 'dompurify';
-
-// Setup JSDOM BEFORE importing any files that might rely on global objects
-let dom;
-
-test.beforeAll(() => {
-  dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-  global.window = dom.window;
-  global.document = dom.window.document;
-    const purify = DOMPurify(dom.window);
-    DOMPurify.sanitize = purify.sanitize;
-});
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
 test.describe('FormValidationService Tests', () => {
   let initSettingsValidation;
   let GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX;
 
-  test.beforeAll(async () => {
-    // Dynamic import to ensure JSDOM is setup first
+  test.beforeEach(async () => {
+    const { JSDOM } = require('jsdom');
+    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
+    global.window = dom.window;
+    global.document = dom.window.document;
+    global.HTMLElement = dom.window.HTMLElement;
+
     const FormValidationService = await import('../../../src/services/FormValidationService.js');
     initSettingsValidation = FormValidationService.initSettingsValidation;
 
@@ -26,9 +20,7 @@ test.describe('FormValidationService Tests', () => {
     GRID_DIMENSION_MAX = config.GRID_DIMENSION_MAX;
     GRID_DIMENSION_MIN = config.GRID_DIMENSION_MIN;
     MARGIN_MAX = config.MARGIN_MAX;
-  });
 
-  test.beforeEach(() => {
     document.body.innerHTML = `
       <div id="test-container">
         <div id="settings-group">
@@ -40,11 +32,15 @@ test.describe('FormValidationService Tests', () => {
           </select>
           <div id="grid-total">8 slots</div>
         </div>
-
         <div id="demo-container"></div>
-
       </div>
     `;
+  });
+
+  test.afterEach(() => {
+    delete global.window;
+    delete global.document;
+    delete global.HTMLElement;
   });
 
   test.describe('initSettingsValidation', () => {
@@ -56,22 +52,29 @@ test.describe('FormValidationService Tests', () => {
 
     test('initializes validator and clamps row value to MIN on invalid change', () => {
       const container = document.getElementById('test-container');
-      const validator = initSettingsValidation(container);
+      let totalUpdated = false;
+      const mockUiManager = {
+        updateGridTotalBadge: (rows, cols) => {
+          totalUpdated = true;
+          const totalEl = document.getElementById('grid-total');
+          if (totalEl) totalEl.textContent = `${rows * cols} slots`;
+        }
+      };
+
+      const validator = initSettingsValidation(container, mockUiManager);
       expect(validator).not.toBeNull();
 
       const gridRowsInput = document.getElementById('grid-rows');
-      // Simulate invalid change (value below min)
       gridRowsInput.value = GRID_DIMENSION_MIN - 1;
 
-      // Manually trigger the validation change callback registered by the service
       const rowConfig = validator.fieldConfigs.get('grid-rows') || validator.fieldConfigs.get('#grid-rows');
       expect(rowConfig).toBeDefined();
 
       rowConfig.onValidationChange({ isValid: false }, gridRowsInput);
 
       expect(gridRowsInput.value).toBe(GRID_DIMENSION_MIN.toString());
+      expect(totalUpdated).toBe(true);
 
-      // Check if grid total was updated
       const totalEl = document.getElementById('grid-total');
       const rows = parseInt(gridRowsInput.value, 10);
       const cols = parseInt(document.getElementById('grid-cols').value, 10);
