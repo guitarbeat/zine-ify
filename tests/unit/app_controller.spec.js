@@ -444,7 +444,7 @@ test.describe('AppController', () => {
       AppController.prototype.init = originalInit;
       toast.error = originalToastError;
     }
-  }
+  });
   test("handleExport successfully exports zine when pages are filled", async () => {
     const { AppController } = await import("../../src/core/AppController.js");
     const { toast } = await import("../../src/components/Toast.js");
@@ -503,5 +503,5 @@ test.describe('AppController', () => {
       AppController.prototype.init = originalInit;
       toast.success = originalSuccess;
     }
-  }
+  });
 });
