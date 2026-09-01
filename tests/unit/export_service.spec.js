@@ -1,3 +1,8 @@
+import { createRequire } from 'module';
+import DOMPurify from 'dompurify';
+
+const require = createRequire(import.meta.url);
+const { JSDOM } = require('jsdom');
 import { test, expect } from '@playwright/test';
 import { ExportService } from '../../src/services/ExportService.js';
 
@@ -7,6 +12,12 @@ test.describe('ExportService', () => {
   let exportService;
 
   test.beforeEach(() => {
+    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
+    global.window = dom.window;
+    global.document = dom.window.document;
+    global.DOMParser = dom.window.DOMParser;
+    const purify = DOMPurify(dom.window);
+    DOMPurify.sanitize = purify.sanitize;
     mockUi = {};
     mockState = {
       allPageImages: Array(8).fill(null),
@@ -178,11 +189,17 @@ test.describe('ExportService', () => {
   test.describe('openPrintWindow', () => {
     test('sanitizes malicious script tags and event handlers before writing to window.open', async () => {
       let writtenHtml = null;
+      const dummyDoc = new JSDOM('<!DOCTYPE html><html><body></body></html>').window.document;
       const mockWin = {
         document: {
           open: () => {},
-          write: (html) => { writtenHtml = html; },
           close: () => {},
+          importNode: (node, deep) => dummyDoc.importNode(node, deep),
+          replaceChild: (newChild, oldChild) => {
+            writtenHtml = newChild.outerHTML;
+            return dummyDoc.replaceChild(newChild, oldChild);
+          },
+          documentElement: dummyDoc.documentElement,
         },
         focus: () => {},
         print: () => {},
@@ -205,13 +222,19 @@ test.describe('ExportService', () => {
       global.window = { open: () => null };
       let writtenHtml = null;
 
+      const dummyFrameDoc = new JSDOM('<!DOCTYPE html><html><body></body></html>').window.document;
       const mockIframe = {
         style: {},
         setAttribute: () => {},
         contentDocument: {
           open: () => {},
-          write: (html) => { writtenHtml = html; },
-          close: () => {}
+          close: () => {},
+          importNode: (node, deep) => dummyFrameDoc.importNode(node, deep),
+          replaceChild: (newChild, oldChild) => {
+            writtenHtml = newChild.outerHTML;
+            return dummyFrameDoc.replaceChild(newChild, oldChild);
+          },
+          documentElement: dummyFrameDoc.documentElement,
         },
         contentWindow: {
           focus: () => {},
@@ -252,11 +275,17 @@ test.describe('ExportService', () => {
       let printCalled = false;
       let focusCalled = false;
 
+      const dummyDoc = new JSDOM('<!DOCTYPE html><html><body></body></html>').window.document;
       const mockWin = {
         document: {
           open: () => {},
-          write: (html) => { openHtml = html; },
           close: () => {},
+          importNode: (node, deep) => dummyDoc.importNode(node, deep),
+          replaceChild: (newChild, oldChild) => {
+            openHtml = newChild.outerHTML;
+            return dummyDoc.replaceChild(newChild, oldChild);
+          },
+          documentElement: dummyDoc.documentElement,
         },
         focus: () => { focusCalled = true; },
         print: () => { printCalled = true; },
@@ -268,7 +297,7 @@ test.describe('ExportService', () => {
 
       await exportService.openPrintWindow('<p>Print</p>');
 
-      expect(openHtml).toBe('<p>Print</p>');
+      expect(openHtml).toContain('<p>Print</p>');
       expect(printCalled).toBe(true);
       expect(focusCalled).toBe(true);
 
@@ -285,13 +314,19 @@ test.describe('ExportService', () => {
       let removeCalled = false;
       let focusCalled = false;
 
+      const dummyFallbackDoc = new JSDOM('<!DOCTYPE html><html><body></body></html>').window.document;
       const mockIframe = {
         style: {},
         setAttribute: () => {},
         contentDocument: {
           open: () => {},
-          write: (html) => { iframeHtml = html; },
-          close: () => {}
+          close: () => {},
+          importNode: (node, deep) => dummyFallbackDoc.importNode(node, deep),
+          replaceChild: (newChild, oldChild) => {
+            iframeHtml = newChild.outerHTML;
+            return dummyFallbackDoc.replaceChild(newChild, oldChild);
+          },
+          documentElement: dummyFallbackDoc.documentElement,
         },
         contentWindow: {
           focus: () => { focusCalled = true; },
@@ -320,7 +355,7 @@ test.describe('ExportService', () => {
       await exportService.openPrintWindow('<p>Iframe Print</p>');
 
       expect(iframeAppended).toBe(true);
-      expect(iframeHtml).toBe('<p>Iframe Print</p>');
+      expect(iframeHtml).toContain('<p>Iframe Print</p>');
       expect(printCalled).toBe(true);
       expect(focusCalled).toBe(true);
 
