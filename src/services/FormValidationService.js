@@ -27,6 +27,7 @@ export function initSettingsValidation(container = document, uiManager = null) {
     focusFirstError: false
   });
 
+  /** Helper to update grid total display */
   const updateTotalDisplay = (rowsVal, colsVal) => {
     const rows = parseInt(rowsVal, 10) || 1;
     const cols = parseInt(colsVal, 10) || 1;
