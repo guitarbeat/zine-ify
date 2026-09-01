@@ -315,4 +315,51 @@ test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
     expect(result.isFallback).toBe(false);
   });
 
+  test("animate triggers animation frame in WebGL mode and returns early in fallback mode", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const container = document.getElementById("container");
+      const viewer = new window.Zine3DViewer(container);
+
+      let animated = false;
+      viewer.controls.update = () => { animated = true; };
+      viewer.animate();
+      const webglAnimated = animated;
+
+      viewer.isFallbackMode = true;
+      animated = false;
+      viewer.animate();
+      const fallbackAnimated = animated;
+
+      viewer.destroy();
+      return { webglAnimated, fallbackAnimated };
+    });
+
+    expect(result.webglAnimated).toBe(true);
+    expect(result.fallbackAnimated).toBe(false);
+  });
+
+  test("setFoldProgress updates fold stages from 0 to 3 correctly", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const container = document.getElementById("container");
+      const viewer = new window.Zine3DViewer(container);
+      viewer.loadPages(Array.from({ length: 8 }, (_, i) => `page${i + 1}.png`));
+
+      const stagesResult = [0, 1, 2, 3].map((progress) => {
+        viewer.setFoldProgress(progress);
+        return {
+          progress: viewer.currentFoldProgress,
+          hasBounds: !!viewer.debugFoldState?.bounds,
+          guidesVisible: viewer.guides.map(g => g.mesh.visible)
+        };
+      });
+
+      viewer.destroy();
+      return stagesResult;
+    });
+
+    expect(result.length).toBe(4);
+    expect(result[0].progress).toBe(0);
+    expect(result[3].progress).toBe(3);
+    expect(result[0].hasBounds).toBe(true);
+  });
 });
