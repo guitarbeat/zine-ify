@@ -558,4 +558,56 @@ test.describe('AppController', () => {
     }
   });
 
+  test("processFileQueue handles error in queue and continues processing subsequent items", async () => {
+    const { AppController } = await import("../../src/core/AppController.js");
+    const { toast } = await import("../../src/components/Toast.js");
+
+    const toastErrors = [];
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrors.push({ title, message });
+    };
+
+    try {
+      const controller = new AppController();
+      controller.ui.setStatus = () => {};
+      controller.ui.modal.showProgress = () => {};
+
+      controller.processImageUpload = async (record) => {
+        if (record.name === "fail.png") {
+          throw new Error("Failed image");
+        }
+      };
+
+      const record1 = {
+        name: "fail.png",
+        kind: "image",
+        file: new Blob([""], { type: "image/png" }),
+        status: "Pending"
+      };
+      const record2 = {
+        name: "success.png",
+        kind: "image",
+        file: new Blob([""], { type: "image/png" }),
+        status: "Pending"
+      };
+
+      controller.state.uploadedFiles = [record1, record2];
+      controller.state.fileQueue = [record1, record2];
+
+      await controller.processFileQueue();
+
+      expect(record1.status).toBe("Failed");
+      expect(record2.status).toBe("Processing");
+      expect(toastErrors.length).toBe(1);
+      expect(toastErrors[0]).toEqual({
+        title: "Import Failed",
+        message: "Failed image"
+      });
+      expect(controller.state.isProcessingQueue).toBe(false);
+    } finally {
+      toast.error = originalToastError;
+    }
+  });
+
 });
