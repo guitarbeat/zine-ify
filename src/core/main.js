@@ -24,7 +24,7 @@ function initThemeToggle() {
 
 initPwa();
 window.app = new AppController();
-initSettingsValidation();
+initSettingsValidation(document, window.app?.ui);
 initThemeToggle();
 
 document.addEventListener('DOMContentLoaded', () => {
