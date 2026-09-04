@@ -27,9 +27,10 @@ export function initSettingsValidation(container = document, uiManager = null) {
     focusFirstError: false
   });
 
-  // Grid rows and cols elements
+  // Grid rows, cols, and total elements
   const gridRowsInput = container.querySelector("#grid-rows");
   const gridColsInput = container.querySelector("#grid-cols");
+  const gridTotalEl = container.querySelector("#grid-total");
 
   /** Helper to update grid total display */
   const updateTotalDisplay = (rowsVal, colsVal) => {
@@ -37,11 +38,8 @@ export function initSettingsValidation(container = document, uiManager = null) {
     const cols = parseInt(colsVal, 10) || 1;
     if (uiManager && typeof uiManager.updateGridTotalBadge === "function") {
       uiManager.updateGridTotalBadge(rows, cols);
-    } else {
-      const gridTotalEl = container.querySelector("#grid-total");
-      if (gridTotalEl) {
-        gridTotalEl.textContent = `${rows * cols} slots`;
-      }
+    } else if (gridTotalEl) {
+      gridTotalEl.textContent = `${rows * cols} slots`;
     }
   };
 
