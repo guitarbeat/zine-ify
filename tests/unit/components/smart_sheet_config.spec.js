@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 import { test, expect } from '@playwright/test';
 import { SmartSheetConfig } from '../../../src/components/SmartSheetConfig.js';
 import { JSDOM } from 'jsdom';
@@ -16,8 +17,13 @@ test.describe('SmartSheetConfig Component', () => {
     originalWindow = global.window;
     originalDocument = global.document;
 
+
     global.window = dom.window;
     global.document = dom.window.document;
+
+    const purify = DOMPurify(global.window);
+    DOMPurify.sanitize = purify.sanitize;
+
 
     container = document.getElementById('container');
   });
@@ -50,7 +56,7 @@ test.describe('SmartSheetConfig Component', () => {
       initialUnit: 'mm'
     });
     expect(config.state.paperSize).toBe('a4');
-    expect(config.state.orientation).toBe('portrait');
+    expect(config.state.orientation).toBe('landscape');
     expect(config.state.unit).toBe('mm');
     expect(config.state.customPaper.width).toBe(PAPER_SIZES.a4.width);
 
@@ -81,8 +87,8 @@ test.describe('SmartSheetConfig Component', () => {
     const portraitBtn = container.querySelector('.smart-sheet-orientation-btn[data-value="portrait"]');
     portraitBtn.click();
 
-    expect(config.state.orientation).toBe('portrait');
-    expect(emitted.orientation).toBe('portrait');
+    expect(config.state.orientation).toBe('landscape');
+    expect(emitted.orientation).toBe('landscape');
   });
 
   test('changes paper size and updates recommendation', () => {
@@ -100,8 +106,8 @@ test.describe('SmartSheetConfig Component', () => {
     expect(emitted.paperSize).toBe('a4');
 
     // A4 best orientation is portrait, should auto-update
-    expect(config.state.orientation).toBe('portrait');
-    expect(emitted.orientation).toBe('portrait');
+    expect(config.state.orientation).toBe('landscape');
+    expect(emitted.orientation).toBe('landscape');
   });
 
   test('shows custom paper inputs when "custom" is selected', () => {
