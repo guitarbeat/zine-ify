@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * FormValidator.js
  * Inline form validation with immediate visual feedback
@@ -273,7 +272,7 @@ export class FormValidator {
    * Get existing error element for a field
    */
   _getErrorElement(fieldId) {
-    let cached = this.errorElements.get(fieldId);
+    const cached = this.errorElements.get(fieldId);
     if (cached && cached.isConnected) {
       return cached;
     }
