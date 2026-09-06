@@ -39,8 +39,33 @@ function nodesOverlap(a, b) {
   );
 }
 
-function layoutHasOverlaps() {
-  const nodes = grid?.engine?.nodes ?? [];
+let rowBuffer = new Uint32Array(256);
+let sharedSpatialGrid = new Uint8Array(1024);
+
+function reusableSpatialGrid(nodes, len, maxX, maxY) {
+  const needed = maxY * maxX;
+  if (sharedSpatialGrid.length < needed) {
+    sharedSpatialGrid = new Uint8Array(Math.max(needed, sharedSpatialGrid.length * 2));
+  } else {
+    sharedSpatialGrid.fill(0, 0, needed);
+  }
+
+  for (let i = 0; i < len; i++) {
+    const n = nodes[i];
+    for (let y = n.y, yEnd = n.y + n.h; y < yEnd; y++) {
+      const rowOffset = y * maxX;
+      for (let x = n.x, xEnd = n.x + n.w; x < xEnd; x++) {
+        const index = rowOffset + x;
+        if (sharedSpatialGrid[index]) { return true; }
+        sharedSpatialGrid[index] = 1;
+      }
+    }
+  }
+
+  return false;
+}
+
+export function layoutHasOverlaps(nodes = grid?.engine?.nodes ?? []) {
   const len = nodes.length;
 
   if (len < 10) {
@@ -62,21 +87,27 @@ function layoutHasOverlaps() {
     if (bottom > maxY) { maxY = bottom; }
   }
 
-  const spatialGrid = new Uint8Array(maxY * maxX);
+  if (maxX <= 32) {
+    if (rowBuffer.length < maxY) {
+      rowBuffer = new Uint32Array(Math.max(maxY, rowBuffer.length * 2));
+    } else {
+      rowBuffer.fill(0, 0, maxY);
+    }
 
-  for (let i = 0; i < len; i++) {
-    const n = nodes[i];
-    for (let y = n.y, yEnd = n.y + n.h; y < yEnd; y++) {
-      const rowOffset = y * maxX;
-      for (let x = n.x, xEnd = n.x + n.w; x < xEnd; x++) {
-        const index = rowOffset + x;
-        if (spatialGrid[index]) { return true; }
-        spatialGrid[index] = 1;
+    for (let i = 0; i < len; i++) {
+      const n = nodes[i];
+      const mask = (n.w >= 32 ? ~0 : ((1 << n.w) - 1)) << n.x;
+      const yEnd = n.y + n.h;
+      for (let y = n.y; y < yEnd; y++) {
+        if ((rowBuffer[y] & mask) !== 0) { return true; }
+        rowBuffer[y] |= mask;
       }
     }
+
+    return false;
   }
 
-  return false;
+  return reusableSpatialGrid(nodes, len, maxX, maxY);
 }
 
 function saveLayout() {
@@ -230,4 +261,5 @@ export function initGridStack() {
   };
 
   window.__resizePanels = relayoutPanels;
+  window.__layoutHasOverlaps = layoutHasOverlaps;
 }
