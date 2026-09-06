@@ -284,6 +284,27 @@ test.describe('PDFProcessor', () => {
     expect(processor.pdf).not.toBeNull();
   });
 
+  test("loadPDF throws error if file size exceeds MAX_UPLOAD_FILE_SIZE", async () => {
+    processor.ensurePdfJs = async () => ({});
+    processor.validateFile = () => ({ valid: true, errors: [] });
+    processor.validateFileSignature = async () => true;
+
+    let createObjectUrlCalled = false;
+    if (typeof global !== "undefined") {
+      if (!global.URL) { global.URL = {}; }
+      global.URL.createObjectURL = () => {
+        createObjectUrlCalled = true;
+        return "blob:test";
+      };
+      global.URL.revokeObjectURL = () => {};
+    }
+
+    const overSizedFile = new File(["%PDF-1.4"], "large.pdf", { type: "application/pdf" });
+    Object.defineProperty(overSizedFile, "size", { value: 60 * 1024 * 1024 });
+
+    await expect(processor.loadPDF(overSizedFile)).rejects.toThrow(/File too large/);
+    expect(createObjectUrlCalled).toBe(false);
+  });
 });
 
 test.describe('PDFProcessor Media handling', () => {
