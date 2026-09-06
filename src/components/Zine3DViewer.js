@@ -288,6 +288,9 @@ export class Zine3DViewer {
       });
     });
     
+    const frontGeometry = new THREE.PlaneGeometry(this.w, this.h, 4, 4);
+    const backGeometry = new THREE.PlaneGeometry(this.w, this.h, 1, 1);
+
     for (let i = 1; i <= 8; i++) {
       const config = this.panelDefinitions[i];
       const pageData = previewPages[i - 1]; // Array is 0-indexed
@@ -295,8 +298,6 @@ export class Zine3DViewer {
 
       const stack = this.stacks[config.stackIndex]; // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
       const group = new THREE.Group();
-      const frontGeometry = new THREE.PlaneGeometry(this.w, this.h, 4, 4);
-      const backGeometry = new THREE.PlaneGeometry(this.w, this.h, 1, 1);
 
       let frontMaterial;
       if (url) {
