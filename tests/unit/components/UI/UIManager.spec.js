@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { JSDOM } from 'jsdom';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { JSDOM } = require('jsdom');
 
 test.describe('UIManager', () => {
   let UIManager;
@@ -205,5 +207,29 @@ test('updateWorkspaceState enables/disables buttons', () => {
     expect(iconSpan.textContent).toBe('close');
     expect(iconSpan.getAttribute('aria-hidden')).toBe('true');
     expect(iconSpan.style.fontSize).toBe('14px');
+  });
+  test("orientation toggle updates buttons and emits orientationChanged", () => {
+    const toggle = document.getElementById("orientation-toggle");
+    toggle.innerHTML = '<button class="orientation-seg-btn" data-value="portrait">Portrait</button><button class="orientation-seg-btn" data-value="landscape">Landscape</button>';
+    const [btn1, btn2] = toggle.querySelectorAll(".orientation-seg-btn");
+
+    const ui = new UIManager();
+    ui.smartSheetConfig = null;
+    ui.elements.orientationToggle = toggle;
+
+    let emitted = null;
+    ui.emitter.on("orientationChanged", (e) => { emitted = e; });
+
+    ui.setupEventListeners();
+
+    btn2.click();
+
+    expect(btn1.classList.contains("is-active")).toBe(false);
+    expect(btn1.getAttribute("aria-pressed")).toBe("false");
+    expect(btn2.classList.contains("is-active")).toBe(true);
+    expect(btn2.getAttribute("aria-pressed")).toBe("true");
+    expect(emitted).toEqual({ orientation: "landscape" });
+
+    toggle.innerHTML = "";
   });
 });

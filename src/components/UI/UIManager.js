@@ -472,10 +472,11 @@ export class UIManager {
         this.emitter.emit('paperSizeChanged', { paperSize: event.target.value });
       });
 
-      this.elements.orientationToggle?.querySelectorAll('.orientation-seg-btn').forEach((btn) => {
+      const orientationSegButtons = this.elements.orientationToggle?.querySelectorAll('.orientation-seg-btn');
+      orientationSegButtons?.forEach((btn) => {
         btn.addEventListener('click', () => {
           const value = btn.dataset.value;
-          this.elements.orientationToggle.querySelectorAll('.orientation-seg-btn').forEach((b) => {
+          orientationSegButtons.forEach((b) => {
             b.classList.toggle('is-active', b === btn);
             b.setAttribute('aria-pressed', String(b === btn));
           });
