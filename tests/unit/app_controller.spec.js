@@ -610,4 +610,51 @@ test.describe('AppController', () => {
     }
   });
 
+
+  test("handleFileSelected triggers processFileQueue which handles async processing error", async () => {
+    const { AppController } = await import("../../src/core/AppController.js");
+    const { toast } = await import("../../src/components/Toast.js");
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      let statusText = null;
+      let statusType = null;
+      controller.ui.setStatus = (text, type) => {
+        statusText = text;
+        statusType = type;
+      };
+
+      controller.processImageUpload = async () => {
+        throw new Error("Async queue processing error");
+      };
+
+      const file = new File(["dummy content"], "queued-error-image.png", { type: "image/png" });
+
+      controller.handleFileSelected(file);
+
+      // Wait for processFileQueue async promise to settle
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const record = controller.state.uploadedFiles[0];
+      expect(record).toBeDefined();
+      expect(record.name).toBe("queued-error-image.png");
+      expect(record.status).toBe("Failed");
+      expect(statusText).toBe("Failed: queued-error-image.png");
+      expect(statusType).toBe("error");
+      expect(toastErrorTitle).toBe("Import Failed");
+      expect(toastErrorMessage).toBe("Async queue processing error");
+      expect(controller.state.isProcessingQueue).toBe(false);
+    } finally {
+      toast.error = originalToastError;
+    }
+  });
+
 });
