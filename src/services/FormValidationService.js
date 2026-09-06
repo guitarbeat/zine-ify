@@ -1,12 +1,11 @@
-/* eslint-disable */
 /**
  * Validation integration for Zine-ify form controls
  * Demonstrates user-friendly validation for existing settings
  */
 
-import { FormValidator } from "../components/FormValidator.js";
-import { VALIDATION_TIMING, VALIDATION_RULES } from "../utils/formValidation.js";
-import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX, MARGIN_MIN } from "./../utils/config.js";
+import { FormValidator } from '../components/FormValidator.js';
+import { VALIDATION_TIMING, VALIDATION_RULES } from '../utils/formValidation.js';
+import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX, MARGIN_MIN } from './../utils/config.js';
 
 /**
  * Initialize validation for the settings panel
@@ -15,7 +14,7 @@ import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX, MARGIN_MIN } from "
  * @returns {FormValidator} The configured validator instance
  */
 export function initSettingsValidation(container = document, uiManager = null) {
-  const form = container.querySelector("#settings-group") || container.querySelector(".rail-settings-panel");
+  const form = container.querySelector('#settings-group') || container.querySelector('.rail-settings-panel');
   if (!form) {
     return null;
   }
@@ -28,15 +27,15 @@ export function initSettingsValidation(container = document, uiManager = null) {
   });
 
   // Grid rows, cols, and total elements
-  const gridRowsInput = container.querySelector("#grid-rows");
-  const gridColsInput = container.querySelector("#grid-cols");
-  const gridTotalEl = container.querySelector("#grid-total");
+  const gridRowsInput = container.querySelector('#grid-rows');
+  const gridColsInput = container.querySelector('#grid-cols');
+  const gridTotalEl = container.querySelector('#grid-total');
 
   /** Helper to update grid total display */
   const updateTotalDisplay = (rowsVal, colsVal) => {
     const rows = parseInt(rowsVal, 10) || 1;
     const cols = parseInt(colsVal, 10) || 1;
-    if (uiManager && typeof uiManager.updateGridTotalBadge === "function") {
+    if (uiManager && typeof uiManager.updateGridTotalBadge === 'function') {
       uiManager.updateGridTotalBadge(rows, cols);
     } else if (gridTotalEl) {
       gridTotalEl.textContent = `${rows * cols} slots`;
@@ -44,8 +43,8 @@ export function initSettingsValidation(container = document, uiManager = null) {
   };
 
   if (gridRowsInput) {
-    validator.register("#grid-rows", {
-      fieldName: "Rows",
+    validator.register('#grid-rows', {
+      fieldName: 'Rows',
       rules: [
         VALIDATION_RULES.required,
         VALIDATION_RULES.integer,
@@ -56,7 +55,7 @@ export function initSettingsValidation(container = document, uiManager = null) {
       constraints: {
         min: GRID_DIMENSION_MIN,
         max: GRID_DIMENSION_MAX,
-        format: "whole numbers only"
+        format: 'whole numbers only'
       },
       onValidationChange: (result, field) => {
         // Clamp invalid values
@@ -76,8 +75,8 @@ export function initSettingsValidation(container = document, uiManager = null) {
 
   // Grid columns validation
   if (gridColsInput) {
-    validator.register("#grid-cols", {
-      fieldName: "Columns",
+    validator.register('#grid-cols', {
+      fieldName: 'Columns',
       rules: [
         VALIDATION_RULES.required,
         VALIDATION_RULES.integer,
@@ -88,7 +87,7 @@ export function initSettingsValidation(container = document, uiManager = null) {
       constraints: {
         min: GRID_DIMENSION_MIN,
         max: GRID_DIMENSION_MAX,
-        format: "whole numbers only"
+        format: 'whole numbers only'
       },
       onValidationChange: (result, field) => {
         if (!result.isValid) {
@@ -105,10 +104,10 @@ export function initSettingsValidation(container = document, uiManager = null) {
   }
 
   // Margin validation
-  const marginInput = container.querySelector("#margin-input");
+  const marginInput = container.querySelector('#margin-input');
   if (marginInput) {
-    validator.register("#margin-input", {
-      fieldName: "Margin",
+    validator.register('#margin-input', {
+      fieldName: 'Margin',
       rules: [
         VALIDATION_RULES.required,
         VALIDATION_RULES.integer,
@@ -119,7 +118,7 @@ export function initSettingsValidation(container = document, uiManager = null) {
       constraints: {
         min: MARGIN_MIN,
         max: MARGIN_MAX,
-        format: "mm"
+        format: 'mm'
       },
       onValidationChange: (result, field) => {
         if (!result.isValid) {
@@ -135,10 +134,10 @@ export function initSettingsValidation(container = document, uiManager = null) {
   }
 
   // Paper size select - always valid since it is a dropdown
-  const paperSizeSelect = container.querySelector("#paper-size-select");
+  const paperSizeSelect = container.querySelector('#paper-size-select');
   if (paperSizeSelect) {
-    validator.register("#paper-size-select", {
-      fieldName: "Paper Size",
+    validator.register('#paper-size-select', {
+      fieldName: 'Paper Size',
       rules: [VALIDATION_RULES.required],
       timing: VALIDATION_TIMING.BLUR
     });
