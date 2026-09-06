@@ -1,4 +1,5 @@
-import { validateUploadFile } from '../utils/fileValidation.js';
+import { validateUploadFile, MAX_UPLOAD_FILE_SIZE } from '../utils/fileValidation.js';
+import { formatFileSize } from '../utils/helpers.js';
 import { MediaProcessor } from './MediaProcessor.js';
 
 export class PDFProcessor extends MediaProcessor {
@@ -90,6 +91,10 @@ export class PDFProcessor extends MediaProcessor {
       if (this.pdf) {
         this.pdf.destroy();
         this.pdf = null;
+      }
+
+      if (file.size > MAX_UPLOAD_FILE_SIZE) {
+        throw new Error(`File too large (${formatFileSize(file.size)}). Maximum size is ${formatFileSize(MAX_UPLOAD_FILE_SIZE)}`);
       }
 
       // Use Blob URL instead of reading entire file into ArrayBuffer
