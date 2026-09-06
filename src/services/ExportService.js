@@ -50,11 +50,13 @@ export class ExportService {
       )
     );
 
+    const offscreen = document.createElement('canvas');
+    offscreen.width = canvasW;
+    offscreen.height = canvasH;
+    const ctx = offscreen.getContext('2d');
+
     for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
-      const offscreen = document.createElement('canvas');
-      offscreen.width = canvasW;
-      offscreen.height = canvasH;
-      const ctx = offscreen.getContext('2d');
+      ctx.clearRect(0, 0, canvasW, canvasH);
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvasW, canvasH);
 
