@@ -158,11 +158,23 @@ test.describe('Utils', () => {
       rejectedFiles: [mixed[1]]
     });
 
-    // Array with edge cases (nulls, missing types)
-    const edgeCases = [null, {}, { type: null }];
-    expect(partitionSupportedFiles(edgeCases)).toEqual({
-      acceptedFiles: [],
-      rejectedFiles: edgeCases
+    // Array with edge cases and malformed objects (null, undefined, primitives, missing/invalid properties)
+    const malformedFiles = [
+      null,
+      undefined,
+      123,
+      "string_file",
+      true,
+      {},
+      { name: 123 },
+      { name: ".pdf" },
+      { name: "test.pdf", type: null },
+      { name: "test.png", type: 123 },
+      { name: "test.pdf", type: "application/pdf" }
+    ];
+    expect(partitionSupportedFiles(malformedFiles)).toEqual({
+      acceptedFiles: [malformedFiles[10]],
+      rejectedFiles: malformedFiles.slice(0, 10)
     });
   });
 
