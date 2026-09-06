@@ -182,10 +182,10 @@ export class ExportService {
       ? `display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);grid-template-areas:${template.gridAreas.trim().split('\n').map((l) => l.trim()).join(' ')};width:${gridW}mm;height:${gridH}mm;`
       : `display:grid;grid-template-columns:repeat(${cols},1fr);grid-template-rows:repeat(${rows},1fr);width:${gridW}mm;height:${gridH}mm;`;
 
-    let html = '';
+    const sheets = [];
 
     for (let s = 0; s < sheetCount; s++) {
-      let cells = '';
+      const cells = [];
 
       for (let slot = 0; slot < slotsPerSheet; slot++) {
         const rawSlot = template?.layout ? template.layout[slot] : null;
@@ -215,15 +215,15 @@ export class ExportService {
         const cellStyle = `position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;${areaStyle}`;
         const imgStyle = `width:100%;height:100%;object-fit:${objectFit};transform:rotate(${rotateDeg}deg) scale(${scale});`;
 
-        cells += url
+        cells.push(url
           ? `<div style="${cellStyle}"><img src="${url}" style="${imgStyle}" alt="Page ${pageNum}"></div>`
-          : `<div style="${cellStyle};background:#f0f0f0;"></div>`;
+          : `<div style="${cellStyle};background:#f0f0f0;"></div>`);
       }
 
-      html += `<div class="sheet" style="width:${dims.width}mm;height:${dims.height}mm;overflow:hidden;page-break-after:always;display:flex;align-items:center;justify-content:center;"><div style="${gridStyle}">${cells}</div></div>`;
+      sheets.push(`<div class="sheet" style="width:${dims.width}mm;height:${dims.height}mm;overflow:hidden;page-break-after:always;display:flex;align-items:center;justify-content:center;"><div style="${gridStyle}">${cells.join('')}</div></div>`);
     }
 
-    return html;
+    return sheets.join('');
   }
 
   buildPrintHtml(sheetsHtml, dims) {
