@@ -85,22 +85,46 @@ export class Zine3DViewer {
 
     const initialWidth = this.container.clientWidth || 1;
     const initialHeight = this.container.clientHeight || 1;
-    this.camera = new THREE.PerspectiveCamera(45, initialWidth / initialHeight, 0.1, 100);
-    this.camera.position.set(0, 0, 4.6);
 
+    this._initCamera(initialWidth, initialHeight);
+
+    if (!this._initRenderer(initialWidth, initialHeight)) {
+      this.initFallbackScene(initialWidth, initialHeight);
+      return;
+    }
+
+    this._initControls();
+    this._initLighting();
+    this.createStageEnvironment();
+
+    // Resize handler
+    this.onWindowResize = () => this.refreshLayout();
+    window.addEventListener('resize', this.onWindowResize);
+
+    this.animate();
+  }
+
+  _initCamera(width, height) {
+    this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+    this.camera.position.set(0, 0, 4.6);
+  }
+
+  _initRenderer(width, height) {
     try {
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      this.renderer.setSize(initialWidth, initialHeight);
+      this.renderer.setSize(width, height);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       this.renderer.domElement.classList.add('zine-3d-canvas');
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       this.container.appendChild(this.renderer.domElement);
+      return true;
     } catch {
-      this.initFallbackScene(initialWidth, initialHeight);
-      return;
+      return false;
     }
+  }
 
+  _initControls() {
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.05;
@@ -108,8 +132,9 @@ export class Zine3DViewer {
     this.controls.minDistance = 2.8;
     this.controls.maxDistance = 9;
     this.controls.maxPolarAngle = Math.PI * 0.56;
+  }
 
-    // Lighting
+  _initLighting() {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
     this.scene.add(ambientLight);
 
@@ -121,19 +146,12 @@ export class Zine3DViewer {
     dirLight.shadow.camera.near = 0.5;
     dirLight.shadow.camera.far = 12;
     this.scene.add(dirLight);
-    
+
     const backLight = new THREE.DirectionalLight(0xffffff, 0.45);
     backLight.position.set(-2, -4, -4);
     this.scene.add(backLight);
 
     this.scene.add(new THREE.HemisphereLight(0xffffff, 0x3a3a55, 0.45));
-    this.createStageEnvironment();
-
-    // Resize handler
-    this.onWindowResize = () => this.refreshLayout();
-    window.addEventListener('resize', this.onWindowResize);
-
-    this.animate();
   }
 
   initFallbackScene(initialWidth, initialHeight) {
