@@ -40,6 +40,25 @@ test.describe('src/core/main.js initialization & theme toggle', () => {
     expect(lightIcon).toBe('dark_mode');
   });
 
+  test('respects initial dark theme from localStorage on page load', async ({ context }) => {
+    const page = await context.newPage();
+    await page.addInitScript(() => {
+      localStorage.setItem('zine-theme', 'dark');
+    });
+    await page.goto('/');
+
+    const initialTheme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+    expect(initialTheme).toBe('dark');
+
+    await page.click('#theme-toggle');
+
+    const toggledTheme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+    const toggledStorage = await page.evaluate(() => localStorage.getItem('zine-theme'));
+    expect(toggledTheme).toBe('light');
+    expect(toggledStorage).toBe('light');
+    await page.close();
+  });
+
   test('handles theme toggle gracefully when theme elements are missing', async ({ page }) => {
     const result = await page.evaluate(() => {
       const btn = document.getElementById('theme-toggle');
