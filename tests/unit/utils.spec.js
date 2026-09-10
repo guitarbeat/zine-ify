@@ -179,13 +179,23 @@ test.describe('Utils', () => {
       { name: sym, type: 'application/pdf' },
       { name: NaN, type: 'application/pdf' },
       { name: fn, type: 'application/pdf' },
+      { name: 10n, type: 'application/pdf' },
+      new Date(),
+      new Error('malformed'),
       { name: "test.", type: "application/pdf" },
       { name: "UPPER.PDF", type: "application/pdf" },
       { name: "test.pdf", type: "application/pdf" }
     ];
     expect(partitionSupportedFiles(malformedFiles)).toEqual({
-      acceptedFiles: [malformedFiles[18], malformedFiles[19]],
-      rejectedFiles: malformedFiles.slice(0, 18)
+      acceptedFiles: [malformedFiles[21], malformedFiles[22]],
+      rejectedFiles: malformedFiles.slice(0, 21)
+    });
+
+    // Sparse array input
+    const sparseArray = [, { name: "test.pdf", type: "application/pdf" }];
+    expect(partitionSupportedFiles(sparseArray)).toEqual({
+      acceptedFiles: [{ name: "test.pdf", type: "application/pdf" }],
+      rejectedFiles: [undefined]
     });
 
     // Non-array inputs (null, undefined, non-array object, array-like object, primitive)
