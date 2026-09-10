@@ -680,7 +680,33 @@ export class AppController {
       if (!this.viewer3d) {
         const container = this.ui.elements.zine3dContainer;
         if (container) {
+          // Add a loading spinner while the heavy 3D viewer is being fetched
+          const spinner = document.createElement('div');
+          spinner.className = 'zine-3d-spinner';
+          spinner.innerHTML = '<div class="spinner"></div><p>Loading 3D Viewer...</p>';
+          spinner.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;';
+          const spinnerIcon = spinner.querySelector('.spinner');
+          if (spinnerIcon) {
+             spinnerIcon.style.cssText = 'border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px;';
+          }
+
+          if (!document.getElementById('spin-keyframe')) {
+             const style = document.createElement('style');
+             style.id = 'spin-keyframe';
+             style.innerHTML = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+             document.head.appendChild(style);
+          }
+
+          container.style.position = 'relative';
+          container.appendChild(spinner);
+
           const Zine3DViewer = await this.getZine3DViewerClass();
+
+          // Remove spinner when ready
+          if (container.contains(spinner)) {
+            container.removeChild(spinner);
+          }
+
           try {
             this.viewer3d = new Zine3DViewer(container);
           } catch {

@@ -24,6 +24,7 @@ export class PDFProcessor extends MediaProcessor {
     if (!this._pdfJsReadyPromise) {
       this._pdfJsReadyPromise = Promise.all([
         import('pdfjs-dist'),
+        // Defer PDF.js worker initialization until needed for heavy conversion tasks
         import('pdfjs-dist/build/pdf.worker.min.mjs?url')
       ]).then(([pdfjsModule, pdfWorkerModule]) => {
         this.pdfjsLib = pdfjsModule;
