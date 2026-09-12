@@ -263,14 +263,26 @@ export class ExportService {
       win.document.close();
       win.focus();
       await new Promise((resolve) => {
-        if (win.document?.readyState === 'complete') {
+        if (!win.document?.readyState || win.document.readyState === 'complete') {
           resolve();
           return;
         }
-        const timer = setTimeout(resolve, 500);
-        win.onload = () => {
-          clearTimeout(timer);
-          resolve();
+        let done = false;
+        const onLoaded = () => {
+          if (!done) {
+            done = true;
+            resolve();
+          }
+        };
+        if (typeof win.addEventListener === 'function') {
+          win.addEventListener('load', onLoaded, { once: true });
+        }
+        const origOnload = win.onload;
+        win.onload = (...args) => {
+          if (typeof origOnload === 'function') {
+            origOnload(...args);
+          }
+          onLoaded();
         };
       });
       win.print();
@@ -294,8 +306,27 @@ export class ExportService {
     frameDoc.close();
 
     await new Promise((resolve) => {
-      printFrame.onload = resolve;
-      setTimeout(resolve, 300);
+      if (!printFrame.contentDocument?.readyState || printFrame.contentDocument.readyState === 'complete') {
+        resolve();
+        return;
+      }
+      let done = false;
+      const onLoaded = () => {
+        if (!done) {
+          done = true;
+          resolve();
+        }
+      };
+      if (typeof printFrame.addEventListener === 'function') {
+        printFrame.addEventListener('load', onLoaded, { once: true });
+      }
+      const origOnload = printFrame.onload;
+      printFrame.onload = (...args) => {
+        if (typeof origOnload === 'function') {
+          origOnload(...args);
+        }
+        onLoaded();
+      };
     });
 
     printFrame.contentWindow?.focus();
