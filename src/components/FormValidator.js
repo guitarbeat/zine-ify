@@ -69,18 +69,7 @@ export class FormValidator {
     const fieldId = field.id || field.name || fieldSelector;
 
     // Create field configuration
-    const fieldConfig = {
-      field,
-      fieldId,
-      fieldName: config.fieldName || field.labels?.[0]?.textContent || 'Field',
-      rules: config.rules || [],
-      timing: config.timing || VALIDATION_TIMING.BLUR,
-      debounceMs: config.debounceMs || 300,
-      showSuccess: config.showSuccess ?? this.options.showSuccessState,
-      helpText: config.helpText || null,
-      constraints: config.constraints || null,
-      onValidationChange: config.onValidationChange || null
-    };
+    const fieldConfig = this._createFieldConfig(field, fieldId, config);
 
     this.fieldConfigs.set(fieldId, fieldConfig);
     this.stateManager.register(fieldId, fieldConfig);
@@ -99,6 +88,24 @@ export class FormValidator {
     }
 
     return this;
+  }
+
+  /**
+   * Create field configuration object
+   */
+  _createFieldConfig(field, fieldId, config) {
+    return {
+      field,
+      fieldId,
+      fieldName: config.fieldName || field.labels?.[0]?.textContent || 'Field',
+      rules: config.rules || [],
+      timing: config.timing || VALIDATION_TIMING.BLUR,
+      debounceMs: config.debounceMs || 300,
+      showSuccess: config.showSuccess ?? this.options.showSuccessState,
+      helpText: config.helpText || null,
+      constraints: config.constraints || null,
+      onValidationChange: config.onValidationChange || null
+    };
   }
 
   /**
