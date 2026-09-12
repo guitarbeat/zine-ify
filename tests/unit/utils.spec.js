@@ -339,6 +339,27 @@ test.describe('Utils', () => {
       zeroLimitResults.push(item);
     });
     expect(zeroLimitResults).toEqual([1, 2]);
+
+    // 12. Ensures Promise.all rejection enters catch block and awaits Promise.allSettled on activePromises
+    let settledPromisesCount = 0;
+    const originalAllSettled = Promise.allSettled;
+    Promise.allSettled = async function(promises) {
+      settledPromisesCount = Array.from(promises).length;
+      return originalAllSettled.call(this, promises);
+    };
+
+    try {
+      const allRejectionTask = runWithConcurrencyLimit([10, 20, 30], 5, async (item) => {
+        if (item === 10) {
+          throw new Error('Late Promise.all rejection');
+        }
+        await new Promise((resolve) => setTimeout(resolve, 30));
+      });
+      await expect(allRejectionTask).rejects.toThrow('Late Promise.all rejection');
+      expect(settledPromisesCount).toBeGreaterThan(0);
+    } finally {
+      Promise.allSettled = originalAllSettled;
+    }
   });
 
 });
