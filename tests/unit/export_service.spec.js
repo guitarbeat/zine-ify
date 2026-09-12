@@ -276,6 +276,7 @@ test.describe('ExportService', () => {
       let focusCalled = false;
 
       const dummyDoc = new JSDOM('<!DOCTYPE html><html><body></body></html>').window.document;
+      let _onloadHandler = null;
       const mockWin = {
         document: {
           open: () => {},
@@ -286,6 +287,14 @@ test.describe('ExportService', () => {
             return dummyDoc.replaceChild(newChild, oldChild);
           },
           documentElement: dummyDoc.documentElement,
+          readyState: 'loading',
+        },
+        set onload(fn) {
+          _onloadHandler = fn;
+          setTimeout(() => { if (_onloadHandler) { _onloadHandler(); } }, 10);
+        },
+        get onload() {
+          return _onloadHandler;
         },
         focus: () => { focusCalled = true; },
         print: () => { printCalled = true; },

@@ -262,7 +262,17 @@ export class ExportService {
       win.document.replaceChild(win.document.importNode(docNode.documentElement, true), win.document.documentElement);
       win.document.close();
       win.focus();
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => {
+        if (win.document?.readyState === 'complete') {
+          resolve();
+          return;
+        }
+        const timer = setTimeout(resolve, 500);
+        win.onload = () => {
+          clearTimeout(timer);
+          resolve();
+        };
+      });
       win.print();
       return;
     }
