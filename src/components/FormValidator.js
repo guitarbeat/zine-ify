@@ -145,7 +145,7 @@ export class FormValidator {
   /**
    * Validate a single field
    */
-  _validateField(fieldId) {
+  _validateField(fieldId, passedFormData = null) {
     const config = this.fieldConfigs.get(fieldId);
     if (!config) {return { isValid: true, errors: [] };}
 
@@ -153,7 +153,7 @@ export class FormValidator {
     const value = this._getFieldValue(field);
 
     // Get form context for cross-field validation
-    const formData = this._getFormData();
+    const formData = passedFormData || this._getFormData();
 
     // Run validation
     const result = validateValue(value, rules, {
@@ -452,9 +452,11 @@ export class FormValidator {
     let hasErrors = false;
     let firstErrorField = null;
 
+    const formData = this._getFormData();
+
     for (const [fieldId] of this.fieldConfigs) {
       this.stateManager.setState(fieldId, FIELD_STATE.TOUCHED);
-      const result = this._validateField(fieldId);
+      const result = this._validateField(fieldId, formData);
       if (!result.isValid && !firstErrorField) {
         firstErrorField = this.fieldConfigs.get(fieldId)?.field;
         hasErrors = true;
@@ -491,10 +493,11 @@ export class FormValidator {
   validate() {
     let isValid = true;
     const allErrors = {};
+    const formData = this._getFormData();
 
     for (const [fieldId] of this.fieldConfigs) {
       this.stateManager.setState(fieldId, FIELD_STATE.TOUCHED);
-      const result = this._validateField(fieldId);
+      const result = this._validateField(fieldId, formData);
       if (!result.isValid) {
         isValid = false;
         allErrors[fieldId] = result.errors;
