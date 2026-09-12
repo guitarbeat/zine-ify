@@ -305,6 +305,45 @@ test.describe('PDFProcessor', () => {
     await expect(processor.loadPDF(overSizedFile)).rejects.toThrow(/File too large/);
     expect(createObjectUrlCalled).toBe(false);
   });
+
+  test('loadPDF logs console.warn when destroying loadingTask fails during timeout', async () => {
+    let warnArgs = null;
+    const origWarn = console.warn;
+    /* eslint-disable-next-line no-console */
+    console.warn = (...args) => { warnArgs = args; };
+
+    processor.ensurePdfJs = async () => ({
+      getDocument: () => ({
+        promise: new Promise(() => {}), // Never resolves to force timeout
+        destroy: async () => { throw new Error('Destroy failed'); }
+      })
+    });
+    processor.validateFile = () => ({ valid: true, errors: [] });
+    processor.validateFileSignature = async () => true;
+
+    if (typeof global !== 'undefined') {
+      if (!global.URL) { global.URL = {}; }
+      global.URL.createObjectURL = () => 'blob:test';
+      global.URL.revokeObjectURL = () => {};
+    }
+
+    const file = new File(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' });
+
+    // Accelerate timers or override setTimeout to trigger fast timeout in test
+    const origSetTimeout = global.setTimeout;
+    global.setTimeout = (fn, _delay) => origSetTimeout(fn, 10);
+
+    try {
+      await expect(processor.loadPDF(file)).rejects.toThrow('PDF loading timed out');
+      expect(warnArgs).not.toBeNull();
+      expect(warnArgs[0]).toBe('Failed to destroy PDF loading task on timeout:');
+      expect(warnArgs[1].message).toBe('Destroy failed');
+    } finally {
+      global.setTimeout = origSetTimeout;
+      /* eslint-disable-next-line no-console */
+      console.warn = origWarn;
+    }
+  });
 });
 
 test.describe('PDFProcessor Media handling', () => {
