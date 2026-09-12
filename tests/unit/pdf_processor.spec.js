@@ -205,6 +205,40 @@ test.describe('PDFProcessor', () => {
 
 
 
+  test('loadPDF handles timeout and catches error when loadingTask.destroy fails', async () => {
+    let destroyCalled = false;
+    const originalSetTimeout = global.setTimeout;
+
+    global.setTimeout = (fn) => {
+      return originalSetTimeout(fn, 0);
+    };
+
+    processor.ensurePdfJs = async () => ({
+      getDocument: () => ({
+        promise: new Promise(() => {}),
+        destroy: async () => {
+          destroyCalled = true;
+          throw new Error('Destroy failed');
+        }
+      })
+    });
+    processor.validateFile = () => ({ valid: true, errors: [] });
+    processor.validateFileSignature = async () => true;
+
+    if (typeof global !== 'undefined') {
+      global.URL.createObjectURL = () => 'blob:test';
+      global.URL.revokeObjectURL = () => {};
+    }
+
+    try {
+      const file = new File(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' });
+      await expect(processor.loadPDF(file)).rejects.toThrow('PDF loading timed out');
+      expect(destroyCalled).toBe(true);
+    } finally {
+      global.setTimeout = originalSetTimeout;
+    }
+  });
+
   test('loadPDF handles PDF processing error and cleans up', async () => {
     // Mock getDocument to throw/reject
     processor.ensurePdfJs = async () => ({
