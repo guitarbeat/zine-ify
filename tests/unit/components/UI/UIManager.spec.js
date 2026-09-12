@@ -1,13 +1,16 @@
 import { test, expect } from '@playwright/test';
 import { createRequire } from 'module';
+import DOMPurify from 'dompurify';
+
 const require = createRequire(import.meta.url);
 const { JSDOM } = require('jsdom');
 
 test.describe('UIManager', () => {
   let UIManager;
   let dom;
+  let originalPurifySanitize;
 
-test.beforeAll(async () => {
+  test.beforeAll(async () => {
     dom = new JSDOM('<!DOCTYPE html><div id="smart-sheet-config-container"></div><div id="toast-container"></div><div id="zine-sheets-container"></div><input id="paper-size-select" /><div id="orientation-toggle"></div><input id="grid-rows" /><input id="grid-cols" /><div id="uploaded-files-list"></div><div id="upload-status"></div><div id="unified-drop-zone"></div><div id="upload-zone"></div>');
     global.window = dom.window;
     global.document = dom.window.document;
@@ -17,37 +20,42 @@ test.beforeAll(async () => {
       setItem: () => {},
     };
 
+    originalPurifySanitize = DOMPurify.sanitize;
+    const purify = DOMPurify(global.window);
+    DOMPurify.sanitize = purify.sanitize;
+
     const module = await import('../../../../src/components/UI/UIManager.js');
     UIManager = module.UIManager;
   });
 
-test.afterAll(() => {
+  test.afterAll(() => {
     delete global.window;
     delete global.document;
     delete global.localStorage;
+    DOMPurify.sanitize = originalPurifySanitize;
   });
 
-test('initializes and binds events correctly', () => {
+  test('initializes and binds events correctly', () => {
     const ui = new UIManager();
     expect(ui.elements).toBeDefined();
     expect(ui.emitter).toBeDefined();
   });
 
-test('cacheElements finds all elements', () => {
+  test('cacheElements finds all elements', () => {
     const ui = new UIManager();
     ui.cacheElements();
     expect(ui.elements.zineSheetsContainer).not.toBeNull();
     expect(ui.elements.paperSizeSelect).not.toBeNull();
   });
 
-test('updateUploadedFilesList handles empty array', () => {
+  test('updateUploadedFilesList handles empty array', () => {
     const ui = new UIManager();
     ui.elements.uploadedFilesList = document.createElement('div');
     ui.updateUploadedFilesList([]);
     expect(ui.elements.uploadedFilesList.classList.contains('hidden')).toBe(true);
   });
 
-test('setStatus updates message and tone', () => {
+  test('setStatus updates message and tone', () => {
     const ui = new UIManager();
     ui.elements.uploadStatus = document.createElement('div');
     ui.setStatus('Test Message', 'success');
@@ -55,7 +63,7 @@ test('setStatus updates message and tone', () => {
     expect(ui.elements.uploadStatus.dataset.tone).toBe('success');
   });
 
-test('updateUploadedFilesList renders files correctly', () => {
+  test('updateUploadedFilesList renders files correctly', () => {
     const ui = new UIManager();
     ui.elements.uploadedFilesList = document.createElement('div');
     const files = [
@@ -72,7 +80,7 @@ test('updateUploadedFilesList renders files correctly', () => {
     expect(items[1].querySelector('.uploaded-file-name').textContent).toBe('test2.jpg');
   });
 
-test('getPaperDimensions returns correct dimensions based on orientation', () => {
+  test('getPaperDimensions returns correct dimensions based on orientation', () => {
     const ui = new UIManager();
 
     const portrait = ui.getPaperDimensions('letter', 'portrait');
@@ -84,7 +92,7 @@ test('getPaperDimensions returns correct dimensions based on orientation', () =>
     expect(landscape.height).toBe(215.9);
   });
 
-test('normalizeGridInputs falls back to defaults if parsing fails', () => {
+  test('normalizeGridInputs falls back to defaults if parsing fails', () => {
     const ui = new UIManager();
     ui.smartSheetConfig = null; // force logic fallback
 
@@ -99,7 +107,7 @@ test('normalizeGridInputs falls back to defaults if parsing fails', () => {
     expect(dims.cols).toBe(4); // DEFAULT_GRID_COLS
   });
 
-test('toggleTheme updates document and localStorage', () => {
+  test('toggleTheme updates document and localStorage', () => {
     const ui = new UIManager();
     ui.elements.themeIcon = document.createElement('span');
 
@@ -153,7 +161,7 @@ test('toggleTheme updates document and localStorage', () => {
     expect(cell.classList.contains('has-page')).toBe(false);
   });
 
-test('syncFoldStepUi updates active classes', () => {
+  test('syncFoldStepUi updates active classes', () => {
     const ui = new UIManager();
 
     const btn0 = document.createElement('button');
@@ -175,7 +183,7 @@ test('syncFoldStepUi updates active classes', () => {
     expect(ui.elements.foldStatus.textContent).toBe('Folded Strip');
   });
 
-test('updateWorkspaceState enables/disables buttons', () => {
+  test('updateWorkspaceState enables/disables buttons', () => {
     const ui = new UIManager();
 
     ui.elements.clearAllBtn = document.createElement('button');
@@ -194,6 +202,7 @@ test('updateWorkspaceState enables/disables buttons', () => {
     expect(ui.elements.exportPdfBtn.disabled).toBe(true);
     expect(ui.elements.view3dBtn.disabled).toBe(true);
   });
+
   test('updateUploadedFilesList creates remove button icon using DOM methods', () => {
     const ui = new UIManager();
     ui.elements.uploadedFilesList = document.createElement('div');
@@ -208,28 +217,29 @@ test('updateWorkspaceState enables/disables buttons', () => {
     expect(iconSpan.getAttribute('aria-hidden')).toBe('true');
     expect(iconSpan.style.fontSize).toBe('14px');
   });
-  test("orientation toggle updates buttons and emits orientationChanged", () => {
-    const toggle = document.getElementById("orientation-toggle");
+
+  test('orientation toggle updates buttons and emits orientationChanged', () => {
+    const toggle = document.getElementById('orientation-toggle');
     toggle.innerHTML = '<button class="orientation-seg-btn" data-value="portrait">Portrait</button><button class="orientation-seg-btn" data-value="landscape">Landscape</button>';
-    const [btn1, btn2] = toggle.querySelectorAll(".orientation-seg-btn");
+    const [btn1, btn2] = toggle.querySelectorAll('.orientation-seg-btn');
 
     const ui = new UIManager();
     ui.smartSheetConfig = null;
     ui.elements.orientationToggle = toggle;
 
     let emitted = null;
-    ui.emitter.on("orientationChanged", (e) => { emitted = e; });
+    ui.emitter.on('orientationChanged', (e) => { emitted = e; });
 
     ui.setupEventListeners();
 
     btn2.click();
 
-    expect(btn1.classList.contains("is-active")).toBe(false);
-    expect(btn1.getAttribute("aria-pressed")).toBe("false");
-    expect(btn2.classList.contains("is-active")).toBe(true);
-    expect(btn2.getAttribute("aria-pressed")).toBe("true");
-    expect(emitted).toEqual({ orientation: "landscape" });
+    expect(btn1.classList.contains('is-active')).toBe(false);
+    expect(btn1.getAttribute('aria-pressed')).toBe('false');
+    expect(btn2.classList.contains('is-active')).toBe(true);
+    expect(btn2.getAttribute('aria-pressed')).toBe('true');
+    expect(emitted).toEqual({ orientation: 'landscape' });
 
-    toggle.innerHTML = "";
+    toggle.innerHTML = '';
   });
 });
