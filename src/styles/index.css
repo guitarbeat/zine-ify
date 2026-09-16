@@ -61,6 +61,52 @@ body {
 
 .app-shell {
   position: relative;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 2rem;
+}
+
+/* Desktop workspace: tools live in a calm left rail, canvas gets the room. */
+@media (min-width: 1024px) {
+  .grid-stack {
+    padding-top: 0.25rem;
+  }
+
+  .grid-stack-item[gs-id="brand"],
+  .grid-stack-item[gs-id="upload"],
+  .grid-stack-item[gs-id="settings"] {
+    padding-right: 0.55rem;
+  }
+
+  .grid-stack-item[gs-id="canvas"],
+  .grid-stack-item[gs-id="fold-viewer"] {
+    padding-left: 0.55rem;
+  }
+
+  .grid-stack-item[gs-id="upload"] .snap-card,
+  .grid-stack-item[gs-id="settings"] .snap-card {
+    border-left: 3px solid var(--primary-vibrant);
+  }
+
+  .grid-stack-item[gs-id="canvas"] .snap-card {
+    min-height: 100%;
+  }
+
+  .grid-stack-item[gs-id="settings"] .smart-sheet-preset-list {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-stack-item[gs-id="settings"] .smart-sheet-config,
+  .grid-stack-item[gs-id="settings"] .snap-card-body {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    padding: 0.75rem;
+  }
 }
 
 .app-shell::before {
