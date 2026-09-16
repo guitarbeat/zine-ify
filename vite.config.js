@@ -29,9 +29,10 @@ export default defineConfig({
     }
   },
   server: {
-    // Keep the standard project port, but let Vite choose the next available
-    // port when another preview/dev process is already using it.
-    port: Number(process.env.PORT || process.env.DEV_PORT || 5000),
+    // Ask the OS for an available port. This avoids startup failures when a
+    // previous preview process is still holding the usual development port.
+    // Vite prints the selected port and the preview proxy discovers it.
+    port: 0,
     host: '0.0.0.0',
     allowedHosts: true,
     strictPort: false,
