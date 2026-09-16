@@ -8,12 +8,14 @@
 export class UndoManager {
   constructor(maxHistory = 20) {
     this._stack = [];
+    this._redoStack = [];
     this._max = maxHistory;
   }
 
   /** Push a snapshot onto the stack. Prunes the oldest entry if full. */
   push({ description, allPageImages, pageFlips, pageZooms, onPrune = null }) {
     this._stack.push({ description, allPageImages, pageFlips, pageZooms, onPrune });
+    this._redoStack.splice(0).forEach((entry) => entry.onPrune?.());
     if (this._stack.length > this._max) {
       const pruned = this._stack.shift();
       pruned.onPrune?.();
@@ -25,13 +27,29 @@ export class UndoManager {
     return this._stack.pop() ?? null;
   }
 
+  /** Move the latest undo entry to redo and return it. */
+  undo(currentSnapshot = null) {
+    const entry = this._stack.pop() ?? null;
+    if (!entry) {return null;}
+    if (currentSnapshot) {this._redoStack.push(currentSnapshot);}
+    return entry;
+  }
+
+  /** Restore the latest redo entry and move the current state to undo. */
+  redo(currentSnapshot = null) {
+    const entry = this._redoStack.pop() ?? null;
+    if (!entry) {return null;}
+    if (currentSnapshot) {this._stack.push(currentSnapshot);}
+    return entry;
+  }
+
   /** Clear the entire stack, calling onPrune for each entry. */
   clear() {
-    while (this._stack.length) {
-      this._stack.pop()?.onPrune?.();
-    }
+    while (this._stack.length) {this._stack.pop()?.onPrune?.();}
+    while (this._redoStack.length) {this._redoStack.pop()?.onPrune?.();}
   }
 
   get size() { return this._stack.length; }
+  get redoSize() { return this._redoStack.length; }
   get isEmpty() { return this._stack.length === 0; }
 }

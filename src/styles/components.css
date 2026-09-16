@@ -1047,9 +1047,68 @@ select.is-valid:focus {
 
 /* Presets */
 .smart-sheet-presets {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.smart-sheet-presets .smart-sheet-header {
+  grid-column: 1 / -1;
+}
+
+.smart-sheet-hint {
+  font-size: 0.62rem;
+  color: var(--muted-ink);
+}
+
+.smart-sheet-preset {
+  min-width: 0;
+  text-align: left;
+}
+
+.smart-sheet-preset span,
+.smart-sheet-preset small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.smart-sheet-preset small {
+  color: var(--muted-ink);
+  font-size: 0.6rem;
+}
+
+.smart-sheet-custom-grid {
+  padding: 0.45rem 0;
+}
+
+.smart-sheet-custom-grid summary {
+  cursor: pointer;
+}
+
+.smart-sheet-grid-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
+  margin-top: 0.45rem;
+}
+
+.smart-sheet-grid-fields label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  color: var(--muted-ink);
+}
+
+.smart-sheet-grid-fields input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.4rem;
+  background: var(--surface-bg);
+  color: var(--accent-dark);
 }
 
 .smart-sheet-preset {

@@ -43,6 +43,7 @@ export class AppController {
   setupEventListeners() {
     this.ui.on('fileSelected', (file) => this.handleFileSelected(file));
     this.ui.on('gridSizeChanged', (data) => this.handleGridSizeChanged(data));
+    this.ui.on('layoutPresetChanged', (data) => this.handleLayoutPresetChanged(data));
     this.ui.on('pageNumbersToggled', () => this.renderCurrentLayout());
     this.ui.on('pageFlipped', (i) => this.handlePageFlipped(i));
     this.ui.on('pageCropToggled', (i) => this.handlePageCropToggled(i));
@@ -62,6 +63,10 @@ export class AppController {
         e.preventDefault();
         this.handleUndo();
       }
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        this.handleRedo();
+      }
     });
   }
 
@@ -72,6 +77,9 @@ export class AppController {
       allPageImages: [...this.state.allPageImages],
       pageFlips: { ...this.state.pageFlips },
       pageZooms: { ...this.state.pageZooms },
+      pageTransforms: structuredClone(this.state.pageTransforms),
+      layoutPresetId: this.state.layoutPresetId,
+      gridSize: { ...this.state.gridSize },
       onPrune
     });
   }
@@ -86,10 +94,45 @@ export class AppController {
     this.state.allPageImages = snapshot.allPageImages;
     this.state.pageFlips = snapshot.pageFlips;
     this.state.pageZooms = snapshot.pageZooms;
+    this.state.pageTransforms = structuredClone(snapshot.pageTransforms || {});
+    this.state.layoutPresetId = snapshot.layoutPresetId || this.state.layoutPresetId;
+    this.state.gridSize = { ...this.state.gridSize, ...(snapshot.gridSize || {}) };
     this.state.totalPages = this.state.getFilledPageCount();
     this.state.resetWorkflowStatus();
     this.renderCurrentLayout();
     toast.info('Undone', snapshot.description);
+  }
+
+  handleRedo() {
+    const current = {
+      description: 'Undo redo',
+      allPageImages: [...this.state.allPageImages],
+      pageFlips: { ...this.state.pageFlips },
+      pageZooms: { ...this.state.pageZooms },
+      pageTransforms: structuredClone(this.state.pageTransforms),
+      layoutPresetId: this.state.layoutPresetId,
+      gridSize: { ...this.state.gridSize }
+    };
+    const snapshot = this.undoManager.redo(current);
+    if (!snapshot) {
+      toast.info('Nothing to Redo', 'No undone actions are available.');
+      return;
+    }
+    this.state.allPageImages = snapshot.allPageImages;
+    this.state.pageFlips = snapshot.pageFlips;
+    this.state.pageZooms = snapshot.pageZooms;
+    this.state.pageTransforms = structuredClone(snapshot.pageTransforms || {});
+    this.state.layoutPresetId = snapshot.layoutPresetId || this.state.layoutPresetId;
+    this.state.gridSize = { ...this.state.gridSize, ...(snapshot.gridSize || {}) };
+    this.state.totalPages = this.state.getFilledPageCount();
+    this.renderCurrentLayout();
+    toast.info('Redone', snapshot.description);
+  }
+
+  handleLayoutPresetChanged({ layoutPresetId, rows, cols }) {
+    this.state.setLayoutPreset(layoutPresetId, { rows, cols });
+    this.state.resetWorkflowStatus();
+    this.renderCurrentLayout();
   }
 
   handleFileSelected(file) {

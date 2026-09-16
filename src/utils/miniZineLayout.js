@@ -1,7 +1,9 @@
 import { normalizePreviewPage } from './previewHelpers.js';
+import { getLayoutPreset } from './layoutPresets.js';
 
-export const MINI_ZINE_LAYOUT = [5, 4, 3, 2, 6, 7, 8, 1];
-export const MINI_ZINE_UPSIDE_DOWN_PAGES = [2, 3, 4, 5];
+const MINI_ZINE_PRESET = getLayoutPreset('mini-8');
+export const MINI_ZINE_LAYOUT = MINI_ZINE_PRESET.readingToPrintOrder;
+export const MINI_ZINE_UPSIDE_DOWN_PAGES = MINI_ZINE_LAYOUT.filter((pageNumber, index) => MINI_ZINE_PRESET.rotations[index] === 180);
 
 export const MINI_ZINE_BOOKLET_SLOT_STATES = [
   { label: 'Cover', leftSlot: null, rightSlot: 7 },

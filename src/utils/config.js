@@ -1,4 +1,7 @@
 import { MINI_ZINE_LAYOUT, MINI_ZINE_UPSIDE_DOWN_PAGES } from './miniZineLayout.js';
+import { LAYOUT_PRESETS } from './layoutPresets.js';
+
+export { LAYOUT_PRESETS };
 
 export const GRID_DIMENSION_MIN = 1;
 export const GRID_DIMENSION_MAX = 10;
