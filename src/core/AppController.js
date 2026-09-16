@@ -47,6 +47,7 @@ export class AppController {
     this.ui.on('pageNumbersToggled', () => this.renderCurrentLayout());
     this.ui.on('pageFlipped', (i) => this.handlePageFlipped(i));
     this.ui.on('pageCropToggled', (i) => this.handlePageCropToggled(i));
+    this.ui.on('pageDuplicated', (i) => this.handlePageDuplicated(i));
     this.ui.on('pageRemoved', (i) => this.handlePageRemoved(i));
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
     this.ui.on('print', () => this.handlePrint());
@@ -546,6 +547,26 @@ export class AppController {
     this.state.resetWorkflowStatus();
     this.ui.setPageZoom(index, this.state.pageZooms[index]);
     this.updateWorkspaceUi();
+  }
+
+  handlePageDuplicated(index) {
+    const sourceUrl = this.state.allPageImages[index];
+    if (!sourceUrl) {
+      return;
+    }
+    const targetIndex = this.state.allPageImages.findIndex((url, candidate) => !url && candidate !== index);
+    if (targetIndex < 0) {
+      toast.info('Sheet is full', 'Remove an empty slot before duplicating this page.');
+      return;
+    }
+    this._pushSnapshot(`Page ${index + 1} duplicated`);
+    this.state.allPageImages[targetIndex] = sourceUrl;
+    this.state.pageFlips[targetIndex] = !!this.state.pageFlips[index];
+    this.state.pageZooms[targetIndex] = !!this.state.pageZooms[index];
+    this.state.pageTransforms[targetIndex] = structuredClone(this.state.pageTransforms[index] || {});
+    this.state.totalPages = this.state.getFilledPageCount();
+    this.state.resetWorkflowStatus();
+    this.renderCurrentLayout();
   }
 
   handlePageRemoved(index) {

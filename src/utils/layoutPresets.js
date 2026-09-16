@@ -56,6 +56,23 @@ export function mapReadingPageToPrint(pageNumber, preset) {
   return { readingPage: Number(pageNumber), sheetIndex: 0, slotIndex, rotation: normalized.rotations[slotIndex] || 0 };
 }
 
+export function buildPrintCheck({ preset = 'mini-8', paperSize = 'letter', orientation = 'landscape', pageCount = 0, printSettings = {}, margin = 0 } = {}) {
+  const normalized = normalizeLayoutPreset(preset);
+  const sheets = Math.max(1, Math.ceil(Math.max(pageCount, normalized.pageCount || normalized.capacity) / normalized.capacity));
+  return {
+    preset: normalized.name,
+    paperSize,
+    orientation,
+    finishedPages: normalized.pageCount || pageCount,
+    sheetCount: sheets,
+    duplex: printSettings.duplex !== false,
+    scale: printSettings.scale || 'fit',
+    margins: margin,
+    foldedDimensions: normalized.sheetGrid.cols > 1 ? `${normalized.sheetGrid.cols} panels wide` : 'single panel',
+    guideCount: (normalized.foldLines?.length || 0) + (normalized.cutLines?.length || 0)
+  };
+}
+
 export function getPresetOptions() {
   return Object.values(LAYOUT_PRESETS).filter((preset) => preset.id !== 'custom');
 }

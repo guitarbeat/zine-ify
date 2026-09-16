@@ -648,6 +648,7 @@ export class UIManager {
       },
       onFlip: (index) => this.emitter.emit('pageFlipped', index),
       onCrop: (index) => this.emitter.emit('pageCropToggled', index),
+      onDuplicate: (index) => this.emitter.emit('pageDuplicated', index),
       onRemove: (index) => this.emitter.emit('pageRemoved', index)
     };
 
