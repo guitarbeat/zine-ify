@@ -61,6 +61,126 @@ body {
 
 .app-shell {
   position: relative;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 2rem;
+}
+
+/* Desktop workspace: tools live in a calm left rail, canvas gets the room. */
+@media (min-width: 1024px) {
+  .grid-stack {
+    padding-top: 0.25rem;
+  }
+
+  .grid-stack-item[gs-id="brand"],
+  .grid-stack-item[gs-id="upload"],
+  .grid-stack-item[gs-id="settings"] {
+    padding-right: 0.55rem;
+  }
+
+  .grid-stack-item[gs-id="canvas"],
+  .grid-stack-item[gs-id="fold-viewer"] {
+    padding-left: 0.55rem;
+  }
+
+  .grid-stack-item[gs-id="upload"] .snap-card,
+  .grid-stack-item[gs-id="settings"] .snap-card {
+    border-left: 3px solid var(--primary-vibrant);
+  }
+
+  .grid-stack-item[gs-id="canvas"] .snap-card {
+    min-height: 100%;
+  }
+
+  .grid-stack-item[gs-id="settings"] .smart-sheet-preset-list {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-stack-item[gs-id="settings"] .smart-sheet-config,
+  .grid-stack-item[gs-id="settings"] .snap-card-body {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    padding: 0.75rem;
+  }
+}
+
+/* Workspace hierarchy pass: a quiet tool rail beside a generous canvas. */
+@media (min-width: 1024px) {
+  .gs-wrapper {
+    padding: 1rem 0.5rem 2rem;
+  }
+
+  .grid-stack-item[gs-id="brand"] .grid-stack-item-content,
+  .grid-stack-item[gs-id="upload"] .grid-stack-item-content,
+  .grid-stack-item[gs-id="settings"] .grid-stack-item-content {
+    padding-right: 0.35rem;
+  }
+
+  .grid-stack-item[gs-id="canvas"] .grid-stack-item-content,
+  .grid-stack-item[gs-id="fold-viewer"] .grid-stack-item-content {
+    padding-left: 0.35rem;
+  }
+
+  .brand-panel {
+    min-height: 4.75rem;
+    padding: 0.55rem 0.75rem;
+    background: var(--surface-bg);
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--primary-vibrant);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .brand-panel .logo-image {
+    max-width: 8.5rem;
+    height: 2.8rem;
+  }
+
+  .brand-export-btn {
+    min-height: 2.25rem;
+    padding-inline: 0.7rem;
+    font-size: 0.72rem;
+  }
+
+  .snap-card--canvas {
+    min-height: 46rem;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .grid-stack-item[gs-id="upload"] .snap-card,
+  .grid-stack-item[gs-id="settings"] .snap-card {
+    border: 1px solid var(--border-color);
+    border-left: 3px solid var(--primary-vibrant);
+    border-radius: 0.85rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .grid-stack-item[gs-id="upload"] .snap-card-handle,
+  .grid-stack-item[gs-id="settings"] .snap-card-handle {
+    min-height: 2.7rem;
+    padding-inline: 0.8rem;
+  }
+
+  .grid-stack-item[gs-id="upload"] .snap-card-body,
+  .grid-stack-item[gs-id="settings"] .snap-card-body {
+    padding: 0.8rem;
+  }
+
+  .grid-stack-item[gs-id="settings"] .panel-scroll-body {
+    max-height: 50rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid-stack-item[gs-id="canvas"] .snap-card--canvas {
+    min-height: 52rem;
+  }
 }
 
 .app-shell::before {
@@ -174,7 +294,24 @@ body {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: var(--primary-vibrant) var(--surface-muted);
+  scrollbar-color: color-mix(in srgb, var(--muted-ink) 45%, transparent) transparent;
+}
+
+.panel-scroll-body::-webkit-scrollbar {
+  width: 7px;
+}
+
+.panel-scroll-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.panel-scroll-body::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted-ink) 45%, transparent);
+  border-radius: 999px;
+}
+
+.panel-scroll-body::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-vibrant);
 }
 
 .snap-card--canvas {

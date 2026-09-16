@@ -16,6 +16,10 @@ const RAW_PAGE_CELL_TEMPLATE = `
       <span class="material-symbols-outlined page-tool-icon" aria-hidden="true">rotate_right</span>
       <span class="page-tool-label">Rotate</span>
     </button>
+    <button class="duplicate-btn page-tool-btn" aria-label="Duplicate this page" title="Duplicate this page">
+      <span class="material-symbols-outlined page-tool-icon" aria-hidden="true">content_copy</span>
+      <span class="page-tool-label">Copy</span>
+    </button>
   </div>
   <div class="page-placeholder flex flex-col items-center justify-center gap-2 absolute inset-0">
      <span class="material-symbols-outlined text-3xl">upload_file</span>

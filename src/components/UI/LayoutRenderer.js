@@ -10,6 +10,11 @@ const TOOLBAR_BUTTONS = [
     selector: '.flip-btn',
     title: (label) => `Rotate ${label} 180° — flip the page upside-down`,
     ariaLabel: (label) => `Rotate ${label} 180 degrees (R)`
+  },
+  {
+    selector: '.duplicate-btn',
+    title: (label) => `Duplicate ${label}`,
+    ariaLabel: (label) => `Duplicate ${label}`
   }
 ];
 
@@ -256,6 +261,9 @@ export class LayoutRenderer {
 
     const cropBtn = toolbar.querySelector('.crop-btn');
     if (cropBtn) {cropBtn.onclick = (e) => { e.stopPropagation(); handlers.onCrop(pageIndex); };}
+
+    const duplicateBtn = toolbar.querySelector('.duplicate-btn');
+    if (duplicateBtn) {duplicateBtn.onclick = (e) => { e.stopPropagation(); handlers.onDuplicate?.(pageIndex); };}
 
     return cell;
   }

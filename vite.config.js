@@ -29,10 +29,13 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5000,
+    // Ask the OS for an available port. This avoids startup failures when a
+    // previous preview process is still holding the usual development port.
+    // Vite prints the selected port and the preview proxy discovers it.
+    port: 0,
     host: '0.0.0.0',
     allowedHosts: true,
-    strictPort: true,
+    strictPort: false,
     watch: {
       ignored: ['**/.local/**', '**/node_modules/**']
     }
