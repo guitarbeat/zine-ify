@@ -147,7 +147,7 @@ body {
   }
 
   .snap-card--canvas {
-    min-height: 46rem;
+    min-height: 34rem;
     border: 1px solid var(--border-color);
     border-radius: 1rem;
     box-shadow: var(--shadow-lg);
@@ -179,7 +179,7 @@ body {
 
 @media (min-width: 1280px) {
   .grid-stack-item[gs-id="canvas"] .snap-card--canvas {
-    min-height: 52rem;
+    min-height: 40rem;
   }
 }
 
