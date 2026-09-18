@@ -259,15 +259,9 @@ body::-webkit-scrollbar {
   background: linear-gradient(180deg, #0f0f0f 0%, #000000 100%);
 }
 
-.snap-card-grip {
-  font-size: 13px;
-  color: rgba(255,255,255,0.4);
-  flex-shrink: 0;
-  transition: color 0.2s;
-}
-
-.snap-card:hover .snap-card-grip {
-  color: var(--primary-vibrant);
+.snap-card-grip,
+.brand-panel-drag-handle {
+  display: none;
 }
 
 .snap-card-label {
