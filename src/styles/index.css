@@ -92,8 +92,9 @@ body {
     min-height: 100%;
   }
 
-  .grid-stack-item[gs-id="settings"] .smart-sheet-preset-list {
-    grid-template-columns: 1fr;
+  .grid-stack-item[gs-id="settings"] .smart-sheet-preset-list,
+  .grid-stack-item[gs-id="settings"] .smart-sheet-presets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .grid-stack-item[gs-id="settings"] .smart-sheet-config,
@@ -206,6 +207,44 @@ body {
 
   .grid-stack-item[gs-id="settings"] .panel-scroll-body {
     max-height: 50rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+  }
+
+  .grid-stack-item[gs-id="settings"] .snap-card-body {
+    padding: 0.95rem;
+  }
+
+  .grid-stack-item[gs-id="settings"] .smart-sheet-header {
+    margin-bottom: 0.25rem;
+    white-space: normal;
+  }
+
+  .grid-stack-item[gs-id="settings"] .smart-sheet-hint {
+    line-height: 1.35;
+  }
+
+  .grid-stack-item[gs-id="settings"] .smart-sheet-preset {
+    min-height: 5.5rem;
+    padding: 0.7rem;
+    align-items: flex-start;
+  }
+
+  .grid-stack-item[gs-id="settings"] .smart-sheet-preset span,
+  .grid-stack-item[gs-id="settings"] .smart-sheet-preset small {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.2;
+  }
+
+  .grid-stack-item[gs-id="settings"] .smart-sheet-preset span {
+    font-size: 0.8rem;
+  }
+
+  .grid-stack-item[gs-id="settings"] .smart-sheet-preset small {
+    font-size: 0.68rem;
   }
 }
 
