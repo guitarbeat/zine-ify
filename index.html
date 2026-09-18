@@ -77,8 +77,8 @@
 
                 <!-- ── PANEL: Canvas preview ──────────────────────────── -->
                 <div class="grid-stack-item attachable-panel-item"
-                    gs-id="canvas" gs-x="3" gs-y="0" gs-w="9" gs-h="13"
-                    gs-min-w="4" gs-min-h="3" gs-size-to-content="true">
+                    gs-id="canvas" gs-x="4" gs-y="0" gs-w="8" gs-h="9"
+                    gs-min-w="5" gs-min-h="3" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
                         <div class="snap-card snap-card--canvas" id="card-zine">
                             <div class="snap-card-handle" title="Drag to move">
@@ -116,12 +116,19 @@
                                 <span class="snap-card-label">Add pages</span>
                             </div>
                             <div class="snap-card-body panel-scroll-body">
-                                <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer"
-                                    role="button" tabindex="0"
-                                    aria-label="Add pages — click to browse, or drop PDF and image files here">
-                                    <span class="material-symbols-outlined upload-icon" aria-hidden="true">upload_file</span>
-                                    <span class="text-sm font-semibold">Drop files or click to browse</span>
-                                    <span class="text-xs muted-copy">PDF, PNG, JPG, or WEBP • Max 50 MB each</span>
+                                <div class="upload-flow">
+                                    <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer"
+                                        role="button" tabindex="0"
+                                        aria-label="Drop PDF or image files here">
+                                        <i data-lucide="upload" class="upload-icon" aria-hidden="true"></i>
+                                        <span class="upload-title">Drop files here</span>
+                                        <span class="upload-copy">PDF, PNG, JPG, or WEBP</span>
+                                        <span class="upload-limit">Max 50 MB each</span>
+                                    </div>
+                                    <button id="browse-files-btn" type="button" class="browse-files-btn">
+                                        <i data-lucide="folder-open" aria-hidden="true"></i>
+                                        Choose files
+                                    </button>
                                 </div>
                                 <input type="file" id="pdf-upload" class="sr-only"
                                     accept="application/pdf,image/png,image/jpeg,image/webp"
@@ -135,8 +142,8 @@
 
                 <!-- ── PANEL: Layout and paper ───────────────────────── -->
                 <div class="grid-stack-item attachable-panel-item settings-panel-item"
-                    gs-id="settings" gs-x="0" gs-y="7" gs-w="3" gs-h="9"
-                    gs-min-w="2" gs-min-h="7" gs-size-to-content="true">
+                    gs-id="settings" gs-x="0" gs-y="7" gs-w="4" gs-h="9"
+                    gs-min-w="3" gs-min-h="7" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
                         <div class="snap-card" id="card-settings">
                             <div class="snap-card-handle" title="Drag to move">
@@ -186,7 +193,7 @@
 
                 <!-- ── PANEL: 3D Fold Viewer ────────────────────────────── -->
                 <div class="grid-stack-item"
-                    gs-id="fold-viewer" gs-x="3" gs-y="13" gs-w="9" gs-h="6"
+                    gs-id="fold-viewer" gs-x="4" gs-y="9" gs-w="8" gs-h="5"
                     gs-min-w="4" gs-min-h="4" gs-size-to-content="true">
                     <div class="grid-stack-item-content">
                         <div class="snap-card fold-viewer-card hidden" id="card-fold-viewer">

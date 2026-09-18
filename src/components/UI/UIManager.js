@@ -1,4 +1,5 @@
 import mitt from 'mitt';
+import { createIcons, FolderOpen, Upload } from 'lucide';
 import {
   GRID_DIMENSION_MAX,
   GRID_DIMENSION_MIN,
@@ -62,6 +63,7 @@ export class UIManager {
 
   init() {
     this.cacheElements();
+    createIcons({ icons: { FolderOpen, Upload } });
     this.modal = new ModalManager(this.elements, this.emitter);
     this.dnd = new DragAndDropHandler(this.elements, this.emitter);
     this.renderer = new LayoutRenderer(this.elements.zineSheetsContainer, PAGE_CELL_TEMPLATE);
@@ -411,8 +413,9 @@ export class UIManager {
 
     this.elements = {
       unifiedDropZone: $('#unified-drop-zone'),
-      uploadZone: $('#upload-zone'),
-      uploadStatus: $('#upload-status'),
+  uploadZone: $('#upload-zone'),
+  browseFilesBtn: $('#browse-files-btn'),
+  uploadStatus: $('#upload-status'),
       uploadedFilesList: $('#uploaded-files-list'),
       previewArea: $('#preview-area'),
       zineSheetsContainer: $('#zine-sheets-container'),
@@ -532,8 +535,9 @@ export class UIManager {
     this.elements.clearAllBtn?.addEventListener('click', () => this.emitter.emit('clearAll'));
     this.elements.themeToggleBtn?.addEventListener('click', () => this.toggleTheme());
 
-    this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
-    this.elements.uploadZone?.addEventListener('keydown', (event) => {
+  this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
+  this.elements.browseFilesBtn?.addEventListener('click', () => this.triggerFileUpload());
+  this.elements.uploadZone?.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         this.triggerFileUpload();
