@@ -34,7 +34,7 @@ export class AppController {
         orientation: this.state.orientation
       });
       this.renderCurrentLayout();
-      this.ui.setStatus('Choose files or drop them here');
+      this.ui.setStatus('');
     } catch (error) {
       toast.error('Initialization Failed', error.message || 'An error occurred');
     }
@@ -646,7 +646,7 @@ export class AppController {
     this.ui.toggle3DModal(false);
     this.state.resetWorkflowStatus();
     this.ui.updateUploadedFilesList([]);
-    this.ui.setStatus('Choose files or drop them here');
+    this.ui.setStatus('');
     this.renderCurrentLayout();
     toast.info('Cleared', 'All pages have been removed.');
   }

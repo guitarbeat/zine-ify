@@ -116,12 +116,19 @@
                                 <span class="snap-card-label">Add pages</span>
                             </div>
                             <div class="snap-card-body panel-scroll-body">
-                                <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer"
-                                    role="button" tabindex="0"
-                                    aria-label="Add pages — click to browse, or drop PDF and image files here">
-                                    <span class="material-symbols-outlined upload-icon" aria-hidden="true">upload_file</span>
-                                    <span class="text-sm font-semibold">Drop files or click to browse</span>
-                                    <span class="text-xs muted-copy">PDF, PNG, JPG, or WEBP • Max 50 MB each</span>
+                                <div class="upload-flow">
+                                    <div id="upload-zone" class="upload-box flex flex-col items-center justify-center gap-1.5 text-center p-4 cursor-pointer"
+                                        role="button" tabindex="0"
+                                        aria-label="Drop PDF or image files here">
+                                        <span class="material-symbols-outlined upload-icon" aria-hidden="true">upload_file</span>
+                                        <span class="upload-title">Drop files here</span>
+                                        <span class="upload-copy">PDF, PNG, JPG, or WEBP</span>
+                                        <span class="upload-limit">Max 50 MB each</span>
+                                    </div>
+                                    <button id="browse-files-btn" type="button" class="browse-files-btn">
+                                        <span class="material-symbols-outlined" aria-hidden="true">folder_open</span>
+                                        Choose files
+                                    </button>
                                 </div>
                                 <input type="file" id="pdf-upload" class="sr-only"
                                     accept="application/pdf,image/png,image/jpeg,image/webp"
