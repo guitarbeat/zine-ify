@@ -1,4 +1,5 @@
 import mitt from 'mitt';
+import { createIcons, FolderOpen, Upload } from 'lucide';
 import {
   GRID_DIMENSION_MAX,
   GRID_DIMENSION_MIN,
@@ -62,6 +63,7 @@ export class UIManager {
 
   init() {
     this.cacheElements();
+    createIcons({ icons: { FolderOpen, Upload } });
     this.modal = new ModalManager(this.elements, this.emitter);
     this.dnd = new DragAndDropHandler(this.elements, this.emitter);
     this.renderer = new LayoutRenderer(this.elements.zineSheetsContainer, PAGE_CELL_TEMPLATE);
