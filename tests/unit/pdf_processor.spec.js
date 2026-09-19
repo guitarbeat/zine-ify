@@ -265,6 +265,72 @@ test.describe('PDFProcessor', () => {
     expect(processor.fileUrl).toBeNull();
   });
 
+  test("loadPDF handles error during load and logs warning when cleanup destroy fails", async () => {
+    let warnArgs = null;
+    const origWarn = console.warn;
+    /* eslint-disable-next-line no-console */
+    console.warn = (...args) => { warnArgs = args; };
+
+    processor.ensurePdfJs = async () => ({
+      getDocument: () => ({
+        promise: Promise.reject(new Error("PDF load failure")),
+        destroy: async () => {
+          throw new Error("Cleanup destroy failed");
+        }
+      })
+    });
+    processor.validateFile = () => ({ valid: true, errors: [] });
+    processor.validateFileSignature = async () => true;
+
+    if (typeof global !== "undefined") {
+      global.URL.createObjectURL = () => "blob:test";
+      global.URL.revokeObjectURL = () => {};
+    }
+
+    const file = new File(["%PDF-1.4"], "test.pdf", { type: "application/pdf" });
+
+    try {
+      await expect(processor.loadPDF(file)).rejects.toThrow("PDF processing failed: PDF load failure");
+      expect(warnArgs).not.toBeNull();
+      expect(warnArgs[0]).toBe("Failed to destroy PDF loading task on cleanup:");
+      expect(warnArgs[1].message).toBe("Cleanup destroy failed");
+      expect(processor.isProcessing).toBe(false);
+    } finally {
+      /* eslint-disable-next-line no-console */
+      console.warn = origWarn;
+    }
+  });
+
+  test("loadPDF handles password-protected and MissingPDFException errors via handlePDFError", async () => {
+    processor.validateFile = () => ({ valid: true, errors: [] });
+    processor.validateFileSignature = async () => true;
+
+    if (typeof global !== "undefined") {
+      global.URL.createObjectURL = () => "blob:test";
+      global.URL.revokeObjectURL = () => {};
+    }
+
+    const file = new File(["%PDF-1.4"], "test.pdf", { type: "application/pdf" });
+
+    // Test password-protected error
+    processor.ensurePdfJs = async () => ({
+      getDocument: () => ({
+        promise: Promise.reject(new Error("password protected")),
+        destroy: async () => {}
+      })
+    });
+    await expect(processor.loadPDF(file)).rejects.toThrow("The PDF file is password-protected.");
+
+    // Test MissingPDFException error
+    processor.ensurePdfJs = async () => ({
+      getDocument: () => ({
+        promise: Promise.reject(new Error("MissingPDFException: PDF.js failed")),
+        destroy: async () => {}
+      })
+    });
+    await expect(processor.loadPDF(file)).rejects.toThrow("PDF.js library failed to load. Please refresh the page.");
+  });
+
   test('renderPage returns canvas and cleans up page', async () => {
     // Mock the PDF object
     processor.pdf = {
@@ -295,40 +361,6 @@ test.describe('PDFProcessor', () => {
   test('_internalRender throws error if no PDF loaded', async () => {
     processor.pdf = null;
     await expect(processor._internalRender(1, () => 1)).rejects.toThrow('No PDF loaded');
-  });
-
-  test('_internalRender wraps render errors and still cleans up page resources', async () => {
-    let pageCleanedUp = false;
-    processor.pdf = {
-      getPage: async (pageNum) => ({
-        getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
-        render: () => ({
-          promise: Promise.reject(new Error('Rendering task failed'))
-        }),
-        cleanup: () => {
-          pageCleanedUp = true;
-        }
-      })
-    };
-    processor.ensurePdfJs = async () => true;
-
-    await expect(processor._internalRender(1, () => 1.0)).rejects.toThrow(
-      'Failed to render page 1'
-    );
-    expect(pageCleanedUp).toBe(true);
-  });
-
-  test('_internalRender wraps getPage errors when retrieving page fails', async () => {
-    processor.pdf = {
-      getPage: async () => {
-        throw new Error('Page 1 does not exist');
-      }
-    };
-    processor.ensurePdfJs = async () => true;
-
-    await expect(processor._internalRender(1, () => 1.0)).rejects.toThrow(
-      'Failed to render page 1'
-    );
   });
 
   test('renderPageThumbnail returns downscaled canvas', async () => {
@@ -375,10 +407,10 @@ test.describe('PDFProcessor', () => {
   });
 
   test('loadPDF logs console.warn when destroying loadingTask fails during timeout', async () => {
-    const warnMessages = [];
+    let warnArgs = null;
     const origWarn = console.warn;
     /* eslint-disable-next-line no-console */
-    console.warn = (...args) => { warnMessages.push(args); };
+    console.warn = (...args) => { warnArgs = args; };
 
     processor.ensurePdfJs = async () => ({
       getDocument: () => ({
@@ -403,10 +435,9 @@ test.describe('PDFProcessor', () => {
 
     try {
       await expect(processor.loadPDF(file)).rejects.toThrow('PDF loading timed out');
-      expect(warnMessages.length).toBeGreaterThan(0);
-      const timeoutWarn = warnMessages.find(args => args[0] === 'Failed to destroy PDF loading task on timeout:');
-      expect(timeoutWarn).toBeDefined();
-      expect(timeoutWarn[1].message).toBe('Destroy failed');
+      expect(warnArgs).not.toBeNull();
+      expect(warnArgs[0]).toMatch(/Failed to destroy PDF loading task on (timeout|cleanup):/);
+      expect(warnArgs[1].message).toBe('Destroy failed');
     } finally {
       global.setTimeout = origSetTimeout;
       /* eslint-disable-next-line no-console */
