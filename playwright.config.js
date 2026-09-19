@@ -9,7 +9,6 @@ export default defineConfig({
   workers: process.env.CI ? 1 : 1, // Set to 1 to avoid port conflicts
   reporter: 'html',
   use: {
-    bypassCSP: true,
     trace: 'on-first-retry',
     baseURL: 'http://127.0.0.1:8001',
   },
