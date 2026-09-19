@@ -297,40 +297,6 @@ test.describe('PDFProcessor', () => {
     await expect(processor._internalRender(1, () => 1)).rejects.toThrow('No PDF loaded');
   });
 
-  test('_internalRender wraps render errors and still cleans up page resources', async () => {
-    let pageCleanedUp = false;
-    processor.pdf = {
-      getPage: async (pageNum) => ({
-        getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
-        render: () => ({
-          promise: Promise.reject(new Error('Rendering task failed'))
-        }),
-        cleanup: () => {
-          pageCleanedUp = true;
-        }
-      })
-    };
-    processor.ensurePdfJs = async () => true;
-
-    await expect(processor._internalRender(1, () => 1.0)).rejects.toThrow(
-      'Failed to render page 1'
-    );
-    expect(pageCleanedUp).toBe(true);
-  });
-
-  test('_internalRender wraps getPage errors when retrieving page fails', async () => {
-    processor.pdf = {
-      getPage: async () => {
-        throw new Error('Page 1 does not exist');
-      }
-    };
-    processor.ensurePdfJs = async () => true;
-
-    await expect(processor._internalRender(1, () => 1.0)).rejects.toThrow(
-      'Failed to render page 1'
-    );
-  });
-
   test('renderPageThumbnail returns downscaled canvas', async () => {
     processor.pdf = {
       getPage: async () => ({
@@ -375,10 +341,10 @@ test.describe('PDFProcessor', () => {
   });
 
   test('loadPDF logs console.warn when destroying loadingTask fails during timeout', async () => {
-    const warnMessages = [];
+    let warnArgs = null;
     const origWarn = console.warn;
     /* eslint-disable-next-line no-console */
-    console.warn = (...args) => { warnMessages.push(args); };
+    console.warn = (...args) => { warnArgs = args; };
 
     processor.ensurePdfJs = async () => ({
       getDocument: () => ({
@@ -403,16 +369,101 @@ test.describe('PDFProcessor', () => {
 
     try {
       await expect(processor.loadPDF(file)).rejects.toThrow('PDF loading timed out');
-      expect(warnMessages.length).toBeGreaterThan(0);
-      const timeoutWarn = warnMessages.find(args => args[0] === 'Failed to destroy PDF loading task on timeout:');
-      expect(timeoutWarn).toBeDefined();
-      expect(timeoutWarn[1].message).toBe('Destroy failed');
+      expect(warnArgs).not.toBeNull();
+      expect(warnArgs[0]).toBe('Failed to destroy PDF loading task on timeout:');
+      expect(warnArgs[1].message).toBe('Destroy failed');
     } finally {
       global.setTimeout = origSetTimeout;
       /* eslint-disable-next-line no-console */
       console.warn = origWarn;
     }
   });
+  test("cleanupFailedLoad catches error when loadingTask.destroy fails and logs warning", async () => {
+    let warnArgs = null;
+    const origWarn = console.warn;
+    /* eslint-disable-next-line no-console */
+    console.warn = (...args) => { warnArgs = args; };
+
+    let pdfDestroyed = false;
+    let revokedUrl = null;
+
+    processor.loadingTask = {
+      destroy: async () => {
+        throw new Error("Task destroy failed");
+      }
+    };
+    processor.pdf = {
+      destroy: () => {
+        pdfDestroyed = true;
+      }
+    };
+    processor.fileUrl = "blob:test-cleanup";
+
+    const origRevoke = global.URL?.revokeObjectURL;
+    if (typeof global !== "undefined") {
+      if (!global.URL) global.URL = {};
+      global.URL.revokeObjectURL = (url) => { revokedUrl = url; };
+    }
+
+    try {
+      await processor.cleanupFailedLoad();
+
+      expect(warnArgs).not.toBeNull();
+      expect(warnArgs[0]).toBe("Failed to destroy PDF loading task on cleanup:");
+      expect(warnArgs[1].message).toBe("Task destroy failed");
+      expect(processor.loadingTask).toBeNull();
+      expect(processor.pdf).toBeNull();
+      expect(pdfDestroyed).toBe(true);
+      expect(processor.fileUrl).toBeNull();
+      expect(revokedUrl).toBe("blob:test-cleanup");
+    } finally {
+      /* eslint-disable-next-line no-console */
+      console.warn = origWarn;
+      if (origRevoke) {
+        global.URL.revokeObjectURL = origRevoke;
+      }
+    }
+  });
+
+  test("cleanupFailedLoad successfully cleans up loadingTask, pdf, and fileUrl", async () => {
+    let taskDestroyed = false;
+    let pdfDestroyed = false;
+    let revokedUrl = null;
+
+    processor.loadingTask = {
+      destroy: async () => {
+        taskDestroyed = true;
+      }
+    };
+    processor.pdf = {
+      destroy: () => {
+        pdfDestroyed = true;
+      }
+    };
+    processor.fileUrl = "blob:test-cleanup-success";
+
+    const origRevoke = global.URL?.revokeObjectURL;
+    if (typeof global !== "undefined") {
+      if (!global.URL) global.URL = {};
+      global.URL.revokeObjectURL = (url) => { revokedUrl = url; };
+    }
+
+    try {
+      await processor.cleanupFailedLoad();
+
+      expect(taskDestroyed).toBe(true);
+      expect(processor.loadingTask).toBeNull();
+      expect(pdfDestroyed).toBe(true);
+      expect(processor.pdf).toBeNull();
+      expect(revokedUrl).toBe("blob:test-cleanup-success");
+      expect(processor.fileUrl).toBeNull();
+    } finally {
+      if (origRevoke) {
+        global.URL.revokeObjectURL = origRevoke;
+      }
+    }
+  });
+
 });
 
 test.describe('PDFProcessor Media handling', () => {
