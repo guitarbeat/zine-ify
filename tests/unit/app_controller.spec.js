@@ -783,4 +783,74 @@ test.describe('AppController', () => {
     await controller.handleView3d();
   });
 
+
+  test("handleView3d handles error during preview rendering with custom error message", async () => {
+    const { AppController } = await import("../../src/core/AppController.js");
+    const { toast } = await import("../../src/components/Toast.js");
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      controller.state.getFilledPageCount = () => 1;
+      controller.state.isMiniZineLayout = () => true;
+      controller.ensureBlankPageUrl = async () => "data:image/png;base64,fake";
+      controller.ensureBookletPreview = () => {};
+      controller.ui.toggle3DModal = () => {};
+
+      controller.viewer3d = {
+        loadPages: () => {
+          throw new Error("3D rendering engine crash");
+        }
+      };
+
+      await controller.handleView3d();
+
+      expect(toastErrorTitle).toBe("3D Preview Failed");
+      expect(toastErrorMessage).toBe("3D rendering engine crash");
+    } finally {
+      toast.error = originalToastError;
+    }
+  });
+
+  test("handleView3d handles error during preview rendering with default fallback error message", async () => {
+    const { AppController } = await import("../../src/core/AppController.js");
+    const { toast } = await import("../../src/components/Toast.js");
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      controller.state.getFilledPageCount = () => 1;
+      controller.state.isMiniZineLayout = () => true;
+      controller.ensureBlankPageUrl = async () => "data:image/png;base64,fake";
+      controller.ensureBookletPreview = () => {};
+      controller.ui.toggle3DModal = () => {};
+
+      controller.viewer3d = {
+        loadPages: () => {
+          throw {};
+        }
+      };
+
+      await controller.handleView3d();
+
+      expect(toastErrorTitle).toBe("3D Preview Failed");
+      expect(toastErrorMessage).toBe("Unable to load the fold preview.");
+    } finally {
+      toast.error = originalToastError;
+    }
+  });
 });
