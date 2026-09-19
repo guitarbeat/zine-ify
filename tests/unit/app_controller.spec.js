@@ -23,7 +23,7 @@ test.describe('AppController', () => {
 
     const { PDFProcessor } = await import('../../src/services/PDFProcessor.js');
     const { AppController } = await import('../../src/core/AppController.js');
-    originalInitialize = PDFProcessor.prototype.initialize;
+    const originalInitialize = PDFProcessor.prototype.initialize;
     originalRenderCurrentLayout = AppController.prototype.renderCurrentLayout;
     PDFProcessor.prototype.initialize = async () => {};
     AppController.prototype.renderCurrentLayout = () => {};
@@ -46,6 +46,38 @@ test.describe('AppController', () => {
     }
   });
 
+  test('init handles pdfProcessor.initialize error with fallback message when error.message is missing', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+    const { toast } = await import('../../src/components/Toast.js');
+    const { PDFProcessor } = await import('../../src/services/PDFProcessor.js');
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    const originalInitialize = PDFProcessor.prototype.initialize;
+    PDFProcessor.prototype.initialize = async () => {
+      throw {};
+    };
+
+    try {
+      const controller = new AppController();
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(toastErrorTitle).toBe('Initialization Failed');
+      expect(toastErrorMessage).toBe('An error occurred');
+      expect(controller).toBeDefined();
+    } finally {
+      PDFProcessor.prototype.initialize = originalInitialize;
+      toast.error = originalToastError;
+    }
+  });
+
   test('init handles pdfProcessor.initialize error correctly', async () => {
     // Import modules dynamically after jsdom is set
     const { AppController } = await import('../../src/core/AppController.js');
@@ -60,7 +92,7 @@ test.describe('AppController', () => {
       toastErrorMessage = message;
     };
 
-    originalInitialize = PDFProcessor.prototype.initialize;
+    const originalInitialize = PDFProcessor.prototype.initialize;
     PDFProcessor.prototype.initialize = async () => {
       throw new Error('Mock PDF initialization failure');
     };
