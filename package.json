@@ -18,13 +18,13 @@
   "dependencies": {
     "@khmyznikov/pwa-install": "^0.6.3",
     "clsx": "^2.1.1",
-    "dompurify": "3.3.2",
+    "dompurify": "3.4.15",
     "gridstack": "^12.6.0",
     "html2canvas": "^1.4.1",
     "jspdf": "4.2.1",
     "lucide": "^0.468.0",
     "mitt": "^3.0.1",
-    "pdfjs-dist": "^5.7.284",
+    "pdfjs-dist": "^6.3.289",
     "sortablejs": "^1.15.7",
     "tailwind-merge": "^3.6.0",
     "three": "^0.184.0"
@@ -52,7 +52,7 @@
     "overrides": {
       "ajv": "6.14.0",
       "brace-expansion": "5.0.5",
-      "dompurify": "3.3.2",
+      "dompurify": "^3.4.15",
       "flatted": "3.4.2",
       "minimatch": "10.2.3",
       "picomatch": "4.0.4",
