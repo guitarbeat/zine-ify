@@ -115,7 +115,7 @@ function saveLayout() {
   try {
     localStorage.setItem(storageKey(), JSON.stringify(grid.save(false)));
   } catch {
-    // ignore storage errors
+    // Safely ignore storage errors (e.g. QuotaExceededError, private browsing restrictions, or disabled localStorage)
   }
 }
 
