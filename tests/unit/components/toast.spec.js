@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { JSDOM } from 'jsdom';
+import { createRequire } from 'module';
 import DOMPurify from 'dompurify';
+
+const require = createRequire(import.meta.url);
+const { JSDOM } = require('jsdom');
 
 test.describe('Toast Component', () => {
   let dom;
@@ -12,7 +15,7 @@ test.describe('Toast Component', () => {
 
   test.beforeEach(async () => {
     dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
-      url: 'http://localhost/'
+      url: 'http://localhost/?expose-toast=1'
     });
 
     // Save original globals
@@ -24,7 +27,7 @@ test.describe('Toast Component', () => {
     global.window = dom.window;
     global.document = dom.window.document;
 
-    // Initialize DOMPurify factory and override the default, like utils.spec.js does
+    // Initialize DOMPurify factory and override the default
     const purify = DOMPurify(global.window);
     DOMPurify.sanitize = purify.sanitize;
 
@@ -59,6 +62,12 @@ test.describe('Toast Component', () => {
     expect(container).not.toBeNull();
     expect(container.getAttribute('aria-live')).toBe('polite');
     expect(container.getAttribute('role')).toBe('region');
+    expect(container.getAttribute('aria-atomic')).toBe('true');
+    expect(container.getAttribute('aria-label')).toBe('Notifications');
+  });
+
+  test('should expose singleton toast on window when expose-toast parameter is present', () => {
+    expect(global.window.__zineifyToast).toBe(toastModule.toast);
   });
 
   test('should show a success toast', async () => {
@@ -82,6 +91,7 @@ test.describe('Toast Component', () => {
     // Wait for the next frame for animation to apply
     await new Promise(resolve => setTimeout(resolve, 10));
     expect(toastElement.classList.contains('toast-visible')).toBe(true);
+    expect(toastElement.style.transform).toContain('translateX(0)');
   });
 
   test('should show an error toast with alert role', () => {
@@ -105,6 +115,48 @@ test.describe('Toast Component', () => {
 
     const infoToast = toast.info('Info');
     expect(infoToast.classList.contains('toast-info')).toBe(true);
+  });
+
+  test('should sanitize title and message content to prevent XSS', () => {
+    const { toast } = toastModule;
+
+    const xssTitle = '<img src=x onerror=alert(1)>Unsafe Title';
+    const xssMessage = '<script>alert(2)</script>Unsafe Message';
+
+    const toastElement = toast.show('info', xssTitle, xssMessage);
+
+    const titleEl = toastElement.querySelector('.toast-title');
+    expect(titleEl.querySelector('script')).toBeNull();
+    expect(titleEl.innerHTML).not.toContain('onerror');
+
+    const messageEl = toastElement.querySelector('.toast-message');
+    expect(messageEl.querySelector('script')).toBeNull();
+  });
+
+  test('should stack multiple toasts in the container', () => {
+    const { toast } = toastModule;
+
+    const toast1 = toast.info('First');
+    const toast2 = toast.success('Second');
+    const toast3 = toast.error('Third');
+
+    const container = global.document.getElementById('toast-container');
+    const toasts = container.querySelectorAll('.toast');
+
+    expect(toasts.length).toBe(3);
+    expect(toasts[0]).toBe(toast1);
+    expect(toasts[1]).toBe(toast2);
+    expect(toasts[2]).toBe(toast3);
+  });
+
+  test('should return correct icon SVG for all supported toast types', () => {
+    const { toast } = toastModule;
+
+    expect(toast.getIcon('success')).toContain('polyline points="22,4 12,14.01 9,11.01"');
+    expect(toast.getIcon('error')).toContain('line x1="15" y1="9" x2="9" y2="15"');
+    expect(toast.getIcon('warning')).toContain('line x1="12" y1="9" x2="12" y2="13"');
+    expect(toast.getIcon('info')).toContain('path d="M12 16v-4"');
+    expect(toast.getIcon('nonexistent')).toContain('path d="M12 16v-4"'); // Fallback to info
   });
 
   test('should remove a toast after clicking close button', async () => {
@@ -153,6 +205,7 @@ test.describe('Toast Component', () => {
     expect(iconContainer.innerHTML).toContain('<circle cx="12" cy="12" r="10"');
     expect(iconContainer.innerHTML).toContain('<path d="M12 16v-4"');
   });
+
   test('should reuse existing container if toast-container element already exists', () => {
     // Remove existing container if any
     const oldContainer = global.document.getElementById('toast-container');
