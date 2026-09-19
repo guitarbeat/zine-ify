@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { SmartSheetConfig } from '../../../src/components/SmartSheetConfig.js';
-import { JSDOM } from 'jsdom';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { JSDOM } = require('jsdom');
 import DOMPurify from 'dompurify';
-import { MARGIN_MAX, MARGIN_MIN, UNITS, PAPER_SIZES, toMm } from '../../../src/utils/config.js';
+import { MARGIN_MAX, MARGIN_MIN, UNITS, PAPER_SIZES, toMm, LAYOUT_PRESETS } from '../../../src/utils/config.js';
 
 test.describe('SmartSheetConfig Component', () => {
   let dom;
@@ -74,6 +76,23 @@ test.describe('SmartSheetConfig Component', () => {
     expect(emitted.unit).toBe('mm');
   });
 
+  test('ignores setting invalid unit or same unit', () => {
+    let callCount = 0;
+    const config = new SmartSheetConfig(container, {
+      initialUnit: 'mm',
+      onChange: () => { callCount++; }
+    });
+
+    // Same unit
+    config.setUnit('mm');
+    expect(callCount).toBe(0);
+
+    // Invalid unit
+    config.setUnit('invalid-unit');
+    expect(callCount).toBe(0);
+    expect(config.state.unit).toBe('mm');
+  });
+
   test('emits onChange when orientation is changed', () => {
     let emitted = null;
     const config = new SmartSheetConfig(container, {
@@ -86,6 +105,18 @@ test.describe('SmartSheetConfig Component', () => {
 
     expect(config.state.orientation).toBe('portrait');
     expect(emitted.orientation).toBe('portrait');
+  });
+
+  test('ignores invalid orientation', () => {
+    let emitted = null;
+    const config = new SmartSheetConfig(container, {
+      initialOrientation: 'landscape',
+      onChange: (state) => { emitted = state; }
+    });
+
+    config.setOrientation('invalid-orientation');
+    expect(config.state.orientation).toBe('landscape');
+    expect(emitted).toBeNull();
   });
 
   test('changes paper size and updates recommendation', () => {
@@ -127,7 +158,7 @@ test.describe('SmartSheetConfig Component', () => {
     expect(heightInput).toBeTruthy();
   });
 
-  test('updates custom dimensions on input', () => {
+  test('updates custom dimensions on width/height change', () => {
     let emitted = null;
     const config = new SmartSheetConfig(container, {
       initialPaper: 'custom',
@@ -141,6 +172,103 @@ test.describe('SmartSheetConfig Component', () => {
 
     expect(config.state.customPaper.width).toBe(300);
     expect(emitted.customPaper.width).toBe(300);
+
+    const heightInput = container.querySelector('[data-field="customHeight"]');
+    heightInput.value = '400';
+    heightInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+
+    expect(config.state.customPaper.height).toBe(400);
+    expect(emitted.customPaper.height).toBe(400);
+  });
+
+  test('handles invalid/non-numeric values for custom dimensions', () => {
+    const config = new SmartSheetConfig(container, {
+      initialPaper: 'custom',
+      initialUnit: 'mm'
+    });
+
+    const widthInput = container.querySelector('[data-field="customWidth"]');
+    widthInput.value = 'invalid';
+    widthInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+
+    // Non-finite mm defaults to 1
+    expect(config.state.customPaper.width).toBe(1);
+
+    const heightInput = container.querySelector('[data-field="customHeight"]');
+    heightInput.value = '-50';
+    heightInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+
+    // Clamped to minimum of 1
+    expect(config.state.customPaper.height).toBe(1);
+  });
+
+  test('handles layout preset selection', () => {
+    let emitted = null;
+    const config = new SmartSheetConfig(container, {
+      onChange: (state) => { emitted = state; }
+    });
+
+    // Find a preset button (e.g., mini-8 or standard-4)
+    const presetBtn = container.querySelector('[data-preset="standard-4"]');
+    if (presetBtn) {
+      presetBtn.click();
+      expect(config.state.layoutPresetId).toBe('standard-4');
+      expect(config.state.rows).toBe(LAYOUT_PRESETS['standard-4'].sheetGrid.rows);
+      expect(config.state.cols).toBe(LAYOUT_PRESETS['standard-4'].sheetGrid.cols);
+      expect(emitted.layoutPresetId).toBe('standard-4');
+    }
+  });
+
+  test('ignores invalid layout preset', () => {
+    const config = new SmartSheetConfig(container);
+    const initialPreset = config.state.layoutPresetId;
+
+    config.setPreset('unknown-preset-id');
+    expect(config.state.layoutPresetId).toBe(initialPreset);
+  });
+
+  test('handles custom row/col change in custom grid section', () => {
+    let emitted = null;
+    const config = new SmartSheetConfig(container, {
+      onChange: (state) => { emitted = state; }
+    });
+
+    let rowsInput = container.querySelector('[data-field="rows"]');
+    rowsInput.value = '3';
+    rowsInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+
+    expect(config.state.rows).toBe(3);
+    expect(config.state.layoutPresetId).toBe('custom');
+    expect(emitted.rows).toBe(3);
+
+    let colsInput = container.querySelector('[data-field="cols"]');
+    colsInput.value = '5';
+    colsInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+
+    expect(config.state.cols).toBe(5);
+    expect(emitted.cols).toBe(5);
+  });
+
+  test('clamps custom row/col input values between 1 and 10', () => {
+    const config = new SmartSheetConfig(container);
+
+    // Max clamp test
+    let rowsInput = container.querySelector('[data-field="rows"]');
+    rowsInput.value = '20';
+    rowsInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    expect(config.state.rows).toBe(10);
+
+    // Min clamp test (query new element after re-render)
+    rowsInput = container.querySelector('[data-field="rows"]');
+    rowsInput.value = '-5';
+    rowsInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    expect(config.state.rows).toBe(1);
+
+    // NaN fallback test
+    rowsInput = container.querySelector('[data-field="rows"]');
+    rowsInput.value = 'not-a-number';
+    rowsInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    expect(config.state.rows).toBe(1);
   });
 
   test('handles margin slider input and clamps', () => {
@@ -152,20 +280,29 @@ test.describe('SmartSheetConfig Component', () => {
     const slider = container.querySelector('.smart-sheet-margin-slider');
 
     // Valid value
-    slider.value = 10;
+    slider.value = '10';
     slider.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
     expect(config.state.margin).toBe(10);
     expect(emitted.margin).toBe(10);
 
     // Clamp to min
-    slider.value = -5;
+    slider.value = '-5';
     slider.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
     expect(config.state.margin).toBe(MARGIN_MIN);
 
     // Clamp to max
-    slider.value = MARGIN_MAX + 10;
+    slider.value = `${MARGIN_MAX + 10}`;
     slider.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
     expect(config.state.margin).toBe(MARGIN_MAX);
+  });
+
+  test('clampMargin fallback handles NaN and boundary values', () => {
+    const config = new SmartSheetConfig(container);
+
+    expect(config.clampMargin(NaN)).toBe(MARGIN_MIN);
+    expect(config.clampMargin(-100)).toBe(MARGIN_MIN);
+    expect(config.clampMargin(1000)).toBe(MARGIN_MAX);
+    expect(config.clampMargin(5)).toBe(5);
   });
 
   test('handles margin stepper buttons', () => {
@@ -185,11 +322,30 @@ test.describe('SmartSheetConfig Component', () => {
     expect(config.state.margin).toBe(10);
   });
 
+  test('ignores clicks and changes on non-matching elements', () => {
+    const config = new SmartSheetConfig(container);
+
+    // Click container root directly
+    container.click();
+    expect(config.state.paperSize).toBe('letter');
+
+    // Change event on an unrelated input
+    const dummyInput = document.createElement('input');
+    container.appendChild(dummyInput);
+    dummyInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
+    expect(config.state.paperSize).toBe('letter');
+
+    // Input event on an unrelated input
+    dummyInput.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+    expect(config.state.margin).toBe(0);
+  });
+
   test('getState and setState function correctly', () => {
     const config = new SmartSheetConfig(container);
 
     const state = config.getState();
     expect(state.paperSize).toBe('letter');
+    expect(state.totalSlots).toBe(8);
 
     config.setState({ paperSize: 'a4', orientation: 'portrait' });
     expect(config.state.paperSize).toBe('a4');
