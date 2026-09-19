@@ -139,4 +139,80 @@ test.describe('GridStack Layout', () => {
     expect(items).toBeGreaterThan(0);
   });
 
+
+  test('initGridStack initializes gridstack and exports window global helpers', async ({ page }) => {
+    await page.goto('/');
+
+    const result = await page.evaluate(() => {
+      const gridEl = document.querySelector('.grid-stack');
+      const hasGridstack = !!(gridEl && gridEl.gridstack);
+      return {
+        hasGridstack,
+        hasReset: typeof window.__resetPanelLayout === 'function',
+        hasResize: typeof window.__resizePanels === 'function',
+        hasOverlaps: typeof window.__layoutHasOverlaps === 'function'
+      };
+    });
+
+    expect(result.hasGridstack).toBe(true);
+    expect(result.hasReset).toBe(true);
+    expect(result.hasResize).toBe(true);
+    expect(result.hasOverlaps).toBe(true);
+  });
+
+  test('initGridStack handles missing grid element safely', async ({ page }) => {
+    await page.goto('/');
+
+    const result = await page.evaluate(async () => {
+      // Remove grid element and delete globals
+      delete window.__resetPanelLayout;
+      delete window.__resizePanels;
+      delete window.__layoutHasOverlaps;
+
+      const gridEl = document.querySelector('.grid-stack');
+      if (gridEl) {
+        gridEl.remove();
+      }
+
+      // Dynamically re-run initGridStack
+      const { initGridStack } = await import('/src/utils/gridStack.js');
+      initGridStack();
+
+      return {
+        hasReset: typeof window.__resetPanelLayout === 'function',
+        hasResize: typeof window.__resizePanels === 'function',
+        hasOverlaps: typeof window.__layoutHasOverlaps === 'function'
+      };
+    });
+
+    expect(result.hasReset).toBe(false);
+    expect(result.hasResize).toBe(false);
+    expect(result.hasOverlaps).toBe(false);
+  });
+
+  test('__resetPanelLayout clears grid storage keys', async ({ page }) => {
+    await page.goto('/');
+
+    const cleared = await page.evaluate(() => {
+      localStorage.setItem('zine-grid-v8', '["test"]');
+      localStorage.setItem('zine-grid-mobile-v8', '["test"]');
+
+      // Override location.reload to avoid page navigation during test
+      const origReload = window.location.reload;
+      window.location.reload = () => {};
+
+      if (typeof window.__resetPanelLayout === 'function') {
+        window.__resetPanelLayout();
+      }
+
+      const desktopKey = localStorage.getItem('zine-grid-v8');
+      const mobileKey = localStorage.getItem('zine-grid-mobile-v8');
+
+      window.location.reload = origReload;
+
+      return desktopKey === null && mobileKey === null;
+    });
+
+    expect(cleared).toBe(true);
+  });
 });
