@@ -77,7 +77,7 @@ export class PagePicker {
     this.state = null;
     this.elements.pagePickerModal?.classList.add('hidden');
     this.elements.pagePickerModal?.classList.remove('flex');
-    this.elements.pagePickerGrid && (this.elements.pagePickerGrid.innerHTML = '');
+    this.elements.pagePickerGrid?.replaceChildren();
     document.body.style.overflow = '';
     resolve?.(selectedPages);
   }
@@ -95,7 +95,7 @@ export class PagePicker {
   _renderGrid(thumbnails, initialSelection = []) {
     const grid = this.elements.pagePickerGrid;
     if (!grid) {return;}
-    grid.innerHTML = '';
+    grid.replaceChildren();
     const selectionSet = new Set(initialSelection);
     thumbnails.forEach(({ pageNumber, thumbnailUrl }) => {
       const btn = document.createElement('button');
