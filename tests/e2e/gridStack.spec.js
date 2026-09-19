@@ -114,4 +114,124 @@ test.describe('GridStack Layout', () => {
     expect(result.wideOverlap).toBe(true);
   });
 
+  test("comprehensively tests layoutHasOverlaps edge cases and algorithms", async ({ page }) => {
+    await page.goto("/");
+
+    const result = await page.evaluate(() => {
+      const fn = window.__layoutHasOverlaps;
+      if (typeof fn !== "function") {
+        return { error: "window.__layoutHasOverlaps is not a function" };
+      }
+
+      // Default parameter test: fn()
+      const defaultParamResult = fn();
+
+      // Empty array
+      const emptyResult = fn([]);
+
+      // Single node
+      const singleNodeResult = fn([{ id: 'a', x: 0, y: 0, w: 2, h: 2 }]);
+
+      // Small list (<10 nodes) - Same ID nodes (ignored by nodesOverlap)
+      const sameIdResult = fn([
+        { id: 'a', x: 0, y: 0, w: 2, h: 2 },
+        { id: 'a', x: 0, y: 0, w: 2, h: 2 }
+      ]);
+
+      // Small list (<10 nodes) - Non-overlapping
+      const smallClean = fn([
+        { id: 'a', x: 0, y: 0, w: 2, h: 2 },
+        { id: 'b', x: 2, y: 0, w: 2, h: 2 },
+        { id: 'c', x: 0, y: 2, w: 2, h: 2 }
+      ]);
+
+      // Small list (<10 nodes) - Overlapping
+      const smallOverlap = fn([
+        { id: 'a', x: 0, y: 0, w: 2, h: 2 },
+        { id: 'b', x: 1, y: 1, w: 2, h: 2 }
+      ]);
+
+      // Small list (<10 nodes) - Edge touching (x + w == next_x)
+      const smallTouching = fn([
+        { id: 'a', x: 0, y: 0, w: 2, h: 2 },
+        { id: 'b', x: 2, y: 0, w: 2, h: 2 },
+        { id: 'c', x: 0, y: 2, w: 2, h: 2 }
+      ]);
+
+      // Medium list (>= 10 nodes, maxX <= 32) with large Y value to trigger rowBuffer resize
+      const mediumLargeY = fn([
+        ...Array.from({ length: 9 }, (_, i) => ({
+          id: `m${i}`,
+          x: 0,
+          y: i * 2,
+          w: 2,
+          h: 2
+        })),
+        { id: 'm9', x: 0, y: 300, w: 2, h: 10 }
+      ]);
+
+      // Medium list (>= 10 nodes, maxX <= 32) with w >= 32 mask branch
+      const mediumWideMask = fn([
+        ...Array.from({ length: 9 }, (_, i) => ({
+          id: `w${i}`,
+          x: 0,
+          y: i * 2,
+          w: 2,
+          h: 2
+        })),
+        { id: 'w9', x: 0, y: 20, w: 32, h: 2 }
+      ]);
+
+      // Medium list (>= 10 nodes, maxX <= 32) with overlap on rowBuffer mask
+      const mediumOverlap = fn([
+        ...Array.from({ length: 9 }, (_, i) => ({
+          id: `o${i}`,
+          x: 0,
+          y: i * 2,
+          w: 2,
+          h: 2
+        })),
+        { id: 'o9', x: 1, y: 2, w: 2, h: 2 }
+      ]);
+
+      // Spatial grid list (>= 10 nodes, maxX > 32) with large spatial area to test buffer resize
+      const spatialLargeBuffer = fn([
+        ...Array.from({ length: 9 }, (_, i) => ({
+          id: `s${i}`,
+          x: i * 5,
+          y: 0,
+          w: 2,
+          h: 2
+        })),
+        { id: 's9', x: 45, y: 50, w: 5, h: 5 }
+      ]);
+
+      return {
+        defaultParamResult,
+        emptyResult,
+        singleNodeResult,
+        sameIdResult,
+        smallClean,
+        smallOverlap,
+        smallTouching,
+        mediumLargeY,
+        mediumWideMask,
+        mediumOverlap,
+        spatialLargeBuffer
+      };
+    });
+
+    expect(result.error).toBeUndefined();
+    expect(result.defaultParamResult).toBe(false);
+    expect(result.emptyResult).toBe(false);
+    expect(result.singleNodeResult).toBe(false);
+    expect(result.sameIdResult).toBe(false);
+    expect(result.smallClean).toBe(false);
+    expect(result.smallOverlap).toBe(true);
+    expect(result.smallTouching).toBe(false);
+    expect(result.mediumLargeY).toBe(false);
+    expect(result.mediumWideMask).toBe(false);
+    expect(result.mediumOverlap).toBe(true);
+    expect(result.spatialLargeBuffer).toBe(false);
+  });
 });
