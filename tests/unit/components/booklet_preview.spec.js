@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { BookletPreview } from '../../../src/components/BookletPreview.js';
-import { JSDOM } from 'jsdom';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
 
 test.describe('BookletPreview Component', () => {
   let dom;
@@ -11,11 +12,14 @@ test.describe('BookletPreview Component', () => {
   let originalWindow;
   let originalDocument;
   let originalRaf;
+  let BookletPreview;
 
-  test.beforeEach(() => {
-    dom = new JSDOM('<!DOCTYPE html><div id="container"></div><button id="prev"></button><button id="next"></button><div id="status"></div>');
+  test.beforeEach(async () => {
+    const { JSDOM } = require('jsdom');
+    dom = new JSDOM(
+      '<!DOCTYPE html><div id="container"></div><button id="prev"></button><button id="next"></button><div id="status"></div>'
+    );
 
-    // Save original globals if they exist in node test env
     originalWindow = global.window;
     originalDocument = global.document;
     originalRaf = global.requestAnimationFrame;
@@ -33,6 +37,9 @@ test.describe('BookletPreview Component', () => {
     prevButton = document.getElementById('prev');
     nextButton = document.getElementById('next');
     statusElement = document.getElementById('status');
+
+    const mod = await import('../../../src/components/BookletPreview.js');
+    BookletPreview = mod.BookletPreview;
   });
 
   test.afterEach(() => {
@@ -51,7 +58,6 @@ test.describe('BookletPreview Component', () => {
     expect(preview.container.querySelector('.booklet-page-right')).toBeTruthy();
     expect(preview.container.querySelector('.booklet-turn-layer')).toBeTruthy();
 
-    // Check cached element references
     expect(preview.spread).toBeTruthy();
     expect(preview.leftPage).toBeTruthy();
     expect(preview.rightPage).toBeTruthy();
@@ -71,7 +77,7 @@ test.describe('BookletPreview Component', () => {
 
     preview.loadPages(fakeImages);
 
-    expect(preview.states.length).toBe(5); // Cover + 3 spreads + Back
+    expect(preview.states.length).toBe(5);
     expect(preview.spreadIndex).toBe(0);
     expect(preview.isAnimating).toBe(false);
     expect(statusElement.textContent).toBe('Cover');
@@ -79,11 +85,10 @@ test.describe('BookletPreview Component', () => {
     const currentState = preview.getCurrentState();
     expect(currentState.label).toBe('Cover');
 
-    // For Cover, right page is populated with page 1, left is null
     expect(preview.rightPage.querySelector('.booklet-page-media').src).toContain('url-page-1.png');
     expect(preview.leftPage.classList.contains('is-empty')).toBe(true);
 
-    expect(preview.prevButton.disabled).toBe(true); // Can't go back from cover
+    expect(preview.prevButton.disabled).toBe(true);
     expect(preview.nextButton.disabled).toBe(false);
   });
 
@@ -99,7 +104,6 @@ test.describe('BookletPreview Component', () => {
     expect(preview.isAnimating).toBe(true);
     expect(preview.pendingSpreadIndex).toBe(1);
 
-    // Since RAF is mocked to execute synchronously, 'is-active' class should be immediately applied
     expect(preview.turnLayer.classList.contains('is-visible')).toBe(true);
     expect(preview.turnLayer.classList.contains('is-active')).toBe(true);
     expect(preview.turnLayer.classList.contains('is-next')).toBe(true);
@@ -148,7 +152,7 @@ test.describe('BookletPreview Component', () => {
 
     // Attempt another turn while animating
     preview.goNext();
-    expect(preview.pendingSpreadIndex).toBe(1); // Should still be 1, not 2
+    expect(preview.pendingSpreadIndex).toBe(1);
   });
 
   test('bindControls handles DOM click events', () => {
@@ -175,5 +179,123 @@ test.describe('BookletPreview Component', () => {
     prevButton.click();
     expect(preview.pendingSpreadIndex).toBe(0);
     preview.finishTurn();
+  });
+
+  test('handles keyboard navigation with ArrowLeft and ArrowRight', () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton, statusElement });
+    const fakeImages = Array.from({ length: 8 }, (_, i) => `url-page-${i + 1}.png`);
+    preview.loadPages(fakeImages);
+
+    const rightArrowEvent = new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', cancelable: true });
+    preview.shell.dispatchEvent(rightArrowEvent);
+
+    expect(rightArrowEvent.defaultPrevented).toBe(true);
+    expect(preview.pendingSpreadIndex).toBe(1);
+
+    preview.finishTurn();
+    expect(preview.spreadIndex).toBe(1);
+
+    const leftArrowEvent = new dom.window.KeyboardEvent('keydown', { key: 'ArrowLeft', cancelable: true });
+    preview.shell.dispatchEvent(leftArrowEvent);
+
+    expect(leftArrowEvent.defaultPrevented).toBe(true);
+    expect(preview.pendingSpreadIndex).toBe(0);
+
+    preview.finishTurn();
+    expect(preview.spreadIndex).toBe(0);
+
+    // Other keys should be ignored
+    const upArrowEvent = new dom.window.KeyboardEvent('keydown', { key: 'Up', cancelable: true });
+    preview.shell.dispatchEvent(upArrowEvent);
+    expect(upArrowEvent.defaultPrevented).toBe(false);
+  });
+
+  test('handles partial page lists and empty slots when loadPages is called', () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton, statusElement });
+    // Provide only 3 pages instead of 8
+    const fakeImages = ['p1.png', 'p2.png', 'p3.png'];
+
+    preview.loadPages(fakeImages);
+
+    expect(preview.slotPages.length).toBe(8);
+    expect(preview.states).toBeDefined();
+    expect(preview.states.length).toBe(5);
+  });
+
+  test('setPageFace updates page display when page object has sourceUrl instead of previewUrl', () => {
+    const preview = new BookletPreview({ container });
+    preview.loadPages();
+
+    preview.setPageFace(preview.leftPage, { sourceUrl: 'source-only.png', pageNumber: 2 });
+    const img = preview.leftPage.querySelector('.booklet-page-media');
+    expect(img.src).toContain('source-only.png');
+    expect(preview.leftPage.dataset.pageNumber).toBe('2');
+  });
+
+  test('setPageFace safely handles null or empty element reference', () => {
+    const preview = new BookletPreview({ container });
+    expect(() => preview.setPageFace(null, { previewUrl: 'test.png', pageNumber: 1 })).not.toThrow();
+  });
+
+  test('handles startTurn boundary conditions (at ends of spreads or when animating)', () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton, statusElement });
+    const fakeImages = Array.from({ length: 8 }, (_, i) => `url-page-${i + 1}.png`);
+    preview.loadPages(fakeImages);
+
+    // Attempting to goPrev on spreadIndex 0
+    preview.goPrev();
+    expect(preview.isAnimating).toBe(false);
+    expect(preview.spreadIndex).toBe(0);
+
+    // Turn forward to last spread (index 4)
+    for (let i = 0; i < 4; i++) {
+      preview.goNext();
+      preview.finishTurn();
+    }
+    expect(preview.spreadIndex).toBe(4);
+
+    // Attempting to goNext on last spread
+    preview.goNext();
+    expect(preview.isAnimating).toBe(false);
+    expect(preview.spreadIndex).toBe(4);
+  });
+
+  test('finishTurn does nothing if isAnimating is false', () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton, statusElement });
+    preview.loadPages(['p1.png']);
+
+    expect(preview.isAnimating).toBe(false);
+    preview.finishTurn();
+    expect(preview.spreadIndex).toBe(0);
+  });
+
+  test('updateSpreadMode sets single page mode classes when spread state is single page', () => {
+    const preview = new BookletPreview({ container });
+    preview.loadPages(['p1.png']);
+
+    // Cover state (left: null, right: page1)
+    preview.updateStaticSpread();
+    expect(preview.spread.classList.contains('is-single-page')).toBe(true);
+    expect(preview.spread.classList.contains('is-single-right')).toBe(true);
+    expect(preview.spread.classList.contains('is-single-left')).toBe(false);
+
+    // Custom state with left present, right null
+    preview.updateSpreadMode({ left: { pageNumber: 8 }, right: null });
+    expect(preview.spread.classList.contains('is-single-page')).toBe(true);
+    expect(preview.spread.classList.contains('is-single-left')).toBe(true);
+    expect(preview.spread.classList.contains('is-single-right')).toBe(false);
+
+    // Both left and right present
+    preview.updateSpreadMode({ left: { pageNumber: 2 }, right: { pageNumber: 3 } });
+    expect(preview.spread.classList.contains('is-single-page')).toBe(false);
+  });
+
+  test('handles missing prevButton, nextButton, or statusElement gracefully', () => {
+    const preview = new BookletPreview({ container }); // No buttons or statusElement
+    const fakeImages = Array.from({ length: 8 }, (_, i) => `url-page-${i + 1}.png`);
+
+    expect(() => preview.loadPages(fakeImages)).not.toThrow();
+    expect(() => preview.goNext()).not.toThrow();
+    expect(() => preview.finishTurn()).not.toThrow();
   });
 });
