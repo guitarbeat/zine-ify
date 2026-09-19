@@ -496,10 +496,11 @@ export class Zine3DViewer {
     });
     this.debugFoldState = state;
 
-    this.stacks.forEach((stack) => {
+    for (let i = 0; i < this.stacks.length; i++) {
+      const stack = this.stacks[i];
       const stackState = state.stacks[stack.index]; // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
       if (!stackState) {
-        return;
+        continue;
       }
 
       stack.group.position.set(
@@ -513,15 +514,16 @@ export class Zine3DViewer {
         stackState.pose.rotation.z,
         'XYZ'
       );
-    });
+    }
 
-    this.pages.forEach((page) => {
+    for (let i = 0; i < this.pages.length; i++) {
+      const page = this.pages[i];
       const pageAngle = page.config.isTop ? state.topFoldAngle : -state.topFoldAngle;
       page.group.rotation.set(pageAngle, 0, 0, 'XYZ');
-    });
-    this.stacks.forEach((stack) => {
-      stack.group.updateMatrixWorld(true);
-    });
+    }
+    for (let i = 0; i < this.stacks.length; i++) {
+      this.stacks[i].group.updateMatrixWorld(true);
+    }
 
     this.updateSeams();
     this.updateGuides(state.stages.horizontalFold, state.stages.diamondOpen, state.stages.bookletClose);
