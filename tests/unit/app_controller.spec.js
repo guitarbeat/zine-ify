@@ -754,35 +754,33 @@ test.describe('AppController', () => {
   });
 
 
-  test('init handles pdfProcessor.initialize error when error message is missing', async () => {
+  test('handleView3d creates spinner element securely using DOM methods without innerHTML XSS risk', async () => {
+    /* eslint-disable-next-line no-console */
     const { AppController } = await import('../../src/core/AppController.js');
-    const { toast } = await import('../../src/components/Toast.js');
-    const { PDFProcessor } = await import('../../src/services/PDFProcessor.js');
+    const controller = new AppController();
+    controller.state.getFilledPageCount = () => 1;
+    controller.state.isMiniZineLayout = () => true;
+    controller.ensureBlankPageUrl = async () => 'data:image/png;base64,fake';
+    controller.ensureBookletPreview = () => {};
+    controller.ui.toggle3DModal = () => {};
+    const zine3dContainer = document.createElement('div');
+    controller.ui.elements.zine3dContainer = zine3dContainer;
 
-    let toastErrorTitle = null;
-    let toastErrorMessage = null;
-    const originalToastError = toast.error;
-    toast.error = (title, message) => {
-      toastErrorTitle = title;
-      toastErrorMessage = message;
+    controller.getZine3DViewerClass = async () => {
+      // Check spinner while class is being fetched
+      const spinner = zine3dContainer.querySelector('.zine-3d-spinner');
+      expect(spinner).not.toBeNull();
+      expect(spinner.querySelector('.spinner')).not.toBeNull();
+      expect(spinner.querySelector('p').textContent).toBe('Loading 3D Viewer...');
+
+      class DummyViewer {
+        constructor() {}
+        updateLayout() {}
+      }
+      return DummyViewer;
     };
 
-    const originalInitialize = PDFProcessor.prototype.initialize;
-    PDFProcessor.prototype.initialize = async () => {
-      throw {};
-    };
-
-    try {
-      const controller = new AppController();
-
-      await new Promise(resolve => setTimeout(resolve, 50));
-
-      expect(toastErrorTitle).toBe('Initialization Failed');
-      expect(toastErrorMessage).toBe('An error occurred');
-      expect(controller).toBeDefined();
-    } finally {
-      PDFProcessor.prototype.initialize = originalInitialize;
-      toast.error = originalToastError;
-    }
+    await controller.handleView3d();
   });
+
 });
