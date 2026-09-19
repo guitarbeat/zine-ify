@@ -164,9 +164,16 @@ function loadLayout() {
       return;
     }
 
-    const items = JSON.parse(raw);
+    let items;
+    try {
+      items = JSON.parse(raw);
+    } catch {
+      resetToDefaults();
+      return;
+    }
+
     if (!Array.isArray(items) || !items.length) {
-      relayoutPanels({ fitContent: true });
+      resetToDefaults();
       return;
     }
 
@@ -180,8 +187,18 @@ function loadLayout() {
     const savedIds = new Set();
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
-      if (item && validIds.has(item.id)) {
-        savedItems.push(item);
+      if (
+        item &&
+        typeof item === 'object' &&
+        typeof item.id === 'string' &&
+        validIds.has(item.id)
+      ) {
+        const cleanItem = { id: item.id };
+        if (typeof item.x === 'number' && Number.isFinite(item.x) && item.x >= 0) { cleanItem.x = item.x; }
+        if (typeof item.y === 'number' && Number.isFinite(item.y) && item.y >= 0) { cleanItem.y = item.y; }
+        if (typeof item.w === 'number' && Number.isFinite(item.w) && item.w > 0) { cleanItem.w = item.w; }
+        if (typeof item.h === 'number' && Number.isFinite(item.h) && item.h > 0) { cleanItem.h = item.h; }
+        savedItems.push(cleanItem);
         savedIds.add(item.id);
       }
     }
