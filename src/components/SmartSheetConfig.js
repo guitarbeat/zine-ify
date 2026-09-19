@@ -65,20 +65,6 @@ export class SmartSheetConfig {
 
     const fragment = DOMPurify.sanitize(`
       <div class="smart-sheet-config">
-        <div class="smart-sheet-section smart-sheet-presets">
-          <div class="smart-sheet-header">
-            <span class="smart-sheet-label">Layout</span>
-            <span class="smart-sheet-hint">Choose how the sheet folds</span>
-          </div>
-          <div class="smart-sheet-preset-list" role="group" aria-label="Layout presets">
-            ${Object.values(LAYOUT_PRESETS).filter((preset) => preset.id === 'mini-8').map((preset) => `
-              <button type="button" class="smart-sheet-preset ${this.state.layoutPresetId === preset.id ? 'is-active' : ''}" data-preset="${preset.id}" aria-pressed="${this.state.layoutPresetId === preset.id}">
-                <span>${preset.name}</span><small>${preset.sheetGrid.rows} × ${preset.sheetGrid.cols}</small>
-              </button>
-            `).join('')}
-          </div>
-        </div>
-
         <div class="smart-sheet-section">
           <div class="smart-sheet-header">
             <span class="smart-sheet-label">Paper Size</span>
