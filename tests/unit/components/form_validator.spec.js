@@ -373,6 +373,164 @@ test.describe('FormValidator Component', () => {
 
     toast.error = origError;
   });
+
+  test('handles registering a non-existent field selector gracefully', () => {
+    const validator = new FormValidator(form);
+    const res = validator.register('#does-not-exist', { rules: [] });
+    expect(res).toBe(validator);
+  });
+
+  test('defaults fieldName to label text or fallback if not provided in config', () => {
+    form.innerHTML = `
+      <label for="labeled-input">My Label</label>
+      <input type="text" id="labeled-input" />
+      <input type="text" id="unlabeled-input" />
+    `;
+    const validator = new FormValidator(form);
+    validator.register('#labeled-input', {});
+    validator.register('#unlabeled-input', {});
+
+    expect(validator.fieldConfigs.get('labeled-input').fieldName).toBe('My Label');
+    expect(validator.fieldConfigs.get('unlabeled-input').fieldName).toBe('Field');
+  });
+
+  test('supports custom insertPoint and stepper insertion target', () => {
+    form.innerHTML = `
+      <div class="workspace-config-field">
+        <input type="text" id="stepper-input" />
+        <div class="stepper"></div>
+      </div>
+      <div id="custom-insert"></div>
+      <input type="text" id="custom-target-input" />
+    `;
+    const validator = new FormValidator(form);
+    validator.register('#stepper-input', {});
+    validator.register('#custom-target-input', {
+      insertPoint: form.querySelector('#custom-insert')
+    });
+
+    const stepperConfig = validator.fieldConfigs.get('stepper-input');
+    expect(stepperConfig.insertPoint.classList.contains('workspace-config-field')).toBe(true);
+
+    const customConfig = validator.fieldConfigs.get('custom-target-input');
+    expect(customConfig.insertPoint).toBeTruthy();
+  });
+
+  test('returns default valid result for non-existent field validation', () => {
+    const validator = new FormValidator(form);
+    const result = validator._validateField('non-existent');
+    expect(result).toEqual({ isValid: true, errors: [] });
+  });
+
+  test('supports passedFormData parameter in _validateField', () => {
+    const validator = new FormValidator(form);
+    validator.register('#name', { rules: ['required'] });
+    document.getElementById('name').value = 'John';
+
+    const customFormData = { age: '30' };
+    const result = validator._validateField('name', customFormData);
+    expect(result.isValid).toBe(true);
+  });
+
+  test('handles addRule for non-existent field gracefully', () => {
+    const validator = new FormValidator(form);
+    expect(() => validator.addRule('non-existent', 'required')).not.toThrow();
+  });
+
+  test('handles getFieldValue for unchecked checkbox, radioCache hit/miss, and unselected radios', () => {
+    form.innerHTML = `
+      <input type="checkbox" id="uncheck" name="uncheck" />
+      <input type="radio" name="opts" value="a" />
+      <input type="radio" name="opts" value="b" />
+    `;
+    const validator = new FormValidator(form);
+    const checkbox = form.querySelector('#uncheck');
+    const radioA = form.querySelectorAll('input[name="opts"]')[0];
+
+    expect(validator._getFieldValue(checkbox)).toBe(false);
+
+    const radioCache = new Map();
+    expect(validator._getFieldValue(radioA, radioCache)).toBeNull();
+    expect(radioCache.has('opts')).toBe(true);
+    expect(radioCache.get('opts')).toBeNull();
+
+    // Secondary lookup uses cache
+    expect(validator._getFieldValue(radioA, radioCache)).toBeNull();
+  });
+
+  test('prevents duplicate error element and success icon creation', () => {
+    const validator = new FormValidator(form, { showSuccessState: true });
+    validator.register('#name', { rules: ['required'] });
+
+    validator._showFieldError('name', 'Error 1');
+    validator._showFieldError('name', 'Error 2');
+    const errors = form.querySelectorAll('.form-error[data-field-id="name"]');
+    expect(errors.length).toBe(1);
+
+    validator._showSuccessIndicator('name');
+    validator._showSuccessIndicator('name');
+    const icons = form.querySelectorAll('.form-success-icon[data-field-id="name"]');
+    expect(icons.length).toBe(1);
+  });
+
+  test('handles submission options toastOnSuccess, scrollToError, focusFirstError when false', async () => {
+    let toastSuccessCalled = false;
+    const origSuccess = toast.success;
+    toast.success = () => { toastSuccessCalled = true; };
+
+    form.innerHTML = '<input type="text" id="name" name="name" data-validate="required" />';
+    document.getElementById('name').value = 'Valid Name';
+
+    const validator = new FormValidator(form, { toastOnSuccess: false });
+
+    const event = new Event('submit', { cancelable: true });
+    await validator._handleSubmit(event);
+
+    expect(toastSuccessCalled).toBe(false);
+
+    toast.success = origSuccess;
+  });
+
+  test('triggers IMMEDIATE validation listener on input when field is dirty/touched', async () => {
+    const validator = new FormValidator(form);
+    const util = await import('../../../src/utils/formValidation.js');
+    validator.register('#name', {
+      rules: ['required'],
+      timing: util.VALIDATION_TIMING.IMMEDIATE
+    });
+
+    const nameField = document.getElementById('name');
+    validator.stateManager.markTouched('name');
+    validator.stateManager.markDirty('name');
+
+    nameField.value = '';
+    nameField.dispatchEvent(new Event('input'));
+
+    expect(nameField.classList.contains('is-invalid')).toBe(true);
+  });
+
+  test('triggers DEBOUNCED validation listener on input when field is dirty/touched', async () => {
+    const validator = new FormValidator(form);
+    const util = await import('../../../src/utils/formValidation.js');
+    validator.register('#name', {
+      rules: ['required'],
+      timing: util.VALIDATION_TIMING.DEBOUNCED,
+      debounceMs: 10
+    });
+
+    const nameField = document.getElementById('name');
+    validator.stateManager.markTouched('name');
+    validator.stateManager.markDirty('name');
+
+    nameField.value = '';
+    nameField.dispatchEvent(new Event('input'));
+
+    expect(nameField.classList.contains('is-invalid')).toBe(false);
+
+    await new Promise(r => setTimeout(r, 20));
+
+    expect(nameField.classList.contains('is-invalid')).toBe(true);
+  });
 });
 
 test.describe('FieldValidator Component', () => {
@@ -501,5 +659,17 @@ test.describe('FieldValidator Component', () => {
     validator.reset();
     expect(field.classList.contains('is-invalid')).toBe(false);
     expect(field.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  test('handles blur event listener to mark touched and validate field', () => {
+    const validator = new FieldValidator(field, {
+      rules: [VALIDATION_RULES.required],
+      timing: VALIDATION_TIMING.BLUR
+    });
+
+    field.value = '';
+    field.dispatchEvent(new Event('blur'));
+
+    expect(field.classList.contains('is-invalid')).toBe(true);
   });
 });
