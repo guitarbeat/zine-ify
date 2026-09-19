@@ -154,7 +154,8 @@ export class PDFProcessor extends MediaProcessor {
   }
 
   /**
-   * Validate file signature (magic bytes) to ensure it's a PDF
+   * Validate file signature (magic bytes) to ensure it's a PDF.
+   * Uses Blob.prototype.bytes() when available to avoid ArrayBuffer allocations.
    * @param {File} file - File to validate
    * @returns {Promise<boolean>} True if file signature matches PDF
    */
