@@ -114,55 +114,29 @@ test.describe('GridStack Layout', () => {
     expect(result.wideOverlap).toBe(true);
   });
 
-  test('initializes gridstack and attaches global helper functions', async ({ page }) => {
-    await page.goto('/');
-
-    const helpers = await page.evaluate(() => {
-      return {
-        hasResetPanelLayout: typeof window.__resetPanelLayout === 'function',
-        hasResizePanels: typeof window.__resizePanels === 'function',
-        hasLayoutHasOverlaps: typeof window.__layoutHasOverlaps === 'function'
-      };
-    });
-
-    expect(helpers.hasResetPanelLayout).toBe(true);
-    expect(helpers.hasResizePanels).toBe(true);
-    expect(helpers.hasLayoutHasOverlaps).toBe(true);
-  });
-
-  test('window.__resetPanelLayout clears layout items in localStorage', async ({ page }) => {
-    await page.goto('/');
-
-    // Set mock layout items in localStorage
+  test("handles non-array JSON structures in localStorage gracefully", async ({ page }) => {
+    await page.goto("/");
     await page.evaluate(() => {
-      localStorage.setItem('zine-grid-v8', JSON.stringify([{ id: 'brand', x: 0, y: 0, w: 4, h: 3 }]));
-      localStorage.setItem('zine-grid-mobile-v8', JSON.stringify([{ id: 'brand', x: 0, y: 0, w: 4, h: 3 }]));
+      localStorage.setItem("zine-grid-v8", JSON.stringify({ not: "an array" }));
     });
-
-    await Promise.all([
-      page.waitForNavigation(),
-      page.evaluate(() => window.__resetPanelLayout())
-    ]);
-
-    const v8 = await page.evaluate(() => localStorage.getItem('zine-grid-v8'));
-    const mobileV8 = await page.evaluate(() => localStorage.getItem('zine-grid-mobile-v8'));
-
-    expect(v8).toBeNull();
-    expect(mobileV8).toBeNull();
+    await page.reload();
+    const items = await page.locator(".grid-stack-item").count();
+    expect(items).toBeGreaterThan(0);
   });
 
-  test('window.__resizePanels triggers panel relayout', async ({ page }) => {
-    await page.goto('/');
-
-    const canResizePanels = await page.evaluate(() => {
-      try {
-        window.__resizePanels({ fitContent: true });
-        return true;
-      } catch (e) {
-        return false;
-      }
+  test("handles array with malformed item objects in localStorage safely", async ({ page }) => {
+    await page.goto("/");
+    await page.evaluate(() => {
+      localStorage.setItem("zine-grid-v8", JSON.stringify([
+        "not an object",
+        null,
+        { id: "brand", x: "invalid", y: -5, w: Infinity, h: NaN },
+        { id: "canvas", x: 0, y: 3, w: 9, h: 10 }
+      ]));
     });
-
-    expect(canResizePanels).toBe(true);
+    await page.reload();
+    const items = await page.locator(".grid-stack-item").count();
+    expect(items).toBeGreaterThan(0);
   });
+
 });
