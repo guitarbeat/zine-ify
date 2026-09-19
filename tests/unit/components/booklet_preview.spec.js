@@ -298,4 +298,63 @@ test.describe('BookletPreview Component', () => {
     expect(() => preview.goNext()).not.toThrow();
     expect(() => preview.finishTurn()).not.toThrow();
   });
+
+  test('handles transitionend event on turnCard to invoke finishTurn', () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton, statusElement });
+    preview.loadPages(['p1.png', 'p2.png']);
+
+    preview.goNext();
+    expect(preview.isAnimating).toBe(true);
+
+    const transitionEndEvent = new dom.window.Event('transitionend');
+    preview.turnCard.dispatchEvent(transitionEndEvent);
+
+    expect(preview.isAnimating).toBe(false);
+    expect(preview.spreadIndex).toBe(1);
+  });
+
+  test('loadPages handles default parameter (undefined) safely', () => {
+    const preview = new BookletPreview({ container });
+    expect(() => preview.loadPages()).not.toThrow();
+    expect(preview.states.length).toBe(5);
+    expect(preview.slotPages.every(p => p === null)).toBe(true);
+  });
+
+  test('updateSpreadMode safely returns when spread element or state is missing/null', () => {
+    const preview = new BookletPreview({ container });
+    preview.spread = null;
+    expect(() => preview.updateSpreadMode({ left: { pageNumber: 1 }, right: null })).not.toThrow();
+
+    const preview2 = new BookletPreview({ container });
+    preview2.spread.className = 'booklet-spread is-single-page';
+    preview2.updateSpreadMode(null);
+    expect(preview2.spread.classList.contains('is-single-page')).toBe(false);
+  });
+
+  test('updateControls correctly sets aria and disabled states on buttons', () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton, statusElement });
+    const fakeImages = Array.from({ length: 8 }, (_, i) => `url-page-${i + 1}.png`);
+    preview.loadPages(fakeImages);
+
+    // Initial state: spread 0
+    expect(prevButton.disabled).toBe(true);
+    expect(prevButton.getAttribute('aria-disabled')).toBe('true');
+    expect(nextButton.disabled).toBe(false);
+    expect(nextButton.getAttribute('aria-disabled')).toBe('false');
+
+    // Go to last spread: spread 4
+    preview.spreadIndex = 4;
+    preview.updateControls();
+
+    expect(prevButton.disabled).toBe(false);
+    expect(prevButton.getAttribute('aria-disabled')).toBe('false');
+    expect(nextButton.disabled).toBe(true);
+    expect(nextButton.getAttribute('aria-disabled')).toBe('true');
+  });
+
+  test('updateStaticSpread safely does nothing if getCurrentState returns undefined', () => {
+    const preview = new BookletPreview({ container });
+    preview.states = [];
+    expect(() => preview.updateStaticSpread()).not.toThrow();
+  });
 });
