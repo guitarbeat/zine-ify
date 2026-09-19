@@ -314,19 +314,32 @@ export class Zine3DViewer {
 
   cleanupExistingPages() {
     this.pages.forEach((page) => this.disposePage(page));
+
+    const objectsToRemove = [];
     this.stacks.forEach((stack) => {
-      this.scene.remove(stack.group);
+      if (stack.group) {
+        objectsToRemove.push(stack.group);
+      }
     });
     this.seams.forEach((seam) => {
-      this.scene.remove(seam.mesh);
+      if (seam.mesh) {
+        objectsToRemove.push(seam.mesh);
+      }
       seam.material?.dispose?.();
       seam.geometry?.dispose?.();
     });
     this.guides.forEach((guide) => {
-      this.scene.remove(guide.mesh);
+      if (guide.mesh) {
+        objectsToRemove.push(guide.mesh);
+      }
       (guide.materials ?? [guide.material]).forEach((material) => material?.dispose?.());
       (guide.geometries ?? [guide.geometry]).forEach((geometry) => geometry?.dispose?.());
     });
+
+    if (objectsToRemove.length > 0) {
+      this.scene.remove(...objectsToRemove);
+    }
+
     this.pages = [];
     this.stacks = [];
     this.seams = [];
