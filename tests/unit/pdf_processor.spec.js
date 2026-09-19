@@ -240,6 +240,22 @@ test.describe('PDFProcessor', () => {
   });
 
   test('loadPDF handles PDF processing error and cleans up', async () => {
+    let cleanupFailedLoadCalled = false;
+    let handlePDFErrorCalled = false;
+
+    const originalCleanupFailedLoad = processor.cleanupFailedLoad.bind(processor);
+    const originalHandlePDFError = processor.handlePDFError.bind(processor);
+
+    processor.cleanupFailedLoad = async () => {
+      cleanupFailedLoadCalled = true;
+      return originalCleanupFailedLoad();
+    };
+
+    processor.handlePDFError = (err) => {
+      handlePDFErrorCalled = true;
+      return originalHandlePDFError(err);
+    };
+
     // Mock getDocument to throw/reject
     processor.ensurePdfJs = async () => ({
       getDocument: () => ({
@@ -258,6 +274,10 @@ test.describe('PDFProcessor', () => {
     const file = new File(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' });
 
     await expect(processor.loadPDF(file)).rejects.toThrow('Simulated PDF library error');
+
+    // Verify error path methods were executed
+    expect(cleanupFailedLoadCalled).toBe(true);
+    expect(handlePDFErrorCalled).toBe(true);
 
     // Verify cleanup happened
     expect(processor.isProcessing).toBe(false);
@@ -295,6 +315,23 @@ test.describe('PDFProcessor', () => {
   test('_internalRender throws error if no PDF loaded', async () => {
     processor.pdf = null;
     await expect(processor._internalRender(1, () => 1)).rejects.toThrow('No PDF loaded');
+  });
+
+  test('_internalRender wraps error and cleans up page when page rendering fails', async () => {
+    let cleanupCalled = false;
+    processor.pdf = {
+      getPage: async () => ({
+        getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
+        render: () => {
+          return { promise: Promise.reject(new Error('Render pipeline crash')) };
+        },
+        cleanup: () => { cleanupCalled = true; }
+      })
+    };
+    processor.ensurePdfJs = async () => true;
+
+    await expect(processor._internalRender(1, () => 1)).rejects.toThrow('Failed to render page 1');
+    expect(cleanupCalled).toBe(true);
   });
 
   test('renderPageThumbnail returns downscaled canvas', async () => {
