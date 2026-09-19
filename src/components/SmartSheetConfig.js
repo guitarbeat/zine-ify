@@ -345,6 +345,6 @@ export class SmartSheetConfig {
   }
 
   destroy() {
-    this.container.innerHTML = '';
+    this.container.replaceChildren();
   }
 }
