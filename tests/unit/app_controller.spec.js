@@ -854,4 +854,168 @@ test.describe('AppController', () => {
 
 
 
+
+  test("processFileQueue handles error when pdfProcessor.loadPDF fails in processPdfUpload", async () => {
+    const { AppController } = await import("../../src/core/AppController.js");
+    const { toast } = await import("../../src/components/Toast.js");
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      let statusText = null;
+      let statusType = null;
+      controller.ui.setStatus = (text, type) => {
+        statusText = text;
+        statusType = type;
+      };
+
+      let progressShown = null;
+      controller.ui.modal.showProgress = (show) => {
+        progressShown = show;
+      };
+
+      controller.pdfProcessor.loadPDF = async () => {
+        throw new Error("Failed to parse PDF document structure");
+      };
+
+      const record = {
+        name: "bad-doc.pdf",
+        kind: "pdf",
+        file: new Blob(["invalid pdf content"], { type: "application/pdf" }),
+        status: "Pending"
+      };
+
+      controller.state.uploadedFiles = [record];
+      controller.state.fileQueue = [record];
+
+      await controller.processFileQueue();
+
+      expect(record.status).toBe("Failed");
+      expect(statusText).toBe("Failed: bad-doc.pdf");
+      expect(statusType).toBe("error");
+      expect(toastErrorTitle).toBe("Import Failed");
+      expect(toastErrorMessage).toBe("Failed to parse PDF document structure");
+      expect(progressShown).toBe(false);
+      expect(controller.state.isProcessingQueue).toBe(false);
+    } finally {
+      toast.error = originalToastError;
+    }
+  });
+
+  test("processFileQueue handles error when pdfProcessor.renderPage fails in processPdfUpload", async () => {
+    const { AppController } = await import("../../src/core/AppController.js");
+    const { toast } = await import("../../src/components/Toast.js");
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      let statusText = null;
+      let statusType = null;
+      controller.ui.setStatus = (text, type) => {
+        statusText = text;
+        statusType = type;
+      };
+
+      let progressShown = null;
+      controller.ui.modal.showProgress = (show) => {
+        progressShown = show;
+      };
+
+      controller.pdfProcessor.loadPDF = async () => ({ numPages: 2 });
+      controller.getSelectedPagesForImport = async () => [1, 2];
+      controller.pdfProcessor.renderPage = async () => {
+        throw new Error("Page rendering memory error");
+      };
+
+      const record = {
+        name: "render-fail.pdf",
+        kind: "pdf",
+        file: new Blob(["pdf data"], { type: "application/pdf" }),
+        status: "Pending"
+      };
+
+      controller.state.uploadedFiles = [record];
+      controller.state.fileQueue = [record];
+
+      await controller.processFileQueue();
+
+      expect(record.status).toBe("Failed");
+      expect(statusText).toBe("Failed: render-fail.pdf");
+      expect(statusType).toBe("error");
+      expect(toastErrorTitle).toBe("Import Failed");
+      expect(toastErrorMessage).toBe("Page rendering memory error");
+      expect(progressShown).toBe(false);
+      expect(controller.state.isProcessingQueue).toBe(false);
+    } finally {
+      toast.error = originalToastError;
+    }
+  });
+
+  test("processFileQueue handles error when pdfProcessor.renderImageFile fails in processImageUpload", async () => {
+    const { AppController } = await import("../../src/core/AppController.js");
+    const { toast } = await import("../../src/components/Toast.js");
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      let statusText = null;
+      let statusType = null;
+      controller.ui.setStatus = (text, type) => {
+        statusText = text;
+        statusType = type;
+      };
+
+      let progressShown = null;
+      controller.ui.modal.showProgress = (show) => {
+        progressShown = show;
+      };
+
+      controller.pdfProcessor.renderImageFile = async () => {
+        throw new Error("Corrupt image data");
+      };
+
+      const record = {
+        name: "corrupt-image.png",
+        kind: "image",
+        file: new Blob(["bad image data"], { type: "image/png" }),
+        status: "Pending"
+      };
+
+      controller.state.uploadedFiles = [record];
+      controller.state.fileQueue = [record];
+
+      await controller.processFileQueue();
+
+      expect(record.status).toBe("Failed");
+      expect(statusText).toBe("Failed: corrupt-image.png");
+      expect(statusType).toBe("error");
+      expect(toastErrorTitle).toBe("Import Failed");
+      expect(toastErrorMessage).toBe("Corrupt image data");
+      expect(progressShown).toBe(false);
+      expect(controller.state.isProcessingQueue).toBe(false);
+    } finally {
+      toast.error = originalToastError;
+    }
+  });
 });
