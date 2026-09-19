@@ -192,6 +192,6 @@ class Toast {
 // Export singleton instance
 export const toast = new Toast();
 
-if (typeof window !== 'undefined' && import.meta.env?.DEV && new URLSearchParams(window.location.search).has('expose-toast')) {
+if (typeof window !== 'undefined' && (import.meta.env?.DEV || (typeof process !== 'undefined' && process.env.NODE_ENV !== 'production')) && new URLSearchParams(window.location.search).has('expose-toast')) {
   window.__zineifyToast = toast;
 }
