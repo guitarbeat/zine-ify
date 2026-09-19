@@ -29,7 +29,7 @@ export class LayoutRenderer {
   }
 
   render(numPages, template, options, handlers, paper = {}) {
-    this.container.innerHTML = '';
+    this.container.replaceChildren();
     
     // Determine number of sheets needed based on template and pages
     const slotsPerSheet = template.grid.rows * template.grid.cols;
