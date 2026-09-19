@@ -104,7 +104,10 @@ export class FormValidator {
       showSuccess: config.showSuccess ?? this.options.showSuccessState,
       helpText: config.helpText || null,
       constraints: config.constraints || null,
-      onValidationChange: config.onValidationChange || null
+      onValidationChange: config.onValidationChange || null,
+      insertPoint: field.closest('.workspace-config-field')?.querySelector('.stepper')
+        ? field.closest('.workspace-config-field')
+        : field
     };
   }
 
@@ -265,7 +268,7 @@ export class FormValidator {
     const config = this.fieldConfigs.get(fieldId);
     if (!config) {return;}
 
-    const { field } = config;
+    const { field, insertPoint } = config;
 
     // Find or create error container
     let errorElement = this._getErrorElement(fieldId);
@@ -276,10 +279,10 @@ export class FormValidator {
       errorElement.setAttribute('aria-live', 'polite');
 
       // Insert after field or after field's parent for grid items
-      const insertPoint = field.closest('.workspace-config-field')?.querySelector('.stepper')
+      const targetPoint = insertPoint || (field.closest('.workspace-config-field')?.querySelector('.stepper')
         ? field.closest('.workspace-config-field')
-        : field;
-      insertPoint.insertAdjacentElement('afterend', errorElement);
+        : field);
+      targetPoint.insertAdjacentElement('afterend', errorElement);
       this.errorElements.set(fieldId, errorElement);
     }
 
