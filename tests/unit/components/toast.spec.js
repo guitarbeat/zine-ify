@@ -249,4 +249,62 @@ test.describe('Toast Component', () => {
     expect(() => toast.remove(toastElement)).not.toThrow();
     await new Promise(resolve => setTimeout(resolve, 350));
   });
+
+  test('should not expose singleton toast on window when expose-toast parameter is absent', async () => {
+    // Set URL without expose-toast parameter
+    const noExposeDom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
+      url: 'http://localhost/'
+    });
+
+    const savedWindow = global.window;
+    const savedDocument = global.document;
+
+    global.window = noExposeDom.window;
+    global.document = noExposeDom.window.document;
+
+    const freshModule = await import('../../../src/components/Toast.js?noexpose=' + Date.now());
+    expect(freshModule.toast).toBeDefined();
+    expect(global.window.__zineifyToast).toBeUndefined();
+
+    global.window = savedWindow;
+    global.document = savedDocument;
+  });
+
+  test('should default to 5000ms duration when duration is omitted in show()', async () => {
+    const { toast } = toastModule;
+    let timeoutCb;
+    let timeoutDelay;
+
+    const originalSetTimeout = global.setTimeout;
+    global.setTimeout = (cb, delay) => {
+      if (delay === 5000) {
+        timeoutCb = cb;
+        timeoutDelay = delay;
+      }
+      return originalSetTimeout(cb, delay);
+    };
+
+    try {
+      toast.show('info', 'Default Duration Test');
+      expect(timeoutDelay).toBe(5000);
+      expect(typeof timeoutCb).toBe('function');
+    } finally {
+      global.setTimeout = originalSetTimeout;
+    }
+  });
+
+  test('should handle auto-close callback safely if toast is removed from DOM before timer fires', async () => {
+    const { toast } = toastModule;
+    const toastElement = toast.show('info', 'Timer Pre-removed', 'Msg', 50);
+
+    const container = global.document.getElementById('toast-container');
+    expect(container.contains(toastElement)).toBe(true);
+
+    // Manually remove toast before auto-close timer fires
+    toastElement.remove();
+
+    // Wait for timer to fire
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(container.contains(toastElement)).toBe(false);
+  });
 });
