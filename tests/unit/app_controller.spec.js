@@ -783,4 +783,77 @@ test.describe('AppController', () => {
     await controller.handleView3d();
   });
 
+  test('getSelectedPagesForImport revokes generated thumbnail blob URLs and hides progress when thumbnail rendering fails', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+
+    const originalInit = AppController.prototype.init;
+    AppController.prototype.init = async () => {};
+
+    try {
+      const controller = new AppController();
+      controller.state.gridSize = { rows: 2, cols: 4 };
+
+      const revokedUrls = [];
+      controller.pdfProcessor.revokeBlobUrl = (url) => {
+        revokedUrls.push(url);
+      };
+
+      controller.pdfProcessor.renderPageThumbnail = async (pageNumber) => {
+        if (pageNumber === 1) {
+          return {};
+        }
+        throw new Error('Thumbnail rendering error on page 2');
+      };
+
+      controller.pdfProcessor.canvasToBlob = async () => 'blob:http://localhost/thumb-1';
+
+      const progressCalls = [];
+      controller.ui.modal.showProgress = (show) => {
+        progressCalls.push(show);
+      };
+
+      await expect(
+        controller.getSelectedPagesForImport('multi_page_doc.pdf', 10)
+      ).rejects.toThrow('Thumbnail rendering error on page 2');
+
+      expect(revokedUrls).toEqual(['blob:http://localhost/thumb-1']);
+      expect(progressCalls).toContain(false);
+    } finally {
+      AppController.prototype.init = originalInit;
+    }
+  });
+
+  test('getSelectedPagesForImport revokes all thumbnail blob URLs after showPagePicker completes', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+
+    const originalInit = AppController.prototype.init;
+    AppController.prototype.init = async () => {};
+
+    try {
+      const controller = new AppController();
+      controller.state.gridSize = { rows: 2, cols: 4 };
+
+      const revokedUrls = [];
+      controller.pdfProcessor.revokeBlobUrl = (url) => {
+        revokedUrls.push(url);
+      };
+
+      controller.pdfProcessor.renderPageThumbnail = async () => ({});
+      controller.pdfProcessor.canvasToBlob = async () => 'blob:http://localhost/thumb-url';
+
+      controller.ui.modal.showProgress = () => {};
+      controller.ui.modal.showPagePicker = async ({ thumbnails }) => {
+        expect(thumbnails.length).toBe(10);
+        return [1, 2, 3];
+      };
+
+      const selected = await controller.getSelectedPagesForImport('doc.pdf', 10);
+      expect(selected).toEqual([1, 2, 3]);
+
+      expect(revokedUrls.length).toBe(10);
+    } finally {
+      AppController.prototype.init = originalInit;
+    }
+  });
+
 });
