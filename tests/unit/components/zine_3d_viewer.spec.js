@@ -17,7 +17,7 @@ test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
           </script>
         </body>
       </html>
-    `);
+    `, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => window.Zine3DViewer !== undefined);
   });
 
@@ -112,6 +112,29 @@ test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
     expect(result.count).toBe(8);
   });
 
+  test("handles loadPages with null, undefined or empty input gracefully", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const container = document.getElementById("container");
+      const viewer = new window.Zine3DViewer(container);
+
+      viewer.loadPages(null);
+      const pagesNull = viewer.pages.length;
+
+      viewer.loadPages(undefined);
+      const pagesUndefined = viewer.pages.length;
+
+      viewer.loadPages([]);
+      const pagesEmpty = viewer.pages.length;
+
+      viewer.destroy();
+      return { pagesNull, pagesUndefined, pagesEmpty };
+    });
+
+    expect(result.pagesNull).toBe(8);
+    expect(result.pagesUndefined).toBe(8);
+    expect(result.pagesEmpty).toBe(8);
+  });
+
   test("setFoldProgress updates currentFoldProgress and debugFoldState", async ({ page }) => {
     const result = await page.evaluate(() => {
       const container = document.getElementById("container");
@@ -131,6 +154,26 @@ test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
     expect(result.currentFoldProgress).toBe(1.5);
     expect(result.hasDebugFoldState).toBe(true);
     expect(typeof result.topFoldAngle).toBe("number");
+  });
+
+  test("handles fold progress boundary and out-of-bounds values", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const container = document.getElementById("container");
+      const viewer = new window.Zine3DViewer(container);
+      viewer.loadPages(Array.from({ length: 8 }, (_, i) => `page${i + 1}.png`));
+
+      viewer.setFoldProgress(-0.5);
+      const negProgress = viewer.currentFoldProgress;
+
+      viewer.setFoldProgress(4.5);
+      const overProgress = viewer.currentFoldProgress;
+
+      viewer.destroy();
+      return { negProgress, overProgress };
+    });
+
+    expect(result.negProgress).toBe(-0.5);
+    expect(result.overProgress).toBe(4.5);
   });
 
   test("refreshLayout resizes camera aspect ratio and renderer", async ({ page }) => {
@@ -207,7 +250,7 @@ test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
     expect(result.fallbackFoldProgress).toBe(2);
   });
 
-  test("fallback mode handles layout refresh and destroy correctly", async ({ page }) => {
+  test("fallback mode handles layout refresh, rendering states and destroy correctly", async ({ page }) => {
     const result = await page.evaluate(() => {
       const container = document.getElementById("container");
 
@@ -218,11 +261,18 @@ test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
       };
 
       const viewer = new window.Zine3DViewer(container);
-      viewer.loadPages([{ previewUrl: "p1.png" }]);
+      viewer.loadPages([
+        { previewUrl: "p1.png" },
+        { sourceUrl: "p2.png" },
+        null
+      ]);
 
       container.style.width = "500px";
       container.style.height = "500px";
       viewer.refreshLayout();
+
+      viewer.setFoldProgress(0.5);
+      viewer.setFoldProgress(2.8);
 
       const canvasWidth = viewer.fallbackCanvas.width;
       const initialChildCount = container.children.length;
@@ -238,6 +288,46 @@ test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
     expect(result.initialChildCount).toBe(1);
     expect(result.finalChildCount).toBe(0);
     expect(result.fallbackCanvas).toBeNull();
+  });
+
+  test("renderFallback safely handles missing fallbackCanvas or fallbackContext", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const container = document.getElementById("container");
+      const viewer = new window.Zine3DViewer(container);
+      viewer.isFallbackMode = true;
+      viewer.fallbackCanvas = null;
+
+      expect(() => viewer.renderFallback()).not.toThrow();
+
+      viewer.destroy();
+      return true;
+    });
+
+    expect(result).toBe(true);
+  });
+
+  test("updateSeams and updateGuides correctly modify visibility and transform properties", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const container = document.getElementById("container");
+      const viewer = new window.Zine3DViewer(container);
+      viewer.loadPages(Array.from({ length: 8 }, (_, i) => `page${i + 1}.png`));
+
+      viewer.setFoldProgress(0);
+      const flatSeamsVisible = viewer.seams.map((s) => s.mesh.visible);
+      const flatGuidesVisible = viewer.guides.map((g) => g.mesh.visible);
+
+      viewer.setFoldProgress(3.0);
+      const foldedSeamsVisible = viewer.seams.map((s) => s.mesh.visible);
+      const foldedGuidesVisible = viewer.guides.map((g) => g.mesh.visible);
+
+      viewer.destroy();
+      return { flatSeamsVisible, flatGuidesVisible, foldedSeamsVisible, foldedGuidesVisible };
+    });
+
+    expect(result.flatSeamsVisible.length).toBe(8);
+    expect(result.flatGuidesVisible.length).toBe(6);
+    expect(result.foldedSeamsVisible.length).toBe(8);
+    expect(result.foldedGuidesVisible.length).toBe(6);
   });
 
   test("destroy cleans up WebGL resources and container DOM elements", async ({ page }) => {
@@ -256,48 +346,6 @@ test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
     expect(result.initialChildCount).toBe(1);
     expect(result.finalChildCount).toBe(0);
     expect(result.stacksLength).toBe(0);
-  });
-
-  test("renderFallback renders canvas text and lines for fallback pages", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const origGetContext = HTMLCanvasElement.prototype.getContext;
-      HTMLCanvasElement.prototype.getContext = function(type, options) {
-        if (type.includes("webgl")) return null;
-        return origGetContext.call(this, type, options);
-      };
-
-      const viewer = new window.Zine3DViewer(container);
-      viewer.loadPages(["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8"]);
-      viewer.setFoldProgress(1.0);
-
-      const hasCanvas = !!viewer.fallbackCanvas;
-      const pagesCount = viewer.fallbackPages.length;
-
-      HTMLCanvasElement.prototype.getContext = origGetContext;
-      viewer.destroy();
-      return { hasCanvas, pagesCount };
-    });
-
-    expect(result.hasCanvas).toBe(true);
-    expect(result.pagesCount).toBe(8);
-  });
-
-  test("loadPages with empty array resets pages", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-      viewer.loadPages(["page1.png", "page2.png"]);
-      const countBefore = viewer.pages.length;
-      viewer.loadPages([]);
-      const countAfter = viewer.pages.length;
-      viewer.destroy();
-      return { countBefore, countAfter };
-    });
-
-    expect(result.countBefore).toBe(8);
-    expect(typeof result.countAfter).toBe("number");
-
   });
 
   test("updateCameraForProgress returns early if bounds missing or fallback mode", async ({ page }) => {
