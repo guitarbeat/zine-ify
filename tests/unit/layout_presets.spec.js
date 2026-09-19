@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { getLayoutPreset, mapReadingPageToPrint, buildPrintSheets, normalizeLayoutPreset, buildPrintCheck } from '../../src/utils/layoutPresets.js';
+import { getLayoutPreset, mapReadingPageToPrint, buildPrintSheets, normalizeLayoutPreset, buildPrintCheck, getPresetOptions } from '../../src/utils/layoutPresets.js';
 
 test.describe('layout presets', () => {
   test('mini zine maps reading pages to print slots', async () => {
@@ -19,6 +19,16 @@ test.describe('layout presets', () => {
     expect(check.sheetCount).toBe(1);
     expect(check.duplex).toBe(true);
     expect(check.margins).toBe(6);
+  });
+  test('getPresetOptions returns preset options excluding custom', () => {
+    const options = getPresetOptions();
+    expect(options.length).toBeGreaterThan(0);
+    expect(options.some((preset) => preset.id === 'custom')).toBe(false);
+    options.forEach((preset) => {
+      expect(preset).toHaveProperty('id');
+      expect(preset).toHaveProperty('name');
+      expect(preset).toHaveProperty('pageCount');
+    });
   });
 });
 
