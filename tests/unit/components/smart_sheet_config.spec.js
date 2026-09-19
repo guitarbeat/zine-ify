@@ -355,6 +355,77 @@ test.describe('SmartSheetConfig Component', () => {
     expect(select.value).toBe('a4');
   });
 
+
+  test("handles invalid initialPaper and initialUnit fallbacks in constructor", () => {
+    const config = new SmartSheetConfig(container, {
+      initialPaper: "invalid-paper-size",
+      initialUnit: "invalid-unit"
+    });
+
+    expect(config.state.paperSize).toBe("invalid-paper-size");
+    expect(config.state.unit).toBe("in");
+    // customPaper seeded from letter since invalid-paper-size was not in PAPER_SIZES
+    expect(config.state.customPaper.width).toBe(215.9);
+    expect(config.state.customPaper.height).toBe(279.4);
+  });
+
+  test("paper recommendation badge visibility and text rendering", () => {
+    // a4 best is portrait
+    const config = new SmartSheetConfig(container, {
+      initialPaper: "a4",
+      initialOrientation: "portrait"
+    });
+
+    let recommendEl = container.querySelector(".smart-sheet-paper-recommend");
+    expect(recommendEl.classList.contains("is-visible")).toBe(true);
+    expect(recommendEl.textContent).toContain("Optimal for mini-zine folding");
+
+    // Change orientation to landscape -> recommendation is-visible should be false
+    const landscapeBtn = container.querySelector(".smart-sheet-orientation-btn[data-value=\"landscape\"]");
+    landscapeBtn.click();
+    recommendEl = container.querySelector(".smart-sheet-paper-recommend");
+    expect(recommendEl.classList.contains("is-visible")).toBe(false);
+
+    // Custom paper size -> recommendation is-visible should be false
+    const select = container.querySelector("select[data-field=\"paperSize\"]");
+    select.value = "custom";
+    select.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+    recommendEl = container.querySelector(".smart-sheet-paper-recommend");
+    expect(recommendEl.classList.contains("is-visible")).toBe(false);
+  });
+
+  test("disables margin stepper buttons at boundaries", () => {
+    const config = new SmartSheetConfig(container);
+
+    // At MARGIN_MIN (0)
+    config.setMargin(MARGIN_MIN);
+    let decBtn = container.querySelector("[data-margin-delta=\"-1\"]");
+    let incBtn = container.querySelector("[data-margin-delta=\"1\"]");
+    expect(decBtn.hasAttribute("disabled")).toBe(true);
+    expect(incBtn.hasAttribute("disabled")).toBe(false);
+
+    // At MARGIN_MAX (25)
+    config.setMargin(MARGIN_MAX);
+    decBtn = container.querySelector("[data-margin-delta=\"-1\"]");
+    incBtn = container.querySelector("[data-margin-delta=\"1\"]");
+    expect(decBtn.hasAttribute("disabled")).toBe(false);
+    expect(incBtn.hasAttribute("disabled")).toBe(true);
+  });
+
+  test("handles stepper click with NaN or missing data-margin-delta", () => {
+    const config = new SmartSheetConfig(container);
+    config.setMargin(10);
+
+    const btn = document.createElement("button");
+    btn.className = "smart-sheet-stepper-btn";
+    btn.dataset.marginDelta = "not-a-number";
+    container.appendChild(btn);
+
+    btn.click();
+    // sign is 0, so margin remains 10
+    expect(config.state.margin).toBe(10);
+  });
+
   test('destroy clears the container', () => {
     const config = new SmartSheetConfig(container);
     expect(container.innerHTML).not.toBe('');
