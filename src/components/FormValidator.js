@@ -184,22 +184,34 @@ export class FormValidator {
 
   /**
    * Get field value (handles different input types)
+   * @param {HTMLElement} field - Field element
+   * @param {Map<string, *>} [radioCache] - Optional cache for radio group values during form data extraction
    */
-  _getFieldValue(field) {
+  _getFieldValue(field, radioCache = null) {
     if (field.type === 'checkbox') {return field.checked;}
     if (field.type === 'radio') {
+      if (radioCache && radioCache.has(field.name)) {
+        return radioCache.get(field.name);
+      }
+      let value = null;
       const elements = this.form.elements[field.name];
       if (elements) {
         const isIterable = elements.length !== undefined && !elements.tagName;
         if (isIterable) {
           for (let i = 0; i < elements.length; i++) {
-            if (elements[i].checked) {return elements[i].value;}
+            if (elements[i].checked) {
+              value = elements[i].value;
+              break;
+            }
           }
         } else {
-          if (elements.checked) {return elements.value;}
+          if (elements.checked) {value = elements.value;}
         }
       }
-      return null;
+      if (radioCache) {
+        radioCache.set(field.name, value);
+      }
+      return value;
     }
     if (field.type === 'select-multiple') {
       return Array.from(field.selectedOptions).map(opt => opt.value);
@@ -212,8 +224,9 @@ export class FormValidator {
    */
   _getFormData() {
     const data = {};
+    const radioCache = new Map();
     for (const [fieldId, config] of this.fieldConfigs) {
-      data[fieldId] = this._getFieldValue(config.field);
+      data[fieldId] = this._getFieldValue(config.field, radioCache);
     }
     return data;
   }
