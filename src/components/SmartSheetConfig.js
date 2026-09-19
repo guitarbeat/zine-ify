@@ -11,7 +11,7 @@ import {
   LAYOUT_PRESETS
 } from '../utils/config.js';
 
-const FIXED_ROWS = 2;
+const FIXED_ROWS = 3;
 const FIXED_COLS = 4;
 
 const PAPER_RECOMMENDATIONS = {
@@ -38,7 +38,7 @@ export class SmartSheetConfig {
     this.state = {
       rows: FIXED_ROWS,
       cols: FIXED_COLS,
-      layoutPresetId: 'mini-8',
+      layoutPresetId: 'layout-12',
       paperSize: this.options.initialPaper,
       orientation: this.options.initialOrientation,
       margin: 0,
@@ -71,21 +71,13 @@ export class SmartSheetConfig {
             <span class="smart-sheet-hint">Choose how the sheet folds</span>
           </div>
           <div class="smart-sheet-preset-list" role="group" aria-label="Layout presets">
-            ${Object.values(LAYOUT_PRESETS).filter((preset) => preset.id !== 'custom').map((preset) => `
+            ${Object.values(LAYOUT_PRESETS).filter((preset) => preset.id === 'layout-12').map((preset) => `
               <button type="button" class="smart-sheet-preset ${this.state.layoutPresetId === preset.id ? 'is-active' : ''}" data-preset="${preset.id}" aria-pressed="${this.state.layoutPresetId === preset.id}">
                 <span>${preset.name}</span><small>${preset.sheetGrid.rows} × ${preset.sheetGrid.cols}</small>
               </button>
             `).join('')}
           </div>
         </div>
-
-        <details class="smart-sheet-section smart-sheet-custom-grid">
-          <summary class="smart-sheet-label">Custom grid</summary>
-          <div class="smart-sheet-grid-fields">
-            <label>Rows <input type="number" min="1" max="10" data-field="rows" value="${this.state.rows}" /></label>
-            <label>Columns <input type="number" min="1" max="10" data-field="cols" value="${this.state.cols}" /></label>
-          </div>
-        </details>
 
         <div class="smart-sheet-section">
           <div class="smart-sheet-header">
