@@ -114,8 +114,9 @@ function saveLayout() {
   if (!grid || isRelayouting) { return; }
   try {
     localStorage.setItem(storageKey(), JSON.stringify(grid.save(false)));
-  } catch {
-    // ignore storage errors
+  } catch (error) {
+    /* eslint-disable-next-line no-console */
+    console.warn('Failed to save grid layout to localStorage:', error);
   }
 }
 
