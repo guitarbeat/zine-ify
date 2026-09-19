@@ -297,6 +297,40 @@ test.describe('PDFProcessor', () => {
     await expect(processor._internalRender(1, () => 1)).rejects.toThrow('No PDF loaded');
   });
 
+  test('_internalRender wraps render errors and still cleans up page resources', async () => {
+    let pageCleanedUp = false;
+    processor.pdf = {
+      getPage: async (pageNum) => ({
+        getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
+        render: () => ({
+          promise: Promise.reject(new Error('Rendering task failed'))
+        }),
+        cleanup: () => {
+          pageCleanedUp = true;
+        }
+      })
+    };
+    processor.ensurePdfJs = async () => true;
+
+    await expect(processor._internalRender(1, () => 1.0)).rejects.toThrow(
+      'Failed to render page 1'
+    );
+    expect(pageCleanedUp).toBe(true);
+  });
+
+  test('_internalRender wraps getPage errors when retrieving page fails', async () => {
+    processor.pdf = {
+      getPage: async () => {
+        throw new Error('Page 1 does not exist');
+      }
+    };
+    processor.ensurePdfJs = async () => true;
+
+    await expect(processor._internalRender(1, () => 1.0)).rejects.toThrow(
+      'Failed to render page 1'
+    );
+  });
+
   test('renderPageThumbnail returns downscaled canvas', async () => {
     processor.pdf = {
       getPage: async () => ({
@@ -341,10 +375,10 @@ test.describe('PDFProcessor', () => {
   });
 
   test('loadPDF logs console.warn when destroying loadingTask fails during timeout', async () => {
-    let warnArgs = null;
+    const warnMessages = [];
     const origWarn = console.warn;
     /* eslint-disable-next-line no-console */
-    console.warn = (...args) => { warnArgs = args; };
+    console.warn = (...args) => { warnMessages.push(args); };
 
     processor.ensurePdfJs = async () => ({
       getDocument: () => ({
@@ -369,9 +403,10 @@ test.describe('PDFProcessor', () => {
 
     try {
       await expect(processor.loadPDF(file)).rejects.toThrow('PDF loading timed out');
-      expect(warnArgs).not.toBeNull();
-      expect(warnArgs[0]).toBe('Failed to destroy PDF loading task on timeout:');
-      expect(warnArgs[1].message).toBe('Destroy failed');
+      expect(warnMessages.length).toBeGreaterThan(0);
+      const timeoutWarn = warnMessages.find(args => args[0] === 'Failed to destroy PDF loading task on timeout:');
+      expect(timeoutWarn).toBeDefined();
+      expect(timeoutWarn[1].message).toBe('Destroy failed');
     } finally {
       global.setTimeout = origSetTimeout;
       /* eslint-disable-next-line no-console */
