@@ -317,21 +317,58 @@ test.describe('PDFProcessor', () => {
     await expect(processor._internalRender(1, () => 1)).rejects.toThrow('No PDF loaded');
   });
 
-  test('_internalRender wraps error and cleans up page when page rendering fails', async () => {
+  test('_internalRender catches render error, cleans up page, and rethrows wrapped error', async () => {
     let cleanupCalled = false;
+    const renderError = new Error('Render failed');
+
     processor.pdf = {
-      getPage: async () => ({
+      getPage: async (pageNum) => ({
         getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
-        render: () => {
-          return { promise: Promise.reject(new Error('Render pipeline crash')) };
-        },
-        cleanup: () => { cleanupCalled = true; }
+        render: () => ({
+          promise: Promise.reject(renderError)
+        }),
+        cleanup: () => {
+          cleanupCalled = true;
+        }
       })
     };
+
     processor.ensurePdfJs = async () => true;
 
-    await expect(processor._internalRender(1, () => 1)).rejects.toThrow('Failed to render page 1');
+    let thrownError;
+    try {
+      await processor._internalRender(1, () => 1.0);
+    } catch (err) {
+      thrownError = err;
+    }
+
+    expect(thrownError).toBeDefined();
+    expect(thrownError.message).toBe('Failed to render page 1');
+    expect(thrownError.cause).toBe(renderError);
     expect(cleanupCalled).toBe(true);
+  });
+
+  test('_internalRender handles page fetch error without invoking page cleanup', async () => {
+    const getPageError = new Error('Page 99 does not exist');
+
+    processor.pdf = {
+      getPage: async () => {
+        throw getPageError;
+      }
+    };
+
+    processor.ensurePdfJs = async () => true;
+
+    let thrownError;
+    try {
+      await processor._internalRender(99, () => 1.0);
+    } catch (err) {
+      thrownError = err;
+    }
+
+    expect(thrownError).toBeDefined();
+    expect(thrownError.message).toBe('Failed to render page 99');
+    expect(thrownError.cause).toBe(getPageError);
   });
 
   test('renderPageThumbnail returns downscaled canvas', async () => {
@@ -871,3 +908,20 @@ test.describe('PDFProcessor Media handling', () => {
     }
   });
 });
+  test('_internalRender wraps error and cleans up page when page rendering fails', async () => {
+    let cleanupCalled = false;
+    processor.pdf = {
+      getPage: async () => ({
+        getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
+        render: () => {
+          return { promise: Promise.reject(new Error('Render pipeline crash')) };
+        },
+        cleanup: () => { cleanupCalled = true; }
+      })
+    };
+    processor.ensurePdfJs = async () => true;
+
+    await expect(processor._internalRender(1, () => 1)).rejects.toThrow('Failed to render page 1');
+    expect(cleanupCalled).toBe(true);
+  });
+

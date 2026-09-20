@@ -23,7 +23,7 @@ test.describe('AppController', () => {
 
     const { PDFProcessor } = await import('../../src/services/PDFProcessor.js');
     const { AppController } = await import('../../src/core/AppController.js');
-    originalInitialize = PDFProcessor.prototype.initialize;
+    const originalInitialize = PDFProcessor.prototype.initialize;
     originalRenderCurrentLayout = AppController.prototype.renderCurrentLayout;
     PDFProcessor.prototype.initialize = async () => {};
     AppController.prototype.renderCurrentLayout = () => {};
@@ -46,6 +46,38 @@ test.describe('AppController', () => {
     }
   });
 
+  test('init handles pdfProcessor.initialize error with fallback message when error.message is missing', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+    const { toast } = await import('../../src/components/Toast.js');
+    const { PDFProcessor } = await import('../../src/services/PDFProcessor.js');
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    const originalInitialize = PDFProcessor.prototype.initialize;
+    PDFProcessor.prototype.initialize = async () => {
+      throw {};
+    };
+
+    try {
+      const controller = new AppController();
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(toastErrorTitle).toBe('Initialization Failed');
+      expect(toastErrorMessage).toBe('An error occurred');
+      expect(controller).toBeDefined();
+    } finally {
+      PDFProcessor.prototype.initialize = originalInitialize;
+      toast.error = originalToastError;
+    }
+  });
+
   test('init handles pdfProcessor.initialize error correctly', async () => {
     // Import modules dynamically after jsdom is set
     const { AppController } = await import('../../src/core/AppController.js');
@@ -60,7 +92,7 @@ test.describe('AppController', () => {
       toastErrorMessage = message;
     };
 
-    originalInitialize = PDFProcessor.prototype.initialize;
+    const originalInitialize = PDFProcessor.prototype.initialize;
     PDFProcessor.prototype.initialize = async () => {
       throw new Error('Mock PDF initialization failure');
     };
@@ -784,6 +816,80 @@ test.describe('AppController', () => {
   });
 
 
+  test('getSelectedPagesForImport revokes generated thumbnail blob URLs and hides progress when thumbnail rendering fails', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+
+    const originalInit = AppController.prototype.init;
+    AppController.prototype.init = async () => {};
+
+    try {
+      const controller = new AppController();
+      controller.state.gridSize = { rows: 2, cols: 4 };
+
+      const revokedUrls = [];
+      controller.pdfProcessor.revokeBlobUrl = (url) => {
+        revokedUrls.push(url);
+      };
+
+      controller.pdfProcessor.renderPageThumbnail = async (pageNumber) => {
+        if (pageNumber === 1) {
+          return {};
+        }
+        throw new Error('Thumbnail rendering error on page 2');
+      };
+
+      controller.pdfProcessor.canvasToBlob = async () => 'blob:http://localhost/thumb-1';
+
+      const progressCalls = [];
+      controller.ui.modal.showProgress = (show) => {
+        progressCalls.push(show);
+      };
+
+      await expect(
+        controller.getSelectedPagesForImport('multi_page_doc.pdf', 10)
+      ).rejects.toThrow('Thumbnail rendering error on page 2');
+
+      expect(revokedUrls).toEqual(['blob:http://localhost/thumb-1']);
+      expect(progressCalls).toContain(false);
+    } finally {
+      AppController.prototype.init = originalInit;
+    }
+  });
+
+  test('getSelectedPagesForImport revokes all thumbnail blob URLs after showPagePicker completes', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+
+    const originalInit = AppController.prototype.init;
+    AppController.prototype.init = async () => {};
+
+    try {
+      const controller = new AppController();
+      controller.state.gridSize = { rows: 2, cols: 4 };
+
+      const revokedUrls = [];
+      controller.pdfProcessor.revokeBlobUrl = (url) => {
+        revokedUrls.push(url);
+      };
+
+      controller.pdfProcessor.renderPageThumbnail = async () => ({});
+      controller.pdfProcessor.canvasToBlob = async () => 'blob:http://localhost/thumb-url';
+
+      controller.ui.modal.showProgress = () => {};
+      controller.ui.modal.showPagePicker = async ({ thumbnails }) => {
+        expect(thumbnails.length).toBe(10);
+        return [1, 2, 3];
+      };
+
+      const selected = await controller.getSelectedPagesForImport('doc.pdf', 10);
+      expect(selected).toEqual([1, 2, 3]);
+
+      expect(revokedUrls.length).toBe(10);
+    } finally {
+      AppController.prototype.init = originalInit;
+    }
+  });
+
+});
   test("handleView3d handles error during preview rendering with custom error message", async () => {
     const { AppController } = await import("../../src/core/AppController.js");
     const { toast } = await import("../../src/components/Toast.js");
