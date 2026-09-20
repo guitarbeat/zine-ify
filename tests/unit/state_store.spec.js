@@ -9,7 +9,7 @@ test.describe("StateStore", () => {
   });
 
   test("constructor initializes with correct default state", () => {
-    expect(store.allPageImages.length).toBe(8);
+    expect(store.allPageImages.length).toBe(12);
     expect(store.allPageImages.every(img => img === null)).toBe(true);
     expect(store._blankPageUrl).toBeNull();
     expect(store.pageFlips).toEqual({});
@@ -17,7 +17,7 @@ test.describe("StateStore", () => {
     expect(store.pageTransforms).toEqual({});
     expect(store.pageNumberVisibility).toEqual({});
     expect(store.selectedPageIndex).toBeNull();
-    expect(store.layoutPresetId).toBe("mini-8");
+    expect(store.layoutPresetId).toBe("layout-12");
     expect(store.guideToggles).toEqual({
       fold: true,
       cut: true,
@@ -36,7 +36,7 @@ test.describe("StateStore", () => {
     expect(store.projectMeta.name).toBe("Untitled zine");
     expect(typeof store.projectMeta.createdAt).toBe("number");
     expect(typeof store.projectMeta.updatedAt).toBe("number");
-    expect(store.gridSize).toEqual({ rows: 2, cols: 4 });
+    expect(store.gridSize).toEqual({ rows: 3, cols: 4 });
     expect(store.uploadedFiles).toEqual([]);
     expect(store.totalPages).toBe(0);
     expect(store.fileQueue).toEqual([]);
@@ -72,29 +72,37 @@ test.describe("StateStore", () => {
     store.allPageImages[2] = null;
     expect(store.getFilledPageCount()).toBe(4); // still 4 because index 3 is filled
 
-    store.allPageImages = new Array(8).fill(null);
-    store.allPageImages[7] = "img8.jpg";
-    expect(store.getFilledPageCount()).toBe(8);
+    store.allPageImages = new Array(12).fill(null);
+    store.allPageImages[11] = "img12.jpg";
+    expect(store.getFilledPageCount()).toBe(12);
   });
 
   test("getRequiredPageCapacity calculates correctly based on grid size and total pages", () => {
-    // Default 2x4 grid = 8 slots per sheet
-    expect(store.getRequiredPageCapacity()).toBe(8); // min 1 sheet for totalPages = 0
+    // Default 3x4 grid = 12 slots per sheet
+    expect(store.getRequiredPageCapacity()).toBe(12); // min 1 sheet for totalPages = 0
 
     store.totalPages = 0;
-    expect(store.getRequiredPageCapacity()).toBe(8);
+    expect(store.getRequiredPageCapacity()).toBe(12);
 
     store.totalPages = -5;
-    expect(store.getRequiredPageCapacity()).toBe(8);
+    expect(store.getRequiredPageCapacity()).toBe(12);
 
     store.totalPages = 5;
-    expect(store.getRequiredPageCapacity()).toBe(8);
+    expect(store.getRequiredPageCapacity()).toBe(12);
 
-    store.totalPages = 8;
+    store.totalPages = 12;
+    expect(store.getRequiredPageCapacity()).toBe(12);
+
+    store.totalPages = 13;
+    expect(store.getRequiredPageCapacity()).toBe(24); // needs 2 sheets
+
+    // Change grid size to 2x4 = 8 slots per sheet
+    store.gridSize = { rows: 2, cols: 4 };
+    store.totalPages = 1;
     expect(store.getRequiredPageCapacity()).toBe(8);
 
     store.totalPages = 9;
-    expect(store.getRequiredPageCapacity()).toBe(16); // needs 2 sheets
+    expect(store.getRequiredPageCapacity()).toBe(16);
 
     // Change grid size to 1x2 = 2 slots per sheet
     store.gridSize = { rows: 1, cols: 2 };
@@ -111,7 +119,10 @@ test.describe("StateStore", () => {
   });
 
   test("isMiniZineLayout identifies 2x4 grid", () => {
-    expect(store.isMiniZineLayout()).toBe(true); // Default is 2x4
+    expect(store.isMiniZineLayout()).toBe(false); // Default is 3x4
+
+    store.gridSize = { rows: 2, cols: 4 };
+    expect(store.isMiniZineLayout()).toBe(true);
 
     store.gridSize = { rows: 2, cols: 2 };
     expect(store.isMiniZineLayout()).toBe(false);
@@ -426,8 +437,8 @@ test.describe("StateStore", () => {
 
     store.restoreProjectJSON({});
 
-    expect(store.layoutPresetId).toBe("mini-8"); // preserved
-    expect(store.gridSize).toEqual({ rows: 2, cols: 4 });
+    expect(store.layoutPresetId).toBe("layout-12"); // preserved default
+    expect(store.gridSize).toEqual({ rows: 3, cols: 4 });
     expect(store.selectedPageIndex).toBeNull();
     expect(store.paperSize).toBe("letter");
     expect(store.orientation).toBe("landscape");
