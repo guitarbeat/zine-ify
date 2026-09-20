@@ -887,7 +887,6 @@ test.describe('AppController', () => {
     } finally {
       AppController.prototype.init = originalInit;
     }
-  });
 
 });
   test("handleView3d handles error during preview rendering with custom error message", async () => {
