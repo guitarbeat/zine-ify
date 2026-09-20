@@ -357,4 +357,113 @@ test.describe('BookletPreview Component', () => {
     preview.states = [];
     expect(() => preview.updateStaticSpread()).not.toThrow();
   });
+  test("initializes DOM accessibility attributes on shell, shadow, spine, turnLayer, and page alt texts", () => {
+    const preview = new BookletPreview({ container });
+    expect(preview.shell.getAttribute("role")).toBe("group");
+    expect(preview.shell.tabIndex).toBe(0);
+    expect(preview.shell.getAttribute("aria-label")).toContain("Booklet spread preview");
+
+    const shadow = preview.shell.querySelector(".booklet-shadow");
+    const spine = preview.shell.querySelector(".booklet-spine");
+    expect(shadow.getAttribute("aria-hidden")).toBe("true");
+    expect(spine.getAttribute("aria-hidden")).toBe("true");
+    expect(preview.turnLayer.getAttribute("aria-hidden")).toBe("true");
+
+    const leftImg = preview.leftPage.querySelector(".booklet-page-media");
+    const rightImg = preview.rightPage.querySelector(".booklet-page-media");
+    expect(leftImg.alt).toBe("Left page preview");
+    expect(rightImg.alt).toBe("Right page preview");
+  });
+
+  test("setPageFace handles page object without image URL (pageNumber present, no previewUrl/sourceUrl)", () => {
+    const preview = new BookletPreview({ container });
+    preview.setPageFace(preview.leftPage, { pageNumber: 3 });
+
+    const img = preview.leftPage.querySelector(".booklet-page-media");
+    const placeholder = preview.leftPage.querySelector(".booklet-page-placeholder");
+    const label = preview.leftPage.querySelector(".booklet-page-label");
+
+    expect(img.hasAttribute("src")).toBe(false);
+    expect(img.classList.contains("is-visible")).toBe(false);
+    expect(placeholder.textContent).toBe("Page 3");
+    expect(label.textContent).toBe("Page 3");
+    expect(label.hidden).toBe(false);
+    expect(preview.leftPage.dataset.pageNumber).toBe("3");
+    expect(img.alt).toBe("Page 3 preview");
+  });
+
+  test("setPageFace safely handles element missing .booklet-page-label child", () => {
+    const preview = new BookletPreview({ container });
+    const customElem = document.createElement("div");
+    const img = document.createElement("img");
+    img.className = "booklet-page-media";
+    const placeholder = document.createElement("span");
+    placeholder.className = "booklet-page-placeholder";
+    customElem.appendChild(img);
+    customElem.appendChild(placeholder);
+
+    expect(() => preview.setPageFace(customElem, { pageNumber: 1, previewUrl: "p1.png" })).not.toThrow();
+    expect(img.src).toContain("p1.png");
+  });
+
+  test("hideTurnLayer and showTurnLayer handle missing turnLayer element safely", () => {
+    const preview = new BookletPreview({ container });
+    preview.turnLayer = null;
+
+    expect(() => preview.hideTurnLayer()).not.toThrow();
+    expect(() => preview.showTurnLayer(1)).not.toThrow();
+    expect(() => preview.showTurnLayer(-1)).not.toThrow();
+  });
+
+  test("updateSpreadMode handles state with both left and right null", () => {
+    const preview = new BookletPreview({ container });
+    preview.spread.classList.add("is-single-page");
+
+    preview.updateSpreadMode({ left: null, right: null });
+    expect(preview.spread.classList.contains("is-single-page")).toBe(false);
+  });
+
+  test("updateControls handles null or empty states array safely", () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton });
+    preview.states = null;
+    expect(() => preview.updateControls()).not.toThrow();
+
+    preview.states = [];
+    expect(() => preview.updateControls()).not.toThrow();
+  });
+
+  test("handles keyboard navigation boundary conditions and non-arrow keys", () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton, statusElement });
+    const fakeImages = Array.from({ length: 8 }, (_, i) => `url-page-${i + 1}.png`);
+    preview.loadPages(fakeImages);
+
+    // At spreadIndex 0, ArrowLeft should prevent default but not start turn
+    const leftArrowEvent = new dom.window.KeyboardEvent("keydown", { key: "ArrowLeft", cancelable: true });
+    preview.shell.dispatchEvent(leftArrowEvent);
+    expect(leftArrowEvent.defaultPrevented).toBe(true);
+    expect(preview.isAnimating).toBe(false);
+
+    // At last spread (4), ArrowRight should prevent default but not start turn
+    preview.spreadIndex = 4;
+    preview.updateStaticSpread();
+    preview.updateControls();
+
+    const rightArrowEvent = new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", cancelable: true });
+    preview.shell.dispatchEvent(rightArrowEvent);
+    expect(rightArrowEvent.defaultPrevented).toBe(true);
+    expect(preview.isAnimating).toBe(false);
+  });
+
+  test("loadPages handles array of page objects with existing previewUrl or sourceUrl", () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton, statusElement });
+    const pageObjects = Array.from({ length: 8 }, (_, i) => ({
+      previewUrl: `preview-${i + 1}.png`,
+      sourceUrl: `source-${i + 1}.png`,
+      pageNumber: i + 1
+    }));
+
+    preview.loadPages(pageObjects);
+    expect(preview.states.length).toBe(5);
+    expect(preview.slotPages.find(p => p.pageNumber === 1).previewUrl).toBe("preview-1.png");
+  });
 });
