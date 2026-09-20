@@ -888,8 +888,6 @@ test.describe('AppController', () => {
       AppController.prototype.init = originalInit;
     }
   });
-
-});
   test("handleView3d handles error during preview rendering with custom error message", async () => {
     const { AppController } = await import("../../src/core/AppController.js");
     const { toast } = await import("../../src/components/Toast.js");
