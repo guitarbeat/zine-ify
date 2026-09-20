@@ -531,6 +531,81 @@ test.describe('FormValidator Component', () => {
 
     expect(nameField.classList.contains('is-invalid')).toBe(true);
   });
+
+  test('validateField validates a specific field programmatically and marks touched', () => {
+    const validator = new FormValidator(form);
+    validator.register('#name', { rules: ['required'] });
+    document.getElementById('name').value = '';
+
+    const result = validator.validateField('name');
+
+    expect(result.isValid).toBe(false);
+    expect(validator.stateManager.fields.get('name').state).toBe('touched');
+    expect(document.getElementById('name').classList.contains('is-invalid')).toBe(true);
+  });
+
+  test('handles single radio element when checked or unchecked', () => {
+    form.innerHTML = '<input type="radio" id="single-radio" name="solo" value="yes" />';
+    const validator = new FormValidator(form);
+    const radio = document.getElementById('single-radio');
+
+    expect(validator._getFieldValue(radio)).toBeNull();
+
+    radio.checked = true;
+    expect(validator._getFieldValue(radio)).toBe('yes');
+  });
+
+  test('auto-detects common attributes and constraints during field discovery', () => {
+    form.innerHTML = `
+      <input type="email" id="email-field" required minlength="5" maxlength="50" data-validate="" />
+      <input type="number" id="num-field" min="1" max="10" data-validate="" />
+      <input type="text" id="type-num-field" data-type="number" data-validate="" />
+    `;
+    const validator = new FormValidator(form);
+
+    const emailConfig = validator.fieldConfigs.get('email-field');
+    expect(emailConfig.rules).toContain('required');
+    expect(emailConfig.rules).toContain('email');
+    expect(emailConfig.constraints.minLength).toBe(5);
+    expect(emailConfig.constraints.maxLength).toBe(50);
+
+    const numConfig = validator.fieldConfigs.get('num-field');
+    expect(numConfig.rules).toContain('integer');
+    expect(numConfig.constraints.min).toBe(1);
+    expect(numConfig.constraints.max).toBe(10);
+
+    const typeNumConfig = validator.fieldConfigs.get('type-num-field');
+    expect(typeNumConfig.rules).toContain('integer');
+  });
+
+  test('removes disconnected error element from cache and retrieves fresh element', () => {
+    const validator = new FormValidator(form);
+    validator.register('#name', { rules: ['required'] });
+    validator._showFieldError('name', 'Some error');
+
+    const firstErr = validator._getErrorElement('name');
+    expect(firstErr).toBeTruthy();
+
+    firstErr.remove(); // disconnect from DOM
+
+    const secondErr = validator._getErrorElement('name');
+    expect(secondErr).toBeNull();
+    expect(validator.errorElements.has('name')).toBe(false);
+  });
+
+  test('scrolls to first error when scrollToError is enabled during form submission', async () => {
+    form.innerHTML = '<input type="text" id="name" name="name" data-validate="required" />';
+    const validator = new FormValidator(form, { scrollToError: true, focusFirstError: true });
+
+    let scrollCalled = false;
+    const nameField = document.getElementById('name');
+    nameField.scrollIntoView = () => { scrollCalled = true; };
+
+    const event = new Event('submit', { cancelable: true });
+    await validator._handleSubmit(event);
+
+    expect(scrollCalled).toBe(true);
+  });
 });
 
 test.describe('FieldValidator Component', () => {
@@ -671,5 +746,18 @@ test.describe('FieldValidator Component', () => {
     field.dispatchEvent(new Event('blur'));
 
     expect(field.classList.contains('is-invalid')).toBe(true);
+  });
+
+  test('uses custom fieldName option in validation error message', () => {
+    const validator = new FieldValidator(field, {
+      rules: [VALIDATION_RULES.required],
+      fieldName: 'Custom Name'
+    });
+
+    field.value = '';
+    const result = validator.validate();
+
+    expect(result.isValid).toBe(false);
+    expect(result.errors[0]).toContain('Custom Name');
   });
 });
