@@ -105,9 +105,9 @@ export class FormValidator {
       helpText: config.helpText || null,
       constraints: config.constraints || null,
       onValidationChange: config.onValidationChange || null,
-      insertPoint: field.closest('.workspace-config-field')?.querySelector('.stepper')
+      insertPoint: config.insertPoint || (field.closest('.workspace-config-field')?.querySelector('.stepper')
         ? field.closest('.workspace-config-field')
-        : field
+        : field)
     };
   }
 
@@ -279,9 +279,7 @@ export class FormValidator {
       errorElement.setAttribute('aria-live', 'polite');
 
       // Insert after field or after field's parent for grid items
-      const targetPoint = insertPoint || (field.closest('.workspace-config-field')?.querySelector('.stepper')
-        ? field.closest('.workspace-config-field')
-        : field);
+      const targetPoint = insertPoint || field;
       targetPoint.insertAdjacentElement('afterend', errorElement);
       this.errorElements.set(fieldId, errorElement);
     }
