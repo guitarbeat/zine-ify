@@ -889,7 +889,6 @@ test.describe('AppController', () => {
     }
   });
 
-});
   test("handleView3d handles error during preview rendering with custom error message", async () => {
     const { AppController } = await import("../../src/core/AppController.js");
     const { toast } = await import("../../src/components/Toast.js");
@@ -959,4 +958,53 @@ test.describe('AppController', () => {
       toast.error = originalToastError;
     }
   });
+
+  test('handleExport handles error thrown during state post-processing after export', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+    const { toast } = await import('../../src/components/Toast.js');
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    const originalInit = AppController.prototype.init;
+    AppController.prototype.init = async () => {};
+
+    try {
+      const controller = new AppController();
+      controller.state.getFilledPageCount = () => 1;
+
+      controller.exportService = {
+        handleExport: async () => {}
+      };
+
+      controller.state.markExported = () => {
+        throw new Error('State update failed');
+      };
+
+      const progressCalls = [];
+      controller.ui.modal = {
+        showProgress: (show, message) => {
+          progressCalls.push({ show, message });
+        }
+      };
+
+      await controller.handleExport();
+
+      expect(toastErrorTitle).toBe('Export Failed');
+      expect(toastErrorMessage).toBe('State update failed');
+      expect(progressCalls).toEqual([
+        { show: true, message: 'Generating PDF...' },
+        { show: false, message: undefined }
+      ]);
+    } finally {
+      AppController.prototype.init = originalInit;
+      toast.error = originalToastError;
+    }
+  });
+
 });
