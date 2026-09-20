@@ -340,11 +340,33 @@ test.describe('Utils', () => {
     });
     expect(zeroLimitResults).toEqual([1, 2]);
 
-    // 12. Ensures Promise.all rejection enters catch block and awaits Promise.allSettled on activePromises
-    let settledPromisesCount = 0;
+    // 12. Ensures error path in catch block invokes Promise.allSettled and re-throws error during loop or final Promise.all
+    let settledPromisesCountLoop = 0;
+    let settledPromisesCountAll = 0;
     const originalAllSettled = Promise.allSettled;
+
+    // Test 12a: Error thrown during loop iteration (await Promise.race path)
     Promise.allSettled = async function(promises) {
-      settledPromisesCount = Array.from(promises).length;
+      settledPromisesCountLoop = Array.from(promises).length;
+      return originalAllSettled.call(this, promises);
+    };
+
+    try {
+      const loopRejectionTask = runWithConcurrencyLimit([1, 2, 3], 2, async (item) => {
+        if (item === 1) {
+          throw new Error('Loop iteration error');
+        }
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+      await expect(loopRejectionTask).rejects.toThrow('Loop iteration error');
+      expect(settledPromisesCountLoop).toBeGreaterThan(0);
+    } finally {
+      Promise.allSettled = originalAllSettled;
+    }
+
+    // Test 12b: Error caught from Promise.all after iteration loop completes
+    Promise.allSettled = async function(promises) {
+      settledPromisesCountAll = Array.from(promises).length;
       return originalAllSettled.call(this, promises);
     };
 
@@ -356,7 +378,7 @@ test.describe('Utils', () => {
         await new Promise((resolve) => setTimeout(resolve, 30));
       });
       await expect(allRejectionTask).rejects.toThrow('Late Promise.all rejection');
-      expect(settledPromisesCount).toBeGreaterThan(0);
+      expect(settledPromisesCountAll).toBeGreaterThan(0);
     } finally {
       Promise.allSettled = originalAllSettled;
     }
