@@ -162,15 +162,21 @@ export class PDFProcessor extends MediaProcessor {
   async validateFileSignature(file) {
     const HEADER_LIMIT = 5;
     const slice = file.slice(0, HEADER_LIMIT);
-    const bytes = typeof slice.bytes === 'function'
-      ? await slice.bytes()
-      : new Uint8Array(await slice.arrayBuffer());
-    return bytes.length >= 5 &&
-      bytes[0] === 0x25 && // '%'
-      bytes[1] === 0x50 && // 'P'
-      bytes[2] === 0x44 && // 'D'
-      bytes[3] === 0x46 && // 'F'
-      bytes[4] === 0x2D;   // '-'
+    if (typeof slice.bytes === 'function') {
+      const bytes = await slice.bytes();
+      return bytes.length >= 5 &&
+        bytes[0] === 0x25 && // '%'
+        bytes[1] === 0x50 && // 'P'
+        bytes[2] === 0x44 && // 'D'
+        bytes[3] === 0x46 && // 'F'
+        bytes[4] === 0x2D;   // '-'
+    }
+    const buffer = await slice.arrayBuffer();
+    if (buffer.byteLength < 5) {
+      return false;
+    }
+    const view = new DataView(buffer);
+    return view.getUint32(0, false) === 0x25504446 && view.getUint8(4) === 0x2D;
   }
 
   /**
