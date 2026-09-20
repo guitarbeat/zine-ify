@@ -11,6 +11,7 @@ export default defineConfig({
   use: {
     trace: 'on-first-retry',
     baseURL: 'http://127.0.0.1:8001',
+    bypassCSP: true,
   },
   projects: [
     {

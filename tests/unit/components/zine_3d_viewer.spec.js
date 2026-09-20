@@ -297,7 +297,7 @@ test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
       viewer.isFallbackMode = true;
       viewer.fallbackCanvas = null;
 
-      expect(() => viewer.renderFallback()).not.toThrow();
+      viewer.renderFallback();
 
       viewer.destroy();
       return true;

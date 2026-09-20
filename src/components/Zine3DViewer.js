@@ -305,36 +305,68 @@ export class Zine3DViewer {
   }
 
   disposePage(page) {
-    page.frontMaterial?.map?.dispose?.();
-    page.frontMaterial?.dispose?.();
+    if (!page) {return;}
+    const frontMat = page.frontMaterial;
+    if (frontMat) {
+      frontMat.map?.dispose?.();
+      frontMat.dispose();
+    }
     page.backMaterial?.dispose?.();
     page.frontGeometry?.dispose?.();
     page.backGeometry?.dispose?.();
   }
 
   cleanupExistingPages() {
-    this.pages.forEach((page) => this.disposePage(page));
+    const pages = this.pages;
+    for (let i = 0; i < pages.length; i++) {
+      this.disposePage(pages[i]);
+    }
 
     const objectsToRemove = [];
-    this.stacks.forEach((stack) => {
-      if (stack.group) {
-        objectsToRemove.push(stack.group);
+
+    const stacks = this.stacks;
+    for (let i = 0; i < stacks.length; i++) {
+      const group = stacks[i]?.group;
+      if (group) {
+        objectsToRemove.push(group);
       }
-    });
-    this.seams.forEach((seam) => {
+    }
+
+    const seams = this.seams;
+    for (let i = 0; i < seams.length; i++) {
+      const seam = seams[i];
+      if (!seam) {continue;}
       if (seam.mesh) {
         objectsToRemove.push(seam.mesh);
       }
       seam.material?.dispose?.();
       seam.geometry?.dispose?.();
-    });
-    this.guides.forEach((guide) => {
+    }
+
+    const guides = this.guides;
+    for (let i = 0; i < guides.length; i++) {
+      const guide = guides[i];
+      if (!guide) {continue;}
       if (guide.mesh) {
         objectsToRemove.push(guide.mesh);
       }
-      (guide.materials ?? [guide.material]).forEach((material) => material?.dispose?.());
-      (guide.geometries ?? [guide.geometry]).forEach((geometry) => geometry?.dispose?.());
-    });
+      const materials = guide.materials;
+      if (materials) {
+        for (let j = 0; j < materials.length; j++) {
+          materials[j]?.dispose?.();
+        }
+      } else {
+        guide.material?.dispose?.();
+      }
+      const geometries = guide.geometries;
+      if (geometries) {
+        for (let j = 0; j < geometries.length; j++) {
+          geometries[j]?.dispose?.();
+        }
+      } else {
+        guide.geometry?.dispose?.();
+      }
+    }
 
     if (objectsToRemove.length > 0) {
       this.scene.remove(...objectsToRemove);
@@ -771,16 +803,7 @@ export class Zine3DViewer {
     if (this.renderer?.domElement?.parentNode === this.container) {
       this.container.removeChild(this.renderer.domElement);
     }
-    this.pages.forEach((page) => this.disposePage(page));
-    this.stacks = [];
-    this.seams.forEach((seam) => {
-      seam.material?.dispose?.();
-      seam.geometry?.dispose?.();
-    });
-    this.guides.forEach((guide) => {
-      (guide.materials ?? [guide.material]).forEach((material) => material?.dispose?.());
-      (guide.geometries ?? [guide.geometry]).forEach((geometry) => geometry?.dispose?.());
-    });
+    this.cleanupExistingPages();
     this.renderer.dispose();
     this.environmentMeshes.forEach(({ geometry, material }) => {
       geometry?.dispose?.();
