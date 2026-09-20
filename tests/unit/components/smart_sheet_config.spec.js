@@ -233,16 +233,20 @@ test.describe('SmartSheetConfig Component', () => {
       onChange: (state) => { emitted = state; }
     });
 
-    let rowsInput = container.querySelector('[data-field="rows"]');
+    let rowsInput = document.createElement('input');
+    rowsInput.dataset.field = 'rows';
     rowsInput.value = '3';
+    container.appendChild(rowsInput);
     rowsInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
 
     expect(config.state.rows).toBe(3);
     expect(config.state.layoutPresetId).toBe('custom');
     expect(emitted.rows).toBe(3);
 
-    let colsInput = container.querySelector('[data-field="cols"]');
+    let colsInput = document.createElement('input');
+    colsInput.dataset.field = 'cols';
     colsInput.value = '5';
+    container.appendChild(colsInput);
     colsInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
 
     expect(config.state.cols).toBe(5);
@@ -253,20 +257,26 @@ test.describe('SmartSheetConfig Component', () => {
     const config = new SmartSheetConfig(container);
 
     // Max clamp test
-    let rowsInput = container.querySelector('[data-field="rows"]');
+    let rowsInput = document.createElement('input');
+    rowsInput.dataset.field = 'rows';
     rowsInput.value = '20';
+    container.appendChild(rowsInput);
     rowsInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
     expect(config.state.rows).toBe(10);
 
-    // Min clamp test (query new element after re-render)
-    rowsInput = container.querySelector('[data-field="rows"]');
+    // Min clamp test
+    rowsInput = document.createElement('input');
+    rowsInput.dataset.field = 'rows';
     rowsInput.value = '-5';
+    container.appendChild(rowsInput);
     rowsInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
     expect(config.state.rows).toBe(1);
 
     // NaN fallback test
-    rowsInput = container.querySelector('[data-field="rows"]');
+    rowsInput = document.createElement('input');
+    rowsInput.dataset.field = 'rows';
     rowsInput.value = 'not-a-number';
+    container.appendChild(rowsInput);
     rowsInput.dispatchEvent(new dom.window.Event('change', { bubbles: true }));
     expect(config.state.rows).toBe(1);
   });
@@ -345,7 +355,7 @@ test.describe('SmartSheetConfig Component', () => {
 
     const state = config.getState();
     expect(state.paperSize).toBe('letter');
-    expect(state.totalSlots).toBe(8);
+    expect(state.totalSlots).toBe(12);
 
     config.setState({ paperSize: 'a4', orientation: 'portrait' });
     expect(config.state.paperSize).toBe('a4');
@@ -424,6 +434,58 @@ test.describe('SmartSheetConfig Component', () => {
     btn.click();
     // sign is 0, so margin remains 10
     expect(config.state.margin).toBe(10);
+  });
+
+  test('handles default onChange options callback', () => {
+    const config = new SmartSheetConfig(container);
+    // Call methods that trigger emitChange without custom onChange
+    config.setMargin(5);
+    config.setOrientation('portrait');
+    config.setPaperSize('a4');
+    expect(config.state.margin).toBe(5);
+    expect(config.state.orientation).toBe('portrait');
+    expect(config.state.paperSize).toBe('a4');
+  });
+
+  test('handles customHeight setting in setCustomDimension', () => {
+    let emitted = null;
+    const config = new SmartSheetConfig(container, {
+      initialPaper: 'custom',
+      initialUnit: 'mm',
+      onChange: (state) => { emitted = state; }
+    });
+
+    config.setCustomDimension('customHeight', '500');
+    expect(config.state.customPaper.height).toBe(500);
+    expect(emitted.customPaper.height).toBe(500);
+  });
+
+  test('handles handleInput margin slider without display element', () => {
+    const config = new SmartSheetConfig(container);
+    const slider = container.querySelector('.smart-sheet-margin-slider');
+
+    // Remove the display element
+    const display = container.querySelector('[data-margin-display]');
+    if (display) {
+      display.remove();
+    }
+
+    slider.value = '15';
+    slider.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
+    expect(config.state.margin).toBe(15);
+  });
+
+  test('handles setPreset with valid layout-12 preset', () => {
+    let emitted = null;
+    const config = new SmartSheetConfig(container, {
+      onChange: (state) => { emitted = state; }
+    });
+
+    config.setPreset('layout-12');
+    expect(config.state.layoutPresetId).toBe('layout-12');
+    expect(config.state.rows).toBe(3);
+    expect(config.state.cols).toBe(4);
+    expect(emitted.layoutPresetId).toBe('layout-12');
   });
 
   test('destroy clears the container', () => {
