@@ -10,7 +10,7 @@ test.describe('layout presets', () => {
   });
 
   test('unknown presets fall back safely', async () => {
-    expect(getLayoutPreset('missing').id).toBe('mini-8');
+    expect(getLayoutPreset('missing').id).toBe('layout-12');
     expect(normalizeLayoutPreset('custom', { rows: 3, cols: 2 }).capacity).toBe(6);
   });
 
@@ -20,14 +20,20 @@ test.describe('layout presets', () => {
     expect(check.duplex).toBe(true);
     expect(check.margins).toBe(6);
   });
-  test('getPresetOptions returns preset options excluding custom', () => {
+
+  test('getPresetOptions returns non-custom layout options', () => {
     const options = getPresetOptions();
+    expect(Array.isArray(options)).toBe(true);
     expect(options.length).toBeGreaterThan(0);
     expect(options.some((preset) => preset.id === 'custom')).toBe(false);
+    expect(options.map((preset) => preset.id)).toEqual(
+      expect.arrayContaining(['layout-12', 'mini-8', 'folded-4', 'booklet-8'])
+    );
     options.forEach((preset) => {
       expect(preset).toHaveProperty('id');
       expect(preset).toHaveProperty('name');
       expect(preset).toHaveProperty('pageCount');
+      expect(preset).toHaveProperty('sheetGrid');
     });
   });
 });
