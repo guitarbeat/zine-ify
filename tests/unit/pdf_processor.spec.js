@@ -960,5 +960,107 @@ test.describe('PDFProcessor Media handling', () => {
       }
     }
   });
+
+  test("renderPage propagates error from _internalRender and invokes onProgress callback", async () => {
+    let cleanupCalled = false;
+    let progressMessage = "";
+    processor.pdf = {
+      getPage: async () => ({
+        getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
+        render: () => ({ promise: Promise.reject(new Error("Render stream error")) }),
+        cleanup: () => { cleanupCalled = true; }
+      })
+    };
+    processor.ensurePdfJs = async () => true;
+
+    await expect(processor.renderPage(1, (msg) => { progressMessage = msg; })).rejects.toThrow("Failed to render page 1");
+    expect(progressMessage).toBe("Rendering page 1...");
+    expect(cleanupCalled).toBe(true);
+  });
+
+  test("renderPageThumbnail propagates error from _internalRender and cleans up page", async () => {
+    let cleanupCalled = false;
+    processor.pdf = {
+      getPage: async () => ({
+        getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
+        render: () => ({ promise: Promise.reject(new Error("Thumbnail render failed")) }),
+        cleanup: () => { cleanupCalled = true; }
+      })
+    };
+    processor.ensurePdfJs = async () => true;
+
+    await expect(processor.renderPageThumbnail(2)).rejects.toThrow("Failed to render page 2");
+    expect(cleanupCalled).toBe(true);
+  });
+
+  test("_internalRender handles ensurePdfJs error and wraps it properly", async () => {
+    processor.pdf = {
+      getPage: async () => ({})
+    };
+    processor.ensurePdfJs = async () => {
+      throw new Error("Failed to load PDF.js module");
+    };
+
+    await expect(processor._internalRender(1, () => 1.0)).rejects.toThrow("Failed to render page 1");
+  });
+
+  test('renderImageFile wraps drawImage error and executes cleanup in finally block', async () => {
+    let closed = false;
+    let revokedUrl = null;
+
+    const origCreateObjectURL = global.URL?.createObjectURL;
+    const origRevokeObjectURL = global.URL?.revokeObjectURL;
+
+    if (typeof global !== 'undefined') {
+      global.URL.createObjectURL = () => 'blob:draw-image-test';
+      global.URL.revokeObjectURL = (url) => { revokedUrl = url; };
+    }
+
+    processor.loadImageElement = async () => ({
+      width: 100,
+      height: 100,
+      close: () => { closed = true; }
+    });
+
+    const mockContext = {
+      fillStyle: '',
+      fillRect: () => {},
+      drawImage: () => {
+        throw new Error('Canvas drawImage error');
+      }
+    };
+
+    processor.createRenderCanvas = () => ({
+      canvas: {},
+      context: mockContext
+    });
+
+    try {
+      const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+
+      let thrownError;
+      try {
+        await processor.renderImageFile(file);
+      } catch (err) {
+        thrownError = err;
+      }
+
+      expect(thrownError).toBeDefined();
+      expect(thrownError.message).toBe('Image processing failed: Canvas drawImage error');
+      expect(thrownError.cause?.message).toBe('Canvas drawImage error');
+
+      expect(closed).toBe(true);
+      expect(revokedUrl).toBe('blob:draw-image-test');
+    } finally {
+      if (typeof global !== 'undefined') {
+        if (origCreateObjectURL !== undefined) {
+          global.URL.createObjectURL = origCreateObjectURL;
+        }
+        if (origRevokeObjectURL !== undefined) {
+          global.URL.revokeObjectURL = origRevokeObjectURL;
+        }
+      }
+    }
+  });
 });
 
