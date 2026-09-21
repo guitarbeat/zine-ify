@@ -1005,6 +1005,112 @@ test.describe('AppController', () => {
       toast.error = originalToastError;
     }
   });
+  test('processFileQueue handles error when pdfProcessor.renderImageFile fails during image upload', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+    const { toast } = await import('../../src/components/Toast.js');
 
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      let statusText = null;
+      let statusType = null;
+      controller.ui.setStatus = (text, type) => {
+        statusText = text;
+        statusType = type;
+      };
+
+      const progressCalls = [];
+      controller.ui.modal.showProgress = (show, message) => {
+        progressCalls.push({ show, message });
+      };
+
+      controller.pdfProcessor.renderImageFile = async () => {
+        throw new Error('Image rendering/decoding failed');
+      };
+
+      const record = {
+        name: 'failing-image.png',
+        kind: 'image',
+        file: new Blob(['invalid image data'], { type: 'image/png' }),
+        status: 'Pending'
+      };
+
+      controller.state.uploadedFiles = [record];
+      controller.state.fileQueue = [record];
+
+      await controller.processFileQueue();
+
+      expect(record.status).toBe('Failed');
+      expect(statusText).toBe('Failed: failing-image.png');
+      expect(statusType).toBe('error');
+      expect(toastErrorTitle).toBe('Import Failed');
+      expect(toastErrorMessage).toBe('Image rendering/decoding failed');
+      expect(progressCalls).toContainEqual({ show: false, message: undefined });
+      expect(controller.state.isProcessingQueue).toBe(false);
+    } finally {
+      toast.error = originalToastError;
+    }
+  });
+
+  test('processFileQueue handles error when pdfProcessor.loadPDF fails during PDF upload', async () => {
+    const { AppController } = await import('../../src/core/AppController.js');
+    const { toast } = await import('../../src/components/Toast.js');
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      let statusText = null;
+      let statusType = null;
+      controller.ui.setStatus = (text, type) => {
+        statusText = text;
+        statusType = type;
+      };
+
+      const progressCalls = [];
+      controller.ui.modal.showProgress = (show, message) => {
+        progressCalls.push({ show, message });
+      };
+
+      controller.pdfProcessor.loadPDF = async () => {
+        throw new Error('Corrupt or password-protected PDF');
+      };
+
+      const record = {
+        name: 'corrupt-doc.pdf',
+        kind: 'pdf',
+        file: new Blob(['invalid pdf data'], { type: 'application/pdf' }),
+        status: 'Pending'
+      };
+
+      controller.state.uploadedFiles = [record];
+      controller.state.fileQueue = [record];
+
+      await controller.processFileQueue();
+
+      expect(record.status).toBe('Failed');
+      expect(statusText).toBe('Failed: corrupt-doc.pdf');
+      expect(statusType).toBe('error');
+      expect(toastErrorTitle).toBe('Import Failed');
+      expect(toastErrorMessage).toBe('Corrupt or password-protected PDF');
+      expect(progressCalls).toContainEqual({ show: false, message: undefined });
+      expect(controller.state.isProcessingQueue).toBe(false);
+    } finally {
+      toast.error = originalToastError;
+    }
+  });
 
 });
