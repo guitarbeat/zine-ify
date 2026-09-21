@@ -856,6 +856,50 @@ test.describe('AppController', () => {
     }
   });
 
+  test("getSelectedPagesForImport revokes generated thumbnail blob URLs when canvasToBlob fails", async () => {
+    const { AppController } = await import("../../src/core/AppController.js");
+
+    const originalInit = AppController.prototype.init;
+    AppController.prototype.init = async () => {};
+
+    try {
+      const controller = new AppController();
+      controller.state.gridSize = { rows: 2, cols: 4 };
+
+      const revokedUrls = [];
+      controller.pdfProcessor.revokeBlobUrl = (url) => {
+        revokedUrls.push(url);
+      };
+
+      let pageCount = 0;
+      controller.pdfProcessor.renderPageThumbnail = async () => {
+        pageCount++;
+        return { id: pageCount };
+      };
+
+      controller.pdfProcessor.canvasToBlob = async (canvas) => {
+        if (canvas.id === 1) {
+          return "blob:http://localhost/thumb-1";
+        }
+        throw new Error("Blob conversion failed for page 2");
+      };
+
+      const progressCalls = [];
+      controller.ui.modal.showProgress = (show) => {
+        progressCalls.push(show);
+      };
+
+      await expect(
+        controller.getSelectedPagesForImport("multi_page_doc.pdf", 10)
+      ).rejects.toThrow("Blob conversion failed for page 2");
+
+      expect(revokedUrls).toEqual(["blob:http://localhost/thumb-1"]);
+      expect(progressCalls).toContain(false);
+    } finally {
+      AppController.prototype.init = originalInit;
+    }
+  });
+
   test('getSelectedPagesForImport revokes all thumbnail blob URLs after showPagePicker completes', async () => {
     const { AppController } = await import('../../src/core/AppController.js');
 
