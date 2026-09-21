@@ -307,4 +307,45 @@ test.describe('Toast Component', () => {
     await new Promise(resolve => setTimeout(resolve, 100));
     expect(container.contains(toastElement)).toBe(false);
   });
+
+  test('should set close button accessibility attributes correctly', () => {
+    const { toast } = toastModule;
+    const toastElement = toast.show('info', 'Close Btn Attr Test');
+    const closeBtn = toastElement.querySelector('.toast-close');
+
+    expect(closeBtn).not.toBeNull();
+    expect(closeBtn.getAttribute('aria-label')).toBe('Close notification');
+    expect(closeBtn.getAttribute('title')).toBe('Close notification');
+    expect(closeBtn.textContent).toBe('×');
+  });
+
+  test('should apply random rotation transform between -2 and 2 degrees on animateIn', async () => {
+    const { toast } = toastModule;
+
+    const originalRandom = Math.random;
+    try {
+      Math.random = () => 0.75; // rotation = 0.75 * 4 - 2 = 1 deg
+      const toastElement = toast.show('info', 'Rotation Test');
+
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(toastElement.style.transform).toContain('rotate(1deg)');
+    } finally {
+      Math.random = originalRandom;
+    }
+  });
+
+  test('should safely handle multiple rapid calls to remove() on the same toast element', async () => {
+    const { toast } = toastModule;
+    const toastElement = toast.show('info', 'Rapid Remove Test');
+
+    const container = global.document.getElementById('toast-container');
+    expect(container.contains(toastElement)).toBe(true);
+
+    // Call remove twice rapidly
+    toast.remove(toastElement);
+    toast.remove(toastElement);
+
+    await new Promise(resolve => setTimeout(resolve, 350));
+    expect(container.contains(toastElement)).toBe(false);
+  });
 });
