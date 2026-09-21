@@ -538,6 +538,25 @@ test.describe('PDFProcessor', () => {
     }
   });
 
+
+
+  test('_internalRender wraps error and cleans up page when page rendering fails', async () => {
+    let cleanupCalled = false;
+    processor.pdf = {
+      getPage: async () => ({
+        getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
+        render: () => {
+          return { promise: Promise.reject(new Error('Render pipeline crash')) };
+        },
+        cleanup: () => { cleanupCalled = true; }
+      })
+    };
+    processor.ensurePdfJs = async () => true;
+
+    await expect(processor._internalRender(1, () => 1)).rejects.toThrow('Failed to render page 1');
+    expect(cleanupCalled).toBe(true);
+  });
+
 });
 
 test.describe('PDFProcessor Media handling', () => {
@@ -908,20 +927,4 @@ test.describe('PDFProcessor Media handling', () => {
     }
   });
 });
-  test('_internalRender wraps error and cleans up page when page rendering fails', async () => {
-    let cleanupCalled = false;
-    processor.pdf = {
-      getPage: async () => ({
-        getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
-        render: () => {
-          return { promise: Promise.reject(new Error('Render pipeline crash')) };
-        },
-        cleanup: () => { cleanupCalled = true; }
-      })
-    };
-    processor.ensurePdfJs = async () => true;
-
-    await expect(processor._internalRender(1, () => 1)).rejects.toThrow('Failed to render page 1');
-    expect(cleanupCalled).toBe(true);
-  });
 
