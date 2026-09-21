@@ -423,7 +423,7 @@ test.describe('SmartSheetConfig Component', () => {
   });
 
   test("handles stepper click with NaN or missing data-margin-delta", () => {
-    const config = new SmartSheetConfig(container);
+    const config = new SmartSheetConfig(container, { initialUnit: "mm" });
     config.setMargin(10);
 
     const btn = document.createElement("button");
@@ -488,6 +488,76 @@ test.describe('SmartSheetConfig Component', () => {
     expect(emitted.layoutPresetId).toBe('layout-12');
   });
 
+  test("handles margin stepper button clicks with unit conversions (in/cm)", () => {
+    const config = new SmartSheetConfig(container, {
+      initialUnit: "in"
+    });
+    config.setMargin(10);
+
+    const increaseBtn = container.querySelector("[data-margin-delta='1']");
+    increaseBtn.click();
+
+    expect(config.state.margin).toBe(10 + toMm(UNITS["in"].marginStep, "in"));
+  });
+
+  test("handles click on nested child element inside stepper button", () => {
+    const config = new SmartSheetConfig(container, { initialUnit: "mm" });
+    config.setMargin(10);
+
+    const increaseBtn = container.querySelector("[data-margin-delta='1']");
+    const childSpan = increaseBtn.querySelector(".material-symbols-outlined");
+
+    childSpan.click();
+    expect(config.state.margin).toBe(10 + toMm(UNITS.mm.marginStep, "mm"));
+  });
+
+  test("handles custom paper dimension inputs change events", () => {
+    let emitted = null;
+    const config = new SmartSheetConfig(container, {
+      initialPaper: "custom",
+      initialUnit: "mm",
+      onChange: (state) => { emitted = state; }
+    });
+
+    const widthInput = container.querySelector("input[data-field='customWidth']");
+    widthInput.value = "150";
+    widthInput.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+
+    expect(config.state.customPaper.width).toBe(150);
+    expect(emitted.customPaper.width).toBe(150);
+
+    const heightInput = container.querySelector("input[data-field='customHeight']");
+    heightInput.value = "invalid-num";
+    heightInput.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+
+    expect(config.state.customPaper.height).toBe(1);
+    expect(emitted.customPaper.height).toBe(1);
+  });
+
+  test("renders custom paper inputs correctly when unit is changed", () => {
+    const config = new SmartSheetConfig(container, {
+      initialPaper: "custom",
+      initialUnit: "mm"
+    });
+
+    config.setCustomDimension("customWidth", "254");
+
+    config.setUnit("in");
+    const widthInput = container.querySelector("input[data-field='customWidth']");
+    expect(widthInput.value).toBe("10");
+  });
+
+  test("handles setState partial updates and emits correct state structure", () => {
+    let emitted = null;
+    const config = new SmartSheetConfig(container, {
+      onChange: (state) => { emitted = state; }
+    });
+
+    config.setState({ rows: 4, cols: 5 });
+    expect(config.state.rows).toBe(4);
+    expect(config.state.cols).toBe(5);
+    expect(emitted.totalSlots).toBe(20);
+  });
   test('destroy clears the container', () => {
     const config = new SmartSheetConfig(container);
     expect(container.innerHTML).not.toBe('');
