@@ -593,7 +593,77 @@ test.describe('FormValidator Component', () => {
     expect(validator.errorElements.has('name')).toBe(false);
   });
 
-  test('scrolls to first error when scrollToError is enabled during form submission', async () => {
+
+  test('handles select-multiple field value extraction', () => {
+    form.innerHTML = `
+      <select id="multi-select" multiple>
+        <option value="opt1" selected>Option 1</option>
+        <option value="opt2">Option 2</option>
+        <option value="opt3" selected>Option 3</option>
+      </select>
+    `;
+    const validator = new FormValidator(form);
+    const select = document.getElementById('multi-select');
+
+    expect(validator._getFieldValue(select)).toEqual(['opt1', 'opt3']);
+  });
+
+  test('ignores unknown parameterized rules during field discovery', () => {
+    form.innerHTML = '<input type="text" id="custom-rule-field" data-validate="unknownRule:10, minLength:5" />';
+    const validator = new FormValidator(form);
+
+    const config = validator.fieldConfigs.get('custom-rule-field');
+    expect(config.rules).toEqual([{ minLength: 5 }]);
+  });
+
+  test('creates and appends constraint hint when constraints are present', () => {
+    form.innerHTML = '<div class="workspace-config-field"><input type="text" id="username" minlength="5" maxlength="20" data-validate="" /></div>';
+    const validator = new FormValidator(form);
+    const field = document.getElementById('username');
+
+    const hintEl = field.parentElement.querySelector('.form-constraint-hint');
+    expect(hintEl).toBeTruthy();
+    expect(hintEl.textContent).toBe('5-20 characters');
+  });
+
+  test('character counter updates dataset status and hidden property on input', () => {
+    form.innerHTML = `
+      <div class="workspace-config-field">
+        <input type="text" id="bio" name="bio" maxlength="10" data-validate="" />
+      </div>
+    `;
+    const validator = new FormValidator(form);
+    const bioField = document.getElementById('bio');
+    const counter = bioField.parentElement.querySelector('.form-char-counter');
+
+    expect(counter).toBeTruthy();
+    expect(counter.hidden).toBe(true);
+
+    bioField.value = '12345';
+    bioField.dispatchEvent(new Event('input'));
+
+    expect(counter.hidden).toBe(false);
+    expect(counter.dataset.status).toBe('visible');
+  });
+
+  test('triggers success toast on valid form submission when toastOnSuccess option is true', async () => {
+    form.innerHTML = '<input type="text" id="name" name="name" value="John" data-validate="required" />';
+    const validator = new FormValidator(form, { toastOnSuccess: true });
+    const toastModule = await import('../../../src/components/Toast.js');
+    let toastCalled = false;
+    const origSuccess = toastModule.toast.success;
+    toastModule.toast.success = () => { toastCalled = true; };
+
+    const event = new Event('submit', { cancelable: true });
+    const result = await validator._handleSubmit(event);
+
+    expect(result).toBe(true);
+    expect(toastCalled).toBe(true);
+
+    toastModule.toast.success = origSuccess;
+  });
+
+    test('scrolls to first error when scrollToError is enabled during form submission', async () => {
     form.innerHTML = '<input type="text" id="name" name="name" data-validate="required" />';
     const validator = new FormValidator(form, { scrollToError: true, focusFirstError: true });
 
@@ -748,7 +818,22 @@ test.describe('FieldValidator Component', () => {
     expect(field.classList.contains('is-invalid')).toBe(true);
   });
 
-  test('uses custom fieldName option in validation error message', () => {
+
+  test('does not show success class or aria-invalid=false when showSuccess option is false', () => {
+    const validator = new FieldValidator(field, {
+      rules: [VALIDATION_RULES.required],
+      showSuccess: false
+    });
+
+    field.value = 'valid';
+    validator.stateManager.markDirty(validator.fieldId);
+    validator.validate();
+
+    expect(field.classList.contains('is-valid')).toBe(false);
+    expect(field.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+    test('uses custom fieldName option in validation error message', () => {
     const validator = new FieldValidator(field, {
       rules: [VALIDATION_RULES.required],
       fieldName: 'Custom Name'
