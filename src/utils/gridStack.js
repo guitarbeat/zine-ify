@@ -279,4 +279,5 @@ export function initGridStack() {
 
   window.__resizePanels = relayoutPanels;
   window.__layoutHasOverlaps = layoutHasOverlaps;
+  window.__initGridStack = initGridStack;
 }

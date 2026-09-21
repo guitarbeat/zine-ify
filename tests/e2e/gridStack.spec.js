@@ -175,8 +175,9 @@ test.describe('GridStack Layout', () => {
       }
 
       // Dynamically re-run initGridStack
-      const { initGridStack } = await import('/src/utils/gridStack.js');
-      initGridStack();
+      if (typeof window.__initGridStack === 'function') {
+        window.__initGridStack();
+      }
 
       return {
         hasReset: typeof window.__resetPanelLayout === 'function',
