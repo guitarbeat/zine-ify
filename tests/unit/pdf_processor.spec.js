@@ -926,5 +926,39 @@ test.describe('PDFProcessor Media handling', () => {
       }
     }
   });
+
+  test('renderImageFile wraps error and closes imageSource when drawing on canvas fails', async () => {
+    let closed = false;
+    const origCreateImageBitmap = global.createImageBitmap;
+
+    global.createImageBitmap = async () => ({
+      width: 500,
+      height: 500,
+      close: () => { closed = true; }
+    });
+
+    processor.createRenderCanvas = () => ({
+      canvas: {},
+      context: {
+        fillStyle: '',
+        fillRect: () => {},
+        drawImage: () => {
+          throw new Error('Canvas drawImage failure');
+        }
+      }
+    });
+
+    try {
+      const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+      await expect(processor.renderImageFile(file)).rejects.toThrow('Image processing failed: Canvas drawImage failure');
+      expect(closed).toBe(true);
+    } finally {
+      if (origCreateImageBitmap !== undefined) {
+        global.createImageBitmap = origCreateImageBitmap;
+      } else {
+        delete global.createImageBitmap;
+      }
+    }
+  });
 });
 
