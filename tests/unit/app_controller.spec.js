@@ -1157,4 +1157,54 @@ test.describe('AppController', () => {
     }
   });
 
+  test("handleView3d handles Zine3DViewer initialization error gracefully", async () => {
+    const { AppController } = await import("../../src/core/AppController.js");
+    const { toast } = await import("../../src/components/Toast.js");
+
+    let toastErrorTitle = null;
+    let toastErrorMessage = null;
+    const originalToastError = toast.error;
+    toast.error = (title, message) => {
+      toastErrorTitle = title;
+      toastErrorMessage = message;
+    };
+
+    try {
+      const controller = new AppController();
+      controller.state.getFilledPageCount = () => 1;
+      controller.state.isMiniZineLayout = () => true;
+      controller.ensureBlankPageUrl = async () => "data:image/png;base64,fake";
+      controller.ensureBookletPreview = () => {};
+
+      let modalToggled = null;
+      controller.ui.toggle3DModal = (show) => {
+        modalToggled = show;
+      };
+
+      const zine3dContainer = document.createElement("div");
+      const fallbackCanvas = document.createElement("div");
+      fallbackCanvas.className = "zine-3d-fallback-canvas";
+      zine3dContainer.appendChild(fallbackCanvas);
+      controller.ui.elements.zine3dContainer = zine3dContainer;
+
+      controller.getZine3DViewerClass = async () => {
+        return class FailingZine3DViewer {
+          constructor() {
+            throw new Error("WebGL Context Creation Failed");
+          }
+        };
+      };
+
+      await controller.handleView3d();
+
+      expect(zine3dContainer.querySelector(".zine-3d-fallback-canvas")).toBeNull();
+      expect(controller.viewer3d).toBeNull();
+      expect(modalToggled).toBe(false);
+      expect(toastErrorTitle).toBe("3D Preview Failed");
+      expect(toastErrorMessage).toBe("Unable to initialize the fold preview.");
+    } finally {
+      toast.error = originalToastError;
+    }
+  });
+
 });
