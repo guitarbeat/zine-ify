@@ -907,21 +907,39 @@ test.describe('PDFProcessor Media handling', () => {
       }
     }
   });
-});
-  test('_internalRender wraps error and cleans up page when page rendering fails', async () => {
-    let cleanupCalled = false;
-    processor.pdf = {
-      getPage: async () => ({
-        getViewport: ({ scale }) => ({ width: 100 * scale, height: 200 * scale }),
-        render: () => {
-          return { promise: Promise.reject(new Error('Render pipeline crash')) };
-        },
-        cleanup: () => { cleanupCalled = true; }
-      })
-    };
-    processor.ensurePdfJs = async () => true;
 
-    await expect(processor._internalRender(1, () => 1)).rejects.toThrow('Failed to render page 1');
-    expect(cleanupCalled).toBe(true);
+  test('renderImageFile wraps error and closes imageSource when drawing on canvas fails', async () => {
+    let closed = false;
+    const origCreateImageBitmap = global.createImageBitmap;
+
+    global.createImageBitmap = async () => ({
+      width: 500,
+      height: 500,
+      close: () => { closed = true; }
+    });
+
+    processor.createRenderCanvas = () => ({
+      canvas: {},
+      context: {
+        fillStyle: '',
+        fillRect: () => {},
+        drawImage: () => {
+          throw new Error('Canvas drawImage failure');
+        }
+      }
+    });
+
+    try {
+      const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' });
+      await expect(processor.renderImageFile(file)).rejects.toThrow('Image processing failed: Canvas drawImage failure');
+      expect(closed).toBe(true);
+    } finally {
+      if (origCreateImageBitmap !== undefined) {
+        global.createImageBitmap = origCreateImageBitmap;
+      } else {
+        delete global.createImageBitmap;
+      }
+    }
   });
 
+});
