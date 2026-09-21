@@ -242,4 +242,30 @@ test.describe('UIManager', () => {
 
     toggle.innerHTML = '';
   });
+
+  test("syncPaperSettings updates paperSize select value and smartSheetConfig state", () => {
+    const ui = new UIManager();
+    const select = document.createElement("select");
+    const optLetter = document.createElement("option");
+    optLetter.value = "letter";
+    const optA4 = document.createElement("option");
+    optA4.value = "a4";
+    select.appendChild(optLetter);
+    select.appendChild(optA4);
+    ui.elements.paperSizeSelect = select;
+
+    const mockSmartSheetConfig = {
+      state: {},
+      setState(state) {
+        Object.assign(this.state, state);
+      }
+    };
+    ui.smartSheetConfig = mockSmartSheetConfig;
+
+    ui.syncPaperSettings({ paperSize: "a4", orientation: "portrait" });
+
+    expect(select.value).toBe("a4");
+    expect(mockSmartSheetConfig.state.paperSize).toBe("a4");
+    expect(mockSmartSheetConfig.state.orientation).toBe("portrait");
+  });
 });
