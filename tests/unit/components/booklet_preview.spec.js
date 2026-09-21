@@ -466,4 +466,93 @@ test.describe('BookletPreview Component', () => {
     expect(preview.states.length).toBe(5);
     expect(preview.slotPages.find(p => p.pageNumber === 1).previewUrl).toBe("preview-1.png");
   });
+  test("clears container inner text/HTML on renderBase initialization", () => {
+    container.innerHTML = '<span id="old-content">Old content</span>';
+    const preview = new BookletPreview({ container });
+    expect(container.querySelector('#old-content')).toBeNull();
+    expect(container.querySelector('.booklet-shell')).toBeTruthy();
+  });
+
+  test("loadPages resets spreadIndex and isAnimating when re-initialized", () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton, statusElement });
+    const fakeImages = Array.from({ length: 8 }, (_, i) => `url-page-${i + 1}.png`);
+    preview.loadPages(fakeImages);
+    preview.spreadIndex = 3;
+    preview.isAnimating = true;
+
+    preview.loadPages(fakeImages);
+    expect(preview.spreadIndex).toBe(0);
+    expect(preview.isAnimating).toBe(false);
+  });
+
+  test("updateControls toggles opacity-50 and cursor-not-allowed CSS classes on disabled/enabled buttons", () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton, statusElement });
+    const fakeImages = Array.from({ length: 8 }, (_, i) => `url-page-${i + 1}.png`);
+    preview.loadPages(fakeImages);
+
+    // At spreadIndex 0: prevButton disabled, nextButton enabled
+    expect(prevButton.classList.contains('opacity-50')).toBe(true);
+    expect(prevButton.classList.contains('cursor-not-allowed')).toBe(true);
+    expect(nextButton.classList.contains('opacity-50')).toBe(false);
+    expect(nextButton.classList.contains('cursor-not-allowed')).toBe(false);
+
+    // Go to spread 1: both buttons enabled
+    preview.spreadIndex = 1;
+    preview.updateControls();
+    expect(prevButton.classList.contains('opacity-50')).toBe(false);
+    expect(prevButton.classList.contains('cursor-not-allowed')).toBe(false);
+    expect(nextButton.classList.contains('opacity-50')).toBe(false);
+    expect(nextButton.classList.contains('cursor-not-allowed')).toBe(false);
+  });
+
+  test("startTurn sets turnFront and turnBack faces for forward and backward turn directions", () => {
+    const preview = new BookletPreview({ container, prevButton, nextButton, statusElement });
+    const fakeImages = Array.from({ length: 8 }, (_, i) => `url-page-${i + 1}.png`);
+    preview.loadPages(fakeImages);
+
+    // Forward turn (direction > 0) from Cover (spread 0) to Pages 2-3 (spread 1)
+    preview.goNext();
+
+    const turnFrontImg = preview.turnFront.querySelector('.booklet-page-media');
+    const turnBackImg = preview.turnBack.querySelector('.booklet-page-media');
+
+    // turnFront gets currentState.right (Page 1)
+    expect(turnFrontImg.src).toContain('url-page-1.png');
+    // turnBack gets nextState.left (Page 2)
+    expect(turnBackImg.src).toContain('url-page-2.png');
+
+    preview.finishTurn();
+
+    // Backward turn (direction < 0) from Pages 2-3 (spread 1) back to Cover (spread 0)
+    preview.goPrev();
+
+    const turnFrontImgPrev = preview.turnFront.querySelector('.booklet-page-media');
+    const turnBackImgPrev = preview.turnBack.querySelector('.booklet-page-media');
+
+    // turnFront gets currentState.left (Page 2)
+    expect(turnFrontImgPrev.src).toContain('url-page-2.png');
+    // turnBack gets nextState.right (Page 1)
+    expect(turnBackImgPrev.src).toContain('url-page-1.png');
+  });
+
+  test("setPageFace resets image elements and label state when transitioning from page data to null", () => {
+    const preview = new BookletPreview({ container });
+    preview.setPageFace(preview.leftPage, { previewUrl: 'page-1.png', pageNumber: 1 });
+
+    const img = preview.leftPage.querySelector('.booklet-page-media');
+    const label = preview.leftPage.querySelector('.booklet-page-label');
+
+    expect(img.src).toContain('page-1.png');
+    expect(img.classList.contains('is-visible')).toBe(true);
+    expect(preview.leftPage.classList.contains('is-empty')).toBe(false);
+
+    // Reset with null
+    preview.setPageFace(preview.leftPage, null);
+
+    expect(img.hasAttribute('src')).toBe(false);
+    expect(img.classList.contains('is-visible')).toBe(false);
+    expect(preview.leftPage.classList.contains('is-empty')).toBe(true);
+    expect(label.hidden).toBe(true);
+    expect(preview.leftPage.dataset.pageNumber).toBe('');
+  });
 });
