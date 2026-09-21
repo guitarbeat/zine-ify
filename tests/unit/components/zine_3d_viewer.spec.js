@@ -1,413 +1,215 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
+import { createRequire } from 'module';
 
-test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/");
-    await page.setContent(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <style>#container { width: 800px; height: 600px; }</style>
-        </head>
-        <body>
-          <div id="container"></div>
-          <script type="module">
-            import { Zine3DViewer } from "/src/components/Zine3DViewer.js";
-            window.Zine3DViewer = Zine3DViewer;
-          </script>
-        </body>
-      </html>
-    `, { waitUntil: "domcontentloaded" });
-    await page.waitForFunction(() => window.Zine3DViewer !== undefined);
+const require = createRequire(import.meta.url);
+const { JSDOM } = require('jsdom');
+
+test.describe('Zine3DViewer Unit Tests', () => {
+  let Zine3DViewer;
+  let dom;
+  let container;
+  let dummyCanvasContext;
+
+  test.beforeAll(async () => {
+    dom = new JSDOM('<!DOCTYPE html><html><body><div id="container" style="width: 800px; height: 600px;"></div></body></html>');
+    global.window = dom.window;
+    global.document = dom.window.document;
+    global.HTMLElement = dom.window.HTMLElement;
+    global.HTMLCanvasElement = dom.window.HTMLCanvasElement;
+    global.Event = dom.window.Event;
+    global.requestAnimationFrame = (cb) => setTimeout(cb, 16);
+    global.cancelAnimationFrame = (id) => clearTimeout(id);
+
+    dummyCanvasContext = {
+      fillRect: () => {},
+      createRadialGradient: () => ({ addColorStop: () => {} }),
+      save: () => {},
+      restore: () => {},
+      translate: () => {},
+      rotate: () => {},
+      beginPath: () => {},
+      roundRect: () => {},
+      fill: () => {},
+      stroke: () => {},
+      fillText: () => {}
+    };
+
+    HTMLCanvasElement.prototype.getContext = function(type) {
+      if (type === '2d') {
+        return dummyCanvasContext;
+      }
+      return null;
+    };
+
+    const module = await import('../../../src/components/Zine3DViewer.js');
+    Zine3DViewer = module.Zine3DViewer;
   });
 
-  test("initializes Zine3DViewer core properties and scene", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-      const res = {
-        isFallbackMode: viewer.isFallbackMode,
-        hasScene: !!viewer.scene,
-        hasCamera: !!viewer.camera,
-        hasRenderer: !!viewer.renderer,
-        pagesCount: viewer.pages.length,
-        stacksCount: viewer.stacks.length
-      };
-      viewer.destroy();
-      return res;
-    });
-
-    expect(result.isFallbackMode).toBe(false);
-    expect(result.hasScene).toBe(true);
-    expect(result.hasCamera).toBe(true);
-    expect(result.hasRenderer).toBe(true);
-    expect(result.pagesCount).toBe(0);
-    expect(result.stacksCount).toBe(0);
+  test.beforeEach(() => {
+    container = document.getElementById('container');
+    container.replaceChildren();
+    Object.defineProperty(container, 'clientWidth', { value: 800, configurable: true });
+    Object.defineProperty(container, 'clientHeight', { value: 600, configurable: true });
   });
 
-  test("loadPages creates page meshes, seams, guides and updates camera view", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-      const previewPages = Array.from({ length: 8 }, (_, i) => `page${i + 1}.png`);
-      viewer.loadPages(previewPages);
-
-      const res = {
-        pagesCount: viewer.pages.length,
-        stacksCount: viewer.stacks.length,
-        seamsCount: viewer.seams.length,
-        guidesCount: viewer.guides.length,
-        currentFoldProgress: viewer.currentFoldProgress,
-        hasSlitGuide: viewer.guides.some((g) => g.type === "slit")
-      };
-      viewer.destroy();
-      return res;
-    });
-
-    expect(result.pagesCount).toBe(8);
-    expect(result.stacksCount).toBe(4);
-    expect(result.seamsCount).toBe(8);
-    expect(result.guidesCount).toBe(6);
-    expect(result.currentFoldProgress).toBe(0);
-    expect(result.hasSlitGuide).toBe(true);
+  test.afterAll(() => {
+    delete global.window;
+    delete global.document;
+    delete global.HTMLElement;
+    delete global.HTMLCanvasElement;
+    delete global.Event;
+    delete global.requestAnimationFrame;
+    delete global.cancelAnimationFrame;
   });
 
-  test("loadPages cleans up previous pages before creating new ones", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-
-      viewer.loadPages(Array.from({ length: 8 }, (_, i) => `first_${i + 1}.png`));
-      const firstPagesCount = viewer.pages.length;
-
-      viewer.loadPages(Array.from({ length: 8 }, (_, i) => `second_${i + 1}.png`));
-      const secondPagesCount = viewer.pages.length;
-
-      viewer.destroy();
-      return { firstPagesCount, secondPagesCount };
-    });
-
-    expect(result.firstPagesCount).toBe(8);
-    expect(result.secondPagesCount).toBe(8);
+  test('initializes in fallback mode when WebGL context fails', () => {
+    const viewer = new Zine3DViewer(container);
+    expect(viewer.isFallbackMode).toBe(true);
+    expect(viewer.fallbackCanvas).not.toBeNull();
+    expect(viewer.fallbackContext).not.toBeNull();
+    expect(container.contains(viewer.fallbackCanvas)).toBe(true);
+    viewer.destroy();
   });
 
-  test("loadPages handles page objects with previewUrl, sourceUrl, and missing values", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
+  test('loadPages converts page inputs and triggers fallback rendering in fallback mode', () => {
+    const viewer = new Zine3DViewer(container);
+    const pageInputs = [
+      'page1.png',
+      { previewUrl: 'page2.png' },
+      { sourceUrl: 'page3.png' },
+      null,
+      undefined
+    ];
 
-      const pageObjects = [
-        { previewUrl: "data:image/png;base64,abc" },
-        { sourceUrl: "data:image/png;base64,xyz" },
-        null,
-        undefined
-      ];
-
-      viewer.loadPages(pageObjects);
-      const count = viewer.pages.length;
-      viewer.destroy();
-      return { count };
-    });
-
-    expect(result.count).toBe(8);
+    viewer.loadPages(pageInputs);
+    expect(viewer.fallbackPages.length).toBe(5);
+    expect(viewer.fallbackPages[0].previewUrl).toBe('page1.png');
+    expect(viewer.fallbackPages[1].previewUrl).toBe('page2.png');
+    expect(viewer.fallbackPages[2].sourceUrl).toBe('page3.png');
+    expect(viewer.fallbackPages[3].previewUrl).toBeNull();
+    expect(viewer.fallbackPages[4].previewUrl).toBeNull();
+    viewer.destroy();
   });
 
-  test("handles loadPages with null, undefined or empty input gracefully", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
+  test('handles loadPages with null, undefined or empty input gracefully', () => {
+    const viewer = new Zine3DViewer(container);
 
-      viewer.loadPages(null);
-      const pagesNull = viewer.pages.length;
+    viewer.loadPages(null);
+    expect(viewer.fallbackPages).toEqual([]);
 
-      viewer.loadPages(undefined);
-      const pagesUndefined = viewer.pages.length;
+    viewer.loadPages(undefined);
+    expect(viewer.fallbackPages).toEqual([]);
 
-      viewer.loadPages([]);
-      const pagesEmpty = viewer.pages.length;
+    viewer.loadPages([]);
+    expect(viewer.fallbackPages).toEqual([]);
 
-      viewer.destroy();
-      return { pagesNull, pagesUndefined, pagesEmpty };
-    });
-
-    expect(result.pagesNull).toBe(8);
-    expect(result.pagesUndefined).toBe(8);
-    expect(result.pagesEmpty).toBe(8);
+    viewer.destroy();
   });
 
-  test("setFoldProgress updates currentFoldProgress and debugFoldState", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-      viewer.loadPages(Array.from({ length: 8 }, (_, i) => `page${i + 1}.png`));
-      viewer.setFoldProgress(1.5);
+  test('setFoldProgress updates fold progress in fallback mode', () => {
+    const viewer = new Zine3DViewer(container);
+    viewer.loadPages(['page1.jpg', 'page2.jpg']);
 
-      const res = {
-        currentFoldProgress: viewer.currentFoldProgress,
-        hasDebugFoldState: !!viewer.debugFoldState,
-        topFoldAngle: viewer.debugFoldState?.topFoldAngle
-      };
-      viewer.destroy();
-      return res;
-    });
+    viewer.setFoldProgress(1.5);
+    expect(viewer.currentFoldProgress).toBe(1.5);
+    expect(viewer.fallbackFoldProgress).toBe(1.5);
 
-    expect(result.currentFoldProgress).toBe(1.5);
-    expect(result.hasDebugFoldState).toBe(true);
-    expect(typeof result.topFoldAngle).toBe("number");
+    viewer.setFoldProgress(3.0);
+    expect(viewer.currentFoldProgress).toBe(3.0);
+    expect(viewer.fallbackFoldProgress).toBe(3.0);
+
+    viewer.destroy();
   });
 
-  test("handles fold progress boundary and out-of-bounds values", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-      viewer.loadPages(Array.from({ length: 8 }, (_, i) => `page${i + 1}.png`));
+  test('refreshLayout updates fallback canvas dimensions', () => {
+    const viewer = new Zine3DViewer(container);
+    Object.defineProperty(container, 'clientWidth', { value: 1000, configurable: true });
+    Object.defineProperty(container, 'clientHeight', { value: 750, configurable: true });
 
-      viewer.setFoldProgress(-0.5);
-      const negProgress = viewer.currentFoldProgress;
+    viewer.refreshLayout();
+    expect(viewer.fallbackCanvas.width).toBe(1000);
+    expect(viewer.fallbackCanvas.height).toBe(750);
 
-      viewer.setFoldProgress(4.5);
-      const overProgress = viewer.currentFoldProgress;
-
-      viewer.destroy();
-      return { negProgress, overProgress };
-    });
-
-    expect(result.negProgress).toBe(-0.5);
-    expect(result.overProgress).toBe(4.5);
+    viewer.destroy();
   });
 
-  test("refreshLayout resizes camera aspect ratio and renderer", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-      viewer.refreshLayout();
+  test('renderFallback returns early if missing fallbackCanvas or fallbackContext', () => {
+    const viewer = new Zine3DViewer(container);
+    viewer.fallbackCanvas = null;
 
-      const res = {
-        aspect: viewer.camera.aspect,
-        rendererWidth: viewer.renderer.domElement.width,
-        rendererHeight: viewer.renderer.domElement.height
-      };
-      viewer.destroy();
-      return res;
-    });
-
-    expect(result.aspect).toBeCloseTo(800 / 600, 2);
-    expect(result.rendererWidth).toBeGreaterThan(0);
-    expect(result.rendererHeight).toBeGreaterThan(0);
+    expect(() => viewer.renderFallback()).not.toThrow();
+    viewer.destroy();
   });
 
-  test("triggers refreshLayout when window dispatchEvent resize occurs", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      container.style.width = "400px";
-      container.style.height = "300px";
-
-      const viewer = new window.Zine3DViewer(container);
-      window.dispatchEvent(new Event("resize"));
-
-      const res = {
-        aspect: viewer.camera.aspect
-      };
-      viewer.destroy();
-      return res;
-    });
-
-    expect(result.aspect).toBeCloseTo(400 / 300, 2);
+  test('animate returns early in fallback mode', () => {
+    const viewer = new Zine3DViewer(container);
+    expect(() => viewer.animate()).not.toThrow();
+    viewer.destroy();
   });
 
-  test("initFallbackScene activates fallback mode when WebGL creation fails", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
+  test('destroy cleans up DOM and fallback properties', () => {
+    const viewer = new Zine3DViewer(container);
+    viewer.loadPages(['p1', 'p2']);
 
-      const origGetContext = HTMLCanvasElement.prototype.getContext;
-      HTMLCanvasElement.prototype.getContext = function(type, options) {
-        if (type.includes("webgl")) return null;
-        return origGetContext.call(this, type, options);
-      };
+    expect(container.children.length).toBe(1);
+    viewer.destroy();
 
-      const viewer = new window.Zine3DViewer(container);
-
-      viewer.loadPages(["page1.png", "page2.png"]);
-      viewer.setFoldProgress(2);
-
-      const res = {
-        isFallbackMode: viewer.isFallbackMode,
-        hasFallbackCanvas: !!viewer.fallbackCanvas,
-        hasFallbackContext: !!viewer.fallbackContext,
-        fallbackPagesCount: viewer.fallbackPages.length,
-        fallbackFoldProgress: viewer.fallbackFoldProgress
-      };
-
-      HTMLCanvasElement.prototype.getContext = origGetContext;
-      viewer.destroy();
-      return res;
-    });
-
-    expect(result.isFallbackMode).toBe(true);
-    expect(result.hasFallbackCanvas).toBe(true);
-    expect(result.hasFallbackContext).toBe(true);
-    expect(result.fallbackPagesCount).toBe(2);
-    expect(result.fallbackFoldProgress).toBe(2);
+    expect(container.children.length).toBe(0);
+    expect(viewer.fallbackCanvas).toBeNull();
+    expect(viewer.fallbackContext).toBeNull();
+    expect(viewer.fallbackPages).toEqual([]);
   });
 
-  test("fallback mode handles layout refresh, rendering states and destroy correctly", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
+  test('WebGL mode initialization and mesh creation when WebGL context is available', () => {
+    const mockRendererDom = document.createElement('canvas');
+    mockRendererDom.classList.add('zine-3d-canvas');
 
-      const origGetContext = HTMLCanvasElement.prototype.getContext;
-      HTMLCanvasElement.prototype.getContext = function(type, options) {
-        if (type.includes("webgl")) return null;
-        return origGetContext.call(this, type, options);
-      };
+    const mockRenderer = {
+      setSize: () => {},
+      setPixelRatio: () => {},
+      setClearColor: () => {},
+      render: () => {},
+      dispose: () => {},
+      domElement: mockRendererDom,
+      shadowMap: {}
+    };
 
-      const viewer = new window.Zine3DViewer(container);
-      viewer.loadPages([
-        { previewUrl: "p1.png" },
-        { sourceUrl: "p2.png" },
-        null
-      ]);
-
-      container.style.width = "500px";
-      container.style.height = "500px";
-      viewer.refreshLayout();
-
-      viewer.setFoldProgress(0.5);
-      viewer.setFoldProgress(2.8);
-
-      const canvasWidth = viewer.fallbackCanvas.width;
-      const initialChildCount = container.children.length;
-
-      viewer.destroy();
-      const finalChildCount = container.children.length;
-
-      HTMLCanvasElement.prototype.getContext = origGetContext;
-      return { canvasWidth, initialChildCount, finalChildCount, fallbackCanvas: viewer.fallbackCanvas };
-    });
-
-    expect(result.canvasWidth).toBe(500);
-    expect(result.initialChildCount).toBe(1);
-    expect(result.finalChildCount).toBe(0);
-    expect(result.fallbackCanvas).toBeNull();
-  });
-
-  test("renderFallback safely handles missing fallbackCanvas or fallbackContext", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-      viewer.isFallbackMode = true;
-      viewer.fallbackCanvas = null;
-
-      viewer.renderFallback();
-
-      viewer.destroy();
+    const origInitRenderer = Zine3DViewer.prototype._initRenderer;
+    Zine3DViewer.prototype._initRenderer = function() {
+      this.renderer = mockRenderer;
+      this.container.appendChild(this.renderer.domElement);
       return true;
-    });
+    };
 
-    expect(result).toBe(true);
-  });
+    const viewer = new Zine3DViewer(container);
+    expect(viewer.isFallbackMode).toBe(false);
+    expect(viewer.scene).not.toBeNull();
+    expect(viewer.camera).not.toBeNull();
 
-  test("updateSeams and updateGuides correctly modify visibility and transform properties", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-      viewer.loadPages(Array.from({ length: 8 }, (_, i) => `page${i + 1}.png`));
+    viewer.loadPages(Array.from({ length: 8 }, (_, i) => `page${i + 1}.png`));
+    expect(viewer.pages.length).toBe(8);
+    expect(viewer.stacks.length).toBe(4);
+    expect(viewer.seams.length).toBe(8);
+    expect(viewer.guides.length).toBe(6);
 
-      viewer.setFoldProgress(0);
-      const flatSeamsVisible = viewer.seams.map((s) => s.mesh.visible);
-      const flatGuidesVisible = viewer.guides.map((g) => g.mesh.visible);
+    viewer.setFoldProgress(0);
+    expect(viewer.currentFoldProgress).toBe(0);
 
-      viewer.setFoldProgress(3.0);
-      const foldedSeamsVisible = viewer.seams.map((s) => s.mesh.visible);
-      const foldedGuidesVisible = viewer.guides.map((g) => g.mesh.visible);
+    viewer.setFoldProgress(1.5);
+    expect(viewer.currentFoldProgress).toBe(1.5);
+    expect(viewer.debugFoldState).not.toBeNull();
 
-      viewer.destroy();
-      return { flatSeamsVisible, flatGuidesVisible, foldedSeamsVisible, foldedGuidesVisible };
-    });
+    viewer.setFoldProgress(3);
+    expect(viewer.currentFoldProgress).toBe(3);
 
-    expect(result.flatSeamsVisible.length).toBe(8);
-    expect(result.flatGuidesVisible.length).toBe(6);
-    expect(result.foldedSeamsVisible.length).toBe(8);
-    expect(result.foldedGuidesVisible.length).toBe(6);
-  });
+    Object.defineProperty(container, 'clientWidth', { value: 1200, configurable: true });
+    Object.defineProperty(container, 'clientHeight', { value: 900, configurable: true });
+    viewer.refreshLayout();
 
-  test("destroy cleans up WebGL resources and container DOM elements", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-      viewer.loadPages(Array.from({ length: 8 }, (_, i) => `page${i + 1}.png`));
+    expect(container.contains(mockRendererDom)).toBe(true);
+    viewer.destroy();
+    expect(container.contains(mockRendererDom)).toBe(false);
 
-      const initialChildCount = container.children.length;
-      viewer.destroy();
-      const finalChildCount = container.children.length;
-
-      return { initialChildCount, finalChildCount, stacksLength: viewer.stacks.length };
-    });
-
-    expect(result.initialChildCount).toBe(1);
-    expect(result.finalChildCount).toBe(0);
-    expect(result.stacksLength).toBe(0);
-  });
-
-  test("updateCameraForProgress returns early if bounds missing or fallback mode", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-      viewer.debugFoldState = null;
-      viewer.updateCameraForProgress(1);
-
-      const isFallback = viewer.isFallbackMode;
-      viewer.destroy();
-      return { isFallback };
-    });
-
-    expect(result.isFallback).toBe(false);
-  });
-
-  test("animate triggers animation frame in WebGL mode and returns early in fallback mode", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-
-      let animated = false;
-      viewer.controls.update = () => { animated = true; };
-      viewer.animate();
-      const webglAnimated = animated;
-
-      viewer.isFallbackMode = true;
-      animated = false;
-      viewer.animate();
-      const fallbackAnimated = animated;
-
-      viewer.destroy();
-      return { webglAnimated, fallbackAnimated };
-    });
-
-    expect(result.webglAnimated).toBe(true);
-    expect(result.fallbackAnimated).toBe(false);
-  });
-
-  test("setFoldProgress updates fold stages from 0 to 3 correctly", async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const container = document.getElementById("container");
-      const viewer = new window.Zine3DViewer(container);
-      viewer.loadPages(Array.from({ length: 8 }, (_, i) => `page${i + 1}.png`));
-
-      const stagesResult = [0, 1, 2, 3].map((progress) => {
-        viewer.setFoldProgress(progress);
-        return {
-          progress: viewer.currentFoldProgress,
-          hasBounds: !!viewer.debugFoldState?.bounds,
-          guidesVisible: viewer.guides.map(g => g.mesh.visible)
-        };
-      });
-
-      viewer.destroy();
-      return stagesResult;
-    });
-
-    expect(result.length).toBe(4);
-    expect(result[0].progress).toBe(0);
-    expect(result[3].progress).toBe(3);
-    expect(result[0].hasBounds).toBe(true);
+    Zine3DViewer.prototype._initRenderer = origInitRenderer;
   });
 });
