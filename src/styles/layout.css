@@ -15,22 +15,19 @@ body::-webkit-scrollbar {
   display: none;
 }
 
-/* A quiet viewport frame inspired by the rounded edge on woods.engineer. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 7px;
-  z-index: 1000;
-  border: 2px solid color-mix(in srgb, var(--accent-dark) 52%, transparent);
-  border-radius: 14px;
-  pointer-events: none;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent-dark) 10%, transparent);
+/* The page sits inside a contrasting rounded frame, like woods.engineer. */
+body {
+  background: var(--accent-dark);
 }
 
 .app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  min-height: calc(100dvh - 14px);
+  margin: 7px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--bg-neutral);
 }
 
 /* ─── Header ─────────────────────────────────────────────── */
