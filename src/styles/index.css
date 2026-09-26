@@ -254,19 +254,6 @@ body {
   }
 }
 
-.app-shell::before {
-  content: "WORK TABLE / SINGLE SHEET SYSTEM";
-  position: fixed;
-  top: 0.7rem;
-  left: 1rem;
-  z-index: 30;
-  color: rgba(255, 255, 255, 0.52);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.14em;
-  pointer-events: none;
-}
-
 .brand-panel {
   position: relative;
   z-index: 25;
