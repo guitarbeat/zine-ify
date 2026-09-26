@@ -30,10 +30,6 @@ body {
   background-size: 24px 24px;
 }
 
-body {
-  font-family: 'Inter', sans-serif;
-}
-
 .skip-link {
   position: fixed;
   top: 0.75rem;
@@ -57,13 +53,6 @@ body {
 
 #workspace-main:focus {
   outline: none;
-}
-
-.app-shell {
-  position: relative;
-  max-width: 1680px;
-  margin: 0 auto;
-  padding: 1.25rem 1.25rem 2rem;
 }
 
 /* Desktop workspace: tools live in a calm left rail, canvas gets the room. */
@@ -101,12 +90,6 @@ body {
   .grid-stack-item[gs-id="settings"] .snap-card-body {
     min-width: 0;
     overflow-x: hidden;
-  }
-}
-
-@media (max-width: 767px) {
-  .app-shell {
-    padding: 0.75rem;
   }
 }
 

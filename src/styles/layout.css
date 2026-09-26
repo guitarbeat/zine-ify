@@ -24,10 +24,13 @@ body {
   display: flex;
   flex-direction: column;
   min-height: calc(100dvh - 14px);
-  margin: 7px;
+  max-width: 1680px;
+  margin: 7px auto;
+  padding: 1.25rem 1.25rem 2rem;
   overflow: hidden;
   border-radius: 14px;
   background: var(--bg-neutral);
+  box-sizing: border-box;
 }
 
 /* ─── Header ─────────────────────────────────────────────── */
@@ -135,6 +138,10 @@ body {
 .header-action-btn:not(:disabled):hover { opacity: 0.82; transform: translateY(-1px); }
 .header-action-btn:not(:disabled):active { transform: none; opacity: 0.7; }
 .header-action-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+
+@media (max-width: 767px) {
+  .app-shell { padding: 0.75rem; }
+}
 
 @media (max-width: 540px) {
   .header-action-label { display: none; }
