@@ -164,16 +164,6 @@
   position: relative;
 }
 
-.workspace-config-header::after {
-  content: "";
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  right: 0;
-  height: 0px;
-  background: transparent;
-}
-
 .workspace-config-summary {
   font-size: 0.73rem;
   color: var(--muted-ink);

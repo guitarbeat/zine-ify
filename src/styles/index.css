@@ -318,12 +318,6 @@ body {
   box-shadow: none;
 }
 
-.snap-card {
-  border-color: var(--workspace-edge);
-  border-radius: 0.2rem;
-  box-shadow: 3px 3px 0 var(--workspace-edge), var(--shadow-sm);
-}
-
 .snap-card:hover {
   transform: translate(-1px, -1px);
   box-shadow: 4px 4px 0 var(--primary-vibrant), var(--shadow-md);
@@ -357,10 +351,6 @@ body {
 
 .snap-card--canvas {
   background: var(--surface-paper-stack);
-}
-
-.snap-card--action {
-  box-shadow: 4px 4px 0 var(--primary-vibrant), var(--shadow-md);
 }
 
 .snap-card--action .panel-action-btn {
