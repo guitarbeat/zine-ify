@@ -10,28 +10,9 @@
 @source "../../index.html";
 @source "../**/*.{js,ts,jsx,tsx}";
 
-/* Studio pass: make the workspace feel like a working print table, not a generic dashboard. */
-:root {
-  --workspace-grid: rgba(15, 15, 15, 0.055);
-  --workspace-edge: rgba(15, 15, 15, 0.16);
-}
-
-[data-theme="dark"] {
-  --workspace-grid: rgba(255, 255, 255, 0.045);
-  --workspace-edge: rgba(255, 255, 255, 0.16);
-}
-
 html,
 body {
-  background-color: var(--bg-neutral);
-  background-image:
-    linear-gradient(var(--workspace-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--workspace-grid) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
+  background: var(--bg-neutral);
 }
 
 .skip-link {
@@ -59,17 +40,14 @@ body {
   outline: none;
 }
 
-.app-shell {
-  position: relative;
-  max-width: 1680px;
-  margin: 0 auto;
-  padding: 1.25rem 1.25rem 2rem;
-}
-
-/* Desktop workspace: tools live in a calm left rail, canvas gets the room. */
+/* Keep the tool rail compact and give the canvas the room. */
 @media (min-width: 1024px) {
   .grid-stack {
     padding-top: 0.25rem;
+  }
+
+  .gs-wrapper {
+    padding: 1rem 0.5rem 2rem;
   }
 
   .grid-stack-item[gs-id="brand"],
@@ -83,13 +61,13 @@ body {
     padding-left: 0.55rem;
   }
 
-  .grid-stack-item[gs-id="upload"] .snap-card,
-  .grid-stack-item[gs-id="settings"] .snap-card {
-    border-left: 3px solid var(--primary-vibrant);
-  }
-
   .grid-stack-item[gs-id="canvas"] .snap-card {
     min-height: 100%;
+  }
+
+  .grid-stack-item[gs-id="upload"] .snap-card,
+  .grid-stack-item[gs-id="settings"] .snap-card {
+    border-left: 2px solid var(--primary-vibrant);
   }
 
   .grid-stack-item[gs-id="settings"] .smart-sheet-preset-list,
@@ -102,56 +80,9 @@ body {
     min-width: 0;
     overflow-x: hidden;
   }
-}
-
-@media (max-width: 767px) {
-  .app-shell {
-    padding: 0.75rem;
-  }
-}
-
-/* Workspace hierarchy pass: a quiet tool rail beside a generous canvas. */
-@media (min-width: 1024px) {
-  .gs-wrapper {
-    padding: 1rem 0.5rem 2rem;
-  }
-
-  .grid-stack-item[gs-id="brand"] .grid-stack-item-content,
-  .grid-stack-item[gs-id="upload"] .grid-stack-item-content,
-  .grid-stack-item[gs-id="settings"] .grid-stack-item-content {
-    padding-right: 0.35rem;
-  }
-
-  .grid-stack-item[gs-id="canvas"] .grid-stack-item-content,
-  .grid-stack-item[gs-id="fold-viewer"] .grid-stack-item-content {
-    padding-left: 0.35rem;
-  }
-
-  .brand-panel {
-    min-height: 4.75rem;
-    padding: 0.55rem 0.75rem;
-    background: var(--surface-bg);
-    border: 1px solid var(--border-color);
-    border-left: 3px solid var(--primary-vibrant);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .brand-panel .logo-image {
-    max-width: 8.5rem;
-    height: 2.8rem;
-  }
-
-  .brand-export-btn {
-    min-height: 2.25rem;
-    padding-inline: 0.7rem;
-    font-size: 0.72rem;
-  }
 
   .snap-card--canvas {
     min-height: 34rem;
-    border: 1px solid var(--border-color);
-    border-radius: 1rem;
-    box-shadow: var(--shadow-lg);
     overflow: hidden;
   }
 
@@ -159,7 +90,6 @@ body {
     min-height: 0;
     padding: 0.75rem;
     overflow: auto;
-    background: linear-gradient(135deg, rgba(255,255,255,0.72), rgba(245,242,238,0.96));
   }
 
   #preview-area,
@@ -188,9 +118,7 @@ body {
 
   .grid-stack-item[gs-id="upload"] .snap-card,
   .grid-stack-item[gs-id="settings"] .snap-card {
-    border: 1px solid var(--border-color);
-    border-left: 3px solid var(--primary-vibrant);
-    border-radius: 0.85rem;
+    border-radius: 0.5rem;
     box-shadow: var(--shadow-sm);
   }
 
@@ -210,10 +138,6 @@ body {
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
-  }
-
-  .grid-stack-item[gs-id="settings"] .snap-card-body {
-    padding: 0.95rem;
   }
 
   .grid-stack-item[gs-id="settings"] .smart-sheet-header {
@@ -252,19 +176,6 @@ body {
   .grid-stack-item[gs-id="canvas"] .snap-card--canvas {
     min-height: 40rem;
   }
-}
-
-.app-shell::before {
-  content: "WORK TABLE / SINGLE SHEET SYSTEM";
-  position: fixed;
-  top: 0.7rem;
-  left: 1rem;
-  z-index: 30;
-  color: rgba(255, 255, 255, 0.52);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.14em;
-  pointer-events: none;
 }
 
 .brand-panel {
@@ -348,12 +259,6 @@ body {
   box-shadow: none;
 }
 
-.snap-card {
-  border-color: var(--workspace-edge);
-  border-radius: 0.2rem;
-  box-shadow: 3px 3px 0 var(--workspace-edge), var(--shadow-sm);
-}
-
 .snap-card:hover {
   transform: translate(-1px, -1px);
   box-shadow: 4px 4px 0 var(--primary-vibrant), var(--shadow-md);
@@ -387,10 +292,6 @@ body {
 
 .snap-card--canvas {
   background: var(--surface-paper-stack);
-}
-
-.snap-card--action {
-  box-shadow: 4px 4px 0 var(--primary-vibrant), var(--shadow-md);
 }
 
 .snap-card--action .panel-action-btn {
@@ -488,93 +389,6 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-/* Modern studio pass: quieter elevation, clearer grouping, same print identity. */
-.gs-wrapper {
-  width: min(100%, 96rem);
-  margin-inline: auto;
-  padding: 1.25rem;
-}
-
-.brand-panel {
-  gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.75rem;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18), 4px 4px 0 var(--primary-vibrant);
-}
-
-.brand-panel .logo-image {
-  border-radius: 0.4rem;
-}
-
-.snap-card {
-  border-radius: 0.75rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.snap-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.13);
-}
-
-.snap-card-handle {
-  min-height: 2.25rem;
-  padding-inline: 0.9rem;
-  background: linear-gradient(180deg, #171717 0%, #0b0b0b 100%);
-  border-bottom-color: rgba(255, 255, 255, 0.1);
-}
-
-.snap-card-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-}
-
-.upload-box {
-  min-height: 8.5rem;
-  border-width: 1px;
-  border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--surface-muted) 92%, var(--primary-glow));
-  box-shadow: none;
-}
-
-.upload-box:hover,
-.upload-box:focus {
-  box-shadow: 0 0 0 3px var(--primary-glow);
-}
-
-.panel-action-btn,
-.brand-export-btn {
-  border-radius: 0.5rem;
-  box-shadow: none;
-}
-
-.panel-action-btn:not(:disabled):hover,
-.brand-export-btn:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px var(--primary-glow);
-}
-
-.workspace-config-input,
-.smart-sheet-select,
-.smart-sheet-custom-input {
-  border-radius: 0.5rem;
-}
-
-@media (max-width: 767px) {
-  .gs-wrapper {
-    padding: 0.75rem;
-  }
-
-  .brand-panel {
-    border-radius: 0.65rem;
-  }
-
-  .snap-card:hover {
-    transform: none;
-    box-shadow: var(--shadow-sm);
   }
 }
 

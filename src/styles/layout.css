@@ -15,10 +15,22 @@ body::-webkit-scrollbar {
   display: none;
 }
 
+/* The page sits inside a contrasting rounded frame, like woods.engineer. */
+body {
+  background: var(--accent-dark);
+}
+
 .app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  min-height: calc(100dvh - 14px);
+  max-width: 1680px;
+  margin: 7px auto;
+  padding: 1.25rem 1.25rem 2rem;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--bg-neutral);
+  box-sizing: border-box;
 }
 
 /* ─── Header ─────────────────────────────────────────────── */
@@ -127,6 +139,10 @@ body::-webkit-scrollbar {
 .header-action-btn:not(:disabled):active { transform: none; opacity: 0.7; }
 .header-action-btn:disabled { opacity: 0.28; cursor: not-allowed; }
 
+@media (max-width: 767px) {
+  .app-shell { padding: 0.75rem; }
+}
+
 @media (max-width: 540px) {
   .header-action-label { display: none; }
   .header-action-btn { padding: 0.28rem 0.45rem; gap: 0; }
@@ -206,12 +222,13 @@ body::-webkit-scrollbar {
 /* ─── Panel (snap-card) ──────────────────────────────────── */
 .snap-card {
   cursor: move;
+  position: relative;
   background: var(--surface-bg);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-panel);
+  border-color: var(--workspace-edge);
+  border-radius: 0.2rem;
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-  position: relative;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .snap-card:hover {
@@ -246,7 +263,7 @@ body::-webkit-scrollbar {
   height: auto;
   cursor: grab;
   user-select: none;
-  background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+  background: #111;
   border-bottom: 1px solid var(--border-color);
   border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   flex-shrink: 0;
@@ -286,7 +303,7 @@ body::-webkit-scrollbar {
   gap: 0.7rem;
 }
 
-/* ─── Canvas panel body ──────────────────────────────────── */
+/* ─── Canvas panel body ───────────────────────────���──────── */
 .snap-card-body--canvas {
   padding: 0.5rem;
 }
