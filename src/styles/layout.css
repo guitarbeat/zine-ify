@@ -227,8 +227,8 @@ body {
   border: 1px solid var(--border-color);
   border-color: var(--workspace-edge);
   border-radius: 0.2rem;
-  box-shadow: 3px 3px 0 var(--workspace-edge), var(--shadow-sm);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .snap-card:hover {
@@ -263,7 +263,7 @@ body {
   height: auto;
   cursor: grab;
   user-select: none;
-  background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+  background: #111;
   border-bottom: 1px solid var(--border-color);
   border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   flex-shrink: 0;
