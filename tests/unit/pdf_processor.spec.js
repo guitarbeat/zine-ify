@@ -70,6 +70,20 @@ test.describe('PDFProcessor', () => {
 
     const genericError = new Error('something else');
     expect(processor.handlePDFError(genericError).message).toContain('something else');
+
+    // Test explicit PasswordException by name and code
+    const peByName = { name: 'PasswordException', message: 'Custom message without sensitive keywords' };
+    expect(processor.handlePDFError(peByName).message).toBe('The PDF file is password-protected.');
+
+    const peByCode = { code: 1, message: 'Custom error code 1' };
+    expect(processor.handlePDFError(peByCode).message).toBe('The PDF file is password-protected.');
+
+    // Test explicit InvalidPDFException by name
+    const ieByName = { name: 'InvalidPDFException', message: 'Custom invalid PDF message' };
+    expect(processor.handlePDFError(ieByName).message).toBe('The PDF file appears to be corrupted or invalid.');
+
+    // Test null/undefined error fallback
+    expect(processor.handlePDFError(null).message).toContain('Unknown error');
   });
 
   test('cleanup frees resources', async () => {
