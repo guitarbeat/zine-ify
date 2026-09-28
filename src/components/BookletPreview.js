@@ -207,20 +207,16 @@ export class BookletPreview {
     const src = page?.previewUrl || page?.sourceUrl || null;
     const pageLabel = page ? getPageLabel(page.pageNumber, 8) : 'Blank';
 
-    if (src) {
+    const hasSrc = Boolean(src);
+    media.classList.toggle('is-visible', hasSrc);
+    element.classList.toggle('is-empty', !hasSrc);
+
+    if (hasSrc) {
       media.src = src;
-      media.classList.add('is-visible');
-      media.style.transform = 'none';
-      media.style.objectFit = 'contain';
       placeholder.textContent = '';
-      element.classList.remove('is-empty');
     } else {
       media.removeAttribute('src');
-      media.classList.remove('is-visible');
-      media.style.transform = 'none';
-      media.style.objectFit = 'contain';
       placeholder.textContent = pageLabel;
-      element.classList.add('is-empty');
     }
 
     if (label) {
