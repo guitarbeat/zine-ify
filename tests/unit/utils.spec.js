@@ -48,11 +48,34 @@ test.describe('Utils', () => {
     delete global.document;
   });
   test('formatFileSize', () => {
+    // Zero & base values
     expect(formatFileSize(0)).toBe('0 B');
+    expect(formatFileSize(500)).toBe('500.0 B');
+
+    // Unit thresholds & boundaries
     expect(formatFileSize(1024)).toBe('1.0 KB');
+    expect(formatFileSize(1536)).toBe('1.5 KB');
     expect(formatFileSize(1048576)).toBe('1.0 MB');
     expect(formatFileSize(1073741824)).toBe('1.0 GB');
+
+    // Values exceeding GB unit cap
+    expect(formatFileSize(1099511627776)).toBe('1024.0 GB');
+
+    // Negative and fractional values
+    expect(formatFileSize(-500)).toBe('-500.0 B');
+    expect(formatFileSize(512.5)).toBe('512.5 B');
+
+    // Invalid or non-numeric inputs
     expect(formatFileSize('not a number')).toBe('0 B');
+    expect(formatFileSize('1024')).toBe('0 B');
+    expect(formatFileSize(null)).toBe('0 B');
+    expect(formatFileSize(undefined)).toBe('0 B');
+    expect(formatFileSize(NaN)).toBe('0 B');
+    expect(formatFileSize(Infinity)).toBe('0 B');
+    expect(formatFileSize(-Infinity)).toBe('0 B');
+    expect(formatFileSize(true)).toBe('0 B');
+    expect(formatFileSize({})).toBe('0 B');
+    expect(formatFileSize([])).toBe('0 B');
   });
 
   test('isNumber', () => {
