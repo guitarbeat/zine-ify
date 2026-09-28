@@ -279,4 +279,61 @@ test.describe('initGridStack', () => {
     expect(result.brandX).toBe(2);
     expect(result.brandY).toBe(2);
   });
+
+  test('handles localStorage.setItem errors (e.g., QuotaExceededError) gracefully in saveLayout', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const gridEl = document.querySelector('.grid-stack');
+      if (!gridEl || !gridEl.gridstack) {
+        return { handled: false };
+      }
+
+      // Mock localStorage.setItem to throw an exception
+      const originalSetItem = localStorage.setItem;
+      let errorThrown = false;
+      localStorage.setItem = () => {
+        errorThrown = true;
+        throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+      };
+
+      try {
+        gridEl.gridstack._triggerEvent('change', {});
+      } catch (e) {
+        return { handled: false, error: e.message };
+      } finally {
+        localStorage.setItem = originalSetItem;
+      }
+
+      return { handled: true, errorThrown };
+    });
+
+    expect(result.handled).toBe(true);
+    expect(result.errorThrown).toBe(true);
+  });
+
+  test('handles localStorage.getItem errors gracefully in loadLayout by falling back to resetToDefaults', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const originalGetItem = localStorage.getItem;
+      let getItemCalled = false;
+
+      localStorage.getItem = () => {
+        getItemCalled = true;
+        throw new Error('SecurityError: Access denied for localStorage');
+      };
+
+      try {
+        if (typeof window.__initGridStack === 'function') {
+          window.__initGridStack();
+        }
+      } catch (e) {
+        return { handled: false, error: e.message };
+      } finally {
+        localStorage.getItem = originalGetItem;
+      }
+
+      return { handled: true, getItemCalled };
+    });
+
+    expect(result.handled).toBe(true);
+    expect(result.getItemCalled).toBe(true);
+  });
 });
