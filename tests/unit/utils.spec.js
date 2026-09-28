@@ -230,6 +230,33 @@ test.describe('Utils', () => {
 
     // NaN requiredLength: throws RangeError
     expect(() => resizeAndFillArray([1, 2], NaN)).toThrow(RangeError);
+
+    // Floating point requiredLength: throws RangeError
+    expect(() => resizeAndFillArray([1, 2], 1.5)).toThrow(RangeError);
+
+    // undefined requiredLength: throws RangeError
+    expect(() => resizeAndFillArray([1, 2], undefined)).toThrow(RangeError);
+
+    // null requiredLength: treated as 0, returns empty array
+    expect(resizeAndFillArray([1, 2], null)).toEqual([]);
+
+    // String numeric requiredLength: coerced to number
+    expect(resizeAndFillArray([1], '3', 0)).toEqual([1, 0, 0]);
+
+    // Invalid arr input (null/undefined): throws TypeError
+    expect(() => resizeAndFillArray(null, 3)).toThrow(TypeError);
+    expect(() => resizeAndFillArray(undefined, 3)).toThrow(TypeError);
+
+    // Explicit undefined fillValue: uses default parameter null
+    expect(resizeAndFillArray([1], 3, undefined)).toEqual([1, null, null]);
+
+    // Reference preservation for complex items
+    const objItem = { id: 'test' };
+    const resizedObjArr = resizeAndFillArray([objItem], 2, null);
+    expect(resizedObjArr[0]).toBe(objItem);
+
+    // Sparse array input
+    expect(resizeAndFillArray([1, , 3], 4, null)).toEqual([1, undefined, 3, null]);
   });
 
   test('runWithConcurrencyLimit', async () => {
