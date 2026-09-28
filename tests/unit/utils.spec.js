@@ -230,6 +230,32 @@ test.describe('Utils', () => {
 
     // NaN requiredLength: throws RangeError
     expect(() => resizeAndFillArray([1, 2], NaN)).toThrow(RangeError);
+
+    // Floating-point requiredLength: throws RangeError
+    expect(() => resizeAndFillArray([1, 2], 3.5)).toThrow(RangeError);
+
+    // Input array immutability check
+    const original = [1, 2, 3];
+    const result = resizeAndFillArray(original, 5, 'x');
+    expect(result).toEqual([1, 2, 3, 'x', 'x']);
+    expect(original).toEqual([1, 2, 3]);
+
+    // Preserving falsy values in input array
+    expect(resizeAndFillArray([0, '', false, null, undefined], 6, 'pad')).toEqual([0, '', false, null, undefined, 'pad']);
+
+    // Explicit undefined fillValue uses default parameter fillValue = null
+    expect(resizeAndFillArray([1], 3, undefined)).toEqual([1, null, null]);
+
+    // Complex object fillValue reference
+    const fillObj = { placeholder: true };
+    const filledWithObj = resizeAndFillArray([1], 3, fillObj);
+    expect(filledWithObj).toEqual([1, fillObj, fillObj]);
+    expect(filledWithObj[1]).toBe(fillObj);
+    expect(filledWithObj[2]).toBe(fillObj);
+
+    // Sparse input array handling
+    const sparse = [1, , 3]; // eslint-disable-line no-sparse-arrays
+    expect(resizeAndFillArray(sparse, 4, null)).toEqual([1, undefined, 3, null]);
   });
 
   test('runWithConcurrencyLimit', async () => {
