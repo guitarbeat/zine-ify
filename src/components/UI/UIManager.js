@@ -7,13 +7,13 @@ import {
   ZINE_TEMPLATES,
   resolvePaperSize
 } from '../../utils/config.js';
-import { debounce, formatFileSize, parseBoundedInteger } from '../../utils/helpers.js';
+import { debounce, parseBoundedInteger } from '../../utils/helpers.js';
 
 import { SmartSheetConfig } from '../SmartSheetConfig.js';
 import { ModalManager } from './ModalManager.js';
 import { DragAndDropHandler } from './DragAndDropHandler.js';
 import { LayoutRenderer } from './LayoutRenderer.js';
-import { PAGE_CELL_TEMPLATE } from './Templates.js';
+import { PAGE_CELL_TEMPLATE, createUploadedFileItem } from './Templates.js';
 
 
 const DEFAULT_GRID_ROWS = 2;
@@ -148,38 +148,7 @@ export class UIManager {
     header.textContent = `Uploaded Files (${files.length})`;
     wrapper.appendChild(header);
     files.forEach((file, index) => {
-      const item = document.createElement('div');
-      item.className = 'uploaded-file-item';
-      const icon = document.createElement('span');
-      icon.className = 'material-symbols-outlined';
-      icon.style.fontSize = '14px';
-      icon.textContent = 'description';
-      icon.setAttribute('aria-hidden', 'true');
-      const body = document.createElement('div');
-      body.className = 'uploaded-file-body';
-      const name = document.createElement('div');
-      name.className = 'uploaded-file-name';
-      name.textContent = file.name;
-      name.title = file.name;
-      const meta = document.createElement('div');
-      meta.className = 'uploaded-file-meta';
-      meta.textContent = `${file.kind === 'pdf' ? 'PDF' : 'Image'} \u2022 ${formatFileSize(file.size)}`;
-      body.appendChild(name);
-      body.appendChild(meta);
-      const remove = document.createElement('button');
-      remove.className = 'uploaded-file-remove';
-      remove.type = 'button';
-      remove.setAttribute('aria-label', `Remove ${file.name}`);
-      const removeIcon = document.createElement('span');
-      removeIcon.className = 'material-symbols-outlined';
-      removeIcon.style.fontSize = '14px';
-      removeIcon.textContent = 'close';
-      removeIcon.setAttribute('aria-hidden', 'true');
-      remove.appendChild(removeIcon);
-      remove.addEventListener('click', () => this.emitter.emit('removeUploadedFile', index));
-      item.appendChild(icon);
-      item.appendChild(body);
-      item.appendChild(remove);
+      const item = createUploadedFileItem(file, () => this.emitter.emit('removeUploadedFile', index));
       wrapper.appendChild(item);
     });
     this.elements.uploadedFilesList.appendChild(wrapper);

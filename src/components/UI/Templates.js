@@ -1,5 +1,4 @@
 import DOMPurify from 'dompurify';
-
 /**
  * Templates.js
  * Centralized HTML templates for UI components
@@ -38,3 +37,60 @@ export const PAGE_CELL_TEMPLATE = document.createElement('template');
 PAGE_CELL_TEMPLATE.content.appendChild(
   DOMPurify.sanitize(RAW_PAGE_CELL_TEMPLATE, { RETURN_DOM_FRAGMENT: true })
 );
+
+
+import { formatFileSize } from '../../utils/helpers.js';
+
+/**
+ * Creates a DOM element representing an uploaded file item.
+ * @param {Object} file - File metadata ({ name, kind, size })
+ * @param {Function} onRemove - Callback invoked when the remove button is clicked
+ * @returns {HTMLElement}
+ */
+export function createUploadedFileItem(file, onRemove) {
+  const item = document.createElement('div');
+  item.className = 'uploaded-file-item';
+
+  const icon = document.createElement('span');
+  icon.className = 'material-symbols-outlined';
+  icon.style.fontSize = '14px';
+  icon.textContent = 'description';
+  icon.setAttribute('aria-hidden', 'true');
+
+  const body = document.createElement('div');
+  body.className = 'uploaded-file-body';
+
+  const name = document.createElement('div');
+  name.className = 'uploaded-file-name';
+  name.textContent = file.name;
+  name.title = file.name;
+
+  const meta = document.createElement('div');
+  meta.className = 'uploaded-file-meta';
+  meta.textContent = `${file.kind === 'pdf' ? 'PDF' : 'Image'} \u2022 ${formatFileSize(file.size)}`;
+
+  body.appendChild(name);
+  body.appendChild(meta);
+
+  const remove = document.createElement('button');
+  remove.className = 'uploaded-file-remove';
+  remove.type = 'button';
+  remove.setAttribute('aria-label', `Remove ${file.name}`);
+
+  const removeIcon = document.createElement('span');
+  removeIcon.className = 'material-symbols-outlined';
+  removeIcon.style.fontSize = '14px';
+  removeIcon.textContent = 'close';
+  removeIcon.setAttribute('aria-hidden', 'true');
+
+  remove.appendChild(removeIcon);
+  if (typeof onRemove === 'function') {
+    remove.addEventListener('click', onRemove);
+  }
+
+  item.appendChild(icon);
+  item.appendChild(body);
+  item.appendChild(remove);
+
+  return item;
+}
