@@ -410,4 +410,34 @@ test.describe("Zine3DViewer Unit Tests (Browser / WebGL & Fallback)", () => {
     expect(result[3].progress).toBe(3);
     expect(result[0].hasBounds).toBe(true);
   });
+  test("_initRenderer error handling triggers fallback mode and returns false", async ({ page }) => {
+    const result = await page.evaluate(() => {
+      const container = document.getElementById("container");
+
+      const origGetContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function(type, options) {
+        if (type.includes("webgl")) {
+          throw new Error("Simulated WebGLRenderer instantiation error");
+        }
+        return origGetContext.call(this, type, options);
+      };
+
+      const viewer = new window.Zine3DViewer(container);
+
+      const res = {
+        isFallbackMode: viewer.isFallbackMode,
+        hasFallbackCanvas: !!viewer.fallbackCanvas,
+        hasRenderer: !!viewer.renderer
+      };
+
+      HTMLCanvasElement.prototype.getContext = origGetContext;
+      viewer.destroy();
+      return res;
+    });
+
+    expect(result.isFallbackMode).toBe(true);
+    expect(result.hasFallbackCanvas).toBe(true);
+    expect(result.hasRenderer).toBe(false);
+  });
+
 });
