@@ -378,6 +378,71 @@ export class Zine3DViewer {
     this.guides = [];
   }
 
+  _createPageFrontMaterial(url, isTop, textureLoader) {
+    if (url) {
+      const texture = textureLoader.load(url);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      if (isTop) {
+        texture.center.set(0.5, 0.5);
+        texture.rotation = Math.PI;
+      }
+      return new THREE.MeshStandardMaterial({
+        map: texture,
+        side: THREE.FrontSide,
+        roughness: 0.85
+      });
+    }
+
+    return new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      side: THREE.FrontSide,
+      roughness: 0.85
+    });
+  }
+
+  _createPageBackMaterial() {
+    return new THREE.MeshStandardMaterial({
+      color: this.sheetMaterialColor,
+      side: THREE.DoubleSide,
+      roughness: 0.95
+    });
+  }
+
+  _createSinglePageMesh(index, config, pageData, frontGeometry, backGeometry, textureLoader) {
+    const url = pageData?.previewUrl || pageData?.sourceUrl || null;
+    const frontMaterial = this._createPageFrontMaterial(url, config.isTop, textureLoader);
+    const backMaterial = this._createPageBackMaterial();
+
+    const yPosition = config.isTop ? this.h / 2 : -this.h / 2;
+
+    const frontMesh = new THREE.Mesh(frontGeometry, frontMaterial);
+    frontMesh.castShadow = true;
+    frontMesh.receiveShadow = true;
+    frontMesh.position.z = this.panelThickness;
+    frontMesh.position.y = yPosition;
+
+    const backMesh = new THREE.Mesh(backGeometry, backMaterial);
+    backMesh.castShadow = true;
+    backMesh.receiveShadow = true;
+    backMesh.rotation.y = Math.PI;
+    backMesh.position.z = -this.panelThickness;
+    backMesh.position.y = yPosition;
+
+    const group = new THREE.Group();
+    group.add(frontMesh);
+    group.add(backMesh);
+
+    return {
+      id: index,
+      group,
+      config,
+      frontMaterial,
+      backMaterial,
+      frontGeometry,
+      backGeometry
+    };
+  }
+
   createPageMeshes(previewPages) {
     const textureLoader = new THREE.TextureLoader();
 
@@ -389,72 +454,20 @@ export class Zine3DViewer {
         group
       });
     });
-    
+
     const frontGeometry = new THREE.PlaneGeometry(this.w, this.h, 4, 4);
     const backGeometry = new THREE.PlaneGeometry(this.w, this.h, 1, 1);
 
     for (let i = 1; i <= 8; i++) {
       const config = this.panelDefinitions[i];
       const pageData = previewPages[i - 1]; // Array is 0-indexed
-      const url = pageData?.previewUrl || pageData?.sourceUrl || null;
-
       const stack = this.stacks[config.stackIndex]; // ⚡️ Bolt: Optimize O(N) array search inside high-frequency animation loop using direct index lookup.
-      const group = new THREE.Group();
 
-      let frontMaterial;
-      if (url) {
-        const texture = textureLoader.load(url);
-        texture.colorSpace = THREE.SRGBColorSpace;
-        if (config.isTop) {
-          texture.center.set(0.5, 0.5);
-          texture.rotation = Math.PI;
-        }
-        frontMaterial = new THREE.MeshStandardMaterial({
-          map: texture,
-          side: THREE.FrontSide,
-          roughness: 0.85
-        });
-      } else {
-        frontMaterial = new THREE.MeshStandardMaterial({
-          color: 0xffffff,
-          side: THREE.FrontSide,
-          roughness: 0.85
-        });
-      }
+      const page = this._createSinglePageMesh(i, config, pageData, frontGeometry, backGeometry, textureLoader);
+      page.stackGroup = stack?.group ?? null;
+      stack?.group.add(page.group);
 
-      const backMaterial = new THREE.MeshStandardMaterial({
-        color: this.sheetMaterialColor,
-        side: THREE.DoubleSide,
-        roughness: 0.95
-      });
-
-      const frontMesh = new THREE.Mesh(frontGeometry, frontMaterial);
-      frontMesh.castShadow = true;
-      frontMesh.receiveShadow = true;
-      frontMesh.position.z = this.panelThickness;
-      frontMesh.position.y = config.isTop ? this.h / 2 : -this.h / 2;
-
-      const backMesh = new THREE.Mesh(backGeometry, backMaterial);
-      backMesh.castShadow = true;
-      backMesh.receiveShadow = true;
-      backMesh.rotation.y = Math.PI;
-      backMesh.position.z = -this.panelThickness;
-      backMesh.position.y = config.isTop ? this.h / 2 : -this.h / 2;
-
-      group.add(frontMesh);
-      group.add(backMesh);
-      stack?.group.add(group);
-      
-      this.pages.push({
-        id: i,
-        group,
-        stackGroup: stack?.group ?? null,
-        config,
-        frontMaterial,
-        backMaterial,
-        frontGeometry,
-        backGeometry
-      });
+      this.pages.push(page);
     }
   }
 
