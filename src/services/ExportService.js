@@ -290,12 +290,7 @@ export class ExportService {
     }
 
     const printFrame = document.createElement('iframe');
-    printFrame.style.position = 'fixed';
-    printFrame.style.right = '0';
-    printFrame.style.bottom = '0';
-    printFrame.style.width = '0';
-    printFrame.style.height = '0';
-    printFrame.style.border = '0';
+    printFrame.className = 'print-frame';
     printFrame.setAttribute('aria-hidden', 'true');
     document.body.appendChild(printFrame);
 
