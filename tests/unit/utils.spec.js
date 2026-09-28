@@ -56,13 +56,34 @@ test.describe('Utils', () => {
   });
 
   test('isNumber', () => {
+    // Valid numbers
     expect(isNumber(123)).toBe(true);
     expect(isNumber(0)).toBe(true);
+    expect(isNumber(-0)).toBe(true);
     expect(isNumber(-123)).toBe(true);
     expect(isNumber(1.23)).toBe(true);
+    expect(isNumber(Number.MAX_VALUE)).toBe(true);
+    expect(isNumber(Number.MIN_VALUE)).toBe(true);
+
+    // Strings
     expect(isNumber('123')).toBe(false);
+    expect(isNumber('')).toBe(false);
+
+    // Non-finite / special numbers
     expect(isNumber(NaN)).toBe(false);
     expect(isNumber(Infinity)).toBe(false);
+    expect(isNumber(-Infinity)).toBe(false);
+
+    // Other primitives & non-numeric types
+    expect(isNumber(null)).toBe(false);
+    expect(isNumber(undefined)).toBe(false);
+    expect(isNumber(true)).toBe(false);
+    expect(isNumber(false)).toBe(false);
+    expect(isNumber({})).toBe(false);
+    expect(isNumber([])).toBe(false);
+    expect(isNumber(() => {})).toBe(false);
+    expect(isNumber(Symbol())).toBe(false);
+    expect(isNumber(10n)).toBe(false);
   });
 
   test('clampNumber', () => {
