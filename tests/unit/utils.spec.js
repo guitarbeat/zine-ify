@@ -87,9 +87,33 @@ test.describe('Utils', () => {
   });
 
   test('clampNumber', () => {
+    // Normal in-range value
     expect(clampNumber(5, 1, 10)).toBe(5);
+
+    // Exact boundaries
+    expect(clampNumber(1, 1, 10)).toBe(1);
+    expect(clampNumber(10, 1, 10)).toBe(10);
+
+    // Below min / above max
     expect(clampNumber(-3, 1, 10)).toBe(1);
     expect(clampNumber(42, 1, 10)).toBe(10);
+
+    // Negative ranges
+    expect(clampNumber(-5, -10, -1)).toBe(-5);
+    expect(clampNumber(-15, -10, -1)).toBe(-10);
+    expect(clampNumber(0, -10, -1)).toBe(-1);
+
+    // Floating-point numbers
+    expect(clampNumber(0.55, 0.1, 0.9)).toBe(0.55);
+    expect(clampNumber(0.05, 0.1, 0.9)).toBe(0.1);
+    expect(clampNumber(1.25, 0.1, 0.9)).toBe(0.9);
+
+    // Min equals max
+    expect(clampNumber(5, 3, 3)).toBe(3);
+    expect(clampNumber(1, 3, 3)).toBe(3);
+
+    // NaN handling
+    expect(clampNumber(NaN, 1, 10)).toBeNaN();
   });
 
   test('parseBoundedInteger', () => {
