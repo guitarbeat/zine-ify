@@ -1,3 +1,4 @@
+import { logger } from '../utils/logger.js';
 import { validateUploadFile, MAX_UPLOAD_FILE_SIZE } from '../utils/fileValidation.js';
 import { formatFileSize } from '../utils/helpers.js';
 import { MediaProcessor } from './MediaProcessor.js';
@@ -115,8 +116,7 @@ export class PDFProcessor extends MediaProcessor {
           try {
             await this.loadingTask?.destroy();
           } catch (_e) {
-            /* eslint-disable-next-line no-console */
-            console.warn('Failed to destroy PDF loading task on timeout:', _e);
+            logger.warn('Failed to destroy PDF loading task on timeout:', _e);
           }
           this.loadingTask = null;
           reject(new Error('PDF loading timed out'));
@@ -324,8 +324,7 @@ export class PDFProcessor extends MediaProcessor {
     try {
       await this.loadingTask?.destroy();
     } catch (destroyError) {
-      /* eslint-disable-next-line no-console */
-      console.warn('Failed to destroy PDF loading task on cleanup:', destroyError);
+      logger.warn('Failed to destroy PDF loading task on cleanup:', destroyError);
     }
     this.loadingTask = null;
 
