@@ -279,4 +279,31 @@ test.describe('initGridStack', () => {
     expect(result.brandX).toBe(2);
     expect(result.brandY).toBe(2);
   });
+
+  test('handles invalid JSON in localStorage by resetting to default layout', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      localStorage.setItem('zine-grid-v8', 'invalid-json-{');
+      localStorage.setItem('zine-grid-mobile-v8', 'invalid-json-{');
+      if (typeof window.__initGridStack === 'function') {
+        window.__initGridStack();
+      }
+      const desktopStored = localStorage.getItem('zine-grid-v8');
+      const mobileStored = localStorage.getItem('zine-grid-mobile-v8');
+
+      let desktopParsed = null;
+      let mobileParsed = null;
+      try { desktopParsed = JSON.parse(desktopStored); } catch {}
+      try { mobileParsed = JSON.parse(mobileStored); } catch {}
+
+      return {
+        desktopRaw: desktopStored,
+        mobileRaw: mobileStored,
+        isDesktopArray: Array.isArray(desktopParsed),
+        isMobileArray: Array.isArray(mobileParsed)
+      };
+    });
+
+    expect(result.desktopRaw).not.toBe('invalid-json-{');
+    expect(result.isDesktopArray || result.isMobileArray).toBe(true);
+  });
 });
