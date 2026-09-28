@@ -117,10 +117,31 @@ test.describe('Utils', () => {
   });
 
   test('parseBoundedInteger', () => {
+    // Default options (min = 0, max = Number.MAX_SAFE_INTEGER, fallback = min)
+    expect(parseBoundedInteger('7')).toBe(7);
+    expect(parseBoundedInteger(42)).toBe(42);
+
+    // Custom min/max bounds and clamping
     expect(parseBoundedInteger('7', { min: 1, max: 10, fallback: 2 })).toBe(7);
     expect(parseBoundedInteger('1000', { min: 1, max: 10, fallback: 2 })).toBe(10);
     expect(parseBoundedInteger('0', { min: 1, max: 10, fallback: 2 })).toBe(1);
+
+    // Invalid inputs returning fallback (custom fallback vs default fallback = min)
     expect(parseBoundedInteger('abc', { min: 1, max: 10, fallback: 2 })).toBe(2);
+    expect(parseBoundedInteger('invalid', { min: 5, max: 20 })).toBe(5);
+
+    // Null, undefined, empty string, non-numeric values
+    expect(parseBoundedInteger(null)).toBe(0);
+    expect(parseBoundedInteger(undefined)).toBe(0);
+    expect(parseBoundedInteger('')).toBe(0);
+    expect(parseBoundedInteger(NaN)).toBe(0);
+
+    // Float string truncation by parseInt
+    expect(parseBoundedInteger('7.9')).toBe(7);
+
+    // Negative numbers and custom bounds
+    expect(parseBoundedInteger('-15', { min: -10, max: 10 })).toBe(-10);
+    expect(parseBoundedInteger('-5', { min: -10, max: 10 })).toBe(-5);
   });
 
   test('debounce', async () => {
