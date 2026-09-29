@@ -137,6 +137,17 @@ test.describe('Utils', () => {
 
     // NaN handling
     expect(clampNumber(NaN, 1, 10)).toBeNaN();
+
+    // Infinity handling
+    expect(clampNumber(Infinity, 1, 10)).toBe(10);
+    expect(clampNumber(-Infinity, 1, 10)).toBe(1);
+
+    // Numeric strings coercion
+    expect(clampNumber('5', 1, 10)).toBe(5);
+    expect(clampNumber(5, '1', '10')).toBe(5);
+
+    // Inverted min/max boundaries
+    expect(clampNumber(5, 10, 1)).toBe(1);
   });
 
   test('parseBoundedInteger', () => {
