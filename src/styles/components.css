@@ -141,22 +141,10 @@
   transform: rotate(90deg);
 }
 
-.workspace-config-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem 1.25rem;
-  padding-bottom: 0.75rem;
-  margin-bottom: 0.75rem;
-  border-bottom: 2px solid var(--primary-vibrant);
-  position: relative;
-}
-
 .workspace-config-summary {
-  font-size: 0.73rem;
   color: var(--muted-ink);
-  line-height: 1.45;
+  font-size: 0.72rem;
+  line-height: 1.4;
 }
 
 .workspace-config-grid {
@@ -1064,32 +1052,25 @@ select.is-valid:focus {
   gap: 0.35rem;
 }
 
-.smart-sheet-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted-ink);
-}
-
 .smart-sheet-section {
   display: grid;
   gap: 0.3rem;
 }
 
-.smart-sheet-header {
+.smart-sheet-header,
+.workspace-config-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.25rem;
+  gap: 0.5rem;
 }
 
-.smart-sheet-label {
-  font-size: 0.55rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.smart-sheet-label,
+.workspace-config-label {
   color: var(--muted-ink);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
 .smart-sheet-status {
