@@ -140,24 +140,45 @@ test.describe('Utils', () => {
   });
 
   test('parseBoundedInteger', () => {
-    // Default options (min = 0, max = Number.MAX_SAFE_INTEGER, fallback = min)
+    // Default options (min = 0, max = Number.MAX_SAFE_INTEGER, fallback = min) when options omitted or empty
     expect(parseBoundedInteger('7')).toBe(7);
     expect(parseBoundedInteger(42)).toBe(42);
+    expect(parseBoundedInteger('15', undefined)).toBe(15);
+    expect(parseBoundedInteger('15', {})).toBe(15);
 
     // Custom min/max bounds and clamping
     expect(parseBoundedInteger('7', { min: 1, max: 10, fallback: 2 })).toBe(7);
     expect(parseBoundedInteger('1000', { min: 1, max: 10, fallback: 2 })).toBe(10);
     expect(parseBoundedInteger('0', { min: 1, max: 10, fallback: 2 })).toBe(1);
+    expect(parseBoundedInteger('100', { max: 50 })).toBe(50);
 
     // Invalid inputs returning fallback (custom fallback vs default fallback = min)
     expect(parseBoundedInteger('abc', { min: 1, max: 10, fallback: 2 })).toBe(2);
     expect(parseBoundedInteger('invalid', { min: 5, max: 20 })).toBe(5);
+    expect(parseBoundedInteger('not-a-number', { min: 10, max: 50, fallback: 25 })).toBe(25);
 
-    // Null, undefined, empty string, non-numeric values
+    // Default fallback deriving from custom min when fallback is omitted
+    expect(parseBoundedInteger('invalid', { min: 12 })).toBe(12);
+
+    // Null, undefined, empty string, non-numeric primitives & non-finite numbers
     expect(parseBoundedInteger(null)).toBe(0);
     expect(parseBoundedInteger(undefined)).toBe(0);
     expect(parseBoundedInteger('')).toBe(0);
     expect(parseBoundedInteger(NaN)).toBe(0);
+    expect(parseBoundedInteger(Infinity)).toBe(0);
+    expect(parseBoundedInteger(-Infinity)).toBe(0);
+
+    // Non-numeric types (boolean, object, array)
+    expect(parseBoundedInteger(true)).toBe(0);
+    expect(parseBoundedInteger(false)).toBe(0);
+    expect(parseBoundedInteger({})).toBe(0);
+    expect(parseBoundedInteger([])).toBe(0);
+    expect(parseBoundedInteger([42])).toBe(42);
+
+    // String parsing edge cases (whitespace, trailing non-digits)
+    expect(parseBoundedInteger('   42   ')).toBe(42);
+    expect(parseBoundedInteger('42px')).toBe(42);
+    expect(parseBoundedInteger('0x10')).toBe(0);
 
     // Float string truncation by parseInt
     expect(parseBoundedInteger('7.9')).toBe(7);
