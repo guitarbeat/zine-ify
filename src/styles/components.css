@@ -479,9 +479,8 @@ select:focus, input:focus {
 
 .action-button {
   border: 1px solid var(--border-color) !important;
-  border-radius: var(--radius-button) !important;
-  box-shadow: var(--shadow-sm);
-  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
+  border-radius: 3px !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
   font-weight: 700;
   letter-spacing: 0.02em;
   font-size: 0.82rem;

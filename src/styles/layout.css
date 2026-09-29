@@ -224,16 +224,13 @@ body {
   cursor: move;
   position: relative;
   background: var(--surface-bg);
-  border: 1px solid var(--border-color);
-  border-color: var(--workspace-edge);
+  border: 1px solid var(--workspace-edge);
   border-radius: 0.2rem;
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: border-color 0.2s ease;
 }
 
 .snap-card:hover {
   border-color: var(--primary-vibrant);
-  box-shadow: var(--shadow-md);
 }
 
 .ui-draggable-dragging .snap-card {
@@ -245,36 +242,20 @@ body {
 /* Primary action card */
 .snap-card--action {
   border-color: var(--primary-vibrant);
-  background: linear-gradient(135deg, var(--surface-bg) 0%, var(--surface-strong) 100%);
-  box-shadow: var(--shadow-md), 0 0 0 1px var(--primary-vibrant);
-}
-
-.snap-card--action:hover {
-  box-shadow: var(--shadow-lg), 0 0 0 2px var(--primary-vibrant);
 }
 
 /* ─── Panel handle ───────────────────────────────────────── */
 .snap-card-handle {
   display: flex;
-  cursor: move;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.5rem 0.75rem;
-  height: auto;
+  padding: 0.55rem 0.75rem 0.35rem;
   cursor: grab;
   user-select: none;
-  background: #111;
-  border-bottom: 1px solid var(--border-color);
-  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   flex-shrink: 0;
-  position: relative;
-  transition: background 0.2s ease;
 }
 
-.snap-card-handle:active {
-  cursor: grabbing;
-  background: linear-gradient(180deg, #0f0f0f 0%, #000000 100%);
-}
+.snap-card-handle:active { cursor: grabbing; }
 
 .snap-card-grip,
 .brand-panel-drag-handle {
@@ -545,7 +526,7 @@ body {
   }
 }
 
-/* ─── Responsive: mobile (single-column stack, drag to reorder) ─ */
+/* ──��� Responsive: mobile (single-column stack, drag to reorder) ─ */
 @media (max-width: 767px) {
   .app-header {
     height: 3.25rem;
