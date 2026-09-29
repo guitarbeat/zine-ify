@@ -336,4 +336,36 @@ test.describe('initGridStack', () => {
     expect(result.handled).toBe(true);
     expect(result.getItemCalled).toBe(true);
   });
+
+  test("handles localStorage.setItem errors gracefully during mobile saveLayout", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+
+    const result = await page.evaluate(() => {
+      const gridEl = document.querySelector(".grid-stack");
+      if (!gridEl || !gridEl.gridstack) {
+        return { handled: false };
+      }
+
+      const originalSetItem = localStorage.setItem;
+      let errorThrown = false;
+      localStorage.setItem = () => {
+        errorThrown = true;
+        throw new DOMException("The quota has been exceeded.", "QuotaExceededError");
+      };
+
+      try {
+        gridEl.gridstack._triggerEvent("change", {});
+      } catch (e) {
+        return { handled: false, error: e.message };
+      } finally {
+        localStorage.setItem = originalSetItem;
+      }
+
+      return { handled: true, errorThrown };
+    });
+
+    expect(result.handled).toBe(true);
+    expect(result.errorThrown).toBe(true);
+  });
 });
