@@ -444,19 +444,15 @@ test.describe('PDFProcessor', () => {
     try {
       await expect(processor.loadPDF(file)).rejects.toThrow('PDF loading timed out');
       expect(warnArgs).not.toBeNull();
-      expect(warnArgs[0]).toBe('Failed to destroy PDF loading task on timeout');
+      expect(warnArgs[0]).toBe('Failed to destroy PDF loading task on timeout:');
+      expect(warnArgs[1].message).toBe('Destroy failed');
     } finally {
       global.setTimeout = origSetTimeout;
       /* eslint-disable-next-line no-console */
       console.warn = origWarn;
     }
   });
-  test("cleanupFailedLoad catches error when loadingTask.destroy fails and logs warning", async () => {
-    let warnArgs = null;
-    const origWarn = console.warn;
-    /* eslint-disable-next-line no-console */
-    console.warn = (...args) => { warnArgs = args; };
-
+  test("cleanupFailedLoad handles loadingTask.destroy error gracefully", async () => {
     let pdfDestroyed = false;
     let revokedUrl = null;
 
@@ -481,17 +477,12 @@ test.describe('PDFProcessor', () => {
     try {
       await processor.cleanupFailedLoad();
 
-      expect(warnArgs).not.toBeNull();
-      expect(warnArgs[0]).toBe("Failed to destroy PDF loading task on cleanup:");
-      expect(warnArgs[1].message).toBe("Task destroy failed");
       expect(processor.loadingTask).toBeNull();
       expect(processor.pdf).toBeNull();
       expect(pdfDestroyed).toBe(true);
       expect(processor.fileUrl).toBeNull();
       expect(revokedUrl).toBe("blob:test-cleanup");
     } finally {
-      /* eslint-disable-next-line no-console */
-      console.warn = origWarn;
       if (origRevoke) {
         global.URL.revokeObjectURL = origRevoke;
       }
