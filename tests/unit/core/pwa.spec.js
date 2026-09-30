@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { JSDOM } from 'jsdom';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { JSDOM } = require('jsdom');
 
 test.describe('PWA Core', () => {
   let dom;

@@ -1,5 +1,6 @@
 /**
- * Logger utility to encapsulate console logging calls and avoid ad-hoc ESLint overrides.
+ * Centralized logger service to wrap console logging methods.
+ * Centralizes console usage so ESLint `no-console` rule suppression is isolated.
  */
 export const logger = {
   warn(...args) {
@@ -17,6 +18,10 @@ export const logger = {
   debug(...args) {
     /* eslint-disable-next-line no-console */
     console.debug(...args);
+  },
+  log(...args) {
+    /* eslint-disable-next-line no-console */
+    console.log(...args);
   }
 };
 
