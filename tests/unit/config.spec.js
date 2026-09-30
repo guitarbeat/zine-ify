@@ -85,6 +85,7 @@ test.describe('Config Utilities', () => {
         });
 
         test('falls back to letter if custom paper is missing or invalid', () => {
+            expect(resolvePaperSize('custom')).toEqual({ label: 'Letter', width: 215.9, height: 279.4 });
             expect(resolvePaperSize('custom', null)).toEqual({ label: 'Letter', width: 215.9, height: 279.4 });
             expect(resolvePaperSize('custom', { width: 0, height: 100 })).toEqual({ label: 'Letter', width: 215.9, height: 279.4 });
             expect(resolvePaperSize('custom', { width: 100, height: -5 })).toEqual({ label: 'Letter', width: 215.9, height: 279.4 });
@@ -92,6 +93,9 @@ test.describe('Config Utilities', () => {
             expect(resolvePaperSize('custom', { width: 100 })).toEqual({ label: 'Letter', width: 215.9, height: 279.4 });
             expect(resolvePaperSize('custom', { height: 150 })).toEqual({ label: 'Letter', width: 215.9, height: 279.4 });
             expect(resolvePaperSize('custom', { width: undefined, height: undefined })).toEqual({ label: 'Letter', width: 215.9, height: 279.4 });
+            expect(resolvePaperSize('custom', { width: null, height: null })).toEqual({ label: 'Letter', width: 215.9, height: 279.4 });
+            expect(resolvePaperSize('custom', { width: NaN, height: 100 })).toEqual({ label: 'Letter', width: 215.9, height: 279.4 });
+            expect(resolvePaperSize('custom', { width: 'invalid', height: 'invalid' })).toEqual({ label: 'Letter', width: 215.9, height: 279.4 });
         });
     });
 });
