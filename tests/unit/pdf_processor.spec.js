@@ -70,20 +70,6 @@ test.describe('PDFProcessor', () => {
 
     const genericError = new Error('something else');
     expect(processor.handlePDFError(genericError).message).toContain('something else');
-
-    // Test explicit PasswordException by name and code
-    const peByName = { name: 'PasswordException', message: 'Custom message without sensitive keywords' };
-    expect(processor.handlePDFError(peByName).message).toBe('The PDF file is password-protected.');
-
-    const peByCode = { code: 1, message: 'Custom error code 1' };
-    expect(processor.handlePDFError(peByCode).message).toBe('The PDF file is password-protected.');
-
-    // Test explicit InvalidPDFException by name
-    const ieByName = { name: 'InvalidPDFException', message: 'Custom invalid PDF message' };
-    expect(processor.handlePDFError(ieByName).message).toBe('The PDF file appears to be corrupted or invalid.');
-
-    // Test null/undefined error fallback
-    expect(processor.handlePDFError(null).message).toContain('Unknown error');
   });
 
   test('cleanup frees resources', async () => {
@@ -458,8 +444,7 @@ test.describe('PDFProcessor', () => {
     try {
       await expect(processor.loadPDF(file)).rejects.toThrow('PDF loading timed out');
       expect(warnArgs).not.toBeNull();
-      expect(warnArgs[0]).toBe('Failed to destroy PDF loading task on timeout:');
-      expect(warnArgs[1].message).toBe('Destroy failed');
+      expect(warnArgs[0]).toBe('Failed to destroy PDF loading task on timeout');
     } finally {
       global.setTimeout = origSetTimeout;
       /* eslint-disable-next-line no-console */

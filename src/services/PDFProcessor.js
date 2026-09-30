@@ -1,6 +1,5 @@
 import { validateUploadFile, MAX_UPLOAD_FILE_SIZE } from '../utils/fileValidation.js';
 import { formatFileSize } from '../utils/helpers.js';
-import { logger } from '../utils/logger.js';
 import { MediaProcessor } from './MediaProcessor.js';
 
 export class PDFProcessor extends MediaProcessor {
@@ -115,8 +114,9 @@ export class PDFProcessor extends MediaProcessor {
         timeoutId = setTimeout(async () => {
           try {
             await this.loadingTask?.destroy();
-          } catch (_e) {
-            logger.warn('Failed to destroy PDF loading task on timeout:', _e);
+          } catch {
+            /* eslint-disable-next-line no-console */
+            console.warn('Failed to destroy PDF loading task on timeout');
           }
           this.loadingTask = null;
           reject(new Error('PDF loading timed out'));
@@ -324,7 +324,8 @@ export class PDFProcessor extends MediaProcessor {
     try {
       await this.loadingTask?.destroy();
     } catch (destroyError) {
-      logger.warn('Failed to destroy PDF loading task on cleanup:', destroyError);
+      /* eslint-disable-next-line no-console */
+      console.warn('Failed to destroy PDF loading task on cleanup:', destroyError);
     }
     this.loadingTask = null;
 
@@ -345,18 +346,6 @@ export class PDFProcessor extends MediaProcessor {
    * @returns {Error} Processed error
    */
   handlePDFError(error) {
-    if (!error) {
-      return new Error('PDF processing failed: Unknown error');
-    }
-
-    if (error.name === 'PasswordException' || error.code === 1) {
-      return new Error('The PDF file is password-protected.');
-    }
-
-    if (error.name === 'InvalidPDFException') {
-      return new Error('The PDF file appears to be corrupted or invalid.');
-    }
-
     const message = error.message || 'Unknown error';
 
     if (message.includes('timed out')) {
