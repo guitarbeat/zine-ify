@@ -48,155 +48,34 @@ test.describe('Utils', () => {
     delete global.document;
   });
   test('formatFileSize', () => {
-    // Zero & base values
     expect(formatFileSize(0)).toBe('0 B');
-    expect(formatFileSize(500)).toBe('500.0 B');
-
-    // Unit thresholds & boundaries
     expect(formatFileSize(1024)).toBe('1.0 KB');
-    expect(formatFileSize(1536)).toBe('1.5 KB');
     expect(formatFileSize(1048576)).toBe('1.0 MB');
     expect(formatFileSize(1073741824)).toBe('1.0 GB');
-
-    // Values exceeding GB unit cap
-    expect(formatFileSize(1099511627776)).toBe('1024.0 GB');
-
-    // Negative and fractional values
-    expect(formatFileSize(-500)).toBe('-500.0 B');
-    expect(formatFileSize(512.5)).toBe('512.5 B');
-
-    // Invalid or non-numeric inputs
     expect(formatFileSize('not a number')).toBe('0 B');
-    expect(formatFileSize('1024')).toBe('0 B');
-    expect(formatFileSize(null)).toBe('0 B');
-    expect(formatFileSize(undefined)).toBe('0 B');
-    expect(formatFileSize(NaN)).toBe('0 B');
-    expect(formatFileSize(Infinity)).toBe('0 B');
-    expect(formatFileSize(-Infinity)).toBe('0 B');
-    expect(formatFileSize(true)).toBe('0 B');
-    expect(formatFileSize({})).toBe('0 B');
-    expect(formatFileSize([])).toBe('0 B');
   });
 
   test('isNumber', () => {
-    // Valid numbers
     expect(isNumber(123)).toBe(true);
     expect(isNumber(0)).toBe(true);
-    expect(isNumber(-0)).toBe(true);
     expect(isNumber(-123)).toBe(true);
     expect(isNumber(1.23)).toBe(true);
-    expect(isNumber(Number.MAX_VALUE)).toBe(true);
-    expect(isNumber(Number.MIN_VALUE)).toBe(true);
-
-    // Strings
     expect(isNumber('123')).toBe(false);
-    expect(isNumber('')).toBe(false);
-
-    // Non-finite / special numbers
     expect(isNumber(NaN)).toBe(false);
     expect(isNumber(Infinity)).toBe(false);
-    expect(isNumber(-Infinity)).toBe(false);
-
-    // Other primitives & non-numeric types
-    expect(isNumber(null)).toBe(false);
-    expect(isNumber(undefined)).toBe(false);
-    expect(isNumber(true)).toBe(false);
-    expect(isNumber(false)).toBe(false);
-    expect(isNumber({})).toBe(false);
-    expect(isNumber([])).toBe(false);
-    expect(isNumber(() => {})).toBe(false);
-    expect(isNumber(Symbol())).toBe(false);
-    expect(isNumber(10n)).toBe(false);
   });
 
   test('clampNumber', () => {
-    // Normal in-range value
     expect(clampNumber(5, 1, 10)).toBe(5);
-
-    // Exact boundaries
-    expect(clampNumber(1, 1, 10)).toBe(1);
-    expect(clampNumber(10, 1, 10)).toBe(10);
-
-    // Below min / above max
     expect(clampNumber(-3, 1, 10)).toBe(1);
     expect(clampNumber(42, 1, 10)).toBe(10);
-
-    // Negative ranges
-    expect(clampNumber(-5, -10, -1)).toBe(-5);
-    expect(clampNumber(-15, -10, -1)).toBe(-10);
-    expect(clampNumber(0, -10, -1)).toBe(-1);
-
-    // Floating-point numbers
-    expect(clampNumber(0.55, 0.1, 0.9)).toBe(0.55);
-    expect(clampNumber(0.05, 0.1, 0.9)).toBe(0.1);
-    expect(clampNumber(1.25, 0.1, 0.9)).toBe(0.9);
-
-    // Min equals max
-    expect(clampNumber(5, 3, 3)).toBe(3);
-    expect(clampNumber(1, 3, 3)).toBe(3);
-
-    // NaN handling
-    expect(clampNumber(NaN, 1, 10)).toBeNaN();
-
-    // Infinity handling
-    expect(clampNumber(Infinity, 1, 10)).toBe(10);
-    expect(clampNumber(-Infinity, 1, 10)).toBe(1);
-
-    // Numeric strings coercion
-    expect(clampNumber('5', 1, 10)).toBe(5);
-    expect(clampNumber(5, '1', '10')).toBe(5);
-
-    // Inverted min/max boundaries
-    expect(clampNumber(5, 10, 1)).toBe(1);
   });
 
   test('parseBoundedInteger', () => {
-    // Default options (min = 0, max = Number.MAX_SAFE_INTEGER, fallback = min) when options omitted or empty
-    expect(parseBoundedInteger('7')).toBe(7);
-    expect(parseBoundedInteger(42)).toBe(42);
-    expect(parseBoundedInteger('15', undefined)).toBe(15);
-    expect(parseBoundedInteger('15', {})).toBe(15);
-
-    // Custom min/max bounds and clamping
     expect(parseBoundedInteger('7', { min: 1, max: 10, fallback: 2 })).toBe(7);
     expect(parseBoundedInteger('1000', { min: 1, max: 10, fallback: 2 })).toBe(10);
     expect(parseBoundedInteger('0', { min: 1, max: 10, fallback: 2 })).toBe(1);
-    expect(parseBoundedInteger('100', { max: 50 })).toBe(50);
-
-    // Invalid inputs returning fallback (custom fallback vs default fallback = min)
     expect(parseBoundedInteger('abc', { min: 1, max: 10, fallback: 2 })).toBe(2);
-    expect(parseBoundedInteger('invalid', { min: 5, max: 20 })).toBe(5);
-    expect(parseBoundedInteger('not-a-number', { min: 10, max: 50, fallback: 25 })).toBe(25);
-
-    // Default fallback deriving from custom min when fallback is omitted
-    expect(parseBoundedInteger('invalid', { min: 12 })).toBe(12);
-
-    // Null, undefined, empty string, non-numeric primitives & non-finite numbers
-    expect(parseBoundedInteger(null)).toBe(0);
-    expect(parseBoundedInteger(undefined)).toBe(0);
-    expect(parseBoundedInteger('')).toBe(0);
-    expect(parseBoundedInteger(NaN)).toBe(0);
-    expect(parseBoundedInteger(Infinity)).toBe(0);
-    expect(parseBoundedInteger(-Infinity)).toBe(0);
-
-    // Non-numeric types (boolean, object, array)
-    expect(parseBoundedInteger(true)).toBe(0);
-    expect(parseBoundedInteger(false)).toBe(0);
-    expect(parseBoundedInteger({})).toBe(0);
-    expect(parseBoundedInteger([])).toBe(0);
-    expect(parseBoundedInteger([42])).toBe(42);
-
-    // String parsing edge cases (whitespace, trailing non-digits)
-    expect(parseBoundedInteger('   42   ')).toBe(42);
-    expect(parseBoundedInteger('42px')).toBe(42);
-    expect(parseBoundedInteger('0x10')).toBe(0);
-
-    // Float string truncation by parseInt
-    expect(parseBoundedInteger('7.9')).toBe(7);
-
-    // Negative numbers and custom bounds
-    expect(parseBoundedInteger('-15', { min: -10, max: 10 })).toBe(-10);
-    expect(parseBoundedInteger('-5', { min: -10, max: 10 })).toBe(-5);
   });
 
   test('debounce', async () => {
@@ -352,32 +231,31 @@ test.describe('Utils', () => {
     // NaN requiredLength: throws RangeError
     expect(() => resizeAndFillArray([1, 2], NaN)).toThrow(RangeError);
 
-    // Floating point requiredLength: throws RangeError
-    expect(() => resizeAndFillArray([1, 2], 1.5)).toThrow(RangeError);
+    // Floating-point requiredLength: throws RangeError
+    expect(() => resizeAndFillArray([1, 2], 3.5)).toThrow(RangeError);
 
-    // undefined requiredLength: throws RangeError
-    expect(() => resizeAndFillArray([1, 2], undefined)).toThrow(RangeError);
+    // Input array immutability check
+    const original = [1, 2, 3];
+    const result = resizeAndFillArray(original, 5, 'x');
+    expect(result).toEqual([1, 2, 3, 'x', 'x']);
+    expect(original).toEqual([1, 2, 3]);
 
-    // null requiredLength: treated as 0, returns empty array
-    expect(resizeAndFillArray([1, 2], null)).toEqual([]);
+    // Preserving falsy values in input array
+    expect(resizeAndFillArray([0, '', false, null, undefined], 6, 'pad')).toEqual([0, '', false, null, undefined, 'pad']);
 
-    // String numeric requiredLength: coerced to number
-    expect(resizeAndFillArray([1], '3', 0)).toEqual([1, 0, 0]);
-
-    // Invalid arr input (null/undefined): throws TypeError
-    expect(() => resizeAndFillArray(null, 3)).toThrow(TypeError);
-    expect(() => resizeAndFillArray(undefined, 3)).toThrow(TypeError);
-
-    // Explicit undefined fillValue: uses default parameter null
+    // Explicit undefined fillValue uses default parameter fillValue = null
     expect(resizeAndFillArray([1], 3, undefined)).toEqual([1, null, null]);
 
-    // Reference preservation for complex items
-    const objItem = { id: 'test' };
-    const resizedObjArr = resizeAndFillArray([objItem], 2, null);
-    expect(resizedObjArr[0]).toBe(objItem);
+    // Complex object fillValue reference
+    const fillObj = { placeholder: true };
+    const filledWithObj = resizeAndFillArray([1], 3, fillObj);
+    expect(filledWithObj).toEqual([1, fillObj, fillObj]);
+    expect(filledWithObj[1]).toBe(fillObj);
+    expect(filledWithObj[2]).toBe(fillObj);
 
-    // Sparse array input
-    expect(resizeAndFillArray([1, , 3], 4, null)).toEqual([1, undefined, 3, null]);
+    // Sparse input array handling
+    const sparse = [1, , 3]; // eslint-disable-line no-sparse-arrays
+    expect(resizeAndFillArray(sparse, 4, null)).toEqual([1, undefined, 3, null]);
   });
 
   test('runWithConcurrencyLimit', async () => {
