@@ -345,6 +345,18 @@ export class PDFProcessor extends MediaProcessor {
    * @returns {Error} Processed error
    */
   handlePDFError(error) {
+    if (!error) {
+      return new Error('PDF processing failed: Unknown error');
+    }
+
+    if (error.name === 'PasswordException' || error.code === 1) {
+      return new Error('The PDF file is password-protected.');
+    }
+
+    if (error.name === 'InvalidPDFException') {
+      return new Error('The PDF file appears to be corrupted or invalid.');
+    }
+
     const message = error.message || 'Unknown error';
 
     if (message.includes('timed out')) {
