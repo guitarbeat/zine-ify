@@ -41,24 +41,43 @@ export class AppController {
   }
 
   setupEventListeners() {
+    this._setupLayoutAndGridEvents();
+    this._setupPageManipulationEvents();
+    this._setupActionAndExportEvents();
+    this._setupPaperSettingsEvents();
+    this._setupKeyboardShortcuts();
+  }
+
+  _setupLayoutAndGridEvents() {
     this.ui.on('fileSelected', (file) => this.handleFileSelected(file));
     this.ui.on('gridSizeChanged', (data) => this.handleGridSizeChanged(data));
     this.ui.on('layoutPresetChanged', (data) => this.handleLayoutPresetChanged(data));
     this.ui.on('pageNumbersToggled', () => this.renderCurrentLayout());
+  }
+
+  _setupPageManipulationEvents() {
     this.ui.on('pageFlipped', (i) => this.handlePageFlipped(i));
     this.ui.on('pageCropToggled', (i) => this.handlePageCropToggled(i));
     this.ui.on('pageDuplicated', (i) => this.handlePageDuplicated(i));
     this.ui.on('pageRemoved', (i) => this.handlePageRemoved(i));
     this.ui.on('pagesSwapped', (data) => this.handlePagesSwapped(data));
+  }
+
+  _setupActionAndExportEvents() {
     this.ui.on('print', () => this.handlePrint());
     this.ui.on('export', () => this.handleExport());
     this.ui.on('view3d', () => this.handleView3d());
     this.ui.on('clearAll', () => this.handleClearAll());
     this.ui.on('foldProgress', (value) => this.handleFoldProgress(value));
+  }
+
+  _setupPaperSettingsEvents() {
     this.ui.on('paperSizeChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('orientationChanged', (data) => this.handlePaperSettingsChanged(data));
     this.ui.on('marginChanged', (data) => { this.state.margin = data.margin; this.state.resetWorkflowStatus(); });
+  }
 
+  _setupKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
         e.preventDefault();
