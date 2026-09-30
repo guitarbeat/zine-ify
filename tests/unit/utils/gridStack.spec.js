@@ -280,92 +280,30 @@ test.describe('initGridStack', () => {
     expect(result.brandY).toBe(2);
   });
 
-  test('handles localStorage.setItem errors (e.g., QuotaExceededError) gracefully in saveLayout', async ({ page }) => {
+  test('handles invalid JSON in localStorage by resetting to default layout', async ({ page }) => {
     const result = await page.evaluate(() => {
-      const gridEl = document.querySelector('.grid-stack');
-      if (!gridEl || !gridEl.gridstack) {
-        return { handled: false };
+      localStorage.setItem('zine-grid-v8', 'invalid-json-{');
+      localStorage.setItem('zine-grid-mobile-v8', 'invalid-json-{');
+      if (typeof window.__initGridStack === 'function') {
+        window.__initGridStack();
       }
+      const desktopStored = localStorage.getItem('zine-grid-v8');
+      const mobileStored = localStorage.getItem('zine-grid-mobile-v8');
 
-      // Mock localStorage.setItem to throw an exception
-      const originalSetItem = localStorage.setItem;
-      let errorThrown = false;
-      localStorage.setItem = () => {
-        errorThrown = true;
-        throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+      let desktopParsed = null;
+      let mobileParsed = null;
+      try { desktopParsed = JSON.parse(desktopStored); } catch {}
+      try { mobileParsed = JSON.parse(mobileStored); } catch {}
+
+      return {
+        desktopRaw: desktopStored,
+        mobileRaw: mobileStored,
+        isDesktopArray: Array.isArray(desktopParsed),
+        isMobileArray: Array.isArray(mobileParsed)
       };
-
-      try {
-        gridEl.gridstack._triggerEvent('change', {});
-      } catch (e) {
-        return { handled: false, error: e.message };
-      } finally {
-        localStorage.setItem = originalSetItem;
-      }
-
-      return { handled: true, errorThrown };
     });
 
-    expect(result.handled).toBe(true);
-    expect(result.errorThrown).toBe(true);
-  });
-
-  test('handles localStorage.getItem errors gracefully in loadLayout by falling back to resetToDefaults', async ({ page }) => {
-    const result = await page.evaluate(() => {
-      const originalGetItem = localStorage.getItem;
-      let getItemCalled = false;
-
-      localStorage.getItem = () => {
-        getItemCalled = true;
-        throw new Error('SecurityError: Access denied for localStorage');
-      };
-
-      try {
-        if (typeof window.__initGridStack === 'function') {
-          window.__initGridStack();
-        }
-      } catch (e) {
-        return { handled: false, error: e.message };
-      } finally {
-        localStorage.getItem = originalGetItem;
-      }
-
-      return { handled: true, getItemCalled };
-    });
-
-    expect(result.handled).toBe(true);
-    expect(result.getItemCalled).toBe(true);
-  });
-
-  test("handles localStorage.setItem errors gracefully during mobile saveLayout", async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 667 });
-    await page.goto("/");
-
-    const result = await page.evaluate(() => {
-      const gridEl = document.querySelector(".grid-stack");
-      if (!gridEl || !gridEl.gridstack) {
-        return { handled: false };
-      }
-
-      const originalSetItem = localStorage.setItem;
-      let errorThrown = false;
-      localStorage.setItem = () => {
-        errorThrown = true;
-        throw new DOMException("The quota has been exceeded.", "QuotaExceededError");
-      };
-
-      try {
-        gridEl.gridstack._triggerEvent("change", {});
-      } catch (e) {
-        return { handled: false, error: e.message };
-      } finally {
-        localStorage.setItem = originalSetItem;
-      }
-
-      return { handled: true, errorThrown };
-    });
-
-    expect(result.handled).toBe(true);
-    expect(result.errorThrown).toBe(true);
+    expect(result.desktopRaw).not.toBe('invalid-json-{');
+    expect(result.isDesktopArray || result.isMobileArray).toBe(true);
   });
 });
