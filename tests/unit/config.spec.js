@@ -52,6 +52,7 @@ test.describe('Config Utilities', () => {
             expect(formatDimension(25.4 * 1.5, 'in')).toBe('1.5');
             // 25.4 * 1.555 = 39.497. 1.555 rounding can be 1.56
             expect(formatDimension(39.497, 'in')).toBe('1.56');
+            expect(formatDimension(215.9, 'in')).toBe('8.5');
         });
 
         test('formats in mm with 0 decimals', () => {
@@ -60,8 +61,27 @@ test.describe('Config Utilities', () => {
             expect(formatDimension(10.6, 'mm')).toBe('11');
         });
 
-        test('falls back to mm for unknown unit', () => {
+        test('handles string numeric inputs for mm', () => {
+            expect(formatDimension('25.4', 'in')).toBe('1');
+            expect(formatDimension('10.4', 'mm')).toBe('10');
+        });
+
+        test('returns "0" for non-numeric, NaN, or falsy mm values', () => {
+            expect(formatDimension('abc', 'in')).toBe('0');
+            expect(formatDimension(null, 'in')).toBe('0');
+            expect(formatDimension(undefined, 'mm')).toBe('0');
+            expect(formatDimension(NaN, 'in')).toBe('0');
+        });
+
+        test('handles negative dimension values', () => {
+            expect(formatDimension(-25.4, 'in')).toBe('-1');
+            expect(formatDimension(-10.6, 'mm')).toBe('-11');
+        });
+
+        test('defaults to mm unit when unit is undefined or unknown', () => {
             expect(formatDimension(10.5, 'unknown')).toBe('11');
+            expect(formatDimension(10.5, undefined)).toBe('11');
+            expect(formatDimension(10.5)).toBe('11');
         });
     });
 
