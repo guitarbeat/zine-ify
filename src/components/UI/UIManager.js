@@ -440,6 +440,14 @@ export class UIManager {
   }
 
   setupEventListeners() {
+    this._setupPaperAndGridListeners();
+    this._setupActionListeners();
+    this._setupUploadListeners();
+    this._setupRailAndFoldListeners();
+    this._setupWindowListeners();
+  }
+
+  _setupPaperAndGridListeners() {
     if (!this.smartSheetConfig) {
       this.elements.paperSizeSelect?.addEventListener('change', (event) => {
         this.emitter.emit('paperSizeChanged', { paperSize: event.target.value });
@@ -486,8 +494,28 @@ export class UIManager {
           target.dispatchEvent(new Event('change', { bubbles: true }));
         });
       });
-    }
 
+      let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
+      const debouncedGridChange = debounce(() => {
+        const { rows, cols } = this.normalizeGridInputs();
+
+        this.updateGridTotalBadge(rows, cols);
+        this._syncOrientationVisibility(rows, cols);
+
+        // Only emit gridSizeChanged when grid dimensions actually changed
+        if (lastGridState.rows !== rows || lastGridState.cols !== cols) {
+          lastGridState = { rows, cols };
+          this.emitter.emit('gridSizeChanged', { rows, cols });
+        }
+
+      }, 300);
+
+      this.elements.gridRows?.addEventListener('input', debouncedGridChange);
+      this.elements.gridCols?.addEventListener('input', debouncedGridChange);
+    }
+  }
+
+  _setupActionListeners() {
     this.elements.pageNumbersCheckbox?.addEventListener('change', (event) => {
       this.pageNumbersVisible = event.target.checked;
       this.emitter.emit('pageNumbersToggled', this.pageNumbersVisible);
@@ -503,16 +531,29 @@ export class UIManager {
     this.elements.headerPreviewBtn?.addEventListener('click', () => this.emitter.emit('view3d'));
     this.elements.clearAllBtn?.addEventListener('click', () => this.emitter.emit('clearAll'));
     this.elements.themeToggleBtn?.addEventListener('click', () => this.toggleTheme());
+  }
 
-  this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
-  this.elements.browseFilesBtn?.addEventListener('click', () => this.triggerFileUpload());
-  this.elements.uploadZone?.addEventListener('keydown', (event) => {
+  _setupUploadListeners() {
+    this.elements.uploadZone?.addEventListener('click', () => this.triggerFileUpload());
+    this.elements.browseFilesBtn?.addEventListener('click', () => this.triggerFileUpload());
+    this.elements.uploadZone?.addEventListener('keydown', (event) => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         this.triggerFileUpload();
       }
     });
 
+    this.dnd.setupEventListeners();
+    this.emitter.on('filesDropped', (files) => this.handleIncomingFiles(files));
+
+    this.elements.pdfUpload?.addEventListener('change', (event) => {
+      const files = Array.from(event.target.files || []);
+      this.handleIncomingFiles(files);
+      event.target.value = '';
+    });
+  }
+
+  _setupRailAndFoldListeners() {
     this.elements.openRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(true));
     this.elements.closeRailSheetBtn?.addEventListener('click', () => this.toggleMobileRail(false));
     this.elements.mobileRailOverlay?.addEventListener('click', () => this.toggleMobileRail(false));
@@ -549,39 +590,11 @@ export class UIManager {
       event.preventDefault();
       stepButton.click();
     });
-
-    this.dnd.setupEventListeners();
-    this.emitter.on('filesDropped', (files) => this.handleIncomingFiles(files));
-
-    this.elements.pdfUpload?.addEventListener('change', (event) => {
-      const files = Array.from(event.target.files || []);
-      this.handleIncomingFiles(files);
-      event.target.value = '';
-    });
-
-    if (!this.smartSheetConfig) {
-      let lastGridState = { rows: DEFAULT_GRID_ROWS, cols: DEFAULT_GRID_COLS };
-      const debouncedGridChange = debounce(() => {
-        const { rows, cols } = this.normalizeGridInputs();
-
-        this.updateGridTotalBadge(rows, cols);
-        this._syncOrientationVisibility(rows, cols);
-
-        // Only emit gridSizeChanged when grid dimensions actually changed
-        if (lastGridState.rows !== rows || lastGridState.cols !== cols) {
-          lastGridState = { rows, cols };
-          this.emitter.emit('gridSizeChanged', { rows, cols });
-        }
-
-      }, 300);
-
-      this.elements.gridRows?.addEventListener('input', debouncedGridChange);
-      this.elements.gridCols?.addEventListener('input', debouncedGridChange);
-    }
-
-    window.addEventListener('resize', () => this.syncResponsiveUI());
   }
 
+  _setupWindowListeners() {
+    window.addEventListener('resize', () => this.syncResponsiveUI());
+  }
   toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
