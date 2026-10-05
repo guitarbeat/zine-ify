@@ -708,6 +708,53 @@ export class AppController {
     }
   }
 
+  async initViewer3d(container) {
+    // Add a loading spinner while the heavy 3D viewer is being fetched
+    const spinner = document.createElement('div');
+    spinner.className = 'zine-3d-spinner';
+    const spinnerIcon = document.createElement('div');
+    spinnerIcon.className = 'spinner';
+    const spinnerText = document.createElement('p');
+    spinnerText.textContent = 'Loading 3D Viewer...';
+    spinner.appendChild(spinnerIcon);
+    spinner.appendChild(spinnerText);
+    spinner.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;';
+    if (spinnerIcon) {
+      spinnerIcon.style.cssText = 'border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px;';
+    }
+
+    if (!document.getElementById('spin-keyframe')) {
+      const style = document.createElement('style');
+      style.id = 'spin-keyframe';
+      style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+      document.head.appendChild(style);
+    }
+
+    container.style.position = 'relative';
+    container.appendChild(spinner);
+
+    const Zine3DViewer = await this.getZine3DViewerClass();
+
+    // Remove spinner when ready
+    if (container.contains(spinner)) {
+      container.removeChild(spinner);
+    }
+
+    try {
+      this.viewer3d = new Zine3DViewer(container);
+      return true;
+    } catch {
+      const fallback = container.querySelector('.zine-3d-fallback-canvas');
+      if (fallback) {
+        fallback.remove();
+      }
+      this.viewer3d = null;
+      this.ui.toggle3DModal(false);
+      toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
+      return false;
+    }
+  }
+
   async handleView3d() {
     if (!this.state.getFilledPageCount()) {
       toast.warning('No pages yet', 'Add pages to preview the fold');
@@ -770,47 +817,8 @@ export class AppController {
       if (!this.viewer3d) {
         const container = this.ui.elements.zine3dContainer;
         if (container) {
-          // Add a loading spinner while the heavy 3D viewer is being fetched
-          const spinner = document.createElement('div');
-          spinner.className = 'zine-3d-spinner';
-          const spinnerIcon = document.createElement('div');
-          spinnerIcon.className = 'spinner';
-          const spinnerText = document.createElement('p');
-          spinnerText.textContent = 'Loading 3D Viewer...';
-          spinner.appendChild(spinnerIcon);
-          spinner.appendChild(spinnerText);
-          spinner.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;';
-          if (spinnerIcon) {
-             spinnerIcon.style.cssText = 'border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: #000; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 10px;';
-          }
-
-          if (!document.getElementById('spin-keyframe')) {
-             const style = document.createElement('style');
-             style.id = 'spin-keyframe';
-             style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
-             document.head.appendChild(style);
-          }
-
-          container.style.position = 'relative';
-          container.appendChild(spinner);
-
-          const Zine3DViewer = await this.getZine3DViewerClass();
-
-          // Remove spinner when ready
-          if (container.contains(spinner)) {
-            container.removeChild(spinner);
-          }
-
-          try {
-            this.viewer3d = new Zine3DViewer(container);
-          } catch {
-            const fallback = container.querySelector('.zine-3d-fallback-canvas');
-            if (fallback) {
-              fallback.remove();
-            }
-            this.viewer3d = null;
-            this.ui.toggle3DModal(false);
-            toast.error('3D Preview Failed', 'Unable to initialize the fold preview.');
+          const initialized = await this.initViewer3d(container);
+          if (!initialized) {
             return;
           }
         }
