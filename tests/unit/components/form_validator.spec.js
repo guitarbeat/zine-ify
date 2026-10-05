@@ -676,6 +676,20 @@ test.describe('FormValidator Component', () => {
 
     expect(scrollCalled).toBe(true);
   });
+
+  test('caches parsed validation rules across fields with identical data-validate attributes', () => {
+    form.innerHTML = `
+      <input type="text" id="field1" name="field1" data-validate="required, minLength:5" />
+      <input type="text" id="field2" name="field2" data-validate="required, minLength:5" />
+    `;
+    const validator = new FormValidator(form);
+    const config1 = validator.fieldConfigs.get('field1');
+    const config2 = validator.fieldConfigs.get('field2');
+
+    expect(config1.rules).toEqual(['required', { minLength: 5 }]);
+    expect(config2.rules).toEqual(['required', { minLength: 5 }]);
+    expect(FormValidator._parsedRuleCache.has('required, minLength:5')).toBe(true);
+  });
 });
 
 test.describe('FieldValidator Component', () => {
