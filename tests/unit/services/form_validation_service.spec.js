@@ -4,6 +4,7 @@ const require = createRequire(import.meta.url);
 
 test.describe('FormValidationService Tests', () => {
   let initSettingsValidation;
+  let clampFieldValue;
   let GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX;
 
   test.beforeEach(async () => {
@@ -15,6 +16,7 @@ test.describe('FormValidationService Tests', () => {
 
     const FormValidationService = await import('../../../src/services/FormValidationService.js');
     initSettingsValidation = FormValidationService.initSettingsValidation;
+    clampFieldValue = FormValidationService.clampFieldValue;
 
     const config = await import('../../../src/utils/config.js');
     GRID_DIMENSION_MAX = config.GRID_DIMENSION_MAX;
@@ -41,6 +43,70 @@ test.describe('FormValidationService Tests', () => {
     delete global.window;
     delete global.document;
     delete global.HTMLElement;
+  });
+
+  test.describe('clampFieldValue', () => {
+    test('clamps values below minimum to min', () => {
+      const field = { value: '0' };
+      clampFieldValue(field, 1, 10);
+      expect(field.value).toBe(1);
+
+      const fieldNegative = { value: '-5' };
+      clampFieldValue(fieldNegative, 1, 10);
+      expect(fieldNegative.value).toBe(1);
+    });
+
+    test('clamps values above maximum to max', () => {
+      const field = { value: '15' };
+      clampFieldValue(field, 1, 10);
+      expect(field.value).toBe(10);
+    });
+
+    test('leaves valid values within range intact', () => {
+      const field = { value: '5' };
+      clampFieldValue(field, 1, 10);
+      expect(field.value).toBe('5');
+    });
+
+    test('leaves boundary values intact', () => {
+      const fieldMin = { value: '1' };
+      clampFieldValue(fieldMin, 1, 10);
+      expect(fieldMin.value).toBe('1');
+
+      const fieldMax = { value: '10' };
+      clampFieldValue(fieldMax, 1, 10);
+      expect(fieldMax.value).toBe('10');
+    });
+
+    test('clamps non-numeric, empty, or NaN values to min', () => {
+      const fieldInvalid = { value: 'abc' };
+      clampFieldValue(fieldInvalid, 1, 10);
+      expect(fieldInvalid.value).toBe(1);
+
+      const fieldEmpty = { value: '' };
+      clampFieldValue(fieldEmpty, 1, 10);
+      expect(fieldEmpty.value).toBe(1);
+    });
+
+    test('works with DOM HTMLInputElement instances', () => {
+      const input = document.createElement('input');
+
+      input.value = '100';
+      clampFieldValue(input, 1, 10);
+      expect(input.value).toBe('10');
+
+      input.value = '-10';
+      clampFieldValue(input, 1, 10);
+      expect(input.value).toBe('1');
+
+      input.value = 'invalid';
+      clampFieldValue(input, 1, 10);
+      expect(input.value).toBe('1');
+
+      input.value = '7';
+      clampFieldValue(input, 1, 10);
+      expect(input.value).toBe('7');
+    });
   });
 
   test.describe('initSettingsValidation', () => {
