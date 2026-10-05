@@ -419,6 +419,10 @@ export class FormValidator {
    * Discover existing fields with validation attributes
    */
   _discoverFields() {
+    if (!FormValidator._parsedRuleCache) {
+      FormValidator._parsedRuleCache = new Map();
+    }
+
     const fields = this.form.querySelectorAll('[data-validate]');
     fields.forEach(field => {
       const rules = [];
@@ -426,20 +430,28 @@ export class FormValidator {
       // Parse validation rules from data attribute
       const rulesConfig = field.dataset.validate;
       if (rulesConfig) {
-        rulesConfig.split(',').map(r => r.trim()).forEach(rule => {
-          // Handle parameterized rules like minLength:8
-          const [ruleName, param] = rule.split(':');
-          if (param) {
-            const numParam = parseFloat(param);
-            const ruleFactory = {
-              minLength: () => ({ minLength: parseInt(param) }),
-              maxLength: () => ({ maxLength: parseInt(param) }),
-              min: () => ({ min: numParam }),
-              max: () => ({ max: numParam })
-            }[ruleName];
-            if (ruleFactory) {
-              rules.push(ruleFactory());
+        let cachedRules = FormValidator._parsedRuleCache.get(rulesConfig);
+        if (!cachedRules) {
+          cachedRules = [];
+          rulesConfig.split(',').forEach(r => {
+            const rule = r.trim();
+            if (!rule) {return;}
+            const [ruleName, param] = rule.split(':');
+            if (param) {
+              const numParam = parseFloat(param);
+              let ruleObj = null;
+              if (ruleName === 'minLength') {ruleObj = { minLength: parseInt(param, 10) };} else if (ruleName === 'maxLength') {ruleObj = { maxLength: parseInt(param, 10) };} else if (ruleName === 'min') {ruleObj = { min: numParam };} else if (ruleName === 'max') {ruleObj = { max: numParam };}
+              if (ruleObj) {cachedRules.push(ruleObj);}
+            } else {
+              cachedRules.push(rule);
             }
+          });
+          FormValidator._parsedRuleCache.set(rulesConfig, cachedRules);
+        }
+
+        cachedRules.forEach(rule => {
+          if (typeof rule === 'object' && rule !== null) {
+            rules.push({ ...rule });
           } else {
             rules.push(rule);
           }
