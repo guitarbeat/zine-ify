@@ -283,7 +283,7 @@ export class Zine3DViewer {
     });
     context.restore();
 
-    const loadedPages = this.fallbackPages.filter((page) => page?.previewUrl || page?.sourceUrl).length;
+    const loadedPages = this.fallbackPages.reduce((count, page) => (page?.previewUrl || page?.sourceUrl ? count + 1 : count), 0);
     context.fillStyle = 'rgba(255,253,248,0.86)';
     context.font = `700 ${Math.max(12, width * 0.026)}px Inter, sans-serif`;
     context.textAlign = 'left';
