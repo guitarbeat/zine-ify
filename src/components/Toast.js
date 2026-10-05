@@ -144,7 +144,10 @@ class Toast {
   _animateIn(toast) {
     requestAnimationFrame(() => {
       toast.classList.add('toast-visible');
-      const rotation = Math.random() * 4 - 2;
+      const randomArray = new Uint32Array(1);
+      crypto.getRandomValues(randomArray);
+      const randomValue = randomArray[0] / 4294967296;
+      const rotation = randomValue * 4 - 2;
       toast.style.transform = `translateX(0) rotate(${rotation}deg)`;
     });
   }
