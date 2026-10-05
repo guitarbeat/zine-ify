@@ -129,11 +129,16 @@ function relayoutPanels({ fitContent = false } = {}) {
   isRelayouting = true;
 
   if (fitContent) {
-    grid.getGridItems().forEach((el) => {
-      if (el.querySelector('.grid-stack-item-content')?.firstElementChild) {
+    const items = grid.getGridItems();
+    for (let i = 0; i < items.length; i++) {
+      const el = items[i];
+      const content = (el.firstElementChild?.classList.contains('grid-stack-item-content'))
+        ? el.firstElementChild
+        : el.querySelector('.grid-stack-item-content');
+      if (content?.firstElementChild) {
         grid.resizeToContent(el);
       }
-    });
+    }
   }
 
   compactLayout();
