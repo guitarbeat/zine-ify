@@ -374,4 +374,54 @@ test.describe('ExportService', () => {
 
     });
   });
+
+  test.describe('_loadImage image caching', () => {
+    test('returns cached promise on subsequent calls for the same URL', async () => {
+      let instancesCreated = 0;
+      global.Image = class MockImage {
+        constructor() {
+          instancesCreated++;
+          this.onload = null;
+          this.onerror = null;
+          this._src = '';
+        }
+        set src(v) {
+          this._src = v;
+          setTimeout(() => { if (this.onload) { this.onload(); } }, 10);
+        }
+        get src() { return this._src; }
+      };
+
+      const url = 'data:image/png;base64,test1';
+      const promise1 = exportService._loadImage(url);
+      const promise2 = exportService._loadImage(url);
+
+      expect(promise1).toBe(promise2);
+      expect(instancesCreated).toBe(1);
+
+      const [img1, img2] = await Promise.all([promise1, promise2]);
+      expect(img1).toBe(img2);
+    });
+
+    test('removes URL from cache if image loading fails', async () => {
+      global.Image = class MockImage {
+        constructor() {
+          this.onload = null;
+          this.onerror = null;
+          this._src = '';
+        }
+        set src(v) {
+          this._src = v;
+          setTimeout(() => { if (this.onerror) { this.onerror(new Error('Load error')); } }, 10);
+        }
+        get src() { return this._src; }
+      };
+
+      const url = 'data:image/png;base64,invalid';
+      const promise1 = exportService._loadImage(url);
+      await expect(promise1).rejects.toThrow();
+
+      expect(exportService._imageCache.has(url)).toBe(false);
+    });
+  });
 });

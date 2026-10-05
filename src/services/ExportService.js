@@ -7,6 +7,7 @@ export class ExportService {
   constructor(ui, state) {
     this.ui = ui;
     this.state = state;
+    this._imageCache = new Map();
   }
 
   async handleExport() {
@@ -136,12 +137,20 @@ export class ExportService {
   }
 
   _loadImage(url) {
-    return new Promise((resolve, reject) => {
+    if (this._imageCache.has(url)) {
+      return this._imageCache.get(url);
+    }
+    const imagePromise = new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => resolve(img);
-      img.onerror = reject;
+      img.onerror = (err) => {
+        this._imageCache.delete(url);
+        reject(err);
+      };
       img.src = url;
     });
+    this._imageCache.set(url, imagePromise);
+    return imagePromise;
   }
 
   _drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit) {
