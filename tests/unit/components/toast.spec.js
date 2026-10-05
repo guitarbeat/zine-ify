@@ -322,15 +322,18 @@ test.describe('Toast Component', () => {
   test('should apply random rotation transform between -2 and 2 degrees on animateIn', async () => {
     const { toast } = toastModule;
 
-    const originalRandom = Math.random;
+    const originalGetRandomValues = crypto.getRandomValues;
     try {
-      Math.random = () => 0.75; // rotation = 0.75 * 4 - 2 = 1 deg
+      crypto.getRandomValues = (array) => {
+        array[0] = Math.floor(0.75 * 4294967296);
+        return array;
+      }; // rotation = 0.75 * 4 - 2 = 1 deg
       const toastElement = toast.show('info', 'Rotation Test');
 
       await new Promise(resolve => setTimeout(resolve, 10));
       expect(toastElement.style.transform).toContain('rotate(1deg)');
     } finally {
-      Math.random = originalRandom;
+      crypto.getRandomValues = originalGetRandomValues;
     }
   });
 
