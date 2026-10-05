@@ -3,7 +3,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 test.describe('FormValidationService Tests', () => {
-  let initSettingsValidation;
+  let initSettingsValidation, updateGridTotal;
   let GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX;
 
   test.beforeEach(async () => {
@@ -15,6 +15,7 @@ test.describe('FormValidationService Tests', () => {
 
     const FormValidationService = await import('../../../src/services/FormValidationService.js');
     initSettingsValidation = FormValidationService.initSettingsValidation;
+    updateGridTotal = FormValidationService.updateGridTotal;
 
     const config = await import('../../../src/utils/config.js');
     GRID_DIMENSION_MAX = config.GRID_DIMENSION_MAX;
@@ -118,6 +119,39 @@ test.describe('FormValidationService Tests', () => {
       marginConfig.onValidationChange({ isValid: false }, marginInput);
 
       expect(marginInput.value).toBe(MARGIN_MAX.toString());
+    });
+  });
+
+  test.describe('updateGridTotal', () => {
+    test('calls uiManager.updateGridTotalBadge when uiManager is provided', () => {
+      let calledRows = 0;
+      let calledCols = 0;
+      const mockUiManager = {
+        updateGridTotalBadge: (rows, cols) => {
+          calledRows = rows;
+          calledCols = cols;
+        }
+      };
+
+      updateGridTotal(3, 4, mockUiManager);
+      expect(calledRows).toBe(3);
+      expect(calledCols).toBe(4);
+    });
+
+    test('updates gridTotalEl textContent when gridTotalEl is provided and uiManager is null', () => {
+      const el = document.createElement('div');
+      updateGridTotal('2', '5', null, el);
+      expect(el.textContent).toBe('10 slots');
+    });
+
+    test('defaults invalid numeric row/col inputs to 1', () => {
+      const el = document.createElement('div');
+      updateGridTotal('invalid', null, null, el);
+      expect(el.textContent).toBe('1 slots');
+    });
+
+    test('handles missing uiManager and gridTotalEl safely without throwing', () => {
+      expect(() => updateGridTotal(3, 3)).not.toThrow();
     });
   });
 });

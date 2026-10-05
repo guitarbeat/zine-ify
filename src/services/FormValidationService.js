@@ -29,7 +29,7 @@ function clampFieldValue(field, min, max) {
  * @param {Object} [uiManager=null] - UIManager instance
  * @param {HTMLElement|null} gridTotalEl - Element showing grid total text
  */
-function updateGridTotal(rowsVal, colsVal, uiManager = null, gridTotalEl = null) {
+export function updateGridTotal(rowsVal, colsVal, uiManager = null, gridTotalEl = null) {
   const rows = parseInt(rowsVal, 10) || 1;
   const cols = parseInt(colsVal, 10) || 1;
   if (uiManager && typeof uiManager.updateGridTotalBadge === 'function') {
