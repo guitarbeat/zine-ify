@@ -13,7 +13,7 @@ import { GRID_DIMENSION_MAX, GRID_DIMENSION_MIN, MARGIN_MAX, MARGIN_MIN } from '
  * @param {number} min - Minimum allowed value
  * @param {number} max - Maximum allowed value
  */
-export function clampFieldValue(field, min, max) {
+function clampFieldValue(field, min, max) {
   const value = parseInt(field.value, 10);
   if (isNaN(value) || value < min) {
     field.value = min;
@@ -29,7 +29,7 @@ export function clampFieldValue(field, min, max) {
  * @param {Object} [uiManager=null] - UIManager instance
  * @param {HTMLElement|null} gridTotalEl - Element showing grid total text
  */
-function updateGridTotal(rowsVal, colsVal, uiManager = null, gridTotalEl = null) {
+export function updateGridTotal(rowsVal, colsVal, uiManager = null, gridTotalEl = null) {
   const rows = parseInt(rowsVal, 10) || 1;
   const cols = parseInt(colsVal, 10) || 1;
   if (uiManager && typeof uiManager.updateGridTotalBadge === 'function') {
