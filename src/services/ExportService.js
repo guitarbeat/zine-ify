@@ -30,77 +30,16 @@ export class ExportService {
       format: [dims.width, dims.height]
     });
 
-    const marginMm = this.state.margin || 0;
-    const marginPx = Math.round(marginMm * MM_TO_PX_300DPI);
-    const canvasW = Math.round(dims.width * MM_TO_PX_300DPI);
-    const canvasH = Math.round(dims.height * MM_TO_PX_300DPI);
-    const drawW = canvasW - 2 * marginPx;
-    const drawH = canvasH - 2 * marginPx;
-    const cellW = drawW / cols;
-    const cellH = drawH / rows;
-
-
-    const uniqueUrls = [...new Set(filledSlots)];
-    const imageCache = new Map();
-    await Promise.all(
-      uniqueUrls.map(url =>
-        this._loadImage(url).then(img => {
-          imageCache.set(url, img);
-        })
-      )
-    );
+    const metrics = this._calculatePdfGridMetrics(dims, rows, cols);
+    const imageCache = await this._preloadImages(filledSlots);
 
     const offscreen = document.createElement('canvas');
-    offscreen.width = canvasW;
-    offscreen.height = canvasH;
+    offscreen.width = metrics.canvasW;
+    offscreen.height = metrics.canvasH;
     const ctx = offscreen.getContext('2d');
 
     for (let sheetIndex = 0; sheetIndex < sheetCount; sheetIndex++) {
-      ctx.clearRect(0, 0, canvasW, canvasH);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvasW, canvasH);
-
-      const draws = [];
-
-      for (let slot = 0; slot < slotsPerSheet; slot++) {
-        const rawSlot = template?.layout ? template.layout[slot] : null;
-        let pageNum, upsideDown;
-
-        if (typeof rawSlot === 'number') {
-          pageNum = rawSlot;
-          upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
-        } else if (rawSlot && typeof rawSlot === 'object') {
-          pageNum = rawSlot.page;
-          upsideDown = !!rawSlot.upsideDown;
-        } else {
-          pageNum = slot + 1;
-          upsideDown = false;
-        }
-
-        const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
-        const url = this.state.allPageImages[pageIndex];
-        if (!url) {continue;}
-
-        const isFlipped = !!this.state.pageFlips[pageIndex];
-        const isZoomed = !!this.state.pageZooms[pageIndex];
-        const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
-        const scale = isZoomed ? 1.1 : 1;
-        const objectFit = isZoomed ? 'cover' : 'contain';
-
-        const row = Math.floor(slot / cols);
-        const col = slot % cols;
-        const cellX = marginPx + col * cellW;
-        const cellY = marginPx + row * cellH;
-
-        draws.push({ url, cellX, cellY, rotateDeg, scale, objectFit });
-      }
-
-      for (const { url, cellX, cellY, rotateDeg, scale, objectFit } of draws) {
-        const img = imageCache.get(url);
-        if (img) {
-          this._drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit);
-        }
-      }
+      this._renderSheetToCanvas(ctx, sheetIndex, slotsPerSheet, template, rows, cols, metrics, imageCache);
 
       const imgData = offscreen.toDataURL('image/jpeg', 0.92);
       if (sheetIndex > 0) {
@@ -110,6 +49,90 @@ export class ExportService {
     }
 
     doc.save('zine.pdf');
+  }
+
+  _calculatePdfGridMetrics(dims, rows, cols) {
+    const marginMm = this.state.margin || 0;
+    const marginPx = Math.round(marginMm * MM_TO_PX_300DPI);
+    const canvasW = Math.round(dims.width * MM_TO_PX_300DPI);
+    const canvasH = Math.round(dims.height * MM_TO_PX_300DPI);
+    const drawW = canvasW - 2 * marginPx;
+    const drawH = canvasH - 2 * marginPx;
+    const cellW = drawW / cols;
+    const cellH = drawH / rows;
+
+    return { marginPx, canvasW, canvasH, cellW, cellH };
+  }
+
+  async _preloadImages(filledSlots) {
+    const uniqueUrls = [...new Set(filledSlots)];
+    const imageCache = new Map();
+    await Promise.all(
+      uniqueUrls.map(url =>
+        this._loadImage(url).then(img => {
+          imageCache.set(url, img);
+        })
+      )
+    );
+    return imageCache;
+  }
+
+  _getSlotInfo(template, slot) {
+    const rawSlot = template?.layout ? template.layout[slot] : null;
+    let pageNum, upsideDown;
+
+    if (typeof rawSlot === 'number') {
+      pageNum = rawSlot;
+      upsideDown = template.upsideDownPages?.includes(rawSlot) ?? false;
+    } else if (rawSlot && typeof rawSlot === 'object') {
+      pageNum = rawSlot.page;
+      upsideDown = !!rawSlot.upsideDown;
+    } else {
+      pageNum = slot + 1;
+      upsideDown = false;
+    }
+
+    return { pageNum, upsideDown };
+  }
+
+  _renderSheetToCanvas(ctx, sheetIndex, slotsPerSheet, template, rows, cols, metrics, imageCache) {
+    const { canvasW, canvasH, marginPx, cellW, cellH } = metrics;
+
+    ctx.clearRect(0, 0, canvasW, canvasH);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvasW, canvasH);
+
+    const draws = [];
+
+    for (let slot = 0; slot < slotsPerSheet; slot++) {
+      const { pageNum, upsideDown } = this._getSlotInfo(template, slot);
+
+      const pageIndex = (sheetIndex * slotsPerSheet) + (pageNum - 1);
+      const url = this.state.allPageImages[pageIndex];
+      if (!url) {
+        continue;
+      }
+
+      const isFlipped = !!this.state.pageFlips[pageIndex];
+      const isZoomed = !!this.state.pageZooms[pageIndex];
+      const rotateDeg = (upsideDown !== isFlipped) ? 180 : 0;
+      const scale = isZoomed ? 1.1 : 1;
+      const objectFit = isZoomed ? 'cover' : 'contain';
+
+      const row = Math.floor(slot / cols);
+      const col = slot % cols;
+      const cellX = marginPx + col * cellW;
+      const cellY = marginPx + row * cellH;
+
+      draws.push({ url, cellX, cellY, rotateDeg, scale, objectFit });
+    }
+
+    for (const { url, cellX, cellY, rotateDeg, scale, objectFit } of draws) {
+      const img = imageCache.get(url);
+      if (img) {
+        this._drawCell(ctx, img, cellX, cellY, cellW, cellH, rotateDeg, scale, objectFit);
+      }
+    }
   }
 
   _loadImage(url) {
